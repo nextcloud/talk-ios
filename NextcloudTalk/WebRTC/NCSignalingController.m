@@ -15,12 +15,17 @@
 {
     NCRoom *_room;
     BOOL _shouldStopPullingMessages;
+    NSInteger _consecutivePullFailures;
+    NSInteger _consecutiveSessionGoneFailures;
     SignalingSettings *_signalingSettings;
     NSURLSessionTask *_getSignalingSettingsTask;
     NSURLSessionTask *_pullSignalingMessagesTask;
 }
 
 @end
+
+// About 45s of retrying with the backoff below
+static NSInteger const kMaxConsecutiveSessionGoneFailures = 5;
 
 @implementation NCSignalingController
 
@@ -92,6 +97,8 @@
     [NCLog log:[NSString stringWithFormat:@"Start pulling internal signaling messages for token %@", _room.token]];
 
     _shouldStopPullingMessages = NO;
+    _consecutivePullFailures = 0;
+    _consecutiveSessionGoneFailures = 0;
     [self pullSignalingMessages];
 }
 
@@ -107,6 +114,47 @@
         if (self->_shouldStopPullingMessages) {
             return;
         }
+
+        if (error) {
+            self->_consecutivePullFailures += 1;
+
+            // A 404 means our session is gone server side, which polling cannot recover from
+            if (error.responseStatusCode == 404) {
+                self->_consecutiveSessionGoneFailures += 1;
+
+                if (self->_consecutiveSessionGoneFailures >= kMaxConsecutiveSessionGoneFailures) {
+                    [NCLog log:[NSString stringWithFormat:@"Internal signaling has no session for token %@ anymore, ending the call", self->_room.token]];
+
+                    self->_shouldStopPullingMessages = YES;
+
+                    if ([self.observer respondsToSelector:@selector(signalingControllerSessionExpired:)]) {
+                        [self.observer signalingControllerSessionExpired:self];
+                    }
+
+                    return;
+                }
+            } else {
+                self->_consecutiveSessionGoneFailures = 0;
+            }
+
+            // The request is only re-armed from here, so retrying immediately would busy loop
+            NSTimeInterval delay = MIN(pow(2, MIN(self->_consecutivePullFailures, 4)), 16);
+
+            [NCLog log:[NSString stringWithFormat:@"Could not pull internal signaling messages (failure %ld, status %ld), retrying in %.0fs", (long)self->_consecutivePullFailures, (long)error.responseStatusCode, delay]];
+
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                if (self->_shouldStopPullingMessages) {
+                    return;
+                }
+
+                [self pullSignalingMessages];
+            });
+
+            return;
+        }
+
+        self->_consecutivePullFailures = 0;
+        self->_consecutiveSessionGoneFailures = 0;
 
         for (NSDictionary *message in messages) {
             if ([self.observer respondsToSelector:@selector(signalingController:didReceiveSignalingMessage:)]) {

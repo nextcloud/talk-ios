@@ -15,6 +15,11 @@
 
 - (void)signalingController:(NCSignalingController *)signalingController didReceiveSignalingMessage:(NSDictionary *)message;
 
+@optional
+
+// The server no longer knows our session in this room, which polling cannot recover from
+- (void)signalingControllerSessionExpired:(NCSignalingController *)signalingController;
+
 @end
 
 typedef void (^SignalingSettingsUpdatedCompletionBlock)(SignalingSettings *signalingSettings);
