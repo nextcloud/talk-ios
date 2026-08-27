@@ -17,6 +17,8 @@ import UIKit
     /// Spacing between two reactions
     private static let itemSpacing: CGFloat = 8
 
+    private let feedbackGenerator = UIImpactFeedbackGenerator(style: .light)
+
     /// Tracks the touch start time to differentiate quick taps from long presses
     private var touchBeganTime: Date?
 
@@ -45,6 +47,7 @@ import UIKit
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         touchBeganTime = Date()
+        feedbackGenerator.prepare()
         super.touchesBegan(touches, with: event)
     }
 
@@ -162,6 +165,7 @@ import UIKit
         }
 
         if indexPath.row < reactions.count {
+            self.feedbackGenerator.impactOccurred()
             self.reactionsDelegate?.didSelectReaction(reaction: reactions[indexPath.row])
         }
     }
