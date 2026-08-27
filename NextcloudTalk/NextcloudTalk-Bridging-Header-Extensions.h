@@ -25,11 +25,8 @@
 #import "NCKeyChainController.h"
 #import "CCCertificate.h"
 
-#import "ShareConfirmationCollectionViewCell.h"
-#import "ShareItem.h"
 #import "ShareItemController.h"
 
-#import "NCUserDefaults.h"
 #import "NCIntentController.h"
 #import "NCTypes.h"
 
