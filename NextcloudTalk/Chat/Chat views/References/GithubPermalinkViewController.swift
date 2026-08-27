@@ -25,6 +25,7 @@ import SwiftyAttributes
     private var repo = ""
     private var filePath = ""
     private var lineNumberWidth: CGFloat = 0
+    private var codeBlock: String?
 
     init(url: String,
          sourceWithLineNumbers: NSAttributedString,
@@ -45,6 +46,17 @@ import SwiftyAttributes
         self.lineNumberWidth = lineNumberWidth
     }
 
+    // A code block of a chat message, shown without line numbers and without any repository details
+    init(codeBlock: String) {
+        super.init(nibName: "GithubPermalinkViewController", bundle: nil)
+
+        self.codeBlock = codeBlock
+        self.sourceWithoutLineNumbers = NSAttributedString(string: codeBlock, attributes: [
+            .font: UIFont.monospacedPreferredFont(forTextStyle: .body),
+            .foregroundColor: UIColor.label
+        ])
+    }
+
     required init?(coder: NSCoder) {
         super.init(coder: coder)
     }
@@ -58,15 +70,19 @@ import SwiftyAttributes
 
         NCAppBranding.styleViewController(self)
 
-        self.navigationItem.title = NSLocalizedString("Source code", comment: "")
+        self.navigationItem.title = NSLocalizedString("Source code", comment: "Title of a view showing the source code of a file or a code block")
 
         self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(self.cancelButtonPressed))
         if #unavailable(iOS 26.0) {
             self.navigationItem.leftBarButtonItem?.tintColor = NCAppBranding.themeTextColor()
         }
 
-        let githubButton = UIBarButtonItem(image: UIImage(named: "github")?.withRenderingMode(.alwaysTemplate), style: .plain, target: self, action: #selector(githubButtonPressed))
-        self.navigationItem.rightBarButtonItem = githubButton
+        if self.codeBlock != nil {
+            self.navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "doc.on.doc"), style: .plain, target: self, action: #selector(copyButtonPressed))
+        } else {
+            let githubButton = UIBarButtonItem(image: UIImage(named: "github")?.withRenderingMode(.alwaysTemplate), style: .plain, target: self, action: #selector(githubButtonPressed))
+            self.navigationItem.rightBarButtonItem = githubButton
+        }
 
         if #unavailable(iOS 26.0) {
             self.navigationItem.rightBarButtonItem?.tintColor = NCAppBranding.themeTextColor()
@@ -99,6 +115,21 @@ import SwiftyAttributes
         // Take safe-area padding of 10 into account here
         self.scrollViewLeftConstraint.constant = self.lineNumberWidth + 10
 
+        if self.codeBlock != nil {
+            // A code block has no repository details to show, remove the labels and start with the source at the top.
+            // Removing the labels also removes the constraints the scroll views had to them, so those are set up again.
+            self.ownerLabel.removeFromSuperview()
+            self.repoLabel.removeFromSuperview()
+            self.fileLabel.removeFromSuperview()
+
+            NSLayoutConstraint.activate([
+                self.sourceWithNumbersScrollView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 10),
+                self.sourceWithoutNumbersScrollView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 10)
+            ])
+
+            return
+        }
+
         var formattedOwner = NSLocalizedString("Owner", comment: "Owner of a repository").attributedString + ": ".attributedString
         formattedOwner = formattedOwner.withFont(fontSemibold).withTextColor(.secondaryLabel)
         formattedOwner +=  self.owner.withFont(font)
@@ -113,6 +144,11 @@ import SwiftyAttributes
         formattedPath = formattedPath.withFont(fontSemibold).withTextColor(.secondaryLabel)
         formattedPath += self.filePath.withFont(font)
         self.fileLabel.attributedText = formattedPath
+    }
+
+    func copyButtonPressed() {
+        UIPasteboard.general.string = self.codeBlock
+        NotificationPresenter.shared().present(text: NSLocalizedString("Code copied", comment: "Shown after the code of a code block was copied to the clipboard"), dismissAfterDelay: 5.0, includedStyle: .dark)
     }
 
     func githubButtonPressed() {
