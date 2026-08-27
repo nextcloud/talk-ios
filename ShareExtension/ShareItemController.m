@@ -8,8 +8,9 @@
 #import "ShareItemController.h"
 #import "NextcloudTalk-Swift.h"
 
-//TODO: Should the quality be user-selectable?
-CGFloat const kShareItemControllerImageQuality = 0.7f;
+// A photo just taken, a pasted image or a cropped one reaches the app as a bitmap, so it has to
+// be encoded here. The sender picks the quality later on, so nothing is thrown away yet.
+CGFloat const kShareItemControllerImageQuality = 1.0f;
 
 @interface ShareItemController ()
 

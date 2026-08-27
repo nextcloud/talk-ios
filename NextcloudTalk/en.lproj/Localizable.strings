@@ -1046,6 +1046,12 @@
 "Double tap to change between grid and speaker view" = "Double tap to change between grid and speaker view";
 
 /* No comment provided by engineer. */
+"Double tap to change the quality the images are sent in" = "Double tap to change the quality the images are sent in";
+
+/* No comment provided by engineer. */
+"Double tap to change who can modify the shared files" = "Double tap to change who can modify the shared files";
+
+/* No comment provided by engineer. */
 "Double tap to discard the changes" = "Double tap to discard the changes";
 
 /* No comment provided by engineer. */
@@ -1143,6 +1149,9 @@
 
 /* No comment provided by engineer. */
 "Edit thread details" = "Edit thread details";
+
+/* Other participants can modify the shared files */
+"Editable" = "Editable";
 
 /* A message was edited */
 "edited" = "edited";
@@ -1256,6 +1265,9 @@
 "File" = "File";
 
 /* No comment provided by engineer. */
+"File permissions" = "File permissions";
+
+/* No comment provided by engineer. */
 "Files" = "Files";
 
 /* No comment provided by engineer. */
@@ -1356,6 +1368,9 @@
 
 /* No comment provided by engineer. */
 "If you're using multiple servers, you need to check all of them." = "If you're using multiple servers, you need to check all of them.";
+
+/* No comment provided by engineer. */
+"Image quality" = "Image quality";
 
 /* No comment provided by engineer. */
 "Images, files, voice messages…" = "Images, files, voice messages…";
@@ -1883,6 +1898,12 @@
 /* A menu to show additional options for the current conversation */
 "Option menu" = "Option menu";
 
+/* Upload images unchanged */
+"Original quality" = "Original quality";
+
+/* No comment provided by engineer. */
+"Original resolution and quality are preserved" = "Original resolution and quality are preserved";
+
 /* No comment provided by engineer. */
 "Other Accounts" = "Other Accounts";
 
@@ -1891,6 +1912,12 @@
 
 /* Category of shared items in a conversation, for everything without its own category */
 "Others" = "Others";
+
+/* No comment provided by engineer. */
+"Others can edit the files" = "Others can edit the files";
+
+/* No comment provided by engineer. */
+"Others can only view the files" = "Others can only view the files";
 
 /* No comment provided by engineer. */
 "Outgoing call" = "Outgoing call";
@@ -2329,6 +2356,9 @@
 "Slide to cancel" = "Slide to cancel";
 
 /* No comment provided by engineer. */
+"Slightly reduced quality, uses less data" = "Slightly reduced quality, uses less data";
+
+/* No comment provided by engineer. */
 "Some messages not shown, will be downloaded when online" = "Some messages not shown, will be downloaded when online";
 
 /* No comment provided by engineer. */
@@ -2360,6 +2390,9 @@
 
 /* No comment provided by engineer. */
 "Speech recognition failed" = "Speech recognition failed";
+
+/* Upload images at a reduced size */
+"Standard quality" = "Standard quality";
 
 /* No comment provided by engineer. */
 "Start a new group conversation" = "Start a new group conversation";
@@ -2693,6 +2726,9 @@
 
 /* No comment provided by engineer. */
 "Video quality" = "Video quality";
+
+/* Other participants can only view the shared files */
+"View-only" = "View-only";
 
 /* Conversation visibility settings */
 "Visibility" = "Visibility";
