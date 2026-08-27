@@ -5,7 +5,7 @@
 
 import Foundation
 
-@objcMembers public class NCBaseSessionManager: AFHTTPSessionManager {
+@objcMembers public class NCBaseSessionManager: AFHTTPSessionManager, NSDiscardableContent {
 
     public var userAgent: String = NCAppBranding.userAgent()
 
@@ -36,5 +36,20 @@ import Foundation
         } else {
             completionHandler(.performDefaultHandling, nil)
         }
+    }
+
+    public func beginContentAccess() -> Bool {
+        return true
+    }
+
+    public func endContentAccess() {
+    }
+
+    public func discardContentIfPossible() {
+    }
+
+    public func isContentDiscarded() -> Bool {
+        // Return false to not get evicated from NSCache when moving to background
+        return false
     }
 }
