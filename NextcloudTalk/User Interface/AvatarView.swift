@@ -140,6 +140,12 @@ import SDWebImage
     // MARK: - User status
 
     public func setStatus(for room: NCRoom, allowCustomStatusIcon statusIconAllowed: Bool) {
+        self.room = room
+        self.allowCustomStatusIcon = statusIconAllowed
+
+        // layoutSubviews can run while the view is collapsed, rendering a status image of that size would raise an exception
+        guard statusImageSize(padding: 2) > 0 else { return }
+
         if room.type == .oneToOne, let roomStatus = room.status {
             if roomStatus != "dnd", statusIconAllowed, let roomStatusIcon = room.statusIcon {
                 setUserStatusIcon(roomStatusIcon)
@@ -163,9 +169,6 @@ import SDWebImage
                 setUserStatusImage(statusImage)
             }
         }
-
-        self.room = room
-        self.allowCustomStatusIcon = statusIconAllowed
 
         setUserStatusImageViewCutoutLayer()
     }
