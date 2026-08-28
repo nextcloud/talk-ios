@@ -21,7 +21,14 @@ import UIKit
     private static let scrollFadeWidth: CGFloat = 16
 
     private let feedbackGenerator = UIImpactFeedbackGenerator(style: .light)
-    private var scrollFadeLayer: CAGradientLayer?
+
+    private lazy var scrollFadeLayer: CAGradientLayer = {
+        let fadeLayer = CAGradientLayer()
+        fadeLayer.startPoint = .init(x: 0, y: 0.5)
+        fadeLayer.endPoint = .init(x: 1, y: 0.5)
+
+        return fadeLayer
+    }()
 
     /// Tracks the touch start time to differentiate quick taps from long presses
     private var touchBeganTime: Date?
@@ -90,20 +97,11 @@ import UIKit
 
         guard canScrollToLeading || canScrollToTrailing else {
             self.layer.mask = nil
-            self.scrollFadeLayer = nil
             return
         }
 
-        let fadeLayer: CAGradientLayer
-        if let scrollFadeLayer {
-            fadeLayer = scrollFadeLayer
-        } else {
-            fadeLayer = CAGradientLayer()
-            fadeLayer.startPoint = .init(x: 0, y: 0.5)
-            fadeLayer.endPoint = .init(x: 1, y: 0.5)
-            self.scrollFadeLayer = fadeLayer
-            self.layer.mask = fadeLayer
-        }
+        let fadeLayer = self.scrollFadeLayer
+        self.layer.mask = fadeLayer
 
         let opaque = UIColor.white.cgColor
         let clear = UIColor.clear.cgColor
