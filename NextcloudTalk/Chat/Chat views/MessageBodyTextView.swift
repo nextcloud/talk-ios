@@ -37,7 +37,9 @@ struct MessageBodyTextViewWrapper: UIViewRepresentable {
     }
 }
 
-class MessageBodyTextView: UITextView, UITextViewDelegate {
+class MessageBodyTextView: UITextView, UITextViewDelegate, UIGestureRecognizerDelegate {
+
+    private var codeBlockGestureRecognizer: UITapGestureRecognizer?
 
     init() {
         let textStorage = NSTextStorage()
@@ -70,9 +72,12 @@ class MessageBodyTextView: UITextView, UITextViewDelegate {
         self.delegate = self
 
         let codeBlockGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleCodeBlockTap(_:)))
+        self.codeBlockGestureRecognizer = codeBlockGestureRecognizer
 
         // Don't swallow the touch, links and the message context menu need to see it as well
         codeBlockGestureRecognizer.cancelsTouchesInView = false
+        codeBlockGestureRecognizer.delegate = self
+
         self.addGestureRecognizer(codeBlockGestureRecognizer)
     }
 
@@ -162,6 +167,13 @@ class MessageBodyTextView: UITextView, UITextViewDelegate {
         let navigationController = UINavigationController(rootViewController: codeViewController)
 
         NCUserInterfaceController.sharedInstance().mainViewController.present(navigationController, animated: true)
+    }
+
+    // MARK: - UIGestureRecognizer delegate
+
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        // Without this our tap cancels the text view's own recognizer, which opens links
+        return gestureRecognizer === self.codeBlockGestureRecognizer
     }
 
     // MARK: - UITextView delegate
