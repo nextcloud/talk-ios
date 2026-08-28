@@ -466,13 +466,11 @@ import SwiftyAttributes
             }
         }
 
-        // Merge with temporary reactions, appending a reaction we just added like any other new one
+        // Merge with temporary reactions
         self.mergeTemporaryReactions(into: &reactionsArray)
 
-        // Highest count first, keeping the order for reactions with the same count, so that only a
-        // reaction whose count changed moves and a new one is appended. sorted(by:) is not guaranteed to
-        // be stable, so the current position is the tie-break. The web client shows the same order: its
-        // reactions keep the insertion order of the store and Array.sort is stable there.
+        // Highest count first, keeping the order for equal counts so only a reaction whose count changed
+        // moves. sorted(by:) is not guaranteed to be stable, so the position is the tie-break.
         return reactionsArray.enumerated()
             .sorted { $0.element.count != $1.element.count ? $0.element.count > $1.element.count : $0.offset < $1.offset }
             .map { $0.element }
@@ -515,7 +513,7 @@ import SwiftyAttributes
         managedChatMessage.systemMessage = chatMessage.systemMessage
         managedChatMessage.isReplyable = chatMessage.isReplyable
         managedChatMessage.messageType = chatMessage.messageType
-        // Reactions we already know keep their position, new ones are appended (see reactionsArray)
+        // Reactions we already know keep their position, new ones are appended
         managedChatMessage.reactionsJSONString = NCChatMessage.reactionsJSONString(for: chatMessage.storedReactions(),
                                                                                   keepingOrderOf: managedChatMessage.storedReactions())
         managedChatMessage.expirationTimestamp = chatMessage.expirationTimestamp
@@ -572,29 +570,27 @@ extension NCChatMessage {
 
     /// The stored reactions, in the order they were first used.
     ///
-    /// They are stored as an array of `[emoji, count]` pairs, so that the order survives being written
-    /// and read back. Messages stored by an older version hold a JSON object instead, whose key order is
-    /// lost while parsing, so those are ordered by emoji to give them a fixed order as well.
+    /// Stored as `[emoji, count]` pairs so the order survives. Older messages hold a JSON object, whose
+    /// key order is lost while parsing, so those are ordered by emoji to give them a fixed order too.
     @nonobjc internal func storedReactions() -> [NCChatReaction] {
         guard let data = self.reactionsJSONString?.data(using: .utf8),
               let json = try? JSONSerialization.jsonObject(with: data)
         else { return [] }
 
         if let pairs = json as? [[Any]] {
-            return pairs.compactMap { NCChatMessage.reaction(for: $0.first, count: $0.last) }
+            return pairs.compactMap { NCChatMessage.reaction(fromEmoji: $0.first, count: $0.last) }
         }
 
         if let dictionary = json as? [String: Any] {
             return dictionary
-                .compactMap { NCChatMessage.reaction(for: $0.key, count: $0.value) }
+                .compactMap { NCChatMessage.reaction(fromEmoji: $0.key, count: $0.value) }
                 .sorted { $0.reaction < $1.reaction }
         }
 
         return []
     }
 
-    /// Serialises reactions so that the ones in `storedReactions` keep their position and the rest are
-    /// appended, which is what keeps the stored order the order they were first used in.
+    /// Serialises reactions, keeping the position of the ones in `storedReactions` and appending the rest
     @nonobjc internal static func reactionsJSONString(for reactions: [NCChatReaction], keepingOrderOf storedReactions: [NCChatReaction]) -> String? {
         guard !reactions.isEmpty else { return nil }
 
@@ -608,7 +604,7 @@ extension NCChatMessage {
         return String(data: data, encoding: .utf8)
     }
 
-    @nonobjc private static func reaction(for emoji: Any?, count: Any?) -> NCChatReaction? {
+    @nonobjc private static func reaction(fromEmoji emoji: Any?, count: Any?) -> NCChatReaction? {
         // The "self" key needs to be skipped for users who installed v14.0 (beta 1)
         guard let emoji = emoji as? String, emoji != "self",
               let reactionCount = (count as? NSNumber)?.intValue, reactionCount > 0

@@ -17,7 +17,11 @@ import UIKit
     /// Spacing between two reactions
     private static let itemSpacing: CGFloat = 8
 
+    /// Width of the fade shown at an edge that has more reactions behind it
+    private static let scrollFadeWidth: CGFloat = 16
+
     private let feedbackGenerator = UIImpactFeedbackGenerator(style: .light)
+    private var scrollFadeLayer: CAGradientLayer?
 
     /// Tracks the touch start time to differentiate quick taps from long presses
     private var touchBeganTime: Date?
@@ -60,9 +64,8 @@ import UIKit
         self.reactions = reactions
         self.reloadData()
 
-        // Cells keep their ReactionsView across reuse, so without invalidating it here the view keeps
-        // the width of the reactions it showed before: too narrow silently clips the new ones (they are
-        // then only reachable by scrolling), too wide leaves a gap.
+        // Cells keep their ReactionsView across reuse, so without this it stays at the width of the
+        // reactions it showed before and silently clips the new ones
         self.invalidateIntrinsicContentSize()
 
         // A reused view might still be scrolled to where the previous message's reactions were
@@ -71,11 +74,6 @@ import UIKit
 
     // MARK: - Scroll fade
 
-    /// Width of the fade shown at an edge that has more reactions behind it
-    private static let scrollFadeWidth: CGFloat = 16
-
-    private var scrollFadeLayer: CAGradientLayer?
-
     override func layoutSubviews() {
         super.layoutSubviews()
 
@@ -83,8 +81,7 @@ import UIKit
         self.updateScrollFade()
     }
 
-    /// Fades out the reactions at an edge that can still be scrolled towards, so it becomes visible
-    /// that a message has more reactions than there is room for.
+    /// Fades out an edge that can be scrolled towards, so it is visible that there are more reactions
     private func updateScrollFade() {
         guard self.bounds.width > 0 else { return }
 
@@ -139,7 +136,7 @@ import UIKit
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         if indexPath.row < reactions.count {
-            return ReactionsViewCell().sizeForReaction(reaction: reactions[indexPath.row])
+            return ReactionsViewCell.sizeForReaction(reaction: reactions[indexPath.row])
         }
         return CGSize(width: 50, height: 30)
     }
@@ -171,16 +168,10 @@ import UIKit
     }
 
     override var intrinsicContentSize: CGSize {
-        // Measured from the reactions themselves instead of from collectionViewContentSize: the flow
-        // layout only recomputes that while laying out, so right after reloadData() it would still
-        // report the width of the reactions this view showed before.
-        guard !self.reactions.isEmpty else {
-            return .init(width: 0, height: UICollectionView.noIntrinsicMetric)
-        }
-
-        let sizingCell = ReactionsViewCell()
-        let width = self.reactions.reduce(0) { $0 + sizingCell.sizeForReaction(reaction: $1).width }
-            + CGFloat(self.reactions.count - 1) * ReactionsView.itemSpacing
+        // Not collectionViewContentSize: the flow layout only recomputes that while laying out, so right
+        // after reloadData() it still reports the width of the previous reactions
+        let width = self.reactions.reduce(0) { $0 + ReactionsViewCell.sizeForReaction(reaction: $1).width }
+            + CGFloat(max(self.reactions.count - 1, 0)) * ReactionsView.itemSpacing
 
         return .init(width: width, height: UICollectionView.noIntrinsicMetric)
     }

@@ -10,8 +10,7 @@ final class UnitNCChatMessageTest: TestBaseRealm {
 
     // MARK: - Reactions
 
-    /// Applies reactions the way the app does: a first store, then updates on top of it, so the stored
-    /// order is built up exactly as it is at runtime.
+    /// Applies reactions the way the app does: a first store, then updates on top of it
     private func reactionOrder(_ reactions: [[String: Int]]) -> [String] {
         var storedMessage: NCChatMessage?
 
@@ -29,8 +28,7 @@ final class UnitNCChatMessageTest: TestBaseRealm {
         return storedMessage?.reactionsArray().map { $0.reaction } ?? []
     }
 
-    // Like the web client, where the reactions keep the insertion order of the store and Array.sort is
-    // stable, so only a reaction whose own count changed ever moves.
+    // Like the web client, where only a reaction whose own count changed ever moves
     func testNewReactionIsAppendedInsteadOfPushingTheOthersAside() throws {
         let order = reactionOrder([["👍": 1, "😀": 1], ["👍": 1, "😀": 1, "❤️": 1]])
 
@@ -53,8 +51,8 @@ final class UnitNCChatMessageTest: TestBaseRealm {
         XCTAssertEqual(order.last, "😀", "A reaction that is used again is appended, like any other new one")
     }
 
-    // Without a stored order the reactions come out of a Swift Dictionary, which iterates depending on a
-    // per-process hash seed, so the row was ordered differently on every app launch.
+    // A Swift Dictionary iterates depending on a per-process hash seed, so without a stored order the
+    // row came out differently on every app launch
     func testReactionOrderIsTheSameAcrossCalls() throws {
         let reactions = [["👍": 2, "😀": 2, "❤️": 2, "🎉": 2, "🙏": 2]]
 
@@ -64,8 +62,7 @@ final class UnitNCChatMessageTest: TestBaseRealm {
         XCTAssertEqual(reactionOrder(reactions), order)
     }
 
-    // The very first time a message's reactions are stored there is no order to keep, and the server's
-    // order is already gone by then, so they get a fixed one instead of the dictionary's.
+    // Nothing to keep the order of on the first store, so they get a fixed one instead
     func testFirstStoredReactionsGetAFixedOrder() throws {
         XCTAssertEqual(reactionOrder([["😀": 1, "👍": 1, "❤️": 1]]), ["❤️", "👍", "😀"])
     }

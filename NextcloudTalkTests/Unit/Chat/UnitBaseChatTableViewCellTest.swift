@@ -11,8 +11,7 @@ final class UnitBaseChatTableViewCellTest: TestBaseRealm {
     // MARK: - Reactions
 
     private func makeReactionsView(inContainerOfWidth width: CGFloat) -> (container: UIView, reactionsView: ReactionsView) {
-        // Mirrors how BaseChatTableViewCell.showReactionsPart() builds and constrains the view: the
-        // collection view is sized by its own intrinsic content size, capped by the available width.
+        // Mirrors how BaseChatTableViewCell.showReactionsPart() builds and constrains the view
         let container = UIView(frame: .init(x: 0, y: 0, width: width, height: 40))
         let flowLayout = UICollectionViewFlowLayout()
         flowLayout.scrollDirection = .horizontal
@@ -35,9 +34,8 @@ final class UnitBaseChatTableViewCellTest: TestBaseRealm {
         return emojis.map { NCChatReaction(reaction: $0, count: 1, userReacted: false, state: .set) }
     }
 
-    // A cell keeps its ReactionsView across reuse, so showing a message with more reactions than the
-    // previous one must widen it again. Otherwise the collection view stays at the width of whatever
-    // it showed before and silently clips the rest, which is only reachable by scrolling.
+    // A cell keeps its ReactionsView across reuse, so more reactions than the previous message had
+    // must widen it again instead of being clipped to the width it showed before
     func testReactionsViewWidthFollowsTheReactionsItShows() throws {
         let (container, reactionsView) = makeReactionsView(inContainerOfWidth: 1000)
 
@@ -63,9 +61,7 @@ final class UnitBaseChatTableViewCellTest: TestBaseRealm {
                           "Showing fewer reactions must shrink the view again")
     }
 
-    // When a message has more reactions than the bubble has room for, the remaining ones are only
-    // reachable by scrolling. Fading out the edge that can be scrolled towards is what makes that
-    // visible instead of looking like the message simply has fewer reactions.
+    // Reactions that don't fit are only reachable by scrolling, which the fade is what makes visible
     func testReactionsViewFadesTheEdgeThatCanBeScrolledTowards() throws {
         let (container, reactionsView) = makeReactionsView(inContainerOfWidth: 120)
 
@@ -88,8 +84,7 @@ final class UnitBaseChatTableViewCellTest: TestBaseRealm {
                      "Reactions that all fit must not be faded out, there is nothing to scroll to")
     }
 
-    // A reused view must not keep the scroll position of the message it showed before, or the first
-    // reactions of the new message start off screen.
+    // A reused view must not keep the scroll position, or the new reactions start off screen
     func testReactionsViewResetsScrollPositionOnReuse() throws {
         let (container, reactionsView) = makeReactionsView(inContainerOfWidth: 120)
 
