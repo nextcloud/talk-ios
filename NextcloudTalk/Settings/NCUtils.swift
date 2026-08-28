@@ -371,6 +371,9 @@ import AVFoundation
     public static func renderAspectImage(image: UIImage?, ofSize size: CGSize, scale: CGFloat, centerImage center: Bool) -> UIImage? {
         guard let image else { return nil }
 
+        // UIGraphicsBeginImageContextWithOptions raises an exception for empty or non finite sizes
+        guard size.width > 0, size.height > 0, size.width.isFinite, size.height.isFinite else { return nil }
+
         let newRect = CGRect(x: 0, y: 0, width: size.width, height: size.height)
         UIGraphicsBeginImageContextWithOptions(newRect.size, false, scale)
 
