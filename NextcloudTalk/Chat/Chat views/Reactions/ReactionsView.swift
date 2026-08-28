@@ -14,6 +14,22 @@ import UIKit
     public weak var reactionsDelegate: ReactionsViewDelegate?
     var reactions: [NCChatReaction] = []
 
+    /// Spacing between two reactions
+    private static let itemSpacing: CGFloat = 8
+
+    /// Width of the fade shown at an edge that has more reactions behind it
+    private static let scrollFadeWidth: CGFloat = 16
+
+    private let feedbackGenerator = UIImpactFeedbackGenerator(style: .light)
+
+    private lazy var scrollFadeLayer: CAGradientLayer = {
+        let fadeLayer = CAGradientLayer()
+        fadeLayer.startPoint = .init(x: 0, y: 0.5)
+        fadeLayer.endPoint = .init(x: 1, y: 0.5)
+
+        return fadeLayer
+    }()
+
     /// Tracks the touch start time to differentiate quick taps from long presses
     private var touchBeganTime: Date?
 
@@ -42,6 +58,7 @@ import UIKit
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         touchBeganTime = Date()
+        feedbackGenerator.prepare()
         super.touchesBegan(touches, with: event)
     }
 
@@ -53,6 +70,50 @@ import UIKit
     func updateReactions(reactions: [NCChatReaction]) {
         self.reactions = reactions
         self.reloadData()
+
+        // Cells keep their ReactionsView across reuse, so without this it stays at the width of the
+        // reactions it showed before and silently clips the new ones
+        self.invalidateIntrinsicContentSize()
+
+        // A reused view might still be scrolled to where the previous message's reactions were
+        self.setContentOffset(.zero, animated: false)
+    }
+
+    // MARK: - Scroll fade
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        // Also called while scrolling, so the fade follows the content offset
+        self.updateScrollFade()
+    }
+
+    /// Fades out an edge that can be scrolled towards, so it is visible that there are more reactions
+    private func updateScrollFade() {
+        guard self.bounds.width > 0 else { return }
+
+        let canScrollToLeading = self.contentOffset.x > 1
+        let canScrollToTrailing = self.contentOffset.x + self.bounds.width < self.contentSize.width - 1
+
+        guard canScrollToLeading || canScrollToTrailing else {
+            self.layer.mask = nil
+            return
+        }
+
+        let fadeLayer = self.scrollFadeLayer
+        self.layer.mask = fadeLayer
+
+        let opaque = UIColor.white.cgColor
+        let clear = UIColor.clear.cgColor
+        let fade = min(ReactionsView.scrollFadeWidth, self.bounds.width / 3) / self.bounds.width
+
+        // The mask is part of the scroll view's layer, so it has to be moved along with the content
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        fadeLayer.frame = .init(origin: self.contentOffset, size: self.bounds.size)
+        fadeLayer.colors = [canScrollToLeading ? clear : opaque, opaque, opaque, canScrollToTrailing ? clear : opaque]
+        fadeLayer.locations = [0, NSNumber(value: fade), NSNumber(value: 1 - fade), 1]
+        CATransaction.commit()
     }
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -64,16 +125,16 @@ import UIKit
     }
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        return 8
+        return ReactionsView.itemSpacing
     }
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        return 8
+        return ReactionsView.itemSpacing
     }
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         if indexPath.row < reactions.count {
-            return ReactionsViewCell().sizeForReaction(reaction: reactions[indexPath.row])
+            return ReactionsViewCell.sizeForReaction(reaction: reactions[indexPath.row])
         }
         return CGSize(width: 50, height: 30)
     }
@@ -99,11 +160,17 @@ import UIKit
         }
 
         if indexPath.row < reactions.count {
+            self.feedbackGenerator.impactOccurred()
             self.reactionsDelegate?.didSelectReaction(reaction: reactions[indexPath.row])
         }
     }
 
     override var intrinsicContentSize: CGSize {
-        return .init(width: self.collectionViewLayout.collectionViewContentSize.width, height: UICollectionView.noIntrinsicMetric)
+        // Not collectionViewContentSize: the flow layout only recomputes that while laying out, so right
+        // after reloadData() it still reports the width of the previous reactions
+        let width = self.reactions.reduce(0) { $0 + ReactionsViewCell.sizeForReaction(reaction: $1).width }
+            + CGFloat(max(self.reactions.count - 1, 0)) * ReactionsView.itemSpacing
+
+        return .init(width: width, height: UICollectionView.noIntrinsicMetric)
     }
 }
