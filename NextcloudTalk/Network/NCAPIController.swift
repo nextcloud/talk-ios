@@ -1647,7 +1647,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
         let parameters: [String: Any] = [
             "limit": limit,
-            "offfset": offset
+            "offset": offset
         ]
 
         apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
