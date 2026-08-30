@@ -717,9 +717,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>You and %ld more participant joined the call</string>
+			<string>Vous et %ld autre participant avez rejoint l'appel</string>
+			<key>many</key>
+			<string>Vous et %ld autres participants avez rejoint l'appel</string>
 			<key>other</key>
-			<string>You and %ld more participants joined the call</string>
+			<string>Vous et %ld autres participants avez rejoint l'appel</string>
 		</dict>
 	</dict>
 	<key>{actor0} and %ld more participants joined the call</key>
@@ -751,9 +753,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>You and %ld more participant left the call</string>
+			<string>Vous et %ld autre participant avez quitté l'appel</string>
+			<key>many</key>
+			<string>Vous et %ld autres participants avez quitté l'appel</string>
 			<key>other</key>
-			<string>You and %ld more participants left the call</string>
+			<string>Vous et %ld autres participants avez quitté l'appel</string>
 		</dict>
 	</dict>
 	<key>{actor0} and %ld more participants left the call</key>
