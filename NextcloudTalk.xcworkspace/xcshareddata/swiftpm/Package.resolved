@@ -1,0 +1,214 @@
+{
+  "originHash" : "baab826cff856226ec9c5b17fb7a3d0373f4a176b37042f3c6d4cf55d0056ec4",
+  "pins" : [
+    {
+      "identity" : "alamofire",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Alamofire/Alamofire",
+      "state" : {
+        "revision" : "7595cbcf59809f9977c5f6378500de2ad73b7ddb",
+        "version" : "5.12.0"
+      }
+    },
+    {
+      "identity" : "cdmarkdownkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/nextcloud-deps/CDMarkdownKit.git",
+      "state" : {
+        "revision" : "4b328bc7bbf4a822b56a6b925fb087275cca2ed4"
+      }
+    },
+    {
+      "identity" : "cocoalumberjack",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/CocoaLumberjack/CocoaLumberjack.git",
+      "state" : {
+        "revision" : "c5f2ed4d219866117e135cf648180dc7b66739d3",
+        "version" : "3.9.1"
+      }
+    },
+    {
+      "identity" : "debouncedonchange",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Tunous/DebouncedOnChange",
+      "state" : {
+        "revision" : "2583a30a8d277c3475c1b3a10b0f902a7be34f3b",
+        "version" : "2.1.0"
+      }
+    },
+    {
+      "identity" : "dynamic",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/mhdhejazi/Dynamic.git",
+      "state" : {
+        "revision" : "ab9a2570862d54aed2663691bb767f881226a12f",
+        "version" : "1.2.0"
+      }
+    },
+    {
+      "identity" : "jdstatusbarnotification",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/calimarkus/JDStatusBarNotification.git",
+      "state" : {
+        "revision" : "0ca1caa82e85595dea6ed8e992412c81fb5da740",
+        "version" : "2.0.9"
+      }
+    },
+    {
+      "identity" : "libphonenumber-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/iziz/libPhoneNumber-iOS",
+      "state" : {
+        "revision" : "3220b4027117c41f076f1bcc7f3c492ab8957348",
+        "version" : "1.2.0"
+      }
+    },
+    {
+      "identity" : "mbprogresshud",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/matej/MBProgressHUD",
+      "state" : {
+        "revision" : "bca42b801100b2b3a4eda0ba8dd33d858c780b0d",
+        "version" : "1.2.0"
+      }
+    },
+    {
+      "identity" : "nextcloudkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/nextcloud/NextcloudKit",
+      "state" : {
+        "revision" : "a7b1db0ee1394df9ede303a7430a916c1e283765",
+        "version" : "2.6.0"
+      }
+    },
+    {
+      "identity" : "realm-swift-binary",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/nextcloud-deps/realm-swift-binary",
+      "state" : {
+        "revision" : "eca2e73265b2abaee75b99bac31b6bd2f02dbdc1"
+      }
+    },
+    {
+      "identity" : "sdwebimage",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SDWebImage/SDWebImage.git",
+      "state" : {
+        "revision" : "e7d3256c497af9330a0df866ee38f544ddd87c49",
+        "version" : "5.20.1"
+      }
+    },
+    {
+      "identity" : "sdwebimagesvgkitplugin",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/nextcloud-deps/SDWebImageSVGKitPlugin.git",
+      "state" : {
+        "revision" : "96e726d65e1894fff44df55c6d53e3b9c373ca78"
+      }
+    },
+    {
+      "identity" : "svgkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SVGKit/SVGKit.git",
+      "state" : {
+        "revision" : "596192a28785a31f00ba2e05167317fc98bd6685"
+      }
+    },
+    {
+      "identity" : "swift-log",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-log",
+      "state" : {
+        "revision" : "3ffafb9722d5d918c614feb496c8789a3b59d222",
+        "version" : "1.15.0"
+      }
+    },
+    {
+      "identity" : "swiftui-introspect",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/siteline/swiftui-introspect",
+      "state" : {
+        "revision" : "121c146fe591b1320238d054ae35c81ffa45f45a",
+        "version" : "0.12.0"
+      }
+    },
+    {
+      "identity" : "swiftyattributes",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/eddiekaiger/SwiftyAttributes.git",
+      "state" : {
+        "revision" : "1ae513a1617309455a115c3fc2d558f744b43788"
+      }
+    },
+    {
+      "identity" : "swiftygif",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/alexiscreuzot/SwiftyGif",
+      "state" : {
+        "revision" : "4430cbc148baa3907651d40562d96325426f409a",
+        "version" : "5.4.5"
+      }
+    },
+    {
+      "identity" : "swiftyjson",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SwiftyJSON/SwiftyJSON",
+      "state" : {
+        "revision" : "af76cf3ef710b6ca5f8c05f3a31307d44a3c5828",
+        "version" : "5.0.2"
+      }
+    },
+    {
+      "identity" : "swiftyrsa",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/nextcloud-deps/SwiftyRSA",
+      "state" : {
+        "revision" : "36f9963a83a602bd2ea57ff3ccf600d6284d91e4"
+      }
+    },
+    {
+      "identity" : "swiftyxmlparser",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/yahoojapan/SwiftyXMLParser",
+      "state" : {
+        "revision" : "d7a1d23f04c86c1cd2e8f19247dd15d74e0ea8be",
+        "version" : "5.6.0"
+      }
+    },
+    {
+      "identity" : "talk-clients-webrtc",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/nextcloud-releases/talk-clients-webrtc",
+      "state" : {
+        "revision" : "904c6624658e65786ac098597e05ef77072cc0d9"
+      }
+    },
+    {
+      "identity" : "toast-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/scalessec/Toast-Swift",
+      "state" : {
+        "revision" : "d780ff8fe55659b4fddf1fbfaf930d967f35d9ea"
+      }
+    },
+    {
+      "identity" : "tocropviewcontroller",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/TimOliver/TOCropViewController",
+      "state" : {
+        "revision" : "4901016b791bf2dab2a660125463e230d7298214",
+        "version" : "3.0.0"
+      }
+    },
+    {
+      "identity" : "uickeychainstore",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/kishikawakatsumi/UICKeyChainStore",
+      "state" : {
+        "revision" : "8220ac38124613fb709508426f75fbac6921e261",
+        "version" : "2.2.1"
+      }
+    }
+  ],
+  "version" : 3
+}
