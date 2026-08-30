@@ -24,7 +24,6 @@ final class IntentHandler: INExtension {
     }
 }
 
-
 // MARK: - Start Call
 
 final class StartCallIntentHandler: NSObject, INStartCallIntentHandling {
@@ -39,7 +38,6 @@ final class StartCallIntentHandler: NSObject, INStartCallIntentHandling {
         static let activityDestinationTypeKey = "destinationType"
         static let activityCallRecordIdentifierKey = "callRecordIdentifier"
     }
-
 
     // MARK: - Resolve call capability
 
@@ -63,7 +61,6 @@ final class StartCallIntentHandler: NSObject, INStartCallIntentHandling {
             completion(.success(with: .audioCall))
         }
     }
-
 
     // MARK: - Resolve destination
 
@@ -94,7 +91,6 @@ final class StartCallIntentHandler: NSObject, INStartCallIntentHandling {
         }
     }
 
-
     // MARK: - Resolve contacts
 
     func resolveContacts(
@@ -115,7 +111,6 @@ final class StartCallIntentHandler: NSObject, INStartCallIntentHandling {
         completion(results)
     }
 
-
     // MARK: - Resolve call-back record
 
     func resolveCallRecordToCallBack(
@@ -134,7 +129,6 @@ final class StartCallIntentHandler: NSObject, INStartCallIntentHandling {
 
         completion(.success(with: callRecord))
     }
-
 
     // MARK: - Confirm
 
@@ -163,7 +157,6 @@ final class StartCallIntentHandler: NSObject, INStartCallIntentHandling {
             )
         )
     }
-
 
     // MARK: - Handle
 
@@ -194,7 +187,6 @@ final class StartCallIntentHandler: NSObject, INStartCallIntentHandling {
             )
         )
     }
-
 
     // MARK: - User activity
 
@@ -238,7 +230,6 @@ final class StartCallIntentHandler: NSObject, INStartCallIntentHandling {
         return activity
     }
 
-
     // MARK: - Serialisation
 
     private static func serialisePerson(
@@ -277,7 +268,6 @@ final class StartCallIntentHandler: NSObject, INStartCallIntentHandling {
         return result.isEmpty ? nil : result
     }
 
-
     private static func serialisePersonHandleType(
         _ type: INPersonHandleType
     ) -> String {
@@ -298,7 +288,6 @@ final class StartCallIntentHandler: NSObject, INStartCallIntentHandling {
         }
     }
 
-
     private func serialiseCallCapability(
         _ capability: INCallCapability
     ) -> String {
@@ -318,7 +307,6 @@ final class StartCallIntentHandler: NSObject, INStartCallIntentHandling {
             return "unknown"
         }
     }
-
 
     private func serialiseDestinationType(
         _ destination: INCallDestinationType
