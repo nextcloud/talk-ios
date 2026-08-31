@@ -30,7 +30,6 @@ final class StartCallIntentHandler: NSObject, INStartCallIntentHandling {
 
     private enum Constants {
         static let userActivityType = "com.nextcloud.Talk.startCall"
-
         static let activityContactsKey = "contacts"
         static let activityCallCapabilityKey = "callCapability"
         static let activityDestinationTypeKey = "destinationType"
@@ -45,7 +44,6 @@ final class StartCallIntentHandler: NSObject, INStartCallIntentHandling {
     ) {
 
         switch intent.callCapability {
-
         case .audioCall:
             completion(.success(with: .audioCall))
 
@@ -68,22 +66,16 @@ final class StartCallIntentHandler: NSObject, INStartCallIntentHandling {
     ) {
 
         switch intent.destinationType {
-
         case .normal:
             completion(.success(with: .normal))
-
         case .emergency:
             completion(.unsupported())
-
         case .voicemail:
             completion(.unsupported())
-
         case .redial:
             completion(.success(with: .redial))
-
         case .unknown:
             completion(.success(with: .normal))
-
         @unknown default:
             completion(.unsupported())
         }
