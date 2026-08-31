@@ -7,9 +7,12 @@ import UIKit
 
 extension UIScrollView {
 
+    /// Width of the fade shown at an edge that has more content behind it
+    static let horizontalFadeWidth: CGFloat = 16
+
     /// Fades out a horizontal edge that can be scrolled towards, so it is visible that there is more content.
     /// Call this from `layoutSubviews`, which is also run while scrolling.
-    func updateHorizontalScrollFade(fadeWidth: CGFloat = 16) {
+    func updateHorizontalScrollFade(fadeWidth: CGFloat = UIScrollView.horizontalFadeWidth) {
         guard self.bounds.width > 0 else { return }
 
         let minOffset = -self.adjustedContentInset.left
@@ -44,6 +47,13 @@ extension UIScrollView {
         fadeLayer.colors = [canScrollToLeading ? clear : opaque, opaque, opaque, canScrollToTrailing ? clear : opaque]
         fadeLayer.locations = [0, NSNumber(value: fade), NSNumber(value: 1 - fade), 1]
         CATransaction.commit()
+    }
+
+    /// Scrolls `view` into the visible area, keeping it clear of the fade at the edges
+    func scrollToVisible(_ view: UIView, fadeWidth: CGFloat = UIScrollView.horizontalFadeWidth, animated: Bool = true) {
+        let viewRect = view.convert(view.bounds, to: self)
+
+        self.scrollRectToVisible(viewRect.insetBy(dx: -fadeWidth, dy: 0), animated: animated)
     }
 }
 

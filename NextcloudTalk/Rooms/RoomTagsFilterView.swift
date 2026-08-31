@@ -116,6 +116,7 @@ class RoomTagsFilterView: UIView {
         guard let chip = sender.chip else { return }
 
         feedbackGenerator.selectionChanged()
+        scrollView.scrollToVisible(sender)
         onChipSelected?(chip.id)
     }
 }
