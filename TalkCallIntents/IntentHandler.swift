@@ -117,9 +117,7 @@ final class StartCallIntentHandler: NSObject, INStartCallIntentHandling {
     ) {
         guard let callRecord = intent.callRecordToCallBack else {
             /*
-             * Ce paramètre n'est utile que pour un rappel.
-             *
-             * Une demande normale "appelle Paul avec Talk" n'en a pas besoin.
+             * This parameter for callbacks. A regular call with Siri "Call Paul with Talk" does not use it
              */
             completion(.notRequired())
             return
