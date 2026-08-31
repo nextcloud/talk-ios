@@ -1,11 +1,4 @@
 //
-//  CarPlayConversationProvider.swift
-//  NextcloudTalk
-//
-//  Created by Alexandre Martinez on 22/08/2026.
-//
-
-//
 // SPDX-FileCopyrightText: 2026 Nextcloud GmbH and Nextcloud contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
