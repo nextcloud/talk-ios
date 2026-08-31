@@ -8,8 +8,9 @@
 #import "ShareItemController.h"
 #import "NextcloudTalk-Swift.h"
 
-//TODO: Should the quality be user-selectable?
-CGFloat const kShareItemControllerImageQuality = 0.7f;
+// A photo just taken, a pasted image or a cropped one reaches the app as a bitmap, so it has to
+// be encoded here. The sender picks the quality later on, so nothing is thrown away yet.
+CGFloat const kShareItemControllerImageQuality = 1.0f;
 
 @interface ShareItemController ()
 
@@ -118,7 +119,7 @@ CGFloat const kShareItemControllerImageQuality = 0.7f;
     NSString *extension = fileLocalURL.pathExtension;
     BOOL fileIsImage = (extension && [NCUtils isImageWithFileExtension:extension]);
     
-    ShareItem* item = [ShareItem initWithURL:fileLocalURL withName:fileName withPlaceholderImage:[self getPlaceholderImageForFileURL:fileLocalURL] isImage:fileIsImage];
+    ShareItem* item = [[ShareItem alloc] initWithURL:fileLocalURL name:fileName placeholderImage:[self getPlaceholderImageForFileURL:fileLocalURL] isImage:fileIsImage];
     [self.internalShareItems addObject:item];
     [self.delegate shareItemControllerItemsChanged:self];
 }
@@ -142,7 +143,7 @@ CGFloat const kShareItemControllerImageQuality = 0.7f;
 
     NSLog(@"Adding shareItem with image: %@ %@", imageName, fileLocalURL);
 
-    ShareItem* item = [ShareItem initWithURL:fileLocalURL withName:imageName withPlaceholderImage:[self getPlaceholderImageForFileURL:fileLocalURL] isImage:YES];
+    ShareItem* item = [[ShareItem alloc] initWithURL:fileLocalURL name:imageName placeholderImage:[self getPlaceholderImageForFileURL:fileLocalURL] isImage:YES];
 
     [self.internalShareItems addObject:item];
     [self.delegate shareItemControllerItemsChanged:self];
@@ -172,7 +173,7 @@ CGFloat const kShareItemControllerImageQuality = 0.7f;
         
     NSLog(@"Adding shareItem with contact: %@ %@", vCardFileName, fileLocalURL);
     
-    ShareItem* item = [ShareItem initWithURL:fileLocalURL withName:vCardFileName withPlaceholderImage:[self getPlaceholderImageForFileURL:fileLocalURL] isImage:YES];
+    ShareItem* item = [[ShareItem alloc] initWithURL:fileLocalURL name:vCardFileName placeholderImage:[self getPlaceholderImageForFileURL:fileLocalURL] isImage:YES];
 
     [self.internalShareItems addObject:item];
     [self.delegate shareItemControllerItemsChanged:self];

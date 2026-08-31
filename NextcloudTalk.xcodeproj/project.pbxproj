@@ -572,6 +572,7 @@
 				"Chat upload/ChatFileUploader.swift",
 				"Chat upload/ChatFileUploadError.swift",
 				"Chat upload/ChatFileUploadMetadata.swift",
+				"Chat upload/ChatImageCompressor.swift",
 				"Chat views/NCChatTitleView.swift",
 				"Chat views/NCChatTitleView.xib",
 				"Chat views/NCMessageTextView.swift",
@@ -703,13 +704,6 @@
 			);
 			target = 1FA93D9B2D70FCC200DF6CDF /* TalkIntents */;
 		};
-		1F9629452E8E6C0A00EC9BEE /* Exceptions for "Maps" folder in "ShareExtension" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				MapViewController.xib,
-			);
-			target = 2C62AFA224C08845007E460A /* ShareExtension */;
-		};
 		1F96296D2E8E6C8600EC9BEE /* Exceptions for "Rooms" folder in "NotificationServiceExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -766,7 +760,7 @@
 				NCAppBrandingExtensions.swift,
 				NCKeyChainController.m,
 				NCLog.swift,
-				NCUserDefaults.m,
+				NCUserDefaults.swift,
 				NCUserStatus.m,
 				NCUtils.swift,
 				UserAbsence.swift,
@@ -781,7 +775,7 @@
 				NCAppBrandingExtensions.swift,
 				NCKeyChainController.m,
 				NCLog.swift,
-				NCUserDefaults.m,
+				NCUserDefaults.swift,
 				NCUserStatus.m,
 				NCUtils.swift,
 				UserAbsence.swift,
@@ -810,7 +804,7 @@
 				NCAppBrandingExtensions.swift,
 				NCKeyChainController.m,
 				NCLog.swift,
-				NCUserDefaults.m,
+				NCUserDefaults.swift,
 				NCUserStatus.m,
 				NCUtils.swift,
 				UserAbsence.swift,
@@ -844,8 +838,9 @@
 				Extensions/IntExtension.swift,
 				Extensions/NSAttributedStringExtension.swift,
 				Extensions/UIFontExtension.swift,
+				Extensions/UIImageExtension.swift,
 				Extensions/UITableViewExtension.swift,
-				PlaceholderView.m,
+				PlaceholderView.swift,
 				PlaceholderView.xib,
 			);
 			target = 2C62AFA224C08845007E460A /* ShareExtension */;
@@ -1096,9 +1091,6 @@
 		};
 		1F9629432E8E6C0A00EC9BEE /* Maps */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				1F9629452E8E6C0A00EC9BEE /* Exceptions for "Maps" folder in "ShareExtension" target */,
-			);
 			path = Maps;
 			sourceTree = "<group>";
 		};
@@ -2651,7 +2643,7 @@
 				CODE_SIGN_ENTITLEMENTS = TalkIntents/TalkIntents.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -2694,7 +2686,7 @@
 				CODE_SIGN_ENTITLEMENTS = TalkIntents/TalkIntents.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -2791,7 +2783,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2836,7 +2828,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Nextcloud GmbH (NKUJUXUJ3B)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2995,7 +2987,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				ENABLE_BITCODE = NO;
@@ -3040,7 +3032,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Nextcloud GmbH (NKUJUXUJ3B)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				ENABLE_BITCODE = NO;
@@ -3094,7 +3086,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				ENABLE_BITCODE = NO;
@@ -3185,7 +3177,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Nextcloud GmbH (NKUJUXUJ3B)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				ENABLE_BITCODE = NO;
@@ -3274,7 +3266,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
@@ -3346,7 +3338,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Nextcloud GmbH (NKUJUXUJ3B)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
@@ -3568,7 +3560,7 @@
 			repositoryURL = "https://github.com/nextcloud-deps/CDMarkdownKit.git";
 			requirement = {
 				kind = revision;
-				revision = 4b328bc7bbf4a822b56a6b925fb087275cca2ed4;
+				revision = 632cd89fb53fcb6bf04d53219e984bdf279ea19a;
 			};
 		};
 		1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage" */ = {

@@ -3,6 +3,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
+import MapKit
+
 extension BaseChatTableViewCell {
 
     func setupForLocationCell(with message: NCChatMessage) {

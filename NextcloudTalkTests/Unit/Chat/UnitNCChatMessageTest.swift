@@ -8,6 +8,74 @@ import XCTest
 
 final class UnitNCChatMessageTest: TestBaseRealm {
 
+    // MARK: - Reactions
+
+    /// Applies reactions the way the app does: a first store, then updates on top of it
+    private func reactionOrder(_ reactions: [[String: Int]]) -> [String] {
+        var storedMessage: NCChatMessage?
+
+        for counts in reactions {
+            let dict: [String: Any] = ["id": 1, "token": "orderToken", "message": "Hi", "reactions": counts]
+            guard let parsed = NCChatMessage(dictionary: dict, andAccountId: TestBaseRealm.fakeAccountId) else { continue }
+
+            if let storedMessage {
+                NCChatMessage.update(storedMessage, with: parsed, isRoomLastMessage: false)
+            } else {
+                storedMessage = parsed
+            }
+        }
+
+        return storedMessage?.reactionsArray().map { $0.reaction } ?? []
+    }
+
+    // Like the web client, where only a reaction whose own count changed ever moves
+    func testNewReactionIsAppendedInsteadOfPushingTheOthersAside() throws {
+        let order = reactionOrder([["👍": 1, "😀": 1], ["👍": 1, "😀": 1, "❤️": 1]])
+
+        XCTAssertEqual(order, ["👍", "😀", "❤️"],
+                       "A new reaction must be appended, not sorted in front of the existing ones")
+    }
+
+    func testOnlyTheReactionWhoseCountChangedMoves() throws {
+        let before = reactionOrder([["👍": 1, "😀": 1, "❤️": 1]])
+        let after = reactionOrder([["👍": 1, "😀": 1, "❤️": 1], ["👍": 1, "😀": 3, "❤️": 1]])
+
+        XCTAssertEqual(after.first, "😀", "The reaction that gained counts moves to the front")
+        XCTAssertEqual(after.filter { $0 != "😀" }, before.filter { $0 != "😀" },
+                       "The reactions that did not change keep their order")
+    }
+
+    func testReactionUsedAgainAfterBeingRemovedIsAppended() throws {
+        let order = reactionOrder([["👍": 1, "😀": 1, "❤️": 1], ["👍": 1, "❤️": 1], ["👍": 1, "❤️": 1, "😀": 1]])
+
+        XCTAssertEqual(order.last, "😀", "A reaction that is used again is appended, like any other new one")
+    }
+
+    // A Swift Dictionary iterates depending on a per-process hash seed, so without a stored order the
+    // row came out differently on every app launch
+    func testReactionOrderIsTheSameAcrossCalls() throws {
+        let reactions = [["👍": 2, "😀": 2, "❤️": 2, "🎉": 2, "🙏": 2]]
+
+        let order = reactionOrder(reactions)
+        XCTAssertEqual(order.count, 5)
+        XCTAssertEqual(reactionOrder(reactions), order)
+        XCTAssertEqual(reactionOrder(reactions), order)
+    }
+
+    // Nothing to keep the order of on the first store, so they get a fixed one instead
+    func testFirstStoredReactionsGetAFixedOrder() throws {
+        XCTAssertEqual(reactionOrder([["😀": 1, "👍": 1, "❤️": 1]]), ["❤️", "👍", "😀"])
+    }
+
+    // Messages stored before reactions were kept in order hold a JSON object instead of pairs
+    func testReactionsStoredInTheOldFormatAreStillRead() throws {
+        let message = NCChatMessage()
+        message.reactionsJSONString = "{\"👍\":3,\"😀\":1}"
+
+        XCTAssertEqual(message.reactionsArray().map { $0.reaction }, ["👍", "😀"])
+        XCTAssertEqual(message.reactionsArray().map { $0.count }, [3, 1])
+    }
+
     func testUnreadMessageSeparatorUrlCheck() throws {
         let message = NCChatMessage()
         message.messageId = MessageSeparatorTableViewCell.unreadMessagesSeparatorId

@@ -134,6 +134,11 @@ public extension Notification.Name {
     /// Derived from the server and federated capabilities, so dropped whenever either is written
     private let talkCapabilitiesCache = NSCache<NSString, TalkCapabilities>()
 
+#if !APP_EXTENSION
+    /// Keeps the database open for the lifetime of the app, see `init`
+    private var retainedRealm: RLMRealm?
+#endif
+
     public class func sharedInstance() -> NCDatabaseManager {
         return shared
     }
@@ -171,6 +176,16 @@ public extension Notification.Name {
         // Now that we've told Realm how to handle the schema change, opening the file
         // will automatically perform the migration
         _ = RLMRealm.default()
+
+#if !APP_EXTENSION
+        // Realm caches its instances weakly, so holding one keeps the database open instead of every access
+        // reopening and closing the file, which also avoids the file lock that closing takes (0xdead10cc).
+        // It has to be a main thread realm, as only those auto refresh and therefore don't pin the version
+        // they were opened with, which would grow the file.
+        DispatchQueue.main.async {
+            self.retainedRealm = RLMRealm.default()
+        }
+#endif
 
 #if DEBUG
         // Copy Talk DB to Documents directory

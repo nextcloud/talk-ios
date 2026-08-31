@@ -74,7 +74,7 @@ import Toast
     }()
 
     internal lazy var chatBackgroundView: PlaceholderView = {
-        let chatBackgroundView = PlaceholderView(for: .insetGrouped)!
+        let chatBackgroundView = PlaceholderView(for: .insetGrouped)
         chatBackgroundView.placeholderView.isHidden = true
         chatBackgroundView.loadingView.startAnimating()
         chatBackgroundView.placeholderTextView.text = NSLocalizedString("No messages yet, start the conversation!", comment: "")

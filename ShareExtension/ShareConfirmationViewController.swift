@@ -11,6 +11,8 @@ import TOCropViewController
 import AVFoundation
 import MBProgressHUD
 
+private let kShareConfirmationOptionsViewHeight: CGFloat = 44
+
 @objc public protocol ShareConfirmationViewControllerDelegate {
     @objc func shareConfirmationViewControllerDidFail(_ viewController: ShareConfirmationViewController)
     @objc func shareConfirmationViewControllerDidFinish(_ viewController: ShareConfirmationViewController)
@@ -48,6 +50,17 @@ import MBProgressHUD
     private var shareType: ShareConfirmationType = .item
     private var shareContentView = UIView()
     private var shareSilently = false
+
+    /// Quality the images are uploaded in. Deliberately not remembered between shares, so an
+    /// exception stays an exception.
+    private var imageQuality: ChatImageQuality = .standard
+
+    /// Whether the other participants may modify the shared files.
+    private var allowUpdate = false
+
+    /// Where the compressed copies of the running send are, to be thrown away when it is over.
+    private var compressedImagesDirectory: URL?
+
     private var imagePicker: UIImagePickerController?
     private var hud: MBProgressHUD?
     private var objectShareMessage: NCChatMessage?
@@ -180,6 +193,151 @@ import MBProgressHUD
         return button
     }()
 
+    /// One of the two choices an option button offers.
+    private struct UploadOption {
+        let title: String
+        let subtitle: String
+        let image: UIImage?
+    }
+
+    // SF Symbols has no SD and HD badges, so they are drawn to match the title next to them
+    private lazy var standardQualityOption = UploadOption(
+        title: NSLocalizedString("Standard quality", comment: "Upload images at a reduced size"),
+        subtitle: NSLocalizedString("Slightly reduced quality, uses less data", comment: ""),
+        image: UIImage.badge(withText: "SD", matching: UIFont.preferredFont(forTextStyle: .footnote)))
+
+    private lazy var originalQualityOption = UploadOption(
+        title: NSLocalizedString("Original quality", comment: "Upload images unchanged"),
+        subtitle: NSLocalizedString("Original resolution and quality are preserved", comment: ""),
+        image: UIImage.badge(withText: "HD", matching: UIFont.preferredFont(forTextStyle: .footnote)))
+
+    private lazy var viewOnlyOption = UploadOption(
+        title: NSLocalizedString("View-only", comment: "Other participants can only view the shared files"),
+        subtitle: NSLocalizedString("Others can only view the files", comment: ""),
+        image: UIImage(systemName: "pencil.slash"))
+
+    private lazy var editableOption = UploadOption(
+        title: NSLocalizedString("Editable", comment: "Other participants can modify the shared files"),
+        subtitle: NSLocalizedString("Others can edit the files", comment: ""),
+        image: UIImage(systemName: "pencil"))
+
+    private lazy var imageQualityButton: UIButton = {
+        let button = self.optionButton()
+        button.accessibilityHint = NSLocalizedString("Double tap to change the quality the images are sent in", comment: "")
+
+        return button
+    }()
+
+    private lazy var sharePermissionButton: UIButton = {
+        let button = self.optionButton()
+        button.accessibilityHint = NSLocalizedString("Double tap to change who can modify the shared files", comment: "")
+
+        return button
+    }()
+
+    /// Puts the chosen option on its button and marks it in the menu of it.
+    ///
+    /// Both are filled in from the same choice on purpose: letting the button show the selection of
+    /// its menu by itself would leave what the button says and what is uploaded free to drift apart.
+    private func updateOptionButtons() {
+        let isStandardQuality = self.imageQuality == .standard
+        let quality = isStandardQuality ? self.standardQualityOption : self.originalQualityOption
+        self.apply(quality, isDefault: isStandardQuality, to: self.imageQualityButton)
+        self.imageQualityButton.menu = UIMenu(title: NSLocalizedString("Image quality", comment: ""),
+                                              options: .singleSelection,
+                                              children: [
+                                                self.action(for: self.standardQualityOption, isChosen: self.imageQuality == .standard) { self.imageQuality = .standard },
+                                                self.action(for: self.originalQualityOption, isChosen: self.imageQuality == .original) { self.imageQuality = .original }
+                                              ])
+
+        let permission = self.allowUpdate ? self.editableOption : self.viewOnlyOption
+        self.apply(permission, isDefault: !self.allowUpdate, to: self.sharePermissionButton)
+        self.sharePermissionButton.menu = UIMenu(title: NSLocalizedString("File permissions", comment: ""),
+                                                 options: .singleSelection,
+                                                 children: [
+                                                    self.action(for: self.viewOnlyOption, isChosen: !self.allowUpdate) { self.allowUpdate = false },
+                                                    self.action(for: self.editableOption, isChosen: self.allowUpdate) { self.allowUpdate = true }
+                                                 ])
+    }
+
+    private func apply(_ option: UploadOption, isDefault: Bool, to button: UIButton) {
+        button.configuration = self.optionConfiguration(for: option, isDefault: isDefault)
+    }
+
+    private func action(for option: UploadOption, isChosen: Bool, choose: @escaping () -> Void) -> UIAction {
+        return UIAction(title: option.title,
+                        subtitle: option.subtitle,
+                        image: option.image,
+                        state: isChosen ? .on : .off) { [unowned self] _ in
+            choose()
+            self.updateOptionButtons()
+        }
+    }
+
+    private lazy var optionsView: UIStackView = {
+        // Takes the space the buttons do not need, so they stay next to each other on the leading
+        // side. The lowest priorities make it the first thing to give way, otherwise the buttons
+        // would be the ones to shrink and truncate their titles.
+        let spacer = UIView()
+        spacer.setContentHuggingPriority(.init(1), for: .horizontal)
+        spacer.setContentCompressionResistancePriority(.init(1), for: .horizontal)
+
+        let stackView = UIStackView(arrangedSubviews: [self.sharePermissionButton, self.imageQualityButton, spacer])
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.axis = .horizontal
+        stackView.alignment = .center
+        stackView.spacing = 8
+
+        return stackView
+    }()
+
+    private lazy var optionsViewHeightConstraint: NSLayoutConstraint = {
+        return self.optionsView.heightAnchor.constraint(equalToConstant: kShareConfirmationOptionsViewHeight)
+    }()
+
+    /// A button that shows the option it currently has selected and offers the alternatives in a menu.
+    private func optionButton() -> UIButton {
+        let button = UIButton(configuration: UIButton.Configuration.gray())
+        button.showsMenuAsPrimaryAction = true
+
+        return button
+    }
+
+    /// The look of an option button: gray as long as it holds the option a share starts with, and
+    /// filled with the theme color once it does not.
+    ///
+    /// The same pair of colors the unread counter and the selected conversation filters use. The
+    /// server picks the text color to be readable on its theme color, which a tinted background of
+    /// the same color could not promise.
+    private func optionConfiguration(for option: UploadOption, isDefault: Bool) -> UIButton.Configuration {
+        var configuration = isDefault ? UIButton.Configuration.gray() : UIButton.Configuration.filled()
+
+        if !isDefault {
+            configuration.baseBackgroundColor = NCAppBranding.themeColor()
+            configuration.baseForegroundColor = NCAppBranding.themeTextColor()
+        }
+
+        configuration.title = option.title
+        configuration.image = option.image
+        configuration.imagePadding = 4
+        // The arrows that tell the button apart from a label, which the button would only show by
+        // itself if it let its menu handle the selection
+        configuration.indicator = .popup
+        configuration.cornerStyle = .capsule
+        configuration.buttonSize = .small
+        configuration.titleLineBreakMode = .byTruncatingTail
+        // The default symbol scale is chunky next to a footnote sized title
+        configuration.preferredSymbolConfigurationForImage = UIImage.SymbolConfiguration(scale: .small)
+        configuration.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
+            var outgoing = incoming
+            outgoing.font = .preferredFont(forTextStyle: .footnote)
+
+            return outgoing
+        }
+
+        return configuration
+    }
+
     private lazy var shareCollectionViewLayout: UICollectionViewFlowLayout = {
         // Make sure that we use a layout that invalidates itself when the bounds changed
         let layout = BoundsChangedFlowLayout()
@@ -235,6 +393,7 @@ import MBProgressHUD
         self.shareContentView.addSubview(self.pageControl)
         self.shareContentView.addSubview(self.shareTextView)
         self.shareContentView.addSubview(self.itemToolbar)
+        self.shareContentView.addSubview(self.optionsView)
 
         NSLayoutConstraint.activate([
             self.shareTextView.leftAnchor.constraint(equalTo: self.shareContentView.safeAreaLayoutGuide.leftAnchor, constant: 20),
@@ -279,7 +438,12 @@ import MBProgressHUD
             self.pageControl.leftAnchor.constraint(equalTo: self.shareContentView.safeAreaLayoutGuide.leftAnchor),
             self.pageControl.rightAnchor.constraint(equalTo: self.shareContentView.safeAreaLayoutGuide.rightAnchor),
             self.pageControl.heightAnchor.constraint(equalToConstant: 26),
-            self.pageControl.bottomAnchor.constraint(equalTo: self.textInputbar.topAnchor)
+            self.pageControl.bottomAnchor.constraint(equalTo: self.optionsView.topAnchor),
+
+            self.optionsView.leftAnchor.constraint(equalTo: self.shareContentView.safeAreaLayoutGuide.leftAnchor, constant: 20),
+            self.optionsView.rightAnchor.constraint(equalTo: self.shareContentView.safeAreaLayoutGuide.rightAnchor, constant: -20),
+            self.optionsView.bottomAnchor.constraint(equalTo: self.textInputbar.topAnchor),
+            self.optionsViewHeightConstraint
         ])
     }
 
@@ -296,6 +460,7 @@ import MBProgressHUD
             self.itemToolbar.isHidden = true
             self.shareTextView.isHidden = false
             self.shareTextView.text = sharedText
+            self.updateOptionsView()
 
             // When an item of type "public.url" or "public.plain-text" is shared,
             // we switch to text-sharing after viewWillAppear, so we need to add the sendButton here as well
@@ -318,6 +483,7 @@ import MBProgressHUD
             self.shareTextView.isUserInteractionEnabled = false
             self.shareTextView.text = objectShareMessage.parsedMessage().string
             self.objectShareMessage = objectShareMessage
+            self.updateOptionsView()
         }
     }
 
@@ -333,6 +499,12 @@ import MBProgressHUD
                 self.shareCollectionView.reloadData()
             }
         }
+
+        // Set up before the token guard below, which can return early: without the cell registered,
+        // the first reload of the collection view raises
+        let bundle = Bundle(for: ShareConfirmationCollectionViewCell.self)
+        self.shareCollectionView.register(UINib(nibName: kShareConfirmationTableCellNibName, bundle: bundle), forCellWithReuseIdentifier: kShareConfirmationCellIdentifier)
+        self.shareCollectionView.delegate = self
 
         // Configure communication lib
         guard let userToken = NCKeyChainController.sharedInstance().token(forAccountId: self.account.accountId) else { return }
@@ -356,9 +528,34 @@ import MBProgressHUD
             self.navigationItem.title = self.room.displayName
         }
 
-        let bundle = Bundle(for: ShareConfirmationCollectionViewCell.self)
-        self.shareCollectionView.register(UINib(nibName: kShareConfirmationTableCellNibName, bundle: bundle), forCellWithReuseIdentifier: kShareConfirmationCellIdentifier)
-        self.shareCollectionView.delegate = self
+    }
+
+    /// The options that apply to what is being shared right now.
+    ///
+    /// Only uploaded files have a quality and a permission to choose, and each of both options
+    /// needs something to apply to.
+    internal var availableOptions: (imageQuality: Bool, sharePermission: Bool) {
+        guard self.shareType == .item else { return (false, false) }
+
+        let hasCompressibleImage = self.shareItemController.shareItems.contains { ChatImageCompressor.supportsCompression(fileName: $0.fileName) }
+
+        // Update permissions are only supported by the conversation subfolders of the server
+        return (hasCompressibleImage, self.room.supportsConversationSubfolders)
+    }
+
+    /// Shows the options that apply to what is being shared right now, and hides the row when none do.
+    private func updateOptionsView() {
+        self.updateOptionButtons()
+
+        let options = self.availableOptions
+
+        self.imageQualityButton.isHidden = !options.imageQuality
+        self.sharePermissionButton.isHidden = !options.sharePermission
+
+        let showOptions = options.imageQuality || options.sharePermission
+
+        self.optionsView.isHidden = !showOptions
+        self.optionsViewHeightConstraint.constant = showOptions ? kShareConfirmationOptionsViewHeight : 0
     }
 
     /// Whether a caption can be added to what is being shared. When it can, the send button is part
@@ -395,6 +592,8 @@ import MBProgressHUD
 
             self.rightButton.menu = UIMenu(children: [silentSendAction])
         }
+
+        self.updateOptionsView()
     }
 
     public override func viewDidAppear(_ animated: Bool) {
@@ -612,7 +811,8 @@ import MBProgressHUD
         NCIntentController.sharedInstance().donateSendMessageIntent(for: self.room)
 
         self.hud = MBProgressHUD.showAdded(to: self.view, animated: true)
-        self.hud?.mode = .annularDeterminate
+        // Compressing the images happens before there is any progress to report
+        self.hud?.mode = .indeterminate
         self.hud?.label.text = String.localizedStringWithFormat(NSLocalizedString("Uploading %ld elements", comment: ""), self.shareItemController.shareItems.count)
 
         // Add caption to last shareItem
@@ -632,10 +832,14 @@ import MBProgressHUD
         Task {
             defer { bgTask.stopBackgroundTask() }
 
+            let uploads = await self.uploads(for: shareItems, quality: self.imageQuality)
+
+            self.hud?.mode = .annularDeterminate
+
             let results: [Result<Void, Error>]
 
             do {
-                results = try await ChatFileUploader.upload(shareItems.map { self.upload(for: $0) }) { index, fractionCompleted in
+                results = try await ChatFileUploader.upload(uploads) { index, fractionCompleted in
                     shareItems[index].uploadProgress = fractionCompleted
                     self.updateHudProgress()
                 }
@@ -663,17 +867,62 @@ import MBProgressHUD
         }
     }
 
-    private func upload(for shareItem: ShareItem) -> ChatFileUpload {
+    /// Builds the uploads for the items to share, compressing the images among them when the
+    /// standard quality is asked for.
+    internal func uploads(for shareItems: [ShareItem], quality: ChatImageQuality) async -> [ChatFileUpload] {
+        guard quality == .standard,
+              let directory = ChatImageCompressor.temporaryDirectory()
+        else {
+            NCLog.log("Sharing \(shareItems.count) files in their original quality")
+
+            return shareItems.map { self.upload(for: $0) }
+        }
+
+        // Only the plain values are handed to the compression, so it does not touch the share items
+        var images: [Int: (url: URL, fileName: String)] = [:]
+
+        for (index, shareItem) in shareItems.enumerated() {
+            guard let fileURL = shareItem.fileURL,
+                  ChatImageCompressor.supportsCompression(fileName: shareItem.fileName)
+            else { continue }
+
+            images[index] = (fileURL, shareItem.fileName)
+        }
+
+        // Re-encoding the images should not block the main thread
+        let compressedImages = await Task.detached {
+            var compressedImages: [Int: (url: URL, fileName: String)] = [:]
+
+            for (index, image) in images {
+                if let compressed = ChatImageCompressor.compressedCopy(of: image.url, named: image.fileName, in: directory) {
+                    compressedImages[index] = compressed
+                }
+            }
+
+            return compressedImages
+        }.value
+
+        NCLog.log("Sharing \(shareItems.count) files, compressed \(compressedImages.count) of the \(images.count) images among them")
+
+        self.compressedImagesDirectory = directory
+
+        return shareItems.enumerated().map { index, shareItem in
+            self.upload(for: shareItem, compressedTo: compressedImages[index])
+        }
+    }
+
+    private func upload(for shareItem: ShareItem, compressedTo compressedImage: (url: URL, fileName: String)? = nil) -> ChatFileUpload {
         var metaData = ChatFileUploadMetadata()
         metaData.caption = shareItem.caption
         metaData.silent = self.shareSilently
         metaData.threadId = self.thread?.threadId
 
-        var upload = ChatFileUpload(localPath: shareItem.filePath,
-                                    fileName: shareItem.fileName,
+        var upload = ChatFileUpload(localPath: compressedImage?.url.path ?? shareItem.filePath,
+                                    fileName: compressedImage?.fileName ?? shareItem.fileName,
                                     room: self.room,
                                     account: self.account)
         upload.metadata = metaData
+        upload.allowUpdate = self.allowUpdate
 
         return upload
     }
@@ -681,6 +930,11 @@ import MBProgressHUD
     private func finishUploads(withErrors errors: [String], succeededItems: [ShareItem]) {
         self.stopAnimatingSharingIndicator()
         self.hud?.hide(animated: true)
+
+        if let directory = self.compressedImagesDirectory {
+            ChatImageCompressor.removeTemporaryDirectory(directory)
+            self.compressedImagesDirectory = nil
+        }
 
         guard !errors.isEmpty else {
             self.shareItemController.removeAllItems()
@@ -963,6 +1217,7 @@ import MBProgressHUD
                 // Make sure all changes are fully populated before we update our UI elements
                 self.shareCollectionView.layoutIfNeeded()
                 self.updateToolbarForCurrentItem()
+                self.updateOptionsView()
                 self.pageControl.numberOfPages = shareItemController.shareItems.count
 
                 // Update the text input to check if sending is (not-)possible

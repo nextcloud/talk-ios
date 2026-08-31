@@ -79,8 +79,9 @@ public class NCNotificationController: NSObject, UNUserNotificationCenterDelegat
 
         switch type {
         case .missedCall:
-            let missedCallString = NSLocalizedString("Missed call from", comment: "")
-            content.body = "☎️ \(missedCallString) \(userInfo["displayName"] ?? "")"
+            let missedCallTranslation = NSLocalizedString("Missed call from %@", comment: "'%@' being the display name of the caller")
+            let missedCallString = String(format: missedCallTranslation, userInfo[stringForKey: "displayName"] ?? "")
+            content.body = "☎️ \(missedCallString)"
             content.userInfo = userInfo
         case .cancelledCall:
             let cancelledCallString = NSLocalizedString("Cancelled call from another account", comment: "")
@@ -99,8 +100,9 @@ public class NCNotificationController: NSObject, UNUserNotificationCenterDelegat
             content.body = NSLocalizedString("Failed to accept invitation", comment: "")
             content.userInfo = userInfo
         case .recordingConsentRequired:
-            let consentRequiredString = NSLocalizedString("Recording consent required for joining the call", comment: "")
-            content.body = "⚠️ \(consentRequiredString) \(userInfo["displayName"] ?? "")"
+            let consentRequiredTranslation = NSLocalizedString("Recording consent required for joining the call %@", comment: "'%@' being the display name of the call")
+            let consentRequiredString = String(format: consentRequiredTranslation, userInfo[stringForKey: "displayName"] ?? "")
+            content.body = "⚠️ \(consentRequiredString)"
             content.userInfo = userInfo
         case .endToEndEncryptionUnsupported:
             let endToEndEncryptionUnsupported = NSLocalizedString("Calling is currently not supported because end-to-end-encryption is enabled on the server", comment: "")

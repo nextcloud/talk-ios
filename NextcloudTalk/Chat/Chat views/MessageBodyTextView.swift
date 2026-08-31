@@ -37,7 +37,9 @@ struct MessageBodyTextViewWrapper: UIViewRepresentable {
     }
 }
 
-class MessageBodyTextView: UITextView, UITextViewDelegate {
+class MessageBodyTextView: UITextView, UITextViewDelegate, UIGestureRecognizerDelegate {
+
+    private var codeBlockGestureRecognizer: UITapGestureRecognizer?
 
     init() {
         let textStorage = NSTextStorage()
@@ -68,6 +70,15 @@ class MessageBodyTextView: UITextView, UITextViewDelegate {
         self.isEditable = false
         self.isScrollEnabled = false
         self.delegate = self
+
+        let codeBlockGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleCodeBlockTap(_:)))
+        self.codeBlockGestureRecognizer = codeBlockGestureRecognizer
+
+        // Don't swallow the touch, links and the message context menu need to see it as well
+        codeBlockGestureRecognizer.cancelsTouchesInView = false
+        codeBlockGestureRecognizer.delegate = self
+
+        self.addGestureRecognizer(codeBlockGestureRecognizer)
     }
 
     override func awakeFromNib() {
@@ -105,13 +116,64 @@ class MessageBodyTextView: UITextView, UITextViewDelegate {
             return true
         }
 
-        guard let position = self.closestPosition(to: point),
-              let range = self.tokenizer.rangeEnclosingPosition(position, with: .character, inDirection: .layout(.left))
+        guard let attributedText = self.attributedText, let startIndex = self.characterIndex(at: point), startIndex < attributedText.length
         else { return false }
 
-        let startIndex = self.offset(from: self.beginningOfDocument, to: range.start)
+        if attributedText.attribute(.link, at: startIndex, effectiveRange: nil) != nil {
+            return true
+        }
 
-        return self.attributedText.attribute(.link, at: startIndex, effectiveRange: nil) != nil
+        // Code blocks need to receive touches as well, to be able to open them in a scrollable view
+        return self.codeBlockRange(at: point) != nil
+    }
+
+    // MARK: - Code blocks
+
+    private func characterIndex(at point: CGPoint) -> Int? {
+        guard let position = self.closestPosition(to: point),
+              let range = self.tokenizer.rangeEnclosingPosition(position, with: .character, inDirection: .layout(.left))
+        else { return nil }
+
+        return self.offset(from: self.beginningOfDocument, to: range.start)
+    }
+
+    private func codeBlockRange(at point: CGPoint) -> NSRange? {
+        guard let attributedText = self.attributedText, let index = self.characterIndex(at: point), index < attributedText.length
+        else { return nil }
+
+        var effectiveRange = NSRange()
+
+        // Inline code is styled like a code block, only the attribute set by the parser tells them apart
+        guard attributedText.attribute(.syntaxBlock, at: index, effectiveRange: &effectiveRange) != nil else { return nil }
+
+        return effectiveRange
+    }
+
+    @objc private func handleCodeBlockTap(_ gestureRecognizer: UITapGestureRecognizer) {
+        let point = gestureRecognizer.location(in: self)
+
+        guard let attributedText = self.attributedText, let index = self.characterIndex(at: point), index < attributedText.length,
+              // A detected link inside a code block is handled by the text view itself
+              attributedText.attribute(.link, at: index, effectiveRange: nil) == nil,
+              let range = self.codeBlockRange(at: point)
+        else { return }
+
+        // The block keeps the newline before the closing fence, but leading spaces are part of the code
+        let code = attributedText.attributedSubstring(from: range).string.trimmingCharacters(in: .newlines)
+
+        guard !code.isEmpty else { return }
+
+        let codeViewController = GithubPermalinkViewController(codeBlock: code)
+        let navigationController = UINavigationController(rootViewController: codeViewController)
+
+        NCUserInterfaceController.sharedInstance().mainViewController.present(navigationController, animated: true)
+    }
+
+    // MARK: - UIGestureRecognizer delegate
+
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        // Without this our tap cancels the text view's own recognizer, which opens links
+        return gestureRecognizer === self.codeBlockGestureRecognizer
     }
 
     // MARK: - UITextView delegate

@@ -40,19 +40,19 @@ import UIKit
         return NCAppBranding.elementColor()
     }
 
-    func sizeForReaction(reaction: NCChatReaction) -> CGSize {
+    static func sizeForReaction(reaction: NCChatReaction) -> CGSize {
         let text = textForReaction(reaction: reaction)
         var size = CGSize(width: text.width(withConstrainedHeight: 30, font: .systemFont(ofSize: 13.0)), height: 30)
         size.width += 20
         return size
     }
 
-    func textForReaction(reaction: NCChatReaction) -> String {
+    static func textForReaction(reaction: NCChatReaction) -> String {
         return reaction.reaction + " " + String(reaction.count)
     }
 
     func setReaction(reaction: NCChatReaction) {
-        label.text = textForReaction(reaction: reaction)
+        label.text = ReactionsViewCell.textForReaction(reaction: reaction)
         label.textColor = reaction.userReacted ? highlightedTextColor() : defaultTextColor()
         label.backgroundColor = reaction.userReacted ? highlightedBackgroundColor() : defaultBackgroundColor()
     }

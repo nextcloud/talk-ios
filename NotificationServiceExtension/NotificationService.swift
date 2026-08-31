@@ -15,14 +15,14 @@ class NotificationService: UNNotificationServiceExtension {
 
     // TODO: We should share this for all extensions
     private func configureDatabase() -> Bool {
-        // Configure database
         guard let containerBase = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: groupIdentifier) else {
             return false
         }
 
         let databaseUrl = containerBase.appending(path: kTalkDatabaseFolder, directoryHint: .isDirectory).appending(path: kTalkDatabaseFileName, directoryHint: .notDirectory)
 
-        guard !FileManager.default.fileExists(atPath: databaseUrl.path()) else {
+        // kTalkDatabaseFolder contains spaces, so the path must not be percent-encoded for FileManager
+        guard FileManager.default.fileExists(atPath: databaseUrl.path(percentEncoded: false)) else {
             print("Database does not exist -> main app needs to run before extension")
 
             return false

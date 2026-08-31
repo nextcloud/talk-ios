@@ -1510,6 +1510,13 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
         }
     }
 
+    func signalingControllerSessionExpired(_ signalingController: NCSignalingController!) {
+        NCLog.log("Internal signaling session expired for \(self.room.token), ending call")
+
+        // The join failure path already shows the reason in the foreground and ends via CallKit in the background
+        self.delegate?.callControllerDidFailedJoiningCall(self, statusCode: 404, errorReason: self.getJoinCallErrorReason(404))
+    }
+
     // MARK: - NCCameraController delegate
 
     func didDrawFirstFrameOnLocalView() {
