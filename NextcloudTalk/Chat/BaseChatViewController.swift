@@ -3138,6 +3138,16 @@ import Toast
 
             guard let (indexPath, message) = self.indexPathAndMessage(forMessageId: message.messageId) else { return }
 
+            // .added and .removed only confirm a pending reaction, there is nothing to draw or to
+            // create if the server state already landed (e.g. chat relay reaction system message)
+            if state == .added || state == .removed {
+                if message.hasTemporaryReaction(reaction) {
+                    message.setOrUpdateTemporaryReaction(reaction, state: state)
+                }
+
+                return
+            }
+
             message.setOrUpdateTemporaryReaction(reaction, state: state)
 
             CATransaction.begin()

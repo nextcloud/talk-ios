@@ -288,6 +288,10 @@ import SwiftyAttributes
         }
     }
 
+    public func hasTemporaryReaction(_ reaction: String) -> Bool {
+        return temporaryReactions().compactMap({ $0 as? NCChatReaction }).contains { $0.reaction == reaction }
+    }
+
     public func setOrUpdateTemporaryReaction(_ reaction: String, state: NCChatReactionState) {
         if let updateReaction = temporaryReactions().compactMap({ $0 as? NCChatReaction }).first(where: { $0.reaction == reaction }) {
             updateReaction.reaction = reaction
