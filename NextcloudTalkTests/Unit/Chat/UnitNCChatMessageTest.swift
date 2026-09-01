@@ -114,6 +114,23 @@ final class UnitNCChatMessageTest: TestBaseRealm {
         XCTAssertEqual(updatedMessage.reactionsArray().first?.count, 2, "The reaction must not be counted twice")
     }
 
+    // Taking only the counts would leave our reaction unmarked, and counted again as a temporary one
+    func testRoomLastMessageUpdateDoesNotDesyncReactionsFromOurOwn() throws {
+        // We reacted, and are waiting for the server to confirm it
+        let shownMessage = NCChatMessage()
+        shownMessage.setOrUpdateTemporaryReaction("👍", state: .added)
+
+        // A room update arrives first: it counts our reaction, but carries no reactionsSelf
+        let message = storedMessage(reactions: [:], ownReactions: [])
+        let roomLastMessage = storedMessage(reactions: ["👍": 1], ownReactions: [])
+        NCChatMessage.update(message, with: roomLastMessage, isRoomLastMessage: true)
+
+        message.copyPendingReactions(from: shownMessage)
+
+        XCTAssertEqual(message.reactionsArray().first?.count, 1,
+                       "Our reaction must not be counted both by the room update and as a temporary one")
+    }
+
     // Messages stored before reactions were kept in order hold a JSON object instead of pairs
     func testReactionsStoredInTheOldFormatAreStillRead() throws {
         let message = NCChatMessage()

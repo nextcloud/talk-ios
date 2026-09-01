@@ -536,9 +536,6 @@ import SwiftyAttributes
         managedChatMessage.systemMessage = chatMessage.systemMessage
         managedChatMessage.isReplyable = chatMessage.isReplyable
         managedChatMessage.messageType = chatMessage.messageType
-        // Reactions we already know keep their position, new ones are appended
-        managedChatMessage.reactionsJSONString = NCChatMessage.reactionsJSONString(for: chatMessage.storedReactions(),
-                                                                                  keepingOrderOf: managedChatMessage.storedReactions())
         managedChatMessage.expirationTimestamp = chatMessage.expirationTimestamp
         managedChatMessage.isMarkdownMessage = chatMessage.isMarkdownMessage
         managedChatMessage.lastEditActorId = chatMessage.lastEditActorId
@@ -552,6 +549,10 @@ import SwiftyAttributes
         managedChatMessage.pinnedAt = chatMessage.pinnedAt
 
         if !isRoomLastMessage {
+            // Reactions we already know keep their position, new ones are appended. Both fields are
+            // written together, the room's last message has counts but never our own reactions.
+            managedChatMessage.reactionsJSONString = NCChatMessage.reactionsJSONString(for: chatMessage.storedReactions(),
+                                                                                      keepingOrderOf: managedChatMessage.storedReactions())
             managedChatMessage.reactionsSelfJSONString = chatMessage.reactionsSelfJSONString
 
             // Only update the thread data if there is any data (e.g. omit chat relay messages without thread data)
