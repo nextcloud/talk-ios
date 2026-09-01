@@ -288,6 +288,25 @@ import SwiftyAttributes
         }
     }
 
+    /// Copies the reactions of `message` the server has not confirmed yet. A message built from the
+    /// database has none of its own, so without this our reaction disappears until the server sends it.
+    public func copyPendingReactions(from message: NCChatMessage) {
+        let ownReactions = self.reactionsSelfArray()
+
+        let pendingReactions = message.temporaryReactions().compactMap({ $0 as? NCChatReaction }).filter { reaction in
+            switch reaction.state {
+            case .adding, .added:
+                return !ownReactions.contains(reaction.reaction)
+            case .removing, .removed:
+                return ownReactions.contains(reaction.reaction)
+            default:
+                return false
+            }
+        }
+
+        self.temporaryReactions().addObjects(from: pendingReactions)
+    }
+
     public func hasTemporaryReaction(_ reaction: String) -> Bool {
         return temporaryReactions().compactMap({ $0 as? NCChatReaction }).contains { $0.reaction == reaction }
     }

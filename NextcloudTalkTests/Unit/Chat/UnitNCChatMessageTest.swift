@@ -67,6 +67,53 @@ final class UnitNCChatMessageTest: TestBaseRealm {
         XCTAssertEqual(reactionOrder([["😀": 1, "👍": 1, "❤️": 1]]), ["❤️", "👍", "😀"])
     }
 
+    /// A message as it comes back from the database
+    private func storedMessage(reactions: [String: Int], ownReactions: [String]) -> NCChatMessage {
+        let message = NCChatMessage()
+        let pairs = reactions.map { [$0.key, $0.value] as [Any] }
+        message.reactionsJSONString = String(data: try! JSONSerialization.data(withJSONObject: pairs), encoding: .utf8)
+        message.reactionsSelfJSONString = String(data: try! JSONSerialization.data(withJSONObject: ownReactions), encoding: .utf8)
+
+        return message
+    }
+
+    // An update in between replaces the message with the stored one, which doesn't know the reaction yet
+    func testReactionAddedButNotEchoedBackYetIsKept() throws {
+        let shownMessage = NCChatMessage()
+        shownMessage.setOrUpdateTemporaryReaction("👍", state: .adding)
+
+        let updatedMessage = storedMessage(reactions: [:], ownReactions: [])
+        updatedMessage.copyPendingReactions(from: shownMessage)
+
+        XCTAssertEqual(updatedMessage.reactionsArray().map { $0.reaction }, ["👍"],
+                       "A reaction the server has not echoed back yet must stay on the message")
+        XCTAssertTrue(updatedMessage.reactionsArray().first?.userReacted == true)
+    }
+
+    func testReactionRemovedButNotEchoedBackYetStaysRemoved() throws {
+        let shownMessage = NCChatMessage()
+        shownMessage.setOrUpdateTemporaryReaction("👍", state: .removing)
+
+        // The server still has our reaction
+        let updatedMessage = storedMessage(reactions: ["👍": 1], ownReactions: ["👍"])
+        updatedMessage.copyPendingReactions(from: shownMessage)
+
+        XCTAssertTrue(updatedMessage.reactionsArray().isEmpty,
+                      "A reaction we removed must not come back until the server says it is still there")
+    }
+
+    // Once confirmed the message carries the reaction itself, keeping it too would count it twice
+    func testEchoedBackReactionIsNoLongerKept() throws {
+        let shownMessage = NCChatMessage()
+        shownMessage.setOrUpdateTemporaryReaction("👍", state: .added)
+
+        let updatedMessage = storedMessage(reactions: ["👍": 2], ownReactions: ["👍"])
+        updatedMessage.copyPendingReactions(from: shownMessage)
+
+        XCTAssertEqual(updatedMessage.temporaryReactions().count, 0)
+        XCTAssertEqual(updatedMessage.reactionsArray().first?.count, 2, "The reaction must not be counted twice")
+    }
+
     // Messages stored before reactions were kept in order hold a JSON object instead of pairs
     func testReactionsStoredInTheOldFormatAreStillRead() throws {
         let message = NCChatMessage()

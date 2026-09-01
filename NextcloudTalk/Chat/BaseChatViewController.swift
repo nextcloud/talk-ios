@@ -684,6 +684,7 @@ import Toast
             let isAtBottom = self.shouldScrollOnNewMessages()
             let keyDate = self.dateSections[indexPath.section]
             updatedMessage.isGroupMessage = message.isGroupMessage && message.actorType != "bots" && updatedMessage.lastEditTimestamp == 0
+            updatedMessage.copyPendingReactions(from: message)
             self.messages[keyDate]?[indexPath.row] = updatedMessage
 
             // Check if there are any messages that reference our message as a parent -> these need to be reloaded as well
