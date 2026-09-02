@@ -18,6 +18,25 @@ enum AttendeeType: String {
     case bots = "bots"
 }
 
+public enum ParticipantRole {
+    case owner
+    case moderator
+
+    public var systemImageName: String {
+        switch self {
+        case .owner: return "crown"
+        case .moderator: return "shield"
+        }
+    }
+
+    public var localizedName: String {
+        switch self {
+        case .owner: return NSLocalizedString("Owner", comment: "Conversation owner, a participant with high-level permissions")
+        case .moderator: return NSLocalizedString("Moderator", comment: "Conversation moderator, a participant with elevated permissions")
+        }
+    }
+}
+
 @objcMembers
 public class NCRoomParticipant: NSObject {
 
@@ -64,6 +83,10 @@ public class NCRoomParticipant: NSObject {
         self.invitedActorId = dictionary["invitedActorId"] as? String
 
         super.init()
+    }
+
+    public var isOwner: Bool {
+        return participantType == .owner
     }
 
     public var canModerate: Bool {
@@ -133,11 +156,6 @@ public class NCRoomParticipant: NSObject {
             }
         }
 
-        // Moderator label
-        if canModerate {
-            detailedNameString = String(format: NSLocalizedString("%@ (moderator)", comment: "'Alice (moderator)' - a participant who can moderate the conversation"), detailedNameString)
-        }
-
         // Bridge bot label
         if isBridgeBotUser {
             detailedNameString = String(format: NSLocalizedString("%@ (bot)", comment: "'Alice (bot)' - a participant that is a bot, not a person"), detailedNameString)
@@ -149,6 +167,17 @@ public class NCRoomParticipant: NSObject {
         }
 
         return detailedNameString
+    }
+
+    // Ranks are only marked in conversations that actually have them: both
+    // participants of a one-to-one are owners by design.
+    public func roleIcon(in room: NCRoom) -> ParticipantRole? {
+        guard canModerate,
+              room.type != .oneToOne, room.type != .formerOneToOne,
+              room.type != .changelog, room.type != .noteToSelf
+        else { return nil }
+
+        return isOwner ? .owner : .moderator
     }
 
     public var callIconImageName: String? {
