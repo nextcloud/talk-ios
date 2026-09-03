@@ -196,6 +196,86 @@ final class UnitChatViewControllerTest: TestBaseRealm {
                       "A chat-relay catch-up scheduled before stop() must not resume polling once stop() has run")
     }
 
+    // MARK: - Chat relay
+
+    // A signaling controller that advertises the chat relay but never connects: without a websocket
+    // the callbacks of the failing connection attempt are ignored, so nothing reconnects underneath
+    // the assertions.
+    private func inertSignalingController() -> NCExternalSignalingController {
+        let account = NCDatabaseManager.sharedInstance().activeAccount()
+        let signalingController = NCExternalSignalingController(account: account, serverUrl: TestConstants.server, ticket: "fakeTicket")
+
+        signalingController.disconnect()
+        signalingController.helloResponseReceived(messageDict: [
+            "type": "hello",
+            "id": "1",
+            "hello": [
+                "sessionid": "session-1",
+                "server": ["version": "2.0.0", "features": ["chat-relay"]]
+            ]
+        ])
+
+        return signalingController
+    }
+
+    private func drainMainQueue() {
+        let exp = expectation(description: "\(#function)\(#line)")
+        DispatchQueue.main.async { exp.fulfill() }
+        waitForExpectations(timeout: TestConstants.timeoutShort, handler: nil)
+    }
+
+    func testUpToDateChatKeepsPollingUntilTheRoomIsJoinedOnTheSignalingServer() throws {
+        let room = addRoom(withToken: "relayJoinRoom")
+        let chatController = NCChatController(for: room)!
+        let signalingController = inertSignalingController()
+
+        chatController.setupChatRelayForTesting(with: signalingController)
+
+        // The chat is up to date, but our session is not in the room yet, so the relay would not
+        // deliver anything to us: keep long polling instead of handing over.
+        chatController.handOverPollingToChatRelayForTesting()
+        chatController.waitForChatRelayQueueForTesting()
+        XCTAssertEqual(chatController.chatRelayStateForTesting, .inactive)
+        XCTAssertFalse(chatController.isReceivingMessagesStoppedForTesting)
+
+        // Being in *another* room is not enough either
+        signalingController.roomMessageReceived(messageDict: ["type": "room", "room": ["roomid": "someOtherRoom"]])
+        chatController.handOverPollingToChatRelayForTesting()
+        chatController.waitForChatRelayQueueForTesting()
+        XCTAssertEqual(chatController.chatRelayStateForTesting, .inactive)
+
+        // Our room was acked, so the first long poll reporting an up-to-date chat after that hands over
+        signalingController.roomMessageReceived(messageDict: ["type": "room", "room": ["roomid": room.token]])
+        chatController.handOverPollingToChatRelayForTesting()
+        chatController.waitForChatRelayQueueForTesting()
+        XCTAssertEqual(chatController.chatRelayStateForTesting, .active)
+
+        chatController.stop()
+        drainMainQueue()
+    }
+
+    func testCatchUpDoesNotHandOverToTheRelayWhileTheRoomIsNotJoined() throws {
+        let room = addRoom(withToken: "relayCatchUpRoom")
+        let chatController = NCChatController(for: room)!
+        let signalingController = inertSignalingController()
+
+        chatController.setupChatRelayForTesting(with: signalingController)
+
+        // The relay is active and a catch-up is running when the session is replaced by a reconnect
+        // that could not resume. The catch-up must not re-arm the relay: the new session did not
+        // re-join the room yet.
+        signalingController.roomMessageReceived(messageDict: ["type": "room", "room": ["roomid": room.token]])
+        chatController.markChatRelayActiveForTesting()
+        signalingController.resetWebSocket()
+
+        chatController.handOverPollingToChatRelayForTesting()
+        chatController.waitForChatRelayQueueForTesting()
+        XCTAssertEqual(chatController.chatRelayStateForTesting, .inactive)
+
+        chatController.stop()
+        drainMainQueue()
+    }
+
     func testContentInsetAdjustsForOverlayViews() throws {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let room = NCRoom()
