@@ -27,6 +27,7 @@ extension Notification.Name {
     static let extSignalingDidReceiveChatMessage = Notification.Name(rawValue: "NCExternalSignalingControllerDidReceiveChatMessageNotification")
     static let extSignalingDidRequestChatRefresh = Notification.Name(rawValue: "NCExternalSignalingControllerDidRequestChatRefreshNotification")
     static let extSignalingDidReconnect = Notification.Name(rawValue: "NCExternalSignalingControllerDidReconnectNotification")
+    static let extSignalingDidJoinRoom = Notification.Name(rawValue: "NCExternalSignalingControllerDidJoinRoomNotification")
 }
 
 public typealias SendMessageCompletionBlock = (_ task: URLSessionWebSocketTask?, _ status: NCExternalSignalingSendMessageStatus) -> Void
@@ -42,6 +43,10 @@ public enum NCExternalSignalingSendMessageStatus {
     public weak var delegate: NCExternalSignalingControllerDelegate?
 
     public var currentRoom: String?
+
+    // The room the signaling server acked us into. Unlike `currentRoom` this is cleared on every
+    // reconnect, so it answers "will the server relay this room's chat to our session right now?"
+    public private(set) var joinedRoomToken: String?
 
     public private(set) var account: TalkAccount
     public private(set) var disconnected: Bool = true
@@ -210,6 +215,7 @@ public enum NCExternalSignalingSendMessageStatus {
         self.webSocket?.cancel()
         self.webSocket = nil
         self.helloResponseReceived = false
+        self.joinedRoomToken = nil
         self.helloMessage?.ignoreCompletionBlock()
         self.helloMessage = nil
         self.disconnected = true
@@ -340,6 +346,15 @@ public enum NCExternalSignalingSendMessageStatus {
         let sessionChanged = self.sessionId != newSessionId
         self.sessionId = newSessionId
 
+        if sessionChanged {
+            // The new session did not join any room yet, the re-join below takes care of that
+            self.joinedRoomToken = nil
+        } else {
+            // The session was resumed, so the server kept us in the room we joined before and replays
+            // the messages we missed while being disconnected
+            self.setJoinedRoomToken(self.currentRoom)
+        }
+
         guard let serverDict = helloDict["server"] as? [AnyHashable: Any],
               let serverFeatures = serverDict["features"] as? [String],
               let serverVersion = serverDict["version"] as? String
@@ -402,8 +417,10 @@ public enum NCExternalSignalingSendMessageStatus {
                   let roomId = roomDict["roomid"] as? String
             else { return }
 
-            // If we are aware that we were in this room before, we should treat this as a success
+            // If we are aware that we were in this room before, we should treat this as a success.
+            // No room message follows in this case, so we have to set the joined room ourselves.
             if currentRoom == roomId {
+                self.setJoinedRoomToken(roomId)
                 self.executeCompletionBlock(forMessageId: messageId, withStatus: .success)
                 return
             }
@@ -462,6 +479,7 @@ public enum NCExternalSignalingSendMessageStatus {
     func leaveRoom(withRoomId roomId: String) {
         if self.currentRoom == roomId {
             self.currentRoom = nil
+            self.joinedRoomToken = nil
             self.joinRoom(withRoomId: "", withSessionId: "", withFederation: nil, withCompletionBlock: nil)
         } else {
             print("External signaling: Not leaving because it's not the room we joined")
@@ -556,9 +574,23 @@ public enum NCExternalSignalingSendMessageStatus {
             self.currentRoom = newRoomId.isEmpty ? nil : newRoomId
         }
 
+        // Set outside the check above: after a reconnect we re-join the same room, so `currentRoom` is
+        // unchanged, but this is exactly the moment we are part of the room on the signaling server again.
+        self.setJoinedRoomToken(newRoomId.isEmpty ? nil : newRoomId)
+
         if let messageId = messageDict["id"] as? String {
             self.executeCompletionBlock(forMessageId: messageId, withStatus: .success)
         }
+    }
+
+    // Notifies about the room we are joined to on the signaling server, so components relying on the
+    // server pushing room events to us (e.g. the chat relay) know when they can start doing so.
+    private func setJoinedRoomToken(_ roomToken: String?) {
+        self.joinedRoomToken = roomToken
+
+        guard let roomToken else { return }
+
+        NotificationCenter.default.post(name: .extSignalingDidJoinRoom, object: self, userInfo: ["roomToken": roomToken])
     }
 
     func eventMessageReceived(eventDict: [AnyHashable: Any]) {
