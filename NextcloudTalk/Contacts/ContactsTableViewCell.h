@@ -18,7 +18,9 @@ extern CGFloat const kContactsTableCellTitleFontSize;
 @property(nonatomic, weak) IBOutlet AvatarView *avatarView;
 @property(nonatomic, weak) IBOutlet UILabel *labelTitle;
 @property (weak, nonatomic) IBOutlet UILabel *userStatusMessageLabel;
+@property (nonatomic, strong) UIImageView *roleIconView;
 
 - (void)setUserStatusMessage:(NSString * _Nullable)userStatusMessage withIcon:(NSString * _Nullable)userStatusIcon;
+- (void)setRoleIcon:(NSString * _Nullable)systemImageName withAccessibilityLabel:(NSString * _Nullable)accessibilityLabel;
 
 @end
