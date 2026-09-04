@@ -34,8 +34,17 @@ public class NCChatController: NSObject {
     private var getHistoryTask: URLSessionDataTask?
     private var pullMessagesTask: URLSessionDataTask?
 
-    private enum ChatRelayState {
-        case inactive, active, catchingUp
+    enum ChatRelayState {
+        // We are polling the chat API, the relay does not process messages yet
+        case inactive
+        // The chat is up to date, but our signaling session did not join the room yet, so nothing
+        // would be relayed to us: keep polling until the join is acked
+        case waitingForJoin
+        // The relay took over, polling stopped
+        case active
+        // The relay is active, but a message could not be rendered from its payload, so we are
+        // fetching the missing messages over the chat API
+        case catchingUp
     }
 
     private var chatRelayState: ChatRelayState = .inactive
@@ -58,7 +67,9 @@ public class NCChatController: NSObject {
 
         super.init()
 
-        setupChatRelay()
+        let signalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: account.accountId)
+        setupChatRelay(with: signalingController)
+
         AllocationTracker.shared.addAllocation("NCChatController")
     }
 
@@ -71,7 +82,9 @@ public class NCChatController: NSObject {
 
         super.init()
 
-        setupChatRelay()
+        let signalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: account.accountId)
+        setupChatRelay(with: signalingController)
+
         AllocationTracker.shared.addAllocation("NCChatController")
     }
 
@@ -425,14 +438,23 @@ public class NCChatController: NSObject {
 
     // MARK: - External Signaling / Chat Relay
 
-    private func setupChatRelay() {
-        guard let signalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: account.accountId),
-              signalingController.hasChatRelay else { return }
+    // The signaling server only sends us the events of the room our session joined, so this is the
+    // condition for letting the relay take over from polling the chat API.
+    private var canChatRelayTakeOverPolling: Bool {
+        guard let externalSignalingController, externalSignalingController.hasChatRelay else { return false }
+
+        return externalSignalingController.joinedRoomToken == room.token
+    }
+
+    private func setupChatRelay(with signalingController: NCExternalSignalingController?) {
+        guard let signalingController, signalingController.hasChatRelay else { return }
+
         externalSignalingController = signalingController
         chatRelayMessagesQueue = DispatchQueue(label: "chat.relay.message.queue")
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveChatMessageFromExternalSignaling(_:)), name: .extSignalingDidReceiveChatMessage, object: signalingController)
         NotificationCenter.default.addObserver(self, selector: #selector(didRequestChatRefreshFromExternalSignaling(_:)), name: .extSignalingDidRequestChatRefresh, object: signalingController)
         NotificationCenter.default.addObserver(self, selector: #selector(didReconnectExternalSignaling(_:)), name: .extSignalingDidReconnect, object: signalingController)
+        NotificationCenter.default.addObserver(self, selector: #selector(didJoinRoomOnExternalSignaling(_:)), name: .extSignalingDidJoinRoom, object: signalingController)
     }
 
     @objc private func didReceiveChatMessageFromExternalSignaling(_ notification: Notification) {
@@ -460,6 +482,63 @@ public class NCChatController: NSObject {
                 return
             }
             self.triggerChatRelayCatchUp()
+        }
+    }
+
+    // The signaling server only sends us the events of the room our session joined, so the relay can
+    // take over from polling as soon as the join is acked. Poll once more without a timeout instead of
+    // waiting for the running long poll to time out, that poll then arms the relay on its 304.
+    @objc private func didJoinRoomOnExternalSignaling(_ notification: Notification) {
+        guard let roomToken = notification.userInfo?["roomToken"] as? String, roomToken == room.token else { return }
+        guard !stopChatMessagesPoll else { return }
+
+        chatRelayMessagesQueue?.async {
+            guard self.chatRelayState == .waitingForJoin else { return }
+
+            // We are not waiting for the join anymore, we are waiting for the poll below to confirm
+            // that the chat is up to date. Also keeps a second join from polling twice.
+            self.chatRelayState = .inactive
+
+            DispatchQueue.main.async {
+                let lastChatBlock = self.chatBlocksForRoomOrThread().last
+                self.startReceivingChatMessages(fromMessagesId: lastChatBlock?.newestMessageId ?? 0, withTimeout: false)
+            }
+        }
+    }
+
+    // Called when the chat is up to date and the server supports the chat relay. The relay only
+    // delivers messages of the room our signaling session joined, so handing polling over to it before
+    // the join is acked would stop polling while nothing is relayed to us yet, and every message posted
+    // in that window would be lost for good: the next relayed message advances the chat block past the
+    // gap, so it is never requested again. Keep polling until we are in the room instead.
+    private func handOverPollingToChatRelay(fromMessagesId messageId: Int) {
+        if canChatRelayTakeOverPolling {
+            print("Chat is up to date, now processing new messages from the chat relay")
+            startProcessingChatRelayMessages()
+            return
+        }
+
+        print("Chat is up to date, but we did not join the room on the signaling server yet, keep polling")
+
+        chatRelayMessagesQueue?.async {
+            self.chatRelayState = .waitingForJoin
+
+            // The join might have been acked while we were switching queues, in that case poll once
+            // without a timeout so the relay is armed right away instead of after the long poll.
+            let hasJoinedMeanwhile = self.canChatRelayTakeOverPolling
+
+            DispatchQueue.main.async {
+                self.startReceivingChatMessages(fromMessagesId: messageId, withTimeout: !hasJoinedMeanwhile)
+            }
+        }
+    }
+
+    // Puts the relay back into its initial state after a poll ended without arming it. Without this, a
+    // catch-up that doesn't repoll (brute-force protection, blocked chat, thread not found) would leave
+    // the relay in `.catchingUp` forever, buffering messages that are never flushed.
+    private func resetChatRelayState() {
+        chatRelayMessagesQueue?.async {
+            self.chatRelayState = .inactive
         }
     }
 
@@ -1147,18 +1226,21 @@ public class NCChatController: NSObject {
 
             if let error {
                 if self.isChatBeingBlocked(statusCode) {
+                    self.resetChatRelayState()
                     self.notifyChatIsBlocked()
                     return
                 }
 
                 if statusCode == 404 {
                     NCLog.log("Thread not found error: \(error.description)")
+                    self.resetChatRelayState()
                     NotificationCenter.default.post(name: .NCChatControllerDidReceiveThreadNotFound, object: self, userInfo: nil)
                     return
                 }
 
                 if statusCode == 429 {
                     NCLog.log("Brute-force protected, received 429 while receiving messages. No further polling.")
+                    self.resetChatRelayState()
                     return
                 }
 
@@ -1180,6 +1262,7 @@ public class NCChatController: NSObject {
                         // When we receive a "history_cleared" message, we don't continue here, as otherwise
                         // we would request new messages, but instead, we need to request the initial history again
                         if message?.systemMessage == "history_cleared" {
+                            self.resetChatRelayState()
                             return
                         }
                     }
@@ -1194,9 +1277,8 @@ public class NCChatController: NSObject {
                 let chatIsUpToDate = statusCode == 304
                 let lastChatBlock = self.chatBlocksForRoomOrThread().last
 
-                if chatIsUpToDate, let extSignaling = self.externalSignalingController, extSignaling.hasChatRelay {
-                    print("Chat is up to date, now processing new messages from the chat relay")
-                    self.startProcessingChatRelayMessages()
+                if chatIsUpToDate, self.externalSignalingController?.hasChatRelay == true {
+                    self.handOverPollingToChatRelay(fromMessagesId: lastChatBlock?.newestMessageId ?? 0)
                     return
                 }
 
@@ -1436,4 +1518,21 @@ extension NCChatController {
     // triggerChatRelayCatchUpForTesting() actually schedules the restart on the main queue, mirroring
     // a catch-up that fires while the user is still in the room (just before they leave).
     func markChatRelayActiveForTesting() { chatRelayState = .active }
+
+    // Puts the relay state machine into .waitingForJoin — the state the controller is in while it
+    // keeps polling because our signaling session did not join the room yet.
+    func markChatRelayWaitingForJoinForTesting() { chatRelayState = .waitingForJoin }
+
+    var chatRelayStateForTesting: ChatRelayState { chatRelayState }
+
+    // The condition the chat relay is gated on (see canChatRelayTakeOverPolling).
+    var canChatRelayTakeOverPollingForTesting: Bool { canChatRelayTakeOverPolling }
+
+    // Waits until everything queued on the relay queue ran, so tests don't have to guess timings.
+    func waitForChatRelayQueueForTesting() { chatRelayMessagesQueue?.sync {} }
+
+    // There is no signaling controller configured for the fake account, so tests pass in their own.
+    func setupChatRelayForTesting(with signalingController: NCExternalSignalingController) {
+        setupChatRelay(with: signalingController)
+    }
 }

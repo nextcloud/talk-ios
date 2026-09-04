@@ -196,6 +196,111 @@ final class UnitChatViewControllerTest: TestBaseRealm {
                       "A chat-relay catch-up scheduled before stop() must not resume polling once stop() has run")
     }
 
+    // MARK: - Chat relay
+
+    private func inertSignalingController(withChatRelay hasChatRelay: Bool = true) -> NCExternalSignalingController {
+        let account = NCDatabaseManager.sharedInstance().activeAccount()
+        let signalingController = NCExternalSignalingController(account: account, serverUrl: TestConstants.server, ticket: "fakeTicket")
+
+        // Make the controller inert: without a websocket the delegate callbacks of the failing
+        // connection attempt are ignored, so nothing reconnects underneath the assertions.
+        signalingController.disconnect()
+
+        if hasChatRelay {
+            let helloMessage: [AnyHashable: Any] = [
+                "type": "hello",
+                "id": "1",
+                "hello": [
+                    "sessionid": "session-1",
+                    "server": ["version": "2.0.0", "features": ["chat-relay"]]
+                ]
+            ]
+
+            signalingController.helloResponseReceived(messageDict: helloMessage)
+        }
+
+        return signalingController
+    }
+
+    private func drainMainQueue() {
+        let exp = expectation(description: "\(#function)\(#line)")
+        DispatchQueue.main.async { exp.fulfill() }
+        waitForExpectations(timeout: TestConstants.timeoutShort, handler: nil)
+    }
+
+    func testChatRelayOnlyTakesOverPollingOnceTheRoomIsJoinedOnTheSignalingServer() throws {
+        let room = addRoom(withToken: "relayGateRoom")
+        let chatController = NCChatController(for: room)!
+        let signalingController = inertSignalingController()
+
+        chatController.setupChatRelayForTesting(with: signalingController)
+
+        // The server supports the chat relay, but our signaling session is not in the room yet, so
+        // the relay would not deliver anything to us. Handing over to it here loses every message
+        // posted until the join is acked, since polling stops for good.
+        XCTAssertFalse(chatController.canChatRelayTakeOverPollingForTesting)
+
+        // Being in *another* room is not enough either
+        signalingController.roomMessageReceived(messageDict: ["type": "room", "room": ["roomid": "someOtherRoom"]])
+        XCTAssertFalse(chatController.canChatRelayTakeOverPollingForTesting)
+
+        signalingController.roomMessageReceived(messageDict: ["type": "room", "room": ["roomid": room.token]])
+        XCTAssertTrue(chatController.canChatRelayTakeOverPollingForTesting)
+
+        // We left the room again (or the connection dropped)
+        signalingController.resetWebSocket()
+        XCTAssertFalse(chatController.canChatRelayTakeOverPollingForTesting)
+
+        chatController.stop()
+        drainMainQueue()
+    }
+
+    func testJoiningTheRoomRepollsWhileWaitingForTheJoin() throws {
+        let room = addRoom(withToken: "relayJoinRoom")
+        let chatController = NCChatController(for: room)!
+        let signalingController = inertSignalingController()
+
+        chatController.setupChatRelayForTesting(with: signalingController)
+
+        // The chat is up to date, but we kept polling because we were not in the room yet
+        chatController.markChatRelayWaitingForJoinForTesting()
+
+        // The join of another room must not make us repoll
+        signalingController.roomMessageReceived(messageDict: ["type": "room", "room": ["roomid": "someOtherRoom"]])
+        chatController.waitForChatRelayQueueForTesting()
+        drainMainQueue()
+        XCTAssertEqual(chatController.chatRelayStateForTesting, .waitingForJoin)
+
+        // Our room was acked: repoll right away instead of waiting for the running long poll to time
+        // out, so the relay is armed by that poll's 304
+        signalingController.roomMessageReceived(messageDict: ["type": "room", "room": ["roomid": room.token]])
+        chatController.waitForChatRelayQueueForTesting()
+        drainMainQueue()
+        XCTAssertEqual(chatController.chatRelayStateForTesting, .inactive)
+
+        chatController.stop()
+        drainMainQueue()
+    }
+
+    func testJoiningTheRoomDoesNotRepollWhenTheRelayIsAlreadyActive() throws {
+        let room = addRoom(withToken: "relayActiveRoom")
+        let chatController = NCChatController(for: room)!
+        let signalingController = inertSignalingController()
+
+        chatController.setupChatRelayForTesting(with: signalingController)
+        chatController.markChatRelayActiveForTesting()
+
+        // A re-join while the relay is already processing messages must not restart polling
+        signalingController.roomMessageReceived(messageDict: ["type": "room", "room": ["roomid": room.token]])
+        chatController.waitForChatRelayQueueForTesting()
+        drainMainQueue()
+
+        XCTAssertEqual(chatController.chatRelayStateForTesting, .active)
+
+        chatController.stop()
+        drainMainQueue()
+    }
+
     func testContentInsetAdjustsForOverlayViews() throws {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let room = NCRoom()
