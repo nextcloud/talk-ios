@@ -265,9 +265,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%ld conversation with unread messages</string>
+			<string>%ld conversación con mensajes no leídos </string>
+			<key>many</key>
+			<string>%ld conversaciones con mensajes no leídos </string>
 			<key>other</key>
-			<string>%ld conversations with unread messages</string>
+			<string>%ld conversaciones con mensajes no leídos </string>
 		</dict>
 	</dict>
 	<key>%ld days</key>
@@ -281,9 +283,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%ld day</string>
+			<string>%ld día</string>
+			<key>many</key>
+			<string>%ld días</string>
 			<key>other</key>
-			<string>%ld days</string>
+			<string>%ld días</string>
 		</dict>
 	</dict>
 	<key>%ld hours</key>
@@ -297,9 +301,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%ld hour</string>
+			<string>%ld hora</string>
+			<key>many</key>
+			<string>%ld horas</string>
 			<key>other</key>
-			<string>%ld hours</string>
+			<string>%ld horas</string>
 		</dict>
 	</dict>
 	<key>%ld minutes</key>
@@ -313,9 +319,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%ld minute</string>
+			<string>%ld minuto</string>
+			<key>many</key>
+			<string>%ld minutos</string>
 			<key>other</key>
-			<string>%ld minutes</string>
+			<string>%ld minutos</string>
 		</dict>
 	</dict>
 	<key>%1$@, %2$@, %3$@ and %4$ld others will receive invitations</key>
@@ -329,9 +337,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%4$ld other will receive invitations</string>
+			<string>%4$ld otro recibirán invitaciones</string>
+			<key>many</key>
+			<string>%4$ld otros recibirán invitaciones</string>
 			<key>other</key>
-			<string>%4$ld others will receive invitations</string>
+			<string>%4$ld otros recibirán invitaciones</string>
 		</dict>
 	</dict>
 	<key>%1$@, %2$@, %3$@ and %4$ld others are typing…</key>
@@ -345,9 +355,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%4$ld other is typing…</string>
+			<string>%4$ld otro están escribiendo…</string>
+			<key>many</key>
+			<string>%4$ld otros están escribiendo…</string>
 			<key>other</key>
-			<string>%4$ld others are typing…</string>
+			<string>%4$ld otros están escribiendo…</string>
 		</dict>
 	</dict>
 	<key>You added {user0} and %ld more participants</key>
@@ -361,9 +373,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>You added {user0} and %ld more participant</string>
+			<string>Has añadido a {user0} y a %ld participante más</string>
+			<key>many</key>
+			<string>Has añadido a {user0} y a %ld participantes más</string>
 			<key>other</key>
-			<string>You added {user0} and %ld more participants</string>
+			<string>Has añadido a {user0} y a %ld participantes más</string>
 		</dict>
 	</dict>
 	<key>An administrator added you and %ld more participants</key>
@@ -377,9 +391,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator added you and %ld more participant</string>
+			<string>Un administrador te ha añadido a ti y a %ld participante más</string>
+			<key>many</key>
+			<string>Un administrador te ha añadido a ti y a %ld participantes más</string>
 			<key>other</key>
-			<string>An administrator added you and %ld more participants</string>
+			<string>Un administrador te ha añadido a ti y a %ld participantes más</string>
 		</dict>
 	</dict>
 	<key>An administrator added {user0} and %ld more participants</key>
@@ -393,9 +409,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator added {user0} and %ld more participant</string>
+			<string>Un administrador ha añadido a {user0} y a %ld participante más</string>
+			<key>many</key>
+			<string>Un administrador ha añadido a {user0} y a %ld participantes más</string>
 			<key>other</key>
-			<string>An administrator added {user0} and %ld more participants</string>
+			<string>Un administrador ha añadido a {user0} y a %ld participantes más</string>
 		</dict>
 	</dict>
 	<key>{actor0} added you and %ld more participants</key>
@@ -409,9 +427,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} added you and %ld more participant</string>
+			<string>{actor0} te ha añadido a ti y a %ld participante más</string>
+			<key>many</key>
+			<string>{actor0} te ha añadido a ti y a %ld participantes más</string>
 			<key>other</key>
-			<string>{actor0} added you and %ld more participants</string>
+			<string>{actor0} te ha añadido a ti y a %ld participantes más</string>
 		</dict>
 	</dict>
 	<key>{actor0} added {user0} and %ld more participants</key>
@@ -425,9 +445,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} added {user0} and %ld more participant</string>
+			<string>{actor0} ha añadido a {user0} y a %ld participante más</string>
+			<key>many</key>
+			<string>{actor0} ha añadido a {user0} y a %ld participantes más</string>
 			<key>other</key>
-			<string>{actor0} added {user0} and %ld more participants</string>
+			<string>{actor0} ha añadido a {user0} y a %ld participantes más</string>
 		</dict>
 	</dict>
 	<key>You removed {user0} and %ld more participants</key>
@@ -441,9 +463,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>You removed {user0} and %ld more participant</string>
+			<string>Has eliminado a {user0} y a %ld participante más</string>
+			<key>many</key>
+			<string>Has eliminado a {user0} y a %ld participantes más</string>
 			<key>other</key>
-			<string>You removed {user0} and %ld more participants</string>
+			<string>Has eliminado a {user0} y a %ld participantes más</string>
 		</dict>
 	</dict>
 	<key>An administrator removed you and %ld more participants</key>
@@ -457,9 +481,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator removed you and %ld more participant</string>
+			<string>Un administrador te ha eliminado a ti y a %ld participante más</string>
+			<key>many</key>
+			<string>Un administrador te ha eliminado a ti y a %ld participantes más</string>
 			<key>other</key>
-			<string>An administrator removed you and %ld more participants</string>
+			<string>Un administrador te ha eliminado a ti y a %ld participantes más</string>
 		</dict>
 	</dict>
 	<key>An administrator removed {user0} and %ld more participants</key>
@@ -473,9 +499,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator removed {user0} and %ld more participant</string>
+			<string>Un administrador ha eliminado a {user0} y a %ld participante más</string>
+			<key>many</key>
+			<string>Un administrador ha eliminado a {user0} y a %ld participantes más</string>
 			<key>other</key>
-			<string>An administrator removed {user0} and %ld more participants</string>
+			<string>Un administrador ha eliminado a {user0} y a %ld participantes más</string>
 		</dict>
 	</dict>
 	<key>{actor0} removed you and %ld more participants</key>
@@ -489,9 +517,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} removed you and %ld more participant</string>
+			<string>{actor0} te ha eliminado a ti y a %ld participante más</string>
+			<key>many</key>
+			<string>{actor0} te ha eliminado a ti y a %ld participantes más</string>
 			<key>other</key>
-			<string>{actor0} removed you and %ld more participants</string>
+			<string>{actor0} te ha eliminado a ti y a %ld participantes más</string>
 		</dict>
 	</dict>
 	<key>{actor0} removed {user0} and %ld more participants</key>
@@ -505,9 +535,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} removed {user0} and %ld more participant</string>
+			<string>{actor0} ha eliminado a {user0} y a %ld participante más</string>
+			<key>many</key>
+			<string>{actor0} ha eliminado a {user0} y a %ld participantes más</string>
 			<key>other</key>
-			<string>{actor0} removed {user0} and %ld more participants</string>
+			<string>{actor0} ha eliminado a {user0} y a %ld participantes más</string>
 		</dict>
 	</dict>
 	<key>You promoted {user0} and %ld more participants to moderators</key>
@@ -521,9 +553,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>You promoted {user0} and %ld more participant to moderators</string>
+			<string>Has ascendido a {user0} y a %ld participante más a moderadores</string>
+			<key>many</key>
+			<string>Has ascendido a {user0} y a %ld participantes más a moderadores</string>
 			<key>other</key>
-			<string>You promoted {user0} and %ld more participants to moderators</string>
+			<string>Has ascendido a {user0} y a %ld participantes más a moderadores</string>
 		</dict>
 	</dict>
 	<key>An administrator promoted you and %ld more participants to moderators</key>
@@ -537,9 +571,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator promoted you and %ld more participant to moderators</string>
+			<string>Un administrador te ha ascendido a ti y a %ld participante más a moderadores</string>
+			<key>many</key>
+			<string>Un administrador te ha ascendido a ti y a %ld participantes más a moderadores</string>
 			<key>other</key>
-			<string>An administrator promoted you and %ld more participants to moderators</string>
+			<string>Un administrador te ha ascendido a ti y a %ld participantes más a moderadores</string>
 		</dict>
 	</dict>
 	<key>An administrator promoted {user0} and %ld more participants to moderators</key>
@@ -553,9 +589,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator promoted {user0} and %ld more participant to moderators</string>
+			<string>Un administrador ha ascendido a {user0} y a %ld participante más a moderadores</string>
+			<key>many</key>
+			<string>Un administrador ha ascendido a {user0} y a %ld participantes más a moderadores</string>
 			<key>other</key>
-			<string>An administrator promoted {user0} and %ld more participants to moderators</string>
+			<string>Un administrador ha ascendido a {user0} y a %ld participantes más a moderadores</string>
 		</dict>
 	</dict>
 	<key>{actor0} promoted you and %ld more participants to moderators</key>
@@ -569,9 +607,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} promoted you and %ld more participant to moderators</string>
+			<string>{actor0} te ha ascendido a ti y a %ld participante más a moderadores</string>
+			<key>many</key>
+			<string>{actor0} te ha ascendido a ti y a %ld participantes más a moderadores</string>
 			<key>other</key>
-			<string>{actor0} promoted you and %ld more participants to moderators</string>
+			<string>{actor0} te ha ascendido a ti y a %ld participantes más a moderadores</string>
 		</dict>
 	</dict>
 	<key>{actor0} promoted {user0} and %ld more participants to moderators</key>
@@ -585,9 +625,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} promoted {user0} and %ld more participant to moderators</string>
+			<string>{actor0} ha ascendido a {user0} y a %ld participante más a moderadores</string>
+			<key>many</key>
+			<string>{actor0} ha ascendido a {user0} y a %ld participantes más a moderadores</string>
 			<key>other</key>
-			<string>{actor0} promoted {user0} and %ld more participants to moderators</string>
+			<string>{actor0} ha ascendido a {user0} y a %ld participantes más a moderadores</string>
 		</dict>
 	</dict>
 	<key>You demoted {user0} and %ld more participants from moderators</key>
@@ -601,9 +643,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>You demoted {user0} and %ld more participant from moderators</string>
+			<string>Has degradado a {user0} y a %ld participante más de su estatus de moderadores</string>
+			<key>many</key>
+			<string>Has degradado a {user0} y a %ld participantes más de su estatus de moderadores</string>
 			<key>other</key>
-			<string>You demoted {user0} and %ld more participants from moderators</string>
+			<string>Has degradado a {user0} y a %ld participantes más de su estatus de moderadores</string>
 		</dict>
 	</dict>
 	<key>An administrator demoted you and %ld more participants from moderators</key>
@@ -617,9 +661,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator demoted you and %ld more participant from moderators</string>
+			<string>Un administrador te ha degradado a ti y a %ld participante más de su estatus de moderadores</string>
+			<key>many</key>
+			<string>Un administrador te ha degradado a ti y a %ld participantes más de su estatus de moderadores</string>
 			<key>other</key>
-			<string>An administrator demoted you and %ld more participants from moderators</string>
+			<string>Un administrador te ha degradado a ti y a %ld participantes más de su estatus de moderadores</string>
 		</dict>
 	</dict>
 	<key>An administrator demoted {user0} and %ld more participants from moderators</key>
@@ -633,9 +679,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator demoted {user0} and %ld more participant from moderators</string>
+			<string>Un administrador ha degradado a {user0} y %ld participante más de su estatus de moderadores</string>
+			<key>many</key>
+			<string>Un administrador ha degradado a {user0} y %ld participantes más de su estatus de moderadores</string>
 			<key>other</key>
-			<string>An administrator demoted {user0} and %ld more participants from moderators</string>
+			<string>Un administrador ha degradado a {user0} y %ld participantes más de su estatus de moderadores</string>
 		</dict>
 	</dict>
 	<key>{actor0} demoted you and %ld more participants from moderators</key>
@@ -649,9 +697,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} demoted you and %ld more participant from moderators</string>
+			<string>{actor0} te ha degradado a ti y a %ld participante más de su estatus de moderadores</string>
+			<key>many</key>
+			<string>{actor0} te ha degradado a ti y a %ld participantes más de su estatus de moderadores</string>
 			<key>other</key>
-			<string>{actor0} demoted you and %ld more participants from moderators</string>
+			<string>{actor0} te ha degradado a ti y a %ld participantes más de su estatus de moderadores</string>
 		</dict>
 	</dict>
 	<key>{actor0} demoted {user0} and %ld more participants from moderators</key>
@@ -665,9 +715,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} demoted {user0} and %ld more participant from moderators</string>
+			<string>{actor0} ha degradado a {user0} y a %ld participante más de su estatus de moderadores</string>
+			<key>many</key>
+			<string>{actor0} ha degradado a {user0} y a %ld participantes más de su estatus de moderadores</string>
 			<key>other</key>
-			<string>{actor0} demoted {user0} and %ld more participants from moderators</string>
+			<string>{actor0} ha degradado a {user0} y a %ld participantes más de su estatus de moderadores</string>
 		</dict>
 	</dict>
 	<key>You and %ld more participants joined the call</key>
@@ -681,9 +733,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>You and %ld more participant joined the call</string>
+			<string>Tú y %ldparticipante más se unieron a la llamada</string>
+			<key>many</key>
+			<string>Tú y %ld participantes más se unieron a la llamada</string>
 			<key>other</key>
-			<string>You and %ld more participants joined the call</string>
+			<string>Tú y %ld participantes más se unieron a la llamada</string>
 		</dict>
 	</dict>
 	<key>{actor0} and %ld more participants joined the call</key>
@@ -697,9 +751,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} and %ld more participant joined the call</string>
+			<string>{actor0} y %ld participante más se unieron a la llamada</string>
+			<key>many</key>
+			<string>{actor0} y %ld participantes más se unieron a la llamada</string>
 			<key>other</key>
-			<string>{actor0} and %ld more participants joined the call</string>
+			<string>{actor0} y %ld participantes más se unieron a la llamada</string>
 		</dict>
 	</dict>
 	<key>You and %ld more participants left the call</key>
@@ -713,9 +769,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>You and %ld more participant left the call</string>
+			<string>Tú y %ld participante más abandonaron la llamada</string>
+			<key>many</key>
+			<string>Tú y %ld participantes más abandonaron la llamada</string>
 			<key>other</key>
-			<string>You and %ld more participants left the call</string>
+			<string>Tú y %ld participantes más abandonaron la llamada</string>
 		</dict>
 	</dict>
 	<key>{actor0} and %ld more participants left the call</key>
@@ -729,9 +787,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} and %ld more participant left the call</string>
+			<string>{actor0} y %ld participante más abandonaron la llamada</string>
+			<key>many</key>
+			<string>{actor0} y %ld participantes más abandonaron la llamada</string>
 			<key>other</key>
-			<string>{actor0} and %ld more participants left the call</string>
+			<string>{actor0} y %ld participantes más abandonaron la llamada</string>
 		</dict>
 	</dict>
 </dict>
