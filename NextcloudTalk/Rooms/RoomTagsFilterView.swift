@@ -33,6 +33,7 @@ class RoomTagsFilterView: UIView {
 
     static let chipVerticalPadding: CGFloat = PillShapeMetrics.verticalPadding
     static let rowVerticalPadding: CGFloat = 16
+    static let rowHorizontalPadding: CGFloat = 16
 
     // Adapts to the current dynamic type size of the chip title font
     static var viewHeight: CGFloat {
@@ -43,7 +44,7 @@ class RoomTagsFilterView: UIView {
     public var onChipSelected: ((String) -> Void)?
     public var onChipLongPressed: (() -> Void)?
 
-    private let scrollView = UIScrollView()
+    private let scrollView = FadingScrollView()
     private let stackView = UIStackView()
     private let feedbackGenerator = UISelectionFeedbackGenerator()
     private var chips: [TagFilterChip] = []
@@ -70,13 +71,13 @@ class RoomTagsFilterView: UIView {
         scrollView.addSubview(stackView)
 
         NSLayoutConstraint.activate([
-            scrollView.leadingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.trailingAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.leadingAnchor, constant: Self.rowHorizontalPadding),
+            scrollView.trailingAnchor.constraint(equalTo: self.safeAreaLayoutGuide.trailingAnchor, constant: -Self.rowHorizontalPadding),
             scrollView.topAnchor.constraint(equalTo: self.topAnchor),
             scrollView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
 
-            stackView.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor, constant: 16),
-            stackView.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor, constant: -16),
+            stackView.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor),
             stackView.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor, constant: Self.rowVerticalPadding),
             stackView.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor, constant: -Self.rowVerticalPadding),
             stackView.heightAnchor.constraint(equalTo: scrollView.frameLayoutGuide.heightAnchor, constant: -(Self.rowVerticalPadding * 2))
@@ -96,6 +97,7 @@ class RoomTagsFilterView: UIView {
             chipControl.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(chipLongPressed(_:))))
             stackView.addArrangedSubview(chipControl)
         }
+
     }
 
     @objc private func chipLongPressed(_ recognizer: UILongPressGestureRecognizer) {
@@ -114,6 +116,7 @@ class RoomTagsFilterView: UIView {
         guard let chip = sender.chip else { return }
 
         feedbackGenerator.selectionChanged()
+        scrollView.scrollToVisible(sender)
         onChipSelected?(chip.id)
     }
 }
