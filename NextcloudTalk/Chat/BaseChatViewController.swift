@@ -118,6 +118,8 @@ import Toast
 
     private var contextMenuAccessoryView: UIView?
     private var contextMenuMessageView: UIView?
+    private var contextMenuContainerView: ContextMenuContainerView?
+    private var contextMenuAccessoryProxyView: UIView?
 
     private var leftButtonLongPressGesture: UILongPressGestureRecognizer?
 
@@ -3633,6 +3635,12 @@ import Toast
             self.contextMenuMessageView?.layer.mask = nil
         }
 
+        animator?.addCompletion {
+            if #available(iOS 27.0, *) {
+                self.addContextMenuAccessoryProxy()
+            }
+        }
+
         // Hiding the keyboard due to a UIKit issue where the reported keyboard height
         // may be incorrect after dismissing a modal/context menu on iOS 26.
         // TODO: Recheck if this behavior is fixed on iOS 26+.
@@ -3640,12 +3648,98 @@ import Toast
     }
 
     public override func tableView(_ tableView: UITableView, willEndContextMenuInteraction configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionAnimating?) {
+        self.contextMenuAccessoryProxyView?.removeFromSuperview()
+        self.contextMenuAccessoryProxyView = nil
+
         animator?.addCompletion {
+            self.contextMenuContainerView = nil
+
             // Wait until the context menu is completely hidden before we execute any method
             if let contextMenuActionBlock = self.contextMenuActionBlock {
                 contextMenuActionBlock()
                 self.contextMenuActionBlock = nil
             }
+        }
+    }
+
+    // Since iOS 27 UIKit does not host our preview where it shows it, it renders a copy of it into its own platter
+    // while the real view stays in the top left corner of the window, so a touch on the accessoryView we see never
+    // reaches the buttons. We put a transparent proxy on top of the platter and forward its taps to the real buttons.
+    private func addContextMenuAccessoryProxy() {
+        guard let containerView = self.contextMenuContainerView,
+              let accessoryView = containerView.accessoryView,
+              let window = containerView.window,
+              let platterView = self.findSubview(in: window, withClassNameContaining: "ContentPlatter"),
+              // Add the proxy next to the platter instead of to the window, otherwise UIKit can add its own
+              // container above it when the previous menu is still dismissing
+              let platterContainerView = platterView.superview,
+              containerView.bounds.width > 0
+        else { return }
+
+        // UIKit scales the preview down into the platter, our proxy has to use the same scale
+        let platterFrame = platterView.frame
+        let scale = platterFrame.width / containerView.bounds.width
+        let accessoryFrame = accessoryView.frame
+
+        let proxyView = ContextMenuAccessoryProxyView(accessoryView: accessoryView, scale: scale)
+        proxyView.frame = .init(x: platterFrame.minX + accessoryFrame.minX * scale,
+                                y: platterFrame.minY + accessoryFrame.minY * scale,
+                                width: accessoryFrame.width * scale,
+                                height: accessoryFrame.height * scale)
+
+        platterContainerView.addSubview(proxyView)
+        self.contextMenuAccessoryProxyView = proxyView
+    }
+
+    private func findSubview(in view: UIView, withClassNameContaining className: String) -> UIView? {
+        for subview in view.subviews {
+            if NSStringFromClass(type(of: subview)).contains(className) {
+                return subview
+            }
+
+            if let foundView = self.findSubview(in: subview, withClassNameContaining: className) {
+                return foundView
+            }
+        }
+
+        return nil
+    }
+
+    private class ContextMenuAccessoryProxyView: UIView {
+
+        private let accessoryView: UIView
+        private let scale: CGFloat
+
+        init(accessoryView: UIView, scale: CGFloat) {
+            self.accessoryView = accessoryView
+            self.scale = scale
+
+            super.init(frame: .zero)
+
+            self.backgroundColor = .clear
+            self.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTap(_:))))
+        }
+
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+
+        private func button(at point: CGPoint) -> UIButton? {
+            let pointInAccessoryView = CGPoint(x: point.x / self.scale, y: point.y / self.scale)
+
+            guard let button = self.accessoryView.hitTest(pointInAccessoryView, with: nil) as? UIButton, button.isEnabled else { return nil }
+
+            return button
+        }
+
+        // Only claim the taps which land on one of the buttons, everything else has to dismiss the menu as usual
+        override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+            return self.button(at: point) != nil
+        }
+
+        @objc
+        private func handleTap(_ recognizer: UITapGestureRecognizer) {
+            self.button(at: recognizer.location(in: self))?.sendActions(for: .touchUpInside)
         }
     }
 
@@ -3655,6 +3749,9 @@ import Toast
     }
 
     private class ContextMenuContainerView: UIView {
+
+        var accessoryView: UIView?
+
         override func didMoveToWindow() {
             super.didMoveToWindow()
 
@@ -3730,6 +3827,7 @@ import Toast
             containerView.backgroundColor = .clear
             containerView.addSubview(previewMessageView)
             containerView.addSubview(accessoryView)
+            containerView.accessoryView = accessoryView
 
             if let cell = tableView.cellForRow(at: indexPath as IndexPath) {
                 // On large iPhones (with regular landscape size, like iPhone X) we need to take the safe area into account when calculating the center
@@ -3749,6 +3847,8 @@ import Toast
                 cellCenter = CGPoint(x: cellCenterX, y: cellCenterY)
             }
         }
+
+        self.contextMenuContainerView = containerView
 
         // Create a preview target which allows us to have a transparent background
         let previewTarget = UIPreviewTarget(container: tableView, center: cellCenter)
