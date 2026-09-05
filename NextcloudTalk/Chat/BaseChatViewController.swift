@@ -272,6 +272,8 @@ import Toast
         // Set delegate to retrieve typing events
         self.tableView?.separatorStyle = .none
 
+        self.tableView?.register(DateHeaderView.self, forHeaderFooterViewReuseIdentifier: DateHeaderView.reuseIdentifier)
+
         self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: chatMessageCellIdentifier)
         self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: chatGroupedMessageCellIdentifier)
         self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: chatReplyMessageCellIdentifier)
@@ -3219,11 +3221,8 @@ import Toast
         return self.messages[dateKey]?.count ?? 0
     }
 
-    public override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        if tableView != self.tableView {
-            return super.tableView(tableView, titleForHeaderInSection: section)
-        }
-
+    // Not titleForHeaderInSection, UIKit would draw that title in addition to our DateHeaderView
+    private func getHeaderTitle(forSection section: Int) -> String? {
         let date = self.dateSections[section]
         return self.getHeaderString(fromDate: date)
     }
@@ -3239,7 +3238,7 @@ import Toast
             return 0
         }
 
-        if let headerText = self.tableView(tableView, titleForHeaderInSection: section) {
+        if let headerText = self.getHeaderTitle(forSection: section) {
             return DateHeaderView.height(for: headerText, fittingWidth: tableView.frame.width)
         }
 
@@ -3251,8 +3250,10 @@ import Toast
             return super.tableView(tableView, viewForHeaderInSection: section)
         }
 
-        let headerView = DateHeaderView()
-        if let headerText = self.tableView(tableView, titleForHeaderInSection: section) {
+        // Reused, a newly created glass background would animate itself in every time
+        guard let headerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: DateHeaderView.reuseIdentifier) as? DateHeaderView else { return nil }
+
+        if let headerText = self.getHeaderTitle(forSection: section) {
             headerView.titleLabel.text = headerText
             headerView.section = section
             headerView.delegate = self
