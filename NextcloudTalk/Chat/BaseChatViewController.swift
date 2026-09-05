@@ -272,6 +272,11 @@ import Toast
         // Set delegate to retrieve typing events
         self.tableView?.separatorStyle = .none
 
+        if #available(iOS 26.0, *) {
+            // Our date headers make UIKit choose a hard edge, drawing a border below the navigation bar
+            self.tableView?.topEdgeEffect.style = .soft
+        }
+
         self.tableView?.register(DateHeaderView.self, forHeaderFooterViewReuseIdentifier: DateHeaderView.reuseIdentifier)
 
         self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: chatMessageCellIdentifier)
