@@ -3944,11 +3944,7 @@ import Toast
             return
         }
 
-        if let fileStatus = fileParameter.fileStatus, fileStatus.fileLocalPath != nil && FileManager.default.fileExists(atPath: fileParameter.fileStatus?.fileLocalPath ?? "") {
-            self.setupVoiceMessagePlayer(with: fileParameter.fileStatus!)
-            return
-        }
-
+        // Resume an already loaded voice message
         if let voiceMessagesPlayer = self.voiceMessagesPlayer,
            let playerAudioFileStatus = self.playerAudioFileStatus,
            !voiceMessagesPlayer.isPlaying,
@@ -3956,6 +3952,15 @@ import Toast
            fileParameter.path == playerAudioFileStatus.filePath {
 
             self.playVoiceMessagePlayer()
+            return
+        }
+
+        // Temporary voice messages are played from their local file
+        if let fileStatus = fileParameter.fileStatus,
+           let fileLocalPath = fileStatus.fileLocalPath,
+           FileManager.default.fileExists(atPath: fileLocalPath) {
+
+            self.setupVoiceMessagePlayer(with: fileStatus)
             return
         }
 
