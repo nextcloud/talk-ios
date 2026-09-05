@@ -34,9 +34,6 @@
 /* 'Alice (guest)' - a participant who is not logged in */
 "%@ (guest)" = "%@ (guest)";
 
-/* 'Alice (moderator)' - a participant who can moderate the conversation */
-"%@ (moderator)" = "%@ (moderator)";
-
 /* Alice and Bob will receive invitations */
 "%@ and %@ will receive invitations" = "%1$@ and %2$@ will receive invitations";
 
@@ -1682,6 +1679,9 @@
 /* No comment provided by engineer. */
 "moderator" = "moderator";
 
+/* Conversation moderator, a participant with elevated permissions */
+"Moderator" = "Moderator";
+
 /* No comment provided by engineer. */
 "Modification date" = "Modification date";
 
@@ -1925,7 +1925,8 @@
 /* No comment provided by engineer. */
 "Outgoing silent call" = "Outgoing silent call";
 
-/* Owner of a repository */
+/* Conversation owner, a participant with high-level permissions
+   Owner of a repository */
 "Owner" = "Owner";
 
 /* No comment provided by engineer. */
