@@ -2521,7 +2521,12 @@ import SwiftUI
         }
 
         // Without this the menu would tint the emoji into a single colored shape
-        return image.withRenderingMode(.alwaysOriginal)
+        let emojiImage = image.withRenderingMode(.alwaysOriginal)
+
+        // The emoji is only drawn, so it needs a label to be read out and to be found in UI tests
+        emojiImage.accessibilityLabel = emoji
+
+        return emojiImage
     }
 
     private func getReactionShortcutMenu(for message: NCChatMessage, at indexPath: IndexPath) -> UIMenu {
