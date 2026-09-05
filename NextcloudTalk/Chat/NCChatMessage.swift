@@ -288,6 +288,29 @@ import SwiftyAttributes
         }
     }
 
+    /// Copies the reactions of `message` the server has not confirmed yet. A message built from the
+    /// database has none of its own, so without this our reaction disappears until the server sends it.
+    public func copyPendingReactions(from message: NCChatMessage) {
+        let ownReactions = self.reactionsSelfArray()
+
+        let pendingReactions = message.temporaryReactions().compactMap({ $0 as? NCChatReaction }).filter { reaction in
+            switch reaction.state {
+            case .adding, .added:
+                return !ownReactions.contains(reaction.reaction)
+            case .removing, .removed:
+                return ownReactions.contains(reaction.reaction)
+            default:
+                return false
+            }
+        }
+
+        self.temporaryReactions().addObjects(from: pendingReactions)
+    }
+
+    public func hasTemporaryReaction(_ reaction: String) -> Bool {
+        return temporaryReactions().compactMap({ $0 as? NCChatReaction }).contains { $0.reaction == reaction }
+    }
+
     public func setOrUpdateTemporaryReaction(_ reaction: String, state: NCChatReactionState) {
         if let updateReaction = temporaryReactions().compactMap({ $0 as? NCChatReaction }).first(where: { $0.reaction == reaction }) {
             updateReaction.reaction = reaction
@@ -513,9 +536,6 @@ import SwiftyAttributes
         managedChatMessage.systemMessage = chatMessage.systemMessage
         managedChatMessage.isReplyable = chatMessage.isReplyable
         managedChatMessage.messageType = chatMessage.messageType
-        // Reactions we already know keep their position, new ones are appended
-        managedChatMessage.reactionsJSONString = NCChatMessage.reactionsJSONString(for: chatMessage.storedReactions(),
-                                                                                  keepingOrderOf: managedChatMessage.storedReactions())
         managedChatMessage.expirationTimestamp = chatMessage.expirationTimestamp
         managedChatMessage.isMarkdownMessage = chatMessage.isMarkdownMessage
         managedChatMessage.lastEditActorId = chatMessage.lastEditActorId
@@ -529,6 +549,10 @@ import SwiftyAttributes
         managedChatMessage.pinnedAt = chatMessage.pinnedAt
 
         if !isRoomLastMessage {
+            // Reactions we already know keep their position, new ones are appended. Both fields are
+            // written together, the room's last message has counts but never our own reactions.
+            managedChatMessage.reactionsJSONString = NCChatMessage.reactionsJSONString(for: chatMessage.storedReactions(),
+                                                                                      keepingOrderOf: managedChatMessage.storedReactions())
             managedChatMessage.reactionsSelfJSONString = chatMessage.reactionsSelfJSONString
 
             // Only update the thread data if there is any data (e.g. omit chat relay messages without thread data)
