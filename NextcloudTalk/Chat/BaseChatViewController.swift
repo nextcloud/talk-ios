@@ -3645,8 +3645,6 @@ import Toast
         }
     }
 
-    /// Uses a cell from the nib, not the one of the row: a cell which was displayed only renders the part of
-    /// a long message which was on screen, and handing over the live cell means UIKit reparents it
     internal func getContextMenuPreviewController(forRowAt indexPath: IndexPath) -> UIViewController? {
         guard let tableView = self.tableView,
               let message = self.message(for: indexPath),
@@ -3657,32 +3655,8 @@ import Toast
         previewCell.setup(for: message, inRoom: self.room, forThread: self.thread, withAccount: self.account)
         previewCell.layoutIfNeeded()
 
-        // Keeps the message out of the corners of the preview, which UIKit rounds stronger than our bubbles
-        let previewPadding = 12.0
-        let previewCellView = previewCell.contentView
-        let previewWidth = previewCellView.frame.width
-
-        // A preview wider than the cell is cut off instead of scaled, so the message makes room for the padding
-        let previewScale = (previewWidth - previewPadding * 2) / previewWidth
-
-        previewCellView.transform = .init(scaleX: previewScale, y: previewScale)
-        previewCellView.frame.origin = .init(x: previewPadding, y: previewPadding)
-
-        let previewSize = CGSize(width: previewWidth,
-                                 height: min(previewCellView.frame.height + previewPadding * 2, self.view.bounds.height * 0.4))
-
-        let previewView = UIView(frame: .init(origin: .zero, size: previewSize))
-        previewView.clipsToBounds = true
-
-        // Bubbles of own messages are translucent, on top of the menu background the chat would shine through
-        previewView.backgroundColor = .systemBackground
-        previewView.addSubview(previewCellView)
-
-        let previewController = UIViewController()
-        previewController.view = previewView
-        previewController.preferredContentSize = previewSize
-
-        return previewController
+        // Truncated, the menu needs the rest of the screen for long messages
+        return ContextMenuPreviewController(for: previewCell.contentView, maxHeight: self.view.bounds.height * 0.4)
     }
 
     // MARK: - Chat functions

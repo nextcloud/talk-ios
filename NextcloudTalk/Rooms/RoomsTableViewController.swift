@@ -2169,8 +2169,6 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         return configuration
     }
 
-    /// Uses a cell from the nib, not the reuse pool: a label that was displayed already does not render
-    /// into a bitmap on iPad in split view, and handing over the live cell means UIKit reparents it
     private func contextMenuPreviewController(for indexPath: IndexPath) -> UIViewController? {
         guard let room = room(for: indexPath),
               let previewCell = UINib(nibName: RoomTableViewCell.nibName, bundle: nil).instantiate(withOwner: nil).first as? RoomTableViewCell
@@ -2179,35 +2177,14 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         previewCell.frame = CGRect(origin: .zero, size: self.tableView.rectForRow(at: indexPath).size)
         configure(previewCell, for: room)
 
-        // Only set for cells the table view displays, so the preview has to do it itself
+        // Only set for cells the table view displays, so the preview does it itself
         previewCell.avatarView.setStatus(for: room, allowCustomStatusIcon: true)
 
-        // The row takes its background from the table view, the floating card needs its own
+        // The row takes its background from the table view, the card needs its own
         previewCell.containerView.backgroundColor = .systemBackground
         previewCell.layoutIfNeeded()
 
-        // Keeps the room out of the corners of the preview, which UIKit rounds stronger than the card
-        let previewPadding = 12.0
-        let previewCellView = previewCell.contentView
-        let previewWidth = previewCellView.frame.width
-
-        // A preview wider than the cell is cut off instead of scaled, so the room makes room for the padding
-        let previewScale = (previewWidth - previewPadding * 2) / previewWidth
-
-        previewCellView.transform = .init(scaleX: previewScale, y: previewScale)
-        previewCellView.frame.origin = .init(x: previewPadding, y: previewPadding)
-
-        let previewSize = CGSize(width: previewWidth, height: previewCellView.frame.height + previewPadding * 2)
-
-        let previewView = UIView(frame: .init(origin: .zero, size: previewSize))
-        previewView.backgroundColor = .systemBackground
-        previewView.addSubview(previewCellView)
-
-        let previewController = UIViewController()
-        previewController.view = previewView
-        previewController.preferredContentSize = previewSize
-
-        return previewController
+        return ContextMenuPreviewController(for: previewCell.contentView)
     }
 
     override func tableView(_ tableView: UITableView, willDisplayContextMenu configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionAnimating?) {
