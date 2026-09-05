@@ -116,9 +116,6 @@ import Toast
 
     private var photoPicker: PHPickerViewController?
 
-    private var contextMenuAccessoryView: UIView?
-    private var contextMenuMessageView: UIView?
-
     private var leftButtonLongPressGesture: UILongPressGestureRecognizer?
 
     private var messageHeightCache = NCChatMessageHeightCache()
@@ -3616,8 +3613,8 @@ import Toast
 
         let menu = UIMenu(children: actions)
 
-        let configuration = UIContextMenuConfiguration(identifier: indexPath as NSIndexPath) {
-            return nil
+        let configuration = UIContextMenuConfiguration(identifier: indexPath as NSIndexPath) { [weak self] in
+            return self?.getContextMenuPreviewController(forRowAt: indexPath)
         } actionProvider: { _ in
             return menu
         }
@@ -3626,13 +3623,6 @@ import Toast
     }
 
     public override func tableView(_ tableView: UITableView, willDisplayContextMenu configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionAnimating?) {
-        animator?.addAnimations {
-            // Only set these, when the context menu is fully visible
-            self.contextMenuAccessoryView?.alpha = 1
-            self.contextMenuMessageView?.layer.cornerRadius = 10
-            self.contextMenuMessageView?.layer.mask = nil
-        }
-
         // Hiding the keyboard due to a UIKit issue where the reported keyboard height
         // may be incorrect after dismissing a modal/context menu on iOS 26.
         // TODO: Recheck if this behavior is fixed on iOS 26+.
@@ -3649,116 +3639,44 @@ import Toast
         }
     }
 
-    internal func getContextMenuAccessoryView(forMessage message: NCChatMessage, forIndexPath indexPath: IndexPath, withCellHeight cellHeight: CGFloat) -> UIView? {
-        // We don't provide a accessory view in the BaseChatViewController, but can add it in a subclass
-        return nil
-    }
-
-    private class ContextMenuContainerView: UIView {
-        override func didMoveToWindow() {
-            super.didMoveToWindow()
-
-            if #available(iOS 26.0, *) {
-                // Make our context menu accessoryView user interactive
-                self.superview?.isUserInteractionEnabled = true
-            }
-        }
-    }
-
-    public override func tableView(_ tableView: UITableView, previewForHighlightingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
-        guard let indexPath = configuration.identifier as? NSIndexPath,
-              let message = self.message(for: indexPath as IndexPath)
+    /// Uses a cell from the nib, not the one of the row: a cell which was displayed only renders the part of
+    /// a long message which was on screen, and handing over the live cell means UIKit reparents it
+    internal func getContextMenuPreviewController(forRowAt indexPath: IndexPath) -> UIViewController? {
+        guard let tableView = self.tableView,
+              let message = self.message(for: indexPath),
+              let previewCell = UINib(nibName: BaseChatTableViewCell.nibName, bundle: nil).instantiate(withOwner: nil).first as? BaseChatTableViewCell
         else { return nil }
 
-        let maxPreviewWidth = self.view.bounds.size.width - self.view.safeAreaInsets.left - self.view.safeAreaInsets.right
-        let maxPreviewHeight = self.view.bounds.size.height * 0.4
+        previewCell.frame = .init(origin: .zero, size: tableView.rectForRow(at: indexPath).size)
+        previewCell.setup(for: message, inRoom: self.room, forThread: self.thread, withAccount: self.account)
+        previewCell.layoutIfNeeded()
 
-        // TODO: Take padding into account
-        let maxTextWidth = maxPreviewWidth - chatMessageCellAvatarHeight
+        // Keeps the message out of the corners of the preview, which UIKit rounds stronger than our bubbles
+        let previewPadding = 12.0
+        let previewCellView = previewCell.contentView
+        let previewWidth = previewCellView.frame.width
 
-        // We need to get the height of the original cell to center the preview correctly (as the preview is always non-grouped)
-        let heightOfOriginalCell = self.getCellHeight(for: message, with: maxTextWidth)
+        // A preview wider than the cell is cut off instead of scaled, so the message makes room for the padding
+        let previewScale = (previewWidth - previewPadding * 2) / previewWidth
 
-        // Remember grouped-status -> Create a previewView which always is a non-grouped-message
-        let isGroupMessage = message.isGroupMessage
-        message.isGroupMessage = false
+        previewCellView.transform = .init(scaleX: previewScale, y: previewScale)
+        previewCellView.frame.origin = .init(x: previewPadding, y: previewPadding)
 
-        let previewTableViewCell = self.getCell(for: message)
-        var cellHeight = self.getCellHeight(for: message, with: maxTextWidth)
+        let previewSize = CGSize(width: previewWidth,
+                                 height: min(previewCellView.frame.height + previewPadding * 2, self.view.bounds.height * 0.4))
 
-        let heightDifferenceGroupedToNonGrouped = cellHeight - heightOfOriginalCell
+        let previewView = UIView(frame: .init(origin: .zero, size: previewSize))
+        previewView.clipsToBounds = true
 
-        // Cut the height if bigger than max height
-        if cellHeight > maxPreviewHeight {
-            cellHeight = maxPreviewHeight
-        }
+        // Bubbles of own messages are translucent, on top of the menu background the chat would shine through
+        previewView.backgroundColor = .systemBackground
+        previewView.addSubview(previewCellView)
 
-        let heightdifferenceOriginalToPreview = cellHeight - heightOfOriginalCell
+        let previewController = UIViewController()
+        previewController.view = previewView
+        previewController.preferredContentSize = previewSize
 
-        // Use the contentView of the UITableViewCell as a preview view
-        let previewMessageView = previewTableViewCell.contentView
-        previewMessageView.frame = CGRect(x: 0, y: 0, width: maxPreviewWidth, height: cellHeight)
-        previewMessageView.layer.masksToBounds = true
-        previewMessageView.backgroundColor = .clear
-
-        // Create a mask to not show the avatar part when showing a grouped messages while animating
-        // The mask will be reset in willDisplayContextMenuWithConfiguration so the avatar is visible when the context menu is shown
-        if heightDifferenceGroupedToNonGrouped > 0 {
-            let maskLayer = CAShapeLayer()
-            let maskRect = CGRect(x: 0, y: heightDifferenceGroupedToNonGrouped + 16, width: previewMessageView.frame.size.width, height: cellHeight - 8)
-            maskLayer.path = CGPath(rect: maskRect, transform: nil)
-
-            previewMessageView.layer.mask = maskLayer
-        }
-
-        previewMessageView.backgroundColor = .systemBackground
-        self.contextMenuMessageView = previewMessageView
-
-        // Restore grouped-status
-        message.isGroupMessage = isGroupMessage
-
-        var containerView: ContextMenuContainerView
-        var cellCenter = CGPoint()
-
-        if let accessoryView = self.getContextMenuAccessoryView(forMessage: message, forIndexPath: indexPath as IndexPath, withCellHeight: cellHeight) {
-            self.contextMenuAccessoryView = accessoryView
-
-            // maxY = height + y
-            let totalAccessoryFrameHeight = accessoryView.frame.maxY - cellHeight
-
-            containerView = ContextMenuContainerView(frame: .init(x: 0, y: 0, width: Int(maxPreviewWidth), height: Int(cellHeight + totalAccessoryFrameHeight)))
-            containerView.backgroundColor = .clear
-            containerView.addSubview(previewMessageView)
-            containerView.addSubview(accessoryView)
-
-            if let cell = tableView.cellForRow(at: indexPath as IndexPath) {
-                // On large iPhones (with regular landscape size, like iPhone X) we need to take the safe area into account when calculating the center
-                let cellCenterX = cell.center.x + self.view.safeAreaInsets.left / 2 - self.view.safeAreaInsets.right / 2
-                let cellCenterY = cell.center.y + totalAccessoryFrameHeight / 2 + heightdifferenceOriginalToPreview / 2 - heightDifferenceGroupedToNonGrouped
-                cellCenter = CGPoint(x: cellCenterX, y: cellCenterY)
-            }
-        } else {
-            containerView = ContextMenuContainerView(frame: .init(x: 0, y: 0, width: maxPreviewWidth, height: cellHeight))
-            containerView.backgroundColor = .clear
-            containerView.addSubview(previewMessageView)
-
-            if let cell = tableView.cellForRow(at: indexPath as IndexPath) {
-                // On large iPhones (with regular landscape size, like iPhone X) we need to take the safe area into account when calculating the center
-                let cellCenterX = cell.center.x + self.view.safeAreaInsets.left / 2 - self.view.safeAreaInsets.right / 2
-                let cellCenterY = cell.center.y + heightdifferenceOriginalToPreview / 2 - heightDifferenceGroupedToNonGrouped
-                cellCenter = CGPoint(x: cellCenterX, y: cellCenterY)
-            }
-        }
-
-        // Create a preview target which allows us to have a transparent background
-        let previewTarget = UIPreviewTarget(container: tableView, center: cellCenter)
-        let previewParameter = UIPreviewParameters()
-
-        // Remove the background and the drop shadow from our custom preview view
-        previewParameter.backgroundColor = .clear
-        previewParameter.shadowPath = UIBezierPath()
-
-        return UITargetedPreview(view: containerView, parameters: previewParameter, target: previewTarget)
+        return previewController
     }
 
     // MARK: - Chat functions
