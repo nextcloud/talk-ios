@@ -36,6 +36,10 @@ class SampleHandler: RPBroadcastSampleHandler {
         // User has requested to start the broadcast. Setup info from the UI extension can be supplied but optional.
         frameCount = 0
 
+        DarwinNotificationCenter.shared.addHandler(notificationName: DarwinNotificationCenter.broadcastRequestStopNotification, owner: self) { [weak self] in
+            self?.finishBroadcastWithoutError()
+        }
+
         DarwinNotificationCenter.shared.postNotification(DarwinNotificationCenter.broadcastStartedNotification)
         openConnection()
     }
@@ -50,6 +54,7 @@ class SampleHandler: RPBroadcastSampleHandler {
 
     override func broadcastFinished() {
         // User has requested to finish the broadcast.
+        DarwinNotificationCenter.shared.removeHandler(notificationName: DarwinNotificationCenter.broadcastRequestStopNotification, owner: self)
         DarwinNotificationCenter.shared.postNotification(DarwinNotificationCenter.broadcastStoppedNotification)
         clientConnection?.close()
     }
@@ -77,13 +82,26 @@ private extension SampleHandler {
             if let error = error {
                 self?.finishBroadcastWithError(error)
             } else {
-                // the displayed failure message is more user friendly when using NSError instead of Error
-                let JMScreenSharingStopped = 10001
-                let localizedError = NSLocalizedString("Screensharing stopped", comment: "")
-                let customError = NSError(domain: RPRecordingErrorDomain, code: JMScreenSharingStopped, userInfo: [NSLocalizedDescriptionKey: localizedError])
-                self?.finishBroadcastWithError(customError)
+                self?.finishBroadcastWithoutError()
             }
         }
+    }
+
+    // a nil error ends the broadcast without the system error dialog, which Swift does not allow
+    func finishBroadcastWithoutError() {
+        let selector = NSSelectorFromString("finishBroadcastWithError:")
+
+        guard responds(to: selector) else {
+            // the displayed failure message is more user friendly when using NSError instead of Error
+            let JMScreenSharingStopped = 10001
+            let localizedError = NSLocalizedString("Screensharing stopped", comment: "")
+            let customError = NSError(domain: RPRecordingErrorDomain, code: JMScreenSharingStopped, userInfo: [NSLocalizedDescriptionKey: localizedError])
+            finishBroadcastWithError(customError)
+
+            return
+        }
+
+        _ = perform(selector, with: nil)
     }
 
     func openConnection() {

@@ -20,8 +20,7 @@ class SocketConnection: NSObject {
     private var socketHandle: Int32 = -1
     private var address: sockaddr_un?
 
-    // CFStream is not thread safe and close() arrives from ReplayKit or from a stream event while
-    // the uploader queue is in the middle of a write, so all stream access is serialized here
+    // CFStream is not thread safe, so all stream access is serialized here
     private let streamQueue = DispatchQueue(label: "talk.broadcast.socketConnection")
 
     private var inputStream: InputStream?
@@ -86,7 +85,6 @@ class SocketConnection: NSObject {
 
 extension SocketConnection: StreamDelegate {
 
-    // stream events are delivered on the run loop thread set up in scheduleStreams()
     func stream(_ aStream: Stream, handle eventCode: Stream.Event) {
         switch eventCode {
         case .openCompleted:
@@ -110,6 +108,12 @@ extension SocketConnection: StreamDelegate {
                 if streamQueue.sync(execute: { self.closeStreams() }) {
                     notifyDidClose(error: nil)
                 }
+            }
+        case .endEncountered:
+            print("client stream end encountered")
+
+            if streamQueue.sync(execute: { self.closeStreams() }) {
+                notifyDidClose(error: nil)
             }
         case .hasSpaceAvailable:
             if isOutputStream(aStream) {
@@ -174,7 +178,6 @@ private extension SocketConnection {
         return true
     }
 
-    // must be called on streamQueue
     func setupStreams() {
         var readStream: Unmanaged<CFReadStream>?
         var writeStream: Unmanaged<CFWriteStream>?
@@ -194,9 +197,7 @@ private extension SocketConnection {
         }
     }
 
-    // the streams get a thread of their own instead of a global queue, so closeStreams() knows
-    // which run loop they ended up on and can take them off it again
-    // must be called on streamQueue
+    // a dedicated thread, so closeStreams() can unschedule the streams from the right run loop
     func scheduleStreams(_ input: InputStream, _ output: OutputStream) {
         let thread = Thread { [weak self] in
             guard let self = self else {
@@ -220,9 +221,7 @@ private extension SocketConnection {
                 return
             }
 
-            while !Thread.current.isCancelled, runLoop.run(mode: .default, before: .distantFuture) {
-                // run() returns once the streams are unscheduled, which ends the thread
-            }
+            while !Thread.current.isCancelled, runLoop.run(mode: .default, before: .distantFuture) {}
         }
 
         thread.name = "talk.broadcast.socketConnection"
@@ -230,9 +229,7 @@ private extension SocketConnection {
         thread.start()
     }
 
-    // returns whether this call was the one that closed the connection, so that a close coming in
-    // twice, on a stream error and on the server hanging up, only reports back once
-    // must be called on streamQueue
+    // returns whether this call was the one that closed, so a doubled close only reports back once
     @discardableResult
     func closeStreams() -> Bool {
         guard !isClosed else {

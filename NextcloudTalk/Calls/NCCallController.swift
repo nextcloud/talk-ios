@@ -776,6 +776,9 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
 
         guard self.screensharingActive else { return }
 
+        // otherwise the broadcast keeps running until the system notices nobody consumes it
+        DarwinNotificationCenter.shared.postNotification(DarwinNotificationCenter.broadcastRequestStopNotification)
+
         self.screensharingController.stopCapture()
 
         if let externalSignalingController {
