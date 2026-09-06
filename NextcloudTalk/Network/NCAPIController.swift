@@ -27,8 +27,8 @@ class NCAPIController: NSObject, NKCommonDelegate {
     private let kNCOCSAPIVersion = "/ocs/v2.php"
     private let kNCSpreedAPIVersionBase = "/apps/spreed/api/v"
 
-    private var authTokenCache = NSCache<NSString, NSString>()
-    private var requestModifierCache = NSCache<NSString, SDWebImageDownloaderRequestModifier>()
+    private var authTokenCache = ThreadSafeDictionary<String, String>()
+    private var requestModifierCache = ThreadSafeDictionary<String, SDWebImageDownloaderRequestModifier>()
 
     private lazy var defaultAPISessionManager: NCAPISessionManager = {
         let configuration = URLSessionConfiguration.default
@@ -36,12 +36,10 @@ class NCAPIController: NSObject, NKCommonDelegate {
         return NCAPISessionManager(configuration: configuration)
     }()
 
-    // It's possible that we access the dictionary from multiple threads (e.g. in background-fetch)
-    // therefore we use NSCache as it is thread-safe - swift dictionaries are not
-    private var cookieStorages = NSCache<NSString, HTTPCookieStorage>()
-    private var apiSessionManagers = NSCache<NSString, NCAPISessionManager>()
-    private var longPollingApiSessionManagers = NSCache<NSString, NCAPISessionManager>()
-    private var calDAVSessionManagers = NSCache<NSString, NCCalDAVSessionManager>()
+    private var cookieStorages = ThreadSafeDictionary<String, HTTPCookieStorage>()
+    private var apiSessionManagers = ThreadSafeDictionary<String, NCAPISessionManager>()
+    private var longPollingApiSessionManagers = ThreadSafeDictionary<String, NCAPISessionManager>()
+    private var calDAVSessionManagers = ThreadSafeDictionary<String, NCCalDAVSessionManager>()
 
     enum ApiControllerError: Error {
         case preconditionError
@@ -58,18 +56,17 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
     // Ensure we use the same HTTPCookieStorage object for all session managers
     internal func getHTTPCookieStorage(forAccountId accountId: String) -> HTTPCookieStorage {
-        if let cachedCookieStorage = self.cookieStorages.object(forKey: accountId as NSString) {
+        if let cachedCookieStorage = self.cookieStorages[accountId] {
             return cachedCookieStorage
         }
 
         let newCookieStorage = HTTPCookieStorage.sharedCookieStorage(forGroupContainerIdentifier: accountId)
-        self.cookieStorages.setObject(newCookieStorage, forKey: accountId as NSString)
 
-        return newCookieStorage
+        return self.cookieStorages.setIfAbsent(newCookieStorage, forKey: accountId)
     }
 
     public func getAPISessionManager(forAccountId accountId: String) -> NCAPISessionManager? {
-        if let cachedSessionManager = self.apiSessionManagers.object(forKey: accountId as NSString) {
+        if let cachedSessionManager = self.apiSessionManagers[accountId] {
             return cachedSessionManager
         }
 
@@ -84,13 +81,13 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
         // As we can run max. 30s in the background, the default timeout should be lower than 30 to avoid being killed by the OS
         apiSessionManager.requestSerializer.timeoutInterval = TimeInterval(25)
-        apiSessionManagers.setObject(apiSessionManager, forKey: accountId as NSString)
+        apiSessionManagers[accountId] = apiSessionManager
 
         return apiSessionManager
     }
 
     internal func getLongPollingAPISessionManager(forAccountId accountId: String) -> NCAPISessionManager? {
-        if let cachedSessionManager = self.longPollingApiSessionManagers.object(forKey: accountId as NSString) {
+        if let cachedSessionManager = self.longPollingApiSessionManagers[accountId] {
             return cachedSessionManager
         }
 
@@ -102,13 +99,13 @@ class NCAPIController: NSObject, NKCommonDelegate {
         longConfiguration.httpCookieStorage = self.getHTTPCookieStorage(forAccountId: accountId)
         let longApiSessionManager = NCAPISessionManager(configuration: longConfiguration)
         longApiSessionManager.requestSerializer.setValue(authHeader, forHTTPHeaderField: "Authorization")
-        longPollingApiSessionManagers.setObject(longApiSessionManager, forKey: accountId as NSString)
+        longPollingApiSessionManagers[accountId] = longApiSessionManager
 
         return longApiSessionManager
     }
 
     internal func getCalDAVSessionManager(forAccountId accountId: String) -> NCCalDAVSessionManager? {
-        if let cachedSessionManager = self.calDAVSessionManagers.object(forKey: accountId as NSString) {
+        if let cachedSessionManager = self.calDAVSessionManagers[accountId] {
             return cachedSessionManager
         }
 
@@ -120,17 +117,17 @@ class NCAPIController: NSObject, NKCommonDelegate {
         calDAVConfiguration.httpCookieStorage = self.getHTTPCookieStorage(forAccountId: accountId)
         let calDAVSessionManager = NCCalDAVSessionManager(configuration: calDAVConfiguration)
         calDAVSessionManager.requestSerializer.setValue(authHeader, forHTTPHeaderField: "Authorization")
-        calDAVSessionManagers.setObject(calDAVSessionManager, forKey: accountId as NSString)
+        calDAVSessionManagers[accountId] = calDAVSessionManager
 
         return calDAVSessionManager
     }
 
     public func removeAPISessionManager(forAccount account: TalkAccount) {
-        self.authTokenCache.removeObject(forKey: account.accountId as NSString)
-        self.requestModifierCache.removeObject(forKey: account.accountId as NSString)
-        self.apiSessionManagers.removeObject(forKey: account.accountId as NSString)
-        self.longPollingApiSessionManagers.removeObject(forKey: account.accountId as NSString)
-        self.calDAVSessionManagers.removeObject(forKey: account.accountId as NSString)
+        self.authTokenCache.removeValue(forKey: account.accountId)
+        self.requestModifierCache.removeValue(forKey: account.accountId)
+        self.apiSessionManagers.removeValue(forKey: account.accountId)
+        self.longPollingApiSessionManagers.removeValue(forKey: account.accountId)
+        self.calDAVSessionManagers.removeValue(forKey: account.accountId)
 
         let cookieStorage = self.getHTTPCookieStorage(forAccountId: account.accountId)
         if let cookies = cookieStorage.cookies {
@@ -138,12 +135,12 @@ class NCAPIController: NSObject, NKCommonDelegate {
                 cookieStorage.deleteCookie(cookie)
             }
         }
-        self.cookieStorages.removeObject(forKey: account.accountId as NSString)
+        self.cookieStorages.removeValue(forKey: account.accountId)
     }
 
     private func authHeader(forAccount account: TalkAccount) -> String? {
-        if let cachedHeader = self.authTokenCache.object(forKey: account.accountId as NSString) {
-            return cachedHeader as String
+        if let cachedHeader = self.authTokenCache[account.accountId] {
+            return cachedHeader
         }
 
         guard let token = NCKeyChainController.sharedInstance().token(forAccountId: account.accountId)
@@ -154,7 +151,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         let base64Encoded = data.base64EncodedString()
 
         let authHeader = "Basic \(base64Encoded)"
-        self.authTokenCache.setObject(authHeader as NSString, forKey: account.accountId as NSString)
+        self.authTokenCache[account.accountId] = authHeader
 
         return authHeader
     }
@@ -194,7 +191,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
     }
 
     internal func getRequestModifier(forAccount account: TalkAccount) -> SDWebImageDownloaderRequestModifier? {
-        if let cachedModifier = self.requestModifierCache.object(forKey: account.accountId as NSString) {
+        if let cachedModifier = self.requestModifierCache[account.accountId] {
             return cachedModifier
         }
 
@@ -206,7 +203,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         ]
 
         let requestModifier = SDWebImageDownloaderRequestModifier(headers: headers)
-        self.requestModifierCache.setObject(requestModifier, forKey: account.accountId as NSString)
+        self.requestModifierCache[account.accountId] = requestModifier
 
         return requestModifier
     }
