@@ -42,10 +42,13 @@ class SampleUploader {
 
         isReady = false
 
-        dataToSend = prepare(sample: buffer)
-        byteIndex = 0
+        // the sample is encoded here on the ReplayKit thread, but the state sendDataChunk() walks
+        // through belongs to serialQueue alone
+        let data = prepare(sample: buffer)
 
         serialQueue.async { [weak self] in
+            self?.dataToSend = data
+            self?.byteIndex = 0
             self?.sendDataChunk()
         }
 
