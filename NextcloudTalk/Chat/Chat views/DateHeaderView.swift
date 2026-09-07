@@ -9,7 +9,9 @@ protocol DateHeaderViewDelegate: AnyObject {
     func dateHeaderViewTapped(inSection section: Int)
 }
 
-class DateHeaderView: UIView {
+class DateHeaderView: UITableViewHeaderFooterView {
+
+    static let reuseIdentifier = "DateHeaderView"
 
     static let maxHeight: CGFloat = 60
     static let horizontalPadding: CGFloat = 32
@@ -21,8 +23,12 @@ class DateHeaderView: UIView {
 
     public let titleLabel = PaddedLabel()
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    // UIKit does not adapt our colors below the navigation bar, so the label brings its own background
+    private let labelBackgroundView = UIView()
+    private var labelGlassView: UIVisualEffectView?
+
+    override init(reuseIdentifier: String?) {
+        super.init(reuseIdentifier: reuseIdentifier)
         setupView()
         setupConstraints()
         setupGesture()
@@ -36,25 +42,39 @@ class DateHeaderView: UIView {
     }
 
     private func setupView() {
-        backgroundColor = .clear
+        backgroundConfiguration = .clear()
 
         titleLabel.textAlignment = .center
         titleLabel.font = DateHeaderView.labelFont
         titleLabel.adjustsFontForContentSizeCategory = true
-        titleLabel.backgroundColor = .secondarySystemGroupedBackground
         titleLabel.textColor = .secondaryLabel
-        titleLabel.layer.cornerRadius = 8
-        titleLabel.clipsToBounds = true
+
+        labelBackgroundView.clipsToBounds = true
 
         if #available(iOS 26.0, *) {
-            // When backgroundColor is set to secondarySystemGroupedBackground, the whole view is adjusted
-            // when the header is displayed at the top of the scroll view, touching the glass effect
-            // making the label unreadable (backgroundColor then equals textColor)
-            titleLabel.backgroundColor = .clear
+            // A flat color is adjusted until it equals the text color when the header touches the navigation
+            // bar, glass stays legible, but animates itself in when created, so these views have to be reused
+            labelGlassView = labelBackgroundView.addGlassView()
+            labelGlassView?.layer.masksToBounds = true
+        } else {
+            labelBackgroundView.backgroundColor = .secondarySystemGroupedBackground
         }
 
+        addSubview(labelBackgroundView)
         addSubview(titleLabel)
+
+        labelBackgroundView.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        // Set here, the height depends on the font size. Glass draws its own edges, so clipping it is not enough
+        let cornerRadius = labelBackgroundView.bounds.height / 2
+
+        labelBackgroundView.layer.cornerRadius = cornerRadius
+        labelGlassView?.layer.cornerRadius = cornerRadius
     }
 
     private func setupConstraints() {
@@ -66,6 +86,11 @@ class DateHeaderView: UIView {
             titleLabel.leadingAnchor.constraint(greaterThanOrEqualTo: safeAreaLayoutGuide.leadingAnchor, constant: DateHeaderView.horizontalPadding / 2),
             titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: safeAreaLayoutGuide.trailingAnchor, constant: -DateHeaderView.horizontalPadding / 2),
             titleLabel.centerXAnchor.constraint(equalTo: safeAreaLayoutGuide.centerXAnchor),
+
+            labelBackgroundView.topAnchor.constraint(equalTo: titleLabel.topAnchor),
+            labelBackgroundView.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
+            labelBackgroundView.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            labelBackgroundView.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
 
             heightAnchor.constraint(lessThanOrEqualToConstant: DateHeaderView.maxHeight)
         ])
