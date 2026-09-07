@@ -204,17 +204,25 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
 
         // Make sure the signaling controller has retrieved the settings before joining a call
         self.signalingController.updateSignalingSettings { _ in
-            let authStatus = AVCaptureDevice.authorizationStatus(for: .video)
-
-            if !self.isAudioOnly, authStatus == .notDetermined {
-                AVCaptureDevice.requestAccess(for: .video) { _ in
+            // The permissions must be answered before creating the local media, otherwise the tracks
+            // are skipped because the authorization status is still undetermined
+            self.requestAccessIfNeeded(for: .audio, onlyWhen: self.room.canPublishAudio) {
+                self.requestAccessIfNeeded(for: .video, onlyWhen: !self.isAudioOnly && self.room.canPublishVideo) {
                     self.createLocalMedia()
                     self.joinCall()
                 }
-            } else {
-                self.createLocalMedia()
-                self.joinCall()
             }
+        }
+    }
+
+    private func requestAccessIfNeeded(for mediaType: AVMediaType, onlyWhen shouldRequest: Bool, completionBlock: @escaping () -> Void) {
+        guard shouldRequest, AVCaptureDevice.authorizationStatus(for: mediaType) == .notDetermined else {
+            completionBlock()
+            return
+        }
+
+        AVCaptureDevice.requestAccess(for: mediaType) { _ in
+            completionBlock()
         }
     }
 
