@@ -16,6 +16,7 @@ import Foundation
     static let shared = DarwinNotificationCenter()
     static let broadcastStartedNotification = "TalkiOS_BroadcastStarted"
     static let broadcastStoppedNotification = "TalkiOS_BroadcastStopped"
+    static let broadcastRequestStopNotification = "TalkiOS_BroadcastRequestStop"
 
     private let notificationCenter: CFNotificationCenter
 

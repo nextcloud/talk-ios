@@ -58,10 +58,12 @@
 
         self.inputStream = (__bridge_transfer NSInputStream *)readStream;
         self.inputStream.delegate = streamDelegate;
-        [self.inputStream setProperty:@"kCFBooleanTrue" forKey:@"kCFStreamPropertyShouldCloseNativeSocket"];
+
+        // a string value is ignored here and leaves the accepted socket open on close
+        [self.inputStream setProperty:(__bridge id)kCFBooleanTrue forKey:(__bridge NSString *)kCFStreamPropertyShouldCloseNativeSocket];
 
         self.outputStream = (__bridge_transfer NSOutputStream *)writeStream;
-        [self.outputStream setProperty:@"kCFBooleanTrue" forKey:@"kCFStreamPropertyShouldCloseNativeSocket"];
+        [self.outputStream setProperty:(__bridge id)kCFBooleanTrue forKey:(__bridge NSString *)kCFStreamPropertyShouldCloseNativeSocket];
 
         dispatch_async(dispatch_get_main_queue(), ^{
             [self scheduleStreams];
