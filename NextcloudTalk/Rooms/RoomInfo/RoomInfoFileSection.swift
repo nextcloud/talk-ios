@@ -64,10 +64,10 @@ struct RoomInfoFileSection: View {
 
         self.isDownloadingPreview = true
 
-        NCChatFileControllerWrapper.shared.downloadFile(withFileId: room.objectId, fromAccount: account) { @MainActor fileLocalPath in
+        ChatFileDownloader.shared.downloadFile(withFileId: room.objectId, fromAccount: account) { @MainActor result in
             self.isDownloadingPreview = false
 
-            guard let fileLocalPath else { return }
+            guard let fileLocalPath = try? result.get().fileLocalPath else { return }
 
             self.quickLookUrl = URL(fileURLWithPath: fileLocalPath)
         }

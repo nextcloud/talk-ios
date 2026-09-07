@@ -28,7 +28,6 @@ import Toast
                                                   ShareViewControllerDelegate,
                                                   QLPreviewControllerDelegate,
                                                   QLPreviewControllerDataSource,
-                                                  NCChatFileControllerDelegate,
                                                   ShareConfirmationViewControllerDelegate,
                                                   AVAudioRecorderDelegate,
                                                   AVAudioPlayerDelegate,
@@ -89,8 +88,6 @@ import Toast
     private var sendButtonTagVoice = 98
 
     private var isVoiceRecordingLocked = false
-
-    private var actionTypeTranscribeVoiceMessage = "transcribe-voice-message"
 
     private var imagePicker: UIImagePickerController?
 
@@ -1425,11 +1422,9 @@ import Toast
     }
 
     func didPressTranscribeVoiceMessage(for message: NCChatMessage) {
-        let downloader = NCChatFileController(account: self.account)
-        downloader.delegate = self
-        downloader.messageType = kMessageTypeVoiceMessage
-        downloader.actionType = actionTypeTranscribeVoiceMessage
-        downloader.downloadFile(withFileId: message.file().parameterId)
+        self.downloadFile(for: message) { [weak self] fileStatus in
+            self?.transcribeVoiceMessage(with: fileStatus)
+        }
     }
 
     func didPressEdit(for message: NCChatMessage) {
@@ -4064,14 +4059,9 @@ import Toast
             }
         }
 
-        if fileParameter.fileStatus != nil && fileParameter.fileStatus?.isDownloading ?? false {
-            print("File already downloading -> skipping new download")
-            return
+        self.downloadFile(for: message) { [weak self] fileStatus in
+            self?.previewFile(with: fileStatus)
         }
-
-        let downloader = NCChatFileController(account: self.account)
-        downloader.delegate = self
-        downloader.downloadFile(withFileId: fileParameter.parameterId)
     }
 
     public func cellHasDownloadedImagePreview(withSize size: CGSize, for message: NCChatMessage) {
@@ -4109,11 +4099,6 @@ import Toast
             return
         }
 
-        if fileParameter.fileStatus != nil && fileParameter.fileStatus?.isDownloading ?? false {
-            print("File already downloading -> skipping new download")
-            return
-        }
-
         // Resume an already loaded voice message
         if let voiceMessagesPlayer = self.voiceMessagesPlayer,
            let playerAudioFileStatus = self.playerAudioFileStatus,
@@ -4134,10 +4119,9 @@ import Toast
             return
         }
 
-        let downloader = NCChatFileController(account: self.account)
-        downloader.delegate = self
-        downloader.messageType = kMessageTypeVoiceMessage
-        downloader.downloadFile(withFileId: fileParameter.parameterId)
+        self.downloadFile(for: message) { [weak self] fileStatus in
+            self?.setupVoiceMessagePlayer(with: fileStatus)
+        }
     }
 
     public func cellWants(toPauseAudioFile fileParameter: NCMessageFileParameter) {
@@ -4295,19 +4279,41 @@ import Toast
         // Do nothing -> override in subclass
     }
 
-    // MARK: - NCChatFileControllerDelegate
+    // MARK: - File downloads
 
-    public func fileControllerDidLoadFile(_ fileController: NCChatFileController, with fileStatus: NCChatFileStatus) {
-        if fileController.messageType == kMessageTypeVoiceMessage {
-            if fileController.actionType == actionTypeTranscribeVoiceMessage {
-                self.transcribeVoiceMessage(with: fileStatus)
-            } else {
-                self.setupVoiceMessagePlayer(with: fileStatus)
+    /// Downloads the file of a message and hands it to `completionHandler`, or shows why it failed.
+    ///
+    /// Downloads are deduplicated by file id, so requesting the same file twice downloads it once
+    /// and calls both handlers.
+    ///
+    @MainActor
+    private func downloadFile(for message: NCChatMessage, completionHandler: @escaping (_ fileStatus: NCChatFileStatus) -> Void) {
+        guard let fileParameter = message.file() else { return }
+
+        ChatFileDownloader.shared.downloadFile(withFileId: fileParameter.parameterId, fromAccount: self.account) { [weak self] result in
+            guard let self else { return }
+
+            switch result {
+            case .success(let fileStatus):
+                completionHandler(fileStatus)
+            case .failure(.fileUnavailable(let errorDescription)), .failure(.downloadFailed(let errorDescription)):
+                self.showUnableToLoadFileAlert(with: errorDescription)
+            case .failure(.cancelled):
+                break
             }
-
-            return
         }
+    }
 
+    private func showUnableToLoadFileAlert(with errorDescription: String) {
+        let alert = UIAlertController(title: NSLocalizedString("Unable to load file", comment: ""),
+                                      message: errorDescription,
+                                      preferredStyle: .alert)
+
+        alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default))
+        NCUserInterfaceController.sharedInstance().presentAlertViewController(alert)
+    }
+
+    private func previewFile(with fileStatus: NCChatFileStatus) {
         if self.isPreviewControllerShown {
             // We are showing a file already, no need to open another one
             return
@@ -4371,15 +4377,6 @@ import Toast
 
             self.present(preview, animated: true)
         }
-    }
-
-    public func fileControllerDidFailLoadingFile(_ fileController: NCChatFileController, withFileId fileId: String, withErrorDescription errorDescription: String) {
-        let alert = UIAlertController(title: NSLocalizedString("Unable to load file", comment: ""),
-                                      message: errorDescription,
-                                      preferredStyle: .alert)
-
-        alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default))
-        NCUserInterfaceController.sharedInstance().presentAlertViewController(alert)
     }
 
     // MARK: - QLPreviewControllerDelegate/DataSource
