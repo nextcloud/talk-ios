@@ -43,6 +43,9 @@ public enum NCExternalSignalingSendMessageStatus {
 
     public var currentRoom: String?
 
+    // The room our session is in on the signaling server right now, cleared on every reconnect unlike `currentRoom`.
+    public private(set) var joinedRoomToken: String?
+
     public private(set) var account: TalkAccount
     public private(set) var disconnected: Bool = true
     public private(set) var hasMCU: Bool = false
@@ -210,6 +213,7 @@ public enum NCExternalSignalingSendMessageStatus {
         self.webSocket?.cancel()
         self.webSocket = nil
         self.helloResponseReceived = false
+        self.joinedRoomToken = nil
         self.helloMessage?.ignoreCompletionBlock()
         self.helloMessage = nil
         self.disconnected = true
@@ -340,6 +344,14 @@ public enum NCExternalSignalingSendMessageStatus {
         let sessionChanged = self.sessionId != newSessionId
         self.sessionId = newSessionId
 
+        if sessionChanged {
+            // The new session did not join any room yet, the re-join below takes care of that
+            self.joinedRoomToken = nil
+        } else {
+            // The session was resumed, so the server kept us in the room and replays what we missed
+            self.joinedRoomToken = self.currentRoom
+        }
+
         guard let serverDict = helloDict["server"] as? [AnyHashable: Any],
               let serverFeatures = serverDict["features"] as? [String],
               let serverVersion = serverDict["version"] as? String
@@ -402,8 +414,10 @@ public enum NCExternalSignalingSendMessageStatus {
                   let roomId = roomDict["roomid"] as? String
             else { return }
 
-            // If we are aware that we were in this room before, we should treat this as a success
+            // If we are aware that we were in this room before, we should treat this as a success.
+            // No room message follows here, so we have to set the joined room ourselves.
             if currentRoom == roomId {
+                self.joinedRoomToken = roomId
                 self.executeCompletionBlock(forMessageId: messageId, withStatus: .success)
                 return
             }
@@ -462,6 +476,7 @@ public enum NCExternalSignalingSendMessageStatus {
     func leaveRoom(withRoomId roomId: String) {
         if self.currentRoom == roomId {
             self.currentRoom = nil
+            self.joinedRoomToken = nil
             self.joinRoom(withRoomId: "", withSessionId: "", withFederation: nil, withCompletionBlock: nil)
         } else {
             print("External signaling: Not leaving because it's not the room we joined")
@@ -555,6 +570,10 @@ public enum NCExternalSignalingSendMessageStatus {
             self.participantsMap = [:]
             self.currentRoom = newRoomId.isEmpty ? nil : newRoomId
         }
+
+        // Outside the check above on purpose: re-joining after a reconnect leaves `currentRoom`
+        // unchanged, but it is the moment we are part of the room on the signaling server again.
+        self.joinedRoomToken = newRoomId.isEmpty ? nil : newRoomId
 
         if let messageId = messageDict["id"] as? String {
             self.executeCompletionBlock(forMessageId: messageId, withStatus: .success)
