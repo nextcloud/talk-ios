@@ -11,23 +11,18 @@ public extension NSNotification.Name {
     static let NCChatFileControllerDidChangeDownloadProgress = NSNotification.Name("NCChatFileControllerDidChangeDownloadProgressNotification")
 }
 
-public protocol NCChatFileControllerDelegate: AnyObject {
-    func fileControllerDidLoadFile(_ fileController: NCChatFileController, with fileStatus: NCChatFileStatus)
-    func fileControllerDidFailLoadingFile(_ fileController: NCChatFileController, withFileId fileId: String, withErrorDescription errorDescription: String)
-}
-
 public class NCChatFileController: NSObject {
 
-    public weak var delegate: NCChatFileControllerDelegate?
+    /// Called exactly once with the downloaded file, or with the reason why it could not be downloaded.
+    public typealias CompletionHandler = (Result<NCChatFileStatus, ChatFileDownloadError>) -> Void
 
-    public var messageType: String?
-    public var actionType: String?
     public private(set) var tempDirectoryPath = ""
 
     private let account: TalkAccount
     private let deleteFilesOlderThanDays = 7
     private var fileStatus: NCChatFileStatus?
     private var cancelDownloadHandler: (() -> Void)?
+    private var completionHandler: CompletionHandler?
     private var isCancelled = false
 
     init(account: TalkAccount) {
@@ -174,7 +169,7 @@ public class NCChatFileController: NSObject {
         return URL(fileURLWithPath: filePath)
     }
 
-    // Stops an ongoing download. No delegate method is called afterwards.
+    // Stops an ongoing download. The completion handler is called with `.cancelled`.
     public func cancelDownload() {
         self.isCancelled = true
         self.cancelDownloadHandler?()
@@ -183,10 +178,13 @@ public class NCChatFileController: NSObject {
         if self.fileStatus?.isDownloading == true {
             self.didChangeIsDownloadingNotification(isDownloading: false)
         }
+
+        self.finish(with: .failure(.cancelled))
     }
 
-    public func downloadFile(withFileId fileId: String) {
+    public func downloadFile(withFileId fileId: String, completionHandler: @escaping CompletionHandler) {
         self.isCancelled = false
+        self.completionHandler = completionHandler
 
         // getFileById already sets up NextcloudKit
         NCAPIController.sharedInstance().getFileById(forAccount: self.account, withFileId: fileId) { file, error in
@@ -194,7 +192,7 @@ public class NCChatFileController: NSObject {
 
             guard let file else {
                 print("An error occurred while getting file with fileId \(fileId): \(error?.errorDescription ?? "")")
-                self.delegate?.fileControllerDidFailLoadingFile(self, withFileId: fileId, withErrorDescription: error?.errorDescription ?? "")
+                self.finish(with: .failure(.fileUnavailable(errorDescription: error?.errorDescription ?? "")))
                 return
             }
 
@@ -217,8 +215,8 @@ public class NCChatFileController: NSObject {
             if self.isFileInCache(fileLocalPath, withModificationDate: file.date as Date, withSize: file.size) {
                 print("Found file in cache: \(fileLocalPath)")
 
-                self.delegate?.fileControllerDidLoadFile(self, with: fileStatus)
                 self.didChangeIsDownloadingNotification(isDownloading: false)
+                self.finish(with: .success(fileStatus))
 
                 return
             }
@@ -232,20 +230,28 @@ public class NCChatFileController: NSObject {
 
                 guard !self.isCancelled else { return }
 
+                self.didChangeIsDownloadingNotification(isDownloading: false)
+
                 if error.errorCode == 0 {
                     // Set modification date to invalidate our cache
                     // Set creation date to delete older files from cache
                     self.setDate(onFile: fileLocalPath, withCreationDate: Date(), withModificationDate: file.date as Date)
 
-                    self.delegate?.fileControllerDidLoadFile(self, with: fileStatus)
+                    self.finish(with: .success(fileStatus))
                 } else {
                     print("Error downloading file: \(error.errorCode) - \(error.errorDescription)")
-                    self.delegate?.fileControllerDidFailLoadingFile(self, withFileId: fileStatus.fileId, withErrorDescription: error.errorDescription)
+                    self.finish(with: .failure(.downloadFailed(errorDescription: error.errorDescription)))
                 }
-
-                self.didChangeIsDownloadingNotification(isDownloading: false)
             }
         }
+    }
+
+    /// Reports the outcome of a download, making sure the completion handler runs only once.
+    private func finish(with result: Result<NCChatFileStatus, ChatFileDownloadError>) {
+        let completionHandler = self.completionHandler
+        self.completionHandler = nil
+
+        completionHandler?(result)
     }
 
     private func didChangeIsDownloadingNotification(isDownloading: Bool) {
