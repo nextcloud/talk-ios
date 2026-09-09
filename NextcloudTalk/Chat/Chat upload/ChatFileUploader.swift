@@ -25,6 +25,10 @@ enum ChatFileUploader {
     /// All uploads need to be for the same conversation and account: with conversation subfolders
     /// enabled, the draft folder is requested once for all of them.
     ///
+    /// The files are uploaded in parallel, but posted into the conversation one after the other, in
+    /// the order they are given in. Files shared together are only recognizable as one upload while
+    /// their messages sit next to each other, and the server orders those as they arrive.
+    ///
     /// - Parameter progress: Called with the index of an upload and the fraction of it that has been
     ///                       uploaded so far.
     /// - Throws: When the draft folder could not be prepared, in which case nothing was uploaded.
@@ -45,7 +49,19 @@ enum ChatFileUploader {
                                                           allowUpdate: firstUpload.allowUpdate)
         }
 
-        return await withTaskGroup(of: (index: Int, result: Result<Void, Error>).self) { group in
+        let destinations = await self.put(uploads, inDraftFolder: draftFolder, progress: progress)
+
+        return await self.announce(uploads, at: destinations)
+    }
+
+    /// Uploads the files in parallel, without posting anything into the conversation yet.
+    ///
+    /// - Returns: Where each file was uploaded to, or why it could not be uploaded, in the order
+    ///            the uploads were given in.
+    private static func put(_ uploads: [ChatFileUpload],
+                            inDraftFolder draftFolder: String?,
+                            progress: ((_ index: Int, _ fractionCompleted: Double) -> Void)?) async -> [Result<ChatFileUploadDestination, Error>] {
+        return await withTaskGroup(of: (index: Int, result: Result<ChatFileUploadDestination, Error>).self) { group in
             for (index, upload) in uploads.enumerated() {
                 group.addTask {
                     do {
@@ -58,23 +74,48 @@ enum ChatFileUploader {
                         }
 
                         try await self.put(upload, to: destination, progress: { progress?(index, $0) }, mayCreateAttachmentFolder: true)
-                        try await self.announce(upload, at: destination)
 
-                        return (index, .success(()))
+                        return (index, .success(destination))
                     } catch {
                         return (index, .failure(error))
                     }
                 }
             }
 
-            var results = [Result<Void, Error>](repeating: .success(()), count: uploads.count)
+            var destinations: [(index: Int, result: Result<ChatFileUploadDestination, Error>)] = []
 
             for await taskResult in group {
-                results[taskResult.index] = taskResult.result
+                destinations.append(taskResult)
             }
 
-            return results
+            // The uploads finish in any order, the caller expects the order it gave them in
+            return destinations.sorted { $0.index < $1.index }.map(\.result)
         }
+    }
+
+    /// Posts the uploaded files into the conversation, one after the other in the order they were
+    /// given in, so that files shared together end up next to each other.
+    ///
+    /// - Returns: One result per upload, carrying the upload error for files that never made it to
+    ///            the server.
+    private static func announce(_ uploads: [ChatFileUpload],
+                                 at destinations: [Result<ChatFileUploadDestination, Error>]) async -> [Result<Void, Error>] {
+        var results = [Result<Void, Error>](repeating: .success(()), count: uploads.count)
+
+        for (index, upload) in uploads.enumerated() {
+            switch destinations[index] {
+            case .success(let destination):
+                do {
+                    try await self.announce(upload, at: destination)
+                } catch {
+                    results[index] = .failure(error)
+                }
+            case .failure(let error):
+                results[index] = .failure(error)
+            }
+        }
+
+        return results
     }
 
     // MARK: - Destination
