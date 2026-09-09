@@ -870,12 +870,18 @@ private let kShareConfirmationOptionsViewHeight: CGFloat = 44
     /// Builds the uploads for the items to share, compressing the images among them when the
     /// standard quality is asked for.
     internal func uploads(for shareItems: [ShareItem], quality: ChatImageQuality) async -> [ChatFileUpload] {
+        // Everything shared in one go belongs to the same upload, which is what lets the clients
+        // show these files as a single message
+        let uploadId = UUID().uuidString
+
         guard quality == .standard,
               let directory = ChatImageCompressor.temporaryDirectory()
         else {
             NCLog.log("Sharing \(shareItems.count) files in their original quality")
 
-            return shareItems.map { self.upload(for: $0) }
+            return shareItems.enumerated().map { index, shareItem in
+                self.upload(for: shareItem, inUpload: uploadId, at: index)
+            }
         }
 
         // Only the plain values are handed to the compression, so it does not touch the share items
@@ -907,11 +913,14 @@ private let kShareConfirmationOptionsViewHeight: CGFloat = 44
         self.compressedImagesDirectory = directory
 
         return shareItems.enumerated().map { index, shareItem in
-            self.upload(for: shareItem, compressedTo: compressedImages[index])
+            self.upload(for: shareItem, inUpload: uploadId, at: index, compressedTo: compressedImages[index])
         }
     }
 
-    private func upload(for shareItem: ShareItem, compressedTo compressedImage: (url: URL, fileName: String)? = nil) -> ChatFileUpload {
+    private func upload(for shareItem: ShareItem,
+                        inUpload uploadId: String,
+                        at index: Int,
+                        compressedTo compressedImage: (url: URL, fileName: String)? = nil) -> ChatFileUpload {
         var metaData = ChatFileUploadMetadata()
         metaData.caption = shareItem.caption
         metaData.silent = self.shareSilently
@@ -923,6 +932,7 @@ private let kShareConfirmationOptionsViewHeight: CGFloat = 44
                                     account: self.account)
         upload.metadata = metaData
         upload.allowUpdate = self.allowUpdate
+        upload.referenceId = ChatFileUpload.referenceId(uploadId: uploadId, index: index)
 
         return upload
     }
