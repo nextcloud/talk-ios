@@ -880,7 +880,7 @@ import SwiftUI
             self.setTextInputbarHidden(false, animated: isVisible)
 
             if self.tableView?.slk_isAtBottom ?? false {
-                self.tableView?.slk_scrollToBottom(animated: true)
+                self.scrollChatToBottom(animated: true)
             }
 
             // Make sure the textinput has the correct height
@@ -956,7 +956,7 @@ import SwiftUI
         self.tableView?.tableFooterView?.backgroundColor = .secondarySystemBackground
 
         if isAtBottom {
-            self.tableView?.slk_scrollToBottom(animated: true)
+            self.scrollChatToBottom(animated: true)
         }
     }
 
@@ -1570,9 +1570,9 @@ import SwiftUI
                 self.tableView?.reloadData()
 
                 if let indexPathUnreadMessageSeparator {
-                    self.tableView?.scrollToRow(at: indexPathUnreadMessageSeparator, at: .middle, animated: false)
+                    self.scrollChat(to: indexPathUnreadMessageSeparator, at: .middle, animated: false)
                 } else {
-                    self.tableView?.slk_scrollToBottom(animated: false)
+                    self.scrollChatToBottom(animated: false)
                 }
 
                 self.updateToolbar(animated: false)
@@ -1601,7 +1601,7 @@ import SwiftUI
                 self.appendMessages(messages: messages)
                 self.setOfflineFooterView()
                 self.tableView?.reloadData()
-                self.tableView?.slk_scrollToBottom(animated: false)
+                self.scrollChatToBottom(animated: false)
                 self.updateToolbar(animated: false)
             } else {
                 self.chatBackgroundView.placeholderView.isHidden = false
@@ -1613,7 +1613,7 @@ import SwiftUI
 
                 self.insertMessages(messages: storedTemporaryMessages)
                 self.tableView?.reloadData()
-                self.tableView?.slk_scrollToBottom(animated: false)
+                self.scrollChatToBottom(animated: false)
                 self.updateToolbar(animated: false)
             }
         }
@@ -1629,13 +1629,18 @@ import SwiftUI
 
                 let shouldAddBlockSeparator = notification.userInfo?["shouldAddBlockSeparator"] as? Bool ?? false
 
+                // Taken before the history is prepended, as that shifts every row down
+                let anchor = self.currentScrollAnchor()
+
                 if let lastHistoryMessageIP = self.prependMessages(historyMessages: messages, addingBlockSeparator: shouldAddBlockSeparator),
                    let tableView = self.tableView {
 
                     self.tableView?.reloadData()
 
-                    if tableView.isValid(indexPath: lastHistoryMessageIP) {
-                        self.tableView?.scrollToRow(at: lastHistoryMessageIP, at: .top, animated: false)
+                    if anchor != nil {
+                        self.restoreScrollAnchor(anchor)
+                    } else if tableView.isValid(indexPath: lastHistoryMessageIP) {
+                        self.scrollChat(to: lastHistoryMessageIP, at: .top, animated: false)
                     }
                 }
             }
@@ -1738,9 +1743,9 @@ import SwiftUI
                         // Only scroll to unread message separator if we added it while processing the received messages
                         // Otherwise we would scroll whenever a unread message separator is available
                         if addedUnreadMessageSeparator, let indexPathUnreadMessageSeparator = self.indexPathForUnreadMessageSeparator() {
-                            tableView.scrollToRow(at: indexPathUnreadMessageSeparator, at: .middle, animated: true)
+                            self.scrollChat(to: indexPathUnreadMessageSeparator, at: .middle, animated: true)
                         } else if shouldScrollOnNewMessages || messages.containsMessage(forUserId: self.account.userId), let lastIndexPath = self.getLastNonUpdateMessage()?.indexPath {
-                            tableView.scrollToRow(at: lastIndexPath, at: .bottom, animated: true)
+                            self.scrollChat(to: lastIndexPath, at: .bottom, animated: true)
                         } else if self.firstUnreadMessage == nil, newMessagesContainVisibleMessages, let firstNewMessage = messages.first {
                             // This check is needed since several calls to receiveMessages API might be needed
                             // (if the number of unread messages is bigger than the "limit" in receiveMessages request)
