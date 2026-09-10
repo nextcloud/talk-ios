@@ -45,8 +45,10 @@ extension NCChatMessage {
             return false
         }
 
-        // Contact cards and audio files are rendered by widgets of their own
-        guard mimetype != "text/vcard", !mimetype.hasPrefix("audio/") else {
+        // A contact card is drawn with the photo of the contact, which a group has nowhere to show.
+        // Audio files are excluded on web because it renders a player for them, this client does
+        // not: it shows them with the ordinary file cell, so they group like any other file.
+        guard mimetype != "text/vcard" else {
             return false
         }
 
