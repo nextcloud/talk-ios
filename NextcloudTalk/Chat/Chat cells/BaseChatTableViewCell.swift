@@ -28,6 +28,20 @@ protocol BaseChatTableViewCellDelegate: AnyObject {
 }
 
 // Common elements
+
+/// A card drawn inside a bubble, for a link preview or a file of a group.
+///
+/// A filled card instead of a hairline border, which used the very same translucent colour and so
+/// would have doubled up. White in both appearances, so the card reads as a panel *lighter* than the
+/// bubble - the semantic fills darken instead. Light mode needs the higher alpha, starting lighter.
+public let chatBubbleCardFill = UIColor { traitCollection in
+    let alpha = traitCollection.userInterfaceStyle == .dark ? 0.10 : 0.65
+
+    return UIColor.white.withAlphaComponent(alpha)
+}
+
+public let chatBubbleCardCornerRadius = 8.0
+
 public let chatMessageCellPreviewCornerRadius = 4.0
 public let chatMessageCellAvatarHeight = 30.0
 
@@ -817,6 +831,12 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
     @objc func didChangeIsDownloading(notification: Notification) {
         DispatchQueue.main.async {
+            // A group has a file per row, each of which can be downloading on its own
+            if let groupedFilePreviewView = self.groupedFilePreviewView, self.fileGroup != nil {
+                groupedFilePreviewView.updateDownloadStatus(from: notification)
+                return
+            }
+
             // Make sure this notification is really for this cell
             guard let fileParameter = self.message?.file(),
                   let receivedStatus = NCChatFileStatus.getStatus(from: notification, for: fileParameter)
@@ -833,6 +853,11 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
     @objc func didChangeDownloadProgress(notification: Notification) {
         DispatchQueue.main.async {
+            if let groupedFilePreviewView = self.groupedFilePreviewView, self.fileGroup != nil {
+                groupedFilePreviewView.updateDownloadStatus(from: notification)
+                return
+            }
+
             // Make sure this notification is really for this cell
             guard let fileParameter = self.message?.file(),
                   let receivedStatus = NCChatFileStatus.getStatus(from: notification, for: fileParameter)
