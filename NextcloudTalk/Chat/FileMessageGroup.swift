@@ -11,7 +11,10 @@ import Foundation
 /// `combineFileMessages.ts` of the web client, so that a conversation reads the same everywhere.
 struct FileMessageGroup {
 
-    /// The messages of the group, in the order they appear in the conversation. Never fewer than two.
+    /// The messages of the group, in the order they appear in the conversation.
+    ///
+    /// `groups(in:)` only ever builds these from two messages or more. A single file drawn the same
+    /// way, which is what a file without a preview gets, is a group of one.
     let messages: [NCChatMessage]
 
     /// The message the group is shown as.
@@ -20,7 +23,6 @@ struct FileMessageGroup {
     /// those of its newest message. A caption ends the group it belongs to, so the caption of an
     /// upload is always the text of this message.
     var anchor: NCChatMessage {
-        // Groups are only ever built from two messages or more
         return self.messages[self.messages.count - 1]
     }
 

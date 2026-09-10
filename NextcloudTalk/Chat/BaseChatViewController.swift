@@ -2829,11 +2829,14 @@ import Toast
         return self.availableBodyWidth(forRowWidth: rowWidth, isOwnMessage: isOwnMessage)
     }
 
-    /// The group a message is shown as, when it is the one its upload is shown as.
+    /// The group a message is shown as, when it is the one its upload is shown as, or a group of
+    /// one for a file that is drawn on a card without belonging to an upload.
     internal func fileMessageGroup(showing message: NCChatMessage) -> FileMessageGroup? {
-        guard message.messageId > 0 else { return nil }
+        if message.messageId > 0, let group = self.fileMessageGroups[message.messageId] {
+            return group
+        }
 
-        return self.fileMessageGroups[message.messageId]
+        return message.isFileCardMessage ? FileMessageGroup(messages: [message]) : nil
     }
 
     /// Whether a message is shown as part of the group of its upload rather than on its own.

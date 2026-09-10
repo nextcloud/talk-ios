@@ -24,6 +24,21 @@ extension NCChatMessage {
     /// Note that a file shared with a caption is groupable as well. The caption ends the group it
     /// belongs to, but that is a property of the group, not of the message.
     var isGroupableFileMessage: Bool {
+        return self.isPlainFileShare && self.fileUploadReference != nil
+    }
+
+    /// Whether a file shown on its own is drawn on a card, the way the files of a group are.
+    ///
+    /// Only files the server has no preview of. Media keeps the large preview it is worth showing,
+    /// while everything else said no more than its name and a generic icon the size of a photo.
+    var isFileCardMessage: Bool {
+        guard let file = self.file(), !file.isPreviewableMedia else { return false }
+
+        return self.isPlainFileShare
+    }
+
+    /// Whether this message shares a single file and nothing else, whatever upload it came from.
+    private var isPlainFileShare: Bool {
         // A message that failed to send, or is being deleted, keeps its own bubble so that its
         // state stays visible. Voice messages are excluded by the message type below.
         guard !self.isSystemMessage, !self.isDeletedMessage, !self.sendingFailed, !self.isDeleting else {
@@ -52,7 +67,7 @@ extension NCChatMessage {
             return false
         }
 
-        return self.fileUploadReference != nil
+        return true
     }
 
     /// Whether the message carries nothing but the placeholder of its file, which is what a file
