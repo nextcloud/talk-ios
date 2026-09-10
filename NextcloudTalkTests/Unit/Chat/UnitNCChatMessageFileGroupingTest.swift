@@ -59,9 +59,17 @@ final class UnitNCChatMessageFileGroupingTest: TestBaseRealm {
         XCTAssertFalse(try self.message(parameters: parameters).isGroupableFileMessage)
     }
 
-    func testAudioFilesAreNotGroupable() throws {
+    /// Unlike web, this client has no audio player to preserve: a shared audio file is drawn with
+    /// the ordinary file cell, so excluding it would only split uploads that contain one
+    func testAudioFilesAreGroupable() throws {
         let parameters = ["file": self.fileParameter(mimetype: "audio/mpeg")]
-        XCTAssertFalse(try self.message(parameters: parameters).isGroupableFileMessage)
+        XCTAssertTrue(try self.message(parameters: parameters).isGroupableFileMessage)
+    }
+
+    /// The real audio widget is the voice message, which the message type already keeps out
+    func testVoiceMessagesStayExcludedRegardless() throws {
+        let parameters = ["file": self.fileParameter(mimetype: "audio/mpeg")]
+        XCTAssertFalse(try self.message(["messageType": "voice-message"], parameters: parameters).isGroupableFileMessage)
     }
 
     func testLocationsAreNotGroupable() throws {
