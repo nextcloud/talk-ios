@@ -151,7 +151,7 @@ import Toast
                   let indexPath = self.indexPath(for: firstUnreadMessage)
             else { return }
 
-            self.tableView?.scrollToRow(at: indexPath, at: .none, animated: true)
+            self.scrollChat(to: indexPath, at: .none, animated: true)
         }
 
         self.view.addSubview(unreadMessageButton)
@@ -161,7 +161,7 @@ import Toast
 
     private lazy var scrollToBottomButton: UIButton = {
         let button = UIButton(frame: .init(x: 0, y: 0, width: 44, height: 44), primaryAction: UIAction { [weak self] _ in
-            self?.tableView?.slk_scrollToBottom(animated: true)
+            self?.scrollChatToBottom(animated: true)
         })
 
         if #available(iOS 26.0, *) {
@@ -229,7 +229,7 @@ import Toast
 
         // Scroll to bottom manually after hiding the textInputbar, otherwise the
         // scrollToBottom button might be briefly visible even if not needed
-        self.tableView?.slk_scrollToBottom(animated: false)
+        self.scrollChatToBottom(animated: false)
 
         self.appendMessages(messages: messages)
 
@@ -510,7 +510,7 @@ import Toast
                 let cellRect = tableView.rectForRow(at: indexPath)
 
                 if !tableView.bounds.contains(cellRect) {
-                    self.tableView?.scrollToRow(at: indexPath, at: .bottom, animated: true)
+                    self.scrollChat(to: indexPath, at: .bottom, animated: true)
                 }
             }
         }
@@ -530,7 +530,7 @@ import Toast
 
         if tableView.isValid(indexPath: lastMessageBeforeInteraction) {
             DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
-                tableView.scrollToRow(at: lastMessageBeforeInteraction, at: .bottom, animated: true)
+                self.scrollChat(to: lastMessageBeforeInteraction, at: .bottom, animated: true)
             }
         }
     }
@@ -637,7 +637,7 @@ import Toast
                 }
 
                 self.tableView?.endUpdates()
-                self.tableView?.scrollToRow(at: lastMessageIndexPath, at: .none, animated: true)
+                self.scrollChat(to: lastMessageIndexPath, at: .none, animated: true)
             }
         }
     }
@@ -683,6 +683,7 @@ import Toast
             var reloadIndexPaths = [indexPath]
 
             let isAtBottom = self.shouldScrollOnNewMessages()
+            let anchor = self.currentScrollAnchor()
             let keyDate = self.dateSections[indexPath.section]
             updatedMessage.isGroupMessage = message.isGroupMessage && message.actorType != "bots" && updatedMessage.lastEditTimestamp == 0
             updatedMessage.copyPendingReactions(from: message)
@@ -706,13 +707,14 @@ import Toast
             self.tableView?.reloadRows(at: reloadIndexPaths, with: .none)
             self.tableView?.endUpdates()
 
+            // The row heights are up to date right after endUpdates, so compensate here instead of deferring
             if isAtBottom {
-                // Make sure we're really at the bottom after updating a message
-                DispatchQueue.main.async {
-                    self.tableView?.slk_scrollToBottom(animated: false)
-                    self.updateToolbar(animated: false)
-                }
+                self.scrollChatToBottom(animated: false)
+            } else {
+                self.restoreScrollAnchor(anchor)
             }
+
+            self.updateToolbar(animated: false)
         }
     }
 
@@ -1217,7 +1219,7 @@ import Toast
 
             // Make sure we're really at the bottom after showing the replyMessageView
             if isAtBottom {
-                self.tableView?.slk_scrollToBottom(animated: false)
+                self.scrollChatToBottom(animated: false)
                 self.updateToolbar(animated: false)
             }
         }
@@ -3158,7 +3160,7 @@ import Toast
                     }
 
                     if let (indexPath, _) = self.getLastNonUpdateMessage() {
-                        self.tableView?.scrollToRow(at: indexPath, at: .bottom, animated: true)
+                        self.scrollChat(to: indexPath, at: .bottom, animated: true)
                     }
                 }
             }
@@ -3203,7 +3205,7 @@ import Toast
             return
         }
 
-        tableView.scrollToRow(at: IndexPath(row: 0, section: section), at: .none, animated: true)
+        self.scrollChat(to: IndexPath(row: 0, section: section), at: .none, animated: true)
     }
 
     // MARK: - UITableViewDataSource methods
@@ -3679,6 +3681,53 @@ import Toast
         self.tableView?.tableHeaderView = nil
     }
 
+    // MARK: - Scroll position
+
+    // Deferred adjustments capture this and skip themselves when it changed, so they can't fight a newer scroll
+    internal private(set) var scrollGeneration = 0
+
+    internal func scrollChat(to indexPath: IndexPath, at position: UITableView.ScrollPosition, animated: Bool) {
+        self.scrollGeneration += 1
+        self.tableView?.scrollToRow(at: indexPath, at: position, animated: animated)
+    }
+
+    internal func scrollChatToBottom(animated: Bool) {
+        self.scrollGeneration += 1
+        self.tableView?.slk_scrollToBottom(animated: animated)
+    }
+
+    // Keeps what the user looks at in place, unlike scrolling to a row it also preserves the offset inside the row
+    internal struct ChatScrollAnchor {
+        let messageId: Int
+        let distanceToContentOffset: CGFloat
+    }
+
+    internal func currentScrollAnchor() -> ChatScrollAnchor? {
+        guard let tableView = self.tableView, let visibleIndexPaths = tableView.indexPathsForVisibleRows else { return nil }
+
+        for indexPath in visibleIndexPaths {
+            // Separators and temporary messages can't be found again after the update
+            guard let message = self.message(for: indexPath), message.messageId > 0 else { continue }
+
+            return ChatScrollAnchor(messageId: message.messageId, distanceToContentOffset: tableView.rectForRow(at: indexPath).minY - tableView.contentOffset.y)
+        }
+
+        return nil
+    }
+
+    internal func restoreScrollAnchor(_ anchor: ChatScrollAnchor?) {
+        guard let anchor, let tableView = self.tableView,
+              let indexPath = self.indexPathAndMessage(forMessageId: anchor.messageId)?.indexPath,
+              tableView.isValid(indexPath: indexPath)
+        else { return }
+
+        let minimumOffset = -tableView.adjustedContentInset.top
+        let maximumOffset = max(tableView.contentSize.height - tableView.bounds.height + tableView.adjustedContentInset.bottom, minimumOffset)
+        let restoredOffset = tableView.rectForRow(at: indexPath).minY - anchor.distanceToContentOffset
+
+        tableView.contentOffset.y = min(max(restoredOffset, minimumOffset), maximumOffset)
+    }
+
     func shouldScrollOnNewMessages() -> Bool {
         guard self.isVisible, let tableView = self.tableView else { return false }
 
@@ -3874,6 +3923,7 @@ import Toast
     }
 
     internal func highlightMessage(at indexPath: IndexPath, with scrollPosition: UITableView.ScrollPosition) {
+        self.scrollGeneration += 1
         self.tableView?.selectRow(at: indexPath, animated: true, scrollPosition: scrollPosition)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
@@ -3968,16 +4018,23 @@ import Toast
         }
 
         let isAtBottom = self.shouldScrollOnNewMessages()
+        let scrollGenerationBeforeUpdate = self.scrollGeneration
+        let anchor = self.currentScrollAnchor()
 
         message.setPreviewImageSize(size)
 
         CATransaction.begin()
         CATransaction.setCompletionBlock {
             DispatchQueue.main.async {
-                // make sure we're really at the bottom after updating a message since the file previews could grow in size if they contain a media file preview, thus giving the effect of not being at the bottom of the chat
-                if isAtBottom, !(self.tableView?.isDecelerating ?? false) {
-                    self.tableView?.slk_scrollToBottom(animated: true)
+                // Deferred, so give up when the chat scrolled somewhere on purpose in between
+                guard scrollGenerationBeforeUpdate == self.scrollGeneration, !(self.tableView?.isDecelerating ?? false) else { return }
+
+                if isAtBottom {
+                    // Previews can grow, which otherwise gives the effect of not being at the bottom anymore
+                        self.scrollChatToBottom(animated: true)
                     self.updateToolbar(animated: true)
+                } else {
+                    self.restoreScrollAnchor(anchor)
                 }
             }
         }

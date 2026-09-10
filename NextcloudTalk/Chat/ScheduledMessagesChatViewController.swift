@@ -15,7 +15,7 @@ import Foundation
 
         // Scroll to bottom manually after hiding the textInputbar, otherwise the
         // scrollToBottom button might be briefly visible even if not needed
-        self.tableView?.slk_scrollToBottom(animated: false)
+        self.scrollChatToBottom(animated: false)
 
         let closeButton = UIBarButtonItem(title: nil, style: .plain, target: nil, action: nil)
         closeButton.primaryAction = UIAction(title: NSLocalizedString("Close", comment: ""), handler: { [unowned self] _ in
@@ -43,7 +43,7 @@ import Foundation
             let scheduledMessages = try await NCAPIController.sharedInstance().getScheduledMessages(forRoom: self.room.token, forAccount: self.account)
             self.appendMessages(messages: scheduledMessages.compactMap { $0.asChatMessage() })
             self.tableView?.reloadData()
-            self.tableView?.slk_scrollToBottom(animated: false)
+            self.scrollChatToBottom(animated: false)
         } catch {
 
         }
