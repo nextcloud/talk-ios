@@ -109,11 +109,18 @@ class GroupedFilePreviewView: UIView {
         let contentWidthConstraint = self.widthAnchor.constraint(lessThanOrEqualToConstant: 0)
         self.contentWidthConstraint = contentWidthConstraint
 
+        // The rows keep the height they need. When the cell turns out taller than the group, as a
+        // hand written height calculation now and then will, the difference is left below them
+        // rather than stretching a card to fill it.
+        let bottomConstraint = self.contentStackView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
+        bottomConstraint.priority = .defaultHigh
+
         NSLayoutConstraint.activate([
             self.contentStackView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             self.contentStackView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
             self.contentStackView.topAnchor.constraint(equalTo: self.topAnchor),
-            self.contentStackView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
+            self.contentStackView.bottomAnchor.constraint(lessThanOrEqualTo: self.bottomAnchor),
+            bottomConstraint
         ])
     }
 
