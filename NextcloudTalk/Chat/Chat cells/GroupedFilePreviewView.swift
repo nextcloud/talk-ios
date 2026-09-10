@@ -21,8 +21,19 @@ class GroupedFilePreviewView: UIView {
     static let maximumTiles = 4
 
     static let tileSize = 80.0
-    static let tileSpacing = 4.0
-    static let fileRowHeight = 40.0
+
+    /// Tall enough for the two lines a file row shows, so that it follows the text size the reader
+    /// has chosen instead of clipping at a fixed height
+    static var fileRowHeight: CGFloat {
+        let nameHeight = UIFont.preferredFont(forTextStyle: .body).lineHeight
+        let detailHeight = UIFont.preferredFont(forTextStyle: .footnote).lineHeight
+
+        return ceil(nameHeight + detailHeight) + 2 * GroupedFileRowView.cardPadding
+    }
+
+    /// Between the tiles, between the cards, and between the two rows, so that a group is spaced
+    /// the same way wherever you look at it
+    static let contentSpacing = 4.0
 
     /// How many tiles fit next to each other.
     ///
@@ -32,7 +43,7 @@ class GroupedFilePreviewView: UIView {
     static func tileCount(forAvailableWidth availableWidth: CGFloat) -> Int {
         guard availableWidth > 0 else { return self.maximumTiles }
 
-        let fitting = Int((availableWidth + self.tileSpacing) / (self.tileSize + self.tileSpacing))
+        let fitting = Int((availableWidth + self.contentSpacing) / (self.tileSize + self.contentSpacing))
 
         return max(2, min(self.maximumTiles, fitting))
     }
@@ -45,7 +56,7 @@ class GroupedFilePreviewView: UIView {
     private lazy var tileRow: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .horizontal
-        stackView.spacing = GroupedFilePreviewView.tileSpacing
+        stackView.spacing = GroupedFilePreviewView.contentSpacing
         stackView.alignment = .top
         return stackView
     }()
@@ -53,7 +64,7 @@ class GroupedFilePreviewView: UIView {
     private lazy var fileRows: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .vertical
-        stackView.spacing = GroupedFilePreviewView.tileSpacing / 2
+        stackView.spacing = GroupedFilePreviewView.contentSpacing
         stackView.alignment = .fill
         return stackView
     }()
@@ -70,7 +81,7 @@ class GroupedFilePreviewView: UIView {
     private lazy var contentStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [self.tileRow, self.fileRows])
         stackView.axis = .vertical
-        stackView.spacing = GroupedFilePreviewView.tileSpacing
+        stackView.spacing = GroupedFilePreviewView.contentSpacing
         // The rows are as wide as the widest thing in the bubble, so that all of a row takes taps
         stackView.alignment = .fill
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -144,10 +155,10 @@ class GroupedFilePreviewView: UIView {
 
             if !self.files.isEmpty {
                 height += CGFloat(self.files.count) * GroupedFilePreviewView.fileRowHeight
-                height += CGFloat(self.files.count - 1) * (GroupedFilePreviewView.tileSpacing / 2)
+                height += CGFloat(self.files.count - 1) * GroupedFilePreviewView.contentSpacing
 
                 if !self.tiles.isEmpty {
-                    height += GroupedFilePreviewView.tileSpacing
+                    height += GroupedFilePreviewView.contentSpacing
                 }
             }
 
@@ -168,7 +179,7 @@ class GroupedFilePreviewView: UIView {
             guard !self.tiles.isEmpty, self.tiles.count >= fittingTiles else { return availableWidth }
 
             let tileCount = CGFloat(self.tiles.count)
-            let tileRowWidth = tileCount * GroupedFilePreviewView.tileSize + (tileCount - 1) * GroupedFilePreviewView.tileSpacing
+            let tileRowWidth = tileCount * GroupedFilePreviewView.tileSize + (tileCount - 1) * GroupedFilePreviewView.contentSpacing
 
             return min(availableWidth, tileRowWidth)
         }
@@ -220,6 +231,13 @@ class GroupedFilePreviewView: UIView {
 
         self.tileRow.isHidden = layout.tiles.isEmpty
         self.fileRows.isHidden = layout.files.isEmpty
+    }
+
+    /// Passes a download notification on to the row it belongs to, if any of them.
+    func updateDownloadStatus(from notification: Notification) {
+        for rowView in self.fileRowViews {
+            rowView.updateDownloadStatus(from: notification)
+        }
     }
 
     private func index(of file: NCMessageFileParameter, in files: [NCMessageFileParameter]) -> Int {

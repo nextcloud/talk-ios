@@ -151,6 +151,9 @@ class GroupedFilePreviewTileView: UIControl {
 /// One file of a group that has no preview, shown as a row with its name.
 class GroupedFileRowView: UIControl {
 
+    /// What the card keeps between its edge and its content
+    static let cardPadding = 8.0
+
     private lazy var iconImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -160,17 +163,33 @@ class GroupedFileRowView: UIControl {
 
     private lazy var nameLabel: UILabel = {
         let label = UILabel()
-        label.font = .preferredFont(forTextStyle: .footnote)
+        // The size the chat writes messages and author names in
+        label.font = .preferredFont(forTextStyle: .body)
         label.lineBreakMode = .byTruncatingMiddle
         return label
     }()
 
     private lazy var detailLabel: UILabel = {
         let label = UILabel()
-        label.font = .preferredFont(forTextStyle: .caption1)
+        // The size the chat writes timestamps in
+        label.font = .preferredFont(forTextStyle: .footnote)
         label.textColor = .secondaryLabel
         return label
     }()
+
+    /// Shown while the file this row stands for is being downloaded, with its progress once the
+    /// download can report one
+    private lazy var downloadIndicator: MDCActivityIndicator = {
+        let indicator = MDCActivityIndicator(frame: .init(x: 0, y: 0, width: 20, height: 20))
+        indicator.translatesAutoresizingMaskIntoConstraints = false
+        indicator.radius = 6
+        indicator.strokeWidth = 1.5
+        indicator.cycleColors = [.secondaryLabel]
+        indicator.isHidden = true
+        return indicator
+    }()
+
+    private var fileParameter: NCMessageFileParameter?
 
     private lazy var labelStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [self.nameLabel, self.detailLabel])
@@ -194,12 +213,27 @@ class GroupedFileRowView: UIControl {
 
     private var maximumWidthConstraint: NSLayoutConstraint?
 
+    /// Dims the card while it is held, so that it reads as something that can be tapped
+    override var isHighlighted: Bool {
+        didSet {
+            self.alpha = self.isHighlighted ? 0.6 : 1.0
+        }
+    }
+
     private func setupRowView() {
         self.translatesAutoresizingMaskIntoConstraints = false
+
+        // The same card a link preview is drawn on, so a file of a group reads as its own target
+        self.backgroundColor = chatBubbleCardFill
+        self.layer.cornerRadius = chatBubbleCardCornerRadius
+        self.layer.masksToBounds = true
+
         self.addSubview(self.iconImageView)
         self.addSubview(self.labelStackView)
+        self.addSubview(self.downloadIndicator)
 
         let rowHeight = GroupedFilePreviewView.fileRowHeight
+        let iconSize = UIFont.preferredFont(forTextStyle: .body).lineHeight + UIFont.preferredFont(forTextStyle: .footnote).lineHeight
 
         // A long file name truncates against this instead of widening the row past the bubble,
         // where the part sticking out would draw but take no taps
@@ -209,14 +243,19 @@ class GroupedFileRowView: UIControl {
         NSLayoutConstraint.activate([
             self.heightAnchor.constraint(equalToConstant: rowHeight),
 
-            self.iconImageView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+            self.iconImageView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: GroupedFileRowView.cardPadding),
             self.iconImageView.centerYAnchor.constraint(equalTo: self.centerYAnchor),
-            self.iconImageView.widthAnchor.constraint(equalToConstant: rowHeight * 0.7),
-            self.iconImageView.heightAnchor.constraint(equalToConstant: rowHeight * 0.7),
+            self.iconImageView.widthAnchor.constraint(equalToConstant: iconSize),
+            self.iconImageView.heightAnchor.constraint(equalToConstant: iconSize),
 
             self.labelStackView.leadingAnchor.constraint(equalTo: self.iconImageView.trailingAnchor, constant: 8),
-            self.labelStackView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            self.labelStackView.centerYAnchor.constraint(equalTo: self.centerYAnchor)
+            self.labelStackView.trailingAnchor.constraint(equalTo: self.downloadIndicator.leadingAnchor, constant: -8),
+            self.labelStackView.centerYAnchor.constraint(equalTo: self.centerYAnchor),
+
+            self.downloadIndicator.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -GroupedFileRowView.cardPadding),
+            self.downloadIndicator.centerYAnchor.constraint(equalTo: self.centerYAnchor),
+            self.downloadIndicator.widthAnchor.constraint(equalToConstant: 20),
+            self.downloadIndicator.heightAnchor.constraint(equalToConstant: 20)
         ])
     }
 
@@ -224,11 +263,48 @@ class GroupedFileRowView: UIControl {
         self.maximumWidthConstraint?.constant = maximumWidth
         self.maximumWidthConstraint?.isActive = maximumWidth > 0
 
+        self.fileParameter = file
+
+        if let fileStatus = file.fileStatus, fileStatus.isDownloading {
+            self.showDownload(withProgress: fileStatus.canReportProgress ? Float(fileStatus.downloadProgress) : 0)
+        }
+
         self.iconImageView.image = UIImage(named: NCUtils.previewImage(forMimeType: file.mimetype))
         self.nameLabel.text = file.name
         self.detailLabel.text = file.shortDescription
 
         self.accessibilityLabel = [file.name, file.shortDescription].compactMap { $0 }.joined(separator: ", ")
         self.isAccessibilityElement = true
+    }
+
+    /// Follows the download of the file this row stands for, ignoring the files of the other rows
+    func updateDownloadStatus(from notification: Notification) {
+        guard let fileParameter = self.fileParameter,
+              let status = NCChatFileStatus.getStatus(from: notification, for: fileParameter)
+        else { return }
+
+        if status.isDownloading {
+            self.showDownload(withProgress: status.canReportProgress ? Float(status.downloadProgress) : 0)
+        } else {
+            self.hideDownload()
+        }
+    }
+
+    private func showDownload(withProgress progress: Float) {
+        self.downloadIndicator.isHidden = false
+
+        if progress > 0 {
+            self.downloadIndicator.indicatorMode = .determinate
+            self.downloadIndicator.setProgress(progress, animated: true)
+        } else {
+            self.downloadIndicator.indicatorMode = .indeterminate
+        }
+
+        self.downloadIndicator.startAnimating()
+    }
+
+    private func hideDownload() {
+        self.downloadIndicator.stopAnimating()
+        self.downloadIndicator.isHidden = true
     }
 }
