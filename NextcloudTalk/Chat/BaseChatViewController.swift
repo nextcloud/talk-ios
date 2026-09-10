@@ -2811,16 +2811,22 @@ import Toast
     /// The width the body of a message has, which is what the previews of a group have to share.
     ///
     /// Measuring a group and building it have to agree on this, or the cell is a different height
-    /// than the previews it shows.
+    /// than the previews it shows. Heights are measured and cached against a row width, so take
+    /// that width rather than asking the table view, which has already changed on a rotation.
+    internal func availableBodyWidth(forRowWidth rowWidth: CGFloat, isOwnMessage: Bool) -> CGFloat {
+        let bodyWidth = BaseChatTableViewCell.bodyWidth(forRowWidth: rowWidth, isOwnMessage: isOwnMessage)
+
+        return max(0, bodyWidth - BaseChatTableViewCell.bubbleWidthSafetyMargin)
+    }
+
+    /// The same, for the width the rows of the chat currently have.
     internal func availableBodyWidth(forOwnMessage isOwnMessage: Bool) -> CGFloat {
         guard let tableView = self.tableView else { return 0 }
 
         var rowWidth = tableView.frame.width - chatMessageCellAvatarHeight
         rowWidth -= tableView.safeAreaInsets.left + tableView.safeAreaInsets.right
 
-        let bodyWidth = BaseChatTableViewCell.bodyWidth(forRowWidth: rowWidth, isOwnMessage: isOwnMessage)
-
-        return max(0, bodyWidth - BaseChatTableViewCell.bubbleWidthSafetyMargin)
+        return self.availableBodyWidth(forRowWidth: rowWidth, isOwnMessage: isOwnMessage)
     }
 
     /// The group a message is shown as, when it is the one its upload is shown as.
@@ -3645,13 +3651,18 @@ import Toast
         if let fileGroup = self.fileMessageGroup(showing: message) {
             let files = fileGroup.messagesInUploadOrder.compactMap { $0.file() }
 
-            height += GroupedFilePreviewView.Layout(files: files, availableWidth: self.availableBodyWidth(forOwnMessage: isOwnMessage)).height
-            height += 10 // right(10)
+            height += GroupedFilePreviewView.Layout(files: files, availableWidth: self.availableBodyWidth(forRowWidth: originalWidth, isOwnMessage: isOwnMessage)).height
 
-            // A group shows its caption, never a file name, so a measured name takes no space here.
-            // An empty text was already subtracted above.
-            if message.sharesFileWithoutCaption, !messageString.string.isEmpty {
-                height -= ceil(bodyBounds.height)
+            if message.sharesFileWithoutCaption {
+                // A group shows its caption, never a file name, so a measured name takes no space
+                // here. An empty text was already subtracted above.
+                if !messageString.string.isEmpty {
+                    height -= ceil(bodyBounds.height)
+                }
+            } else {
+                // Only a caption is separated from the previews. Without one there is no text view
+                // in the layout to leave room for.
+                height += 10
             }
 
         // Voice message should be before message.file check since it contains a file
