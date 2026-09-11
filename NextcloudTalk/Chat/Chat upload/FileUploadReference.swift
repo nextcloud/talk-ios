@@ -21,12 +21,9 @@ struct FileUploadReference: Equatable {
     let position: Int
 
     private static let uploadHashLength = 60
-    private static let positionDigits = 3
 
-    /// The characters the agreed format allows, which is stricter than what a hash could contain:
-    /// a reference id with an uppercase letter in it is not one of ours.
-    private static let hexDigits = Set("0123456789abcdef")
-    private static let decimalDigits = Set("0123456789")
+    /// The format the clients agreed on in nextcloud/spreed#19040
+    private static let format = /([a-f0-9]{60})-([0-9]{3})/
 
     /// The largest upload that can still be numbered within the 64 characters the server keeps of
     /// a reference id. Beyond that it truncates, which would corrupt the position.
@@ -43,22 +40,14 @@ struct FileUploadReference: Equatable {
     ///                          the format above, in which case the file was not shared as part of
     ///                          an upload this client can recognize.
     init?(referenceId: String?) {
-        guard let referenceId else { return nil }
-
-        // Matches the format the other clients validate against: /[a-f0-9]{60}-[0-9]{3}/
-        let parts = referenceId.split(separator: "-", omittingEmptySubsequences: false)
-
-        guard parts.count == 2,
-              parts[0].count == Self.uploadHashLength,
-              parts[0].allSatisfy(Self.hexDigits.contains),
-              parts[1].count == Self.positionDigits,
-              parts[1].allSatisfy(Self.decimalDigits.contains),
-              let position = Int(parts[1])
+        guard let referenceId,
+              let match = referenceId.wholeMatch(of: Self.format),
+              let position = Int(match.2)
         else {
             return nil
         }
 
-        self.uploadHash = String(parts[0])
+        self.uploadHash = String(match.1)
         self.position = position
     }
 
