@@ -28,6 +28,20 @@ protocol BaseChatTableViewCellDelegate: AnyObject {
 }
 
 // Common elements
+
+/// A card drawn inside a bubble, for a link preview or a file of a group.
+///
+/// A filled card instead of a hairline border, which used the very same translucent colour and so
+/// would have doubled up. White in both appearances, so the card reads as a panel *lighter* than the
+/// bubble - the semantic fills darken instead. Light mode needs the higher alpha, starting lighter.
+public let chatBubbleCardFill = UIColor { traitCollection in
+    let alpha = traitCollection.userInterfaceStyle == .dark ? 0.10 : 0.65
+
+    return UIColor.white.withAlphaComponent(alpha)
+}
+
+public let chatBubbleCardCornerRadius = 8.0
+
 public let chatMessageCellPreviewCornerRadius = 4.0
 public let chatMessageCellAvatarHeight = 30.0
 
@@ -37,6 +51,10 @@ public let chatGroupedMessageCellIdentifier = "chatGroupedMessageCellIdentifier"
 public let chatReplyMessageCellIdentifier = "chatReplyMessageCellIdentifier"
 public let chatMessageCellMinimumHeight = 45.0
 public let chatGroupedMessageCellMinimumHeight = 25.0
+
+// Grouped file cell (the files of one upload, shown as a single message)
+public let fileGroupMessageCellIdentifier = "fileGroupMessageCellIdentifier"
+public let fileGroupGroupedMessageCellIdentifier = "fileGroupGroupedMessageCellIdentifier"
 
 // File cell
 public let fileMessageCellIdentifier = "fileMessageCellIdentifier"
@@ -91,6 +109,31 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
     @IBOutlet weak var bubbleView: UIView!
     @IBOutlet weak var bubbleStackView: UIStackView!
+
+    /// What the bubble keeps between itself and the avatar, on top of the paddings below
+    static let bubbleInsetToAvatar = 10.0
+
+    /// 40 to the avatar view and 10 to the superview, see `rightBubbleConstraints`
+    static let ownMessageBubbleInsets = 50.0
+
+    /// 10 to the avatar view and 64 to the superview, see `leftBubbleConstraints`
+    static let otherMessageBubbleInsets = 74.0
+
+    /// The bubble ends up a little narrower again than its constraints suggest. Erring on the small
+    /// side costs a few points of preview width, while erring the other way puts previews past the
+    /// bubble, where they are clipped and stop taking taps.
+    static let bubbleWidthSafetyMargin = 10.0
+
+    /// The width the body of a message has, from the width its row has.
+    ///
+    /// The chat view measures a message before there is a cell to measure, so this has to be
+    /// answerable without one. It lives here so that it is maintained together with the bubble
+    /// constraints below, which are where the paddings come from.
+    static func bodyWidth(forRowWidth rowWidth: CGFloat, isOwnMessage: Bool) -> CGFloat {
+        let bubbleInsets = isOwnMessage ? self.ownMessageBubbleInsets : self.otherMessageBubbleInsets
+
+        return max(0, rowWidth - self.bubbleInsetToAvatar - bubbleInsets)
+    }
 
     // Since we use different relations depending on the bubble (other user or app user) we setup
     // the constraints programmatically instead of in interface builder
@@ -148,6 +191,17 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
     // Message cell
     internal var messageTextView: MessageBodyTextView?
+
+    /// The files of one upload, when this cell shows a group of them instead of a single message
+    public var fileGroup: FileMessageGroup?
+
+    internal var groupedFilePreviewView: GroupedFilePreviewView?
+
+    /// The width the message body has, which the previews of a group have to share
+    public var availableBodyWidth: CGFloat = 0
+
+    internal var fileGroupCaptionConstraints: [NSLayoutConstraint] = []
+    internal var fileGroupWithoutCaptionConstraint: NSLayoutConstraint?
 
     // File cell
     internal var filePreviewImageView: UIImageView?
@@ -223,6 +277,9 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
         self.referenceView?.prepareForReuse()
 
+        self.fileGroup = nil
+
+        self.prepareForReuseFileGroupCell()
         self.prepareForReuseFileCell()
         self.prepareForReuseLocationCell()
         self.prepareForReuseAudioCell()
@@ -390,7 +447,10 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             self.addSlideToReplyGestureRecognizer(for: message)
         }
 
-        if message.isVoiceMessage {
+        if let fileGroup = self.fileGroup {
+            // The files of one upload, shown as a single message
+            self.setupForFileGroupCell(with: fileGroup, with: account)
+        } else if message.isVoiceMessage {
             // Audio message
             self.setupForAudioCell(with: message)
         } else if message.poll != nil {
@@ -771,6 +831,12 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
     @objc func didChangeIsDownloading(notification: Notification) {
         DispatchQueue.main.async {
+            // A group has a file per row, each of which can be downloading on its own
+            if let groupedFilePreviewView = self.groupedFilePreviewView, self.fileGroup != nil {
+                groupedFilePreviewView.updateDownloadStatus(from: notification)
+                return
+            }
+
             // Make sure this notification is really for this cell
             guard let fileParameter = self.message?.file(),
                   let receivedStatus = NCChatFileStatus.getStatus(from: notification, for: fileParameter)
@@ -787,6 +853,11 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
     @objc func didChangeDownloadProgress(notification: Notification) {
         DispatchQueue.main.async {
+            if let groupedFilePreviewView = self.groupedFilePreviewView, self.fileGroup != nil {
+                groupedFilePreviewView.updateDownloadStatus(from: notification)
+                return
+            }
+
             // Make sure this notification is really for this cell
             guard let fileParameter = self.message?.file(),
                   let receivedStatus = NCChatFileStatus.getStatus(from: notification, for: fileParameter)

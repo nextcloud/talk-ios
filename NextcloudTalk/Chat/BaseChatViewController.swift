@@ -117,6 +117,12 @@ import Toast
 
     private var messageHeightCache = NCChatMessageHeightCache()
 
+    /// The files of one upload, shown as a single message, by the id of the message they are shown as
+    internal var fileMessageGroups: [Int: FileMessageGroup] = [:]
+
+    /// Messages shown as part of the group of their upload instead of on their own
+    internal var messageIdsHiddenInFileGroups: Set<Int> = []
+
     private lazy var inputbarBorderView: UIView = {
         let inputbarBorderView = UIView()
         inputbarBorderView.autoresizingMask = [.flexibleWidth, .flexibleBottomMargin]
@@ -279,6 +285,9 @@ import Toast
         self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: chatMessageCellIdentifier)
         self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: chatGroupedMessageCellIdentifier)
         self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: chatReplyMessageCellIdentifier)
+
+        self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: fileGroupMessageCellIdentifier)
+        self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: fileGroupGroupedMessageCellIdentifier)
 
         self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: fileMessageCellIdentifier)
         self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: fileGroupedMessageCellIdentifier)
@@ -688,6 +697,7 @@ import Toast
             updatedMessage.isGroupMessage = message.isGroupMessage && message.actorType != "bots" && updatedMessage.lastEditTimestamp == 0
             updatedMessage.copyPendingReactions(from: message)
             self.messages[keyDate]?[indexPath.row] = updatedMessage
+            self.regroupFileMessages()
 
             // Check if there are any messages that reference our message as a parent -> these need to be reloaded as well
             if let visibleIndexPaths = self.tableView?.indexPathsForVisibleRows {
@@ -2637,8 +2647,12 @@ import Toast
                 }
             }
 
+            self.regroupFileMessages()
+
             return lastHistoryMessageIP
         }
+
+        self.regroupFileMessages()
 
         return nil
     }
@@ -2685,6 +2699,7 @@ import Toast
         }
 
         self.sortDateSections()
+        self.regroupFileMessages()
     }
 
     func appendMessages(messages: [NCChatMessage]) {
@@ -2692,6 +2707,7 @@ import Toast
         // Therefore we wrap it in this append function
         self.internalAppendMessages(messages: messages, inDictionary: &self.messages)
         self.sortDateSections()
+        self.regroupFileMessages()
     }
 
     private func internalAppendMessages(messages: [NCChatMessage], inDictionary dictionary: inout [Date: [NCChatMessage]]) {
@@ -2781,11 +2797,110 @@ import Toast
                     self.tableView?.endUpdates()
                 }
             }
+
+            self.regroupFileMessages()
         }
     }
 
     func sortDateSections() {
         self.dateSections = self.messages.keys.sorted()
+    }
+
+    // MARK: - Grouping of files shared as one upload
+
+    /// The width the body of a message has, which is what the previews of a group have to share.
+    ///
+    /// Measuring a group and building it have to agree on this, or the cell is a different height
+    /// than the previews it shows. Heights are measured and cached against a row width, so take
+    /// that width rather than asking the table view, which has already changed on a rotation.
+    internal func availableBodyWidth(forRowWidth rowWidth: CGFloat, isOwnMessage: Bool) -> CGFloat {
+        let bodyWidth = BaseChatTableViewCell.bodyWidth(forRowWidth: rowWidth, isOwnMessage: isOwnMessage)
+
+        return max(0, bodyWidth - BaseChatTableViewCell.bubbleWidthSafetyMargin)
+    }
+
+    /// The same, for the width the rows of the chat currently have.
+    internal func availableBodyWidth(forOwnMessage isOwnMessage: Bool) -> CGFloat {
+        guard let tableView = self.tableView else { return 0 }
+
+        var rowWidth = tableView.frame.width - chatMessageCellAvatarHeight
+        rowWidth -= tableView.safeAreaInsets.left + tableView.safeAreaInsets.right
+
+        return self.availableBodyWidth(forRowWidth: rowWidth, isOwnMessage: isOwnMessage)
+    }
+
+    /// The group a message is shown as, when it is the one its upload is shown as, or a group of
+    /// one for a file that is drawn on a card without belonging to an upload.
+    internal func fileMessageGroup(showing message: NCChatMessage) -> FileMessageGroup? {
+        if message.messageId > 0, let group = self.fileMessageGroups[message.messageId] {
+            return group
+        }
+
+        return message.isFileCardMessage ? FileMessageGroup(messages: [message]) : nil
+    }
+
+    /// Whether a message is shown as part of the group of its upload rather than on its own.
+    internal func isHiddenInFileMessageGroup(_ message: NCChatMessage) -> Bool {
+        guard message.messageId > 0 else { return false }
+
+        return self.messageIdsHiddenInFileGroups.contains(message.messageId)
+    }
+
+    /// Works out which files are shown together, over the messages currently loaded.
+    ///
+    /// Runs after every change to the data source instead of while messages are added, because a
+    /// group is not something a message can decide on its own: files of one upload can arrive in
+    /// separate batches, history can be prepended in front of a group, and removing a message can
+    /// join or split one.
+    internal func regroupFileMessages() {
+        var groups: [Int: FileMessageGroup] = [:]
+        var hiddenMessageIds: Set<Int> = []
+
+        for dateSection in self.dateSections {
+            guard let messagesForDate = self.messages[dateSection] else { continue }
+
+            for group in FileMessageGroup.groups(in: messagesForDate) {
+                groups[group.anchor.messageId] = group
+
+                for message in group.messages where message.messageId != group.anchor.messageId {
+                    hiddenMessageIds.insert(message.messageId)
+                }
+            }
+        }
+
+        self.invalidateHeights(previousGroups: self.fileMessageGroups,
+                               groups: groups,
+                               previousHiddenMessageIds: self.messageIdsHiddenInFileGroups,
+                               hiddenMessageIds: hiddenMessageIds)
+
+        self.fileMessageGroups = groups
+        self.messageIdsHiddenInFileGroups = hiddenMessageIds
+    }
+
+    /// A message that joined or left a group, or whose group gained or lost a file, is a different
+    /// height than it was measured at.
+    private func invalidateHeights(previousGroups: [Int: FileMessageGroup],
+                                   groups: [Int: FileMessageGroup],
+                                   previousHiddenMessageIds: Set<Int>,
+                                   hiddenMessageIds: Set<Int>) {
+        var changedMessages: [NCChatMessage] = []
+
+        for anchorId in Set(previousGroups.keys).union(groups.keys)
+        where previousGroups[anchorId]?.messages.count != groups[anchorId]?.messages.count {
+            if let message = groups[anchorId]?.anchor ?? previousGroups[anchorId]?.anchor {
+                changedMessages.append(message)
+            }
+        }
+
+        for messageId in previousHiddenMessageIds.symmetricDifference(hiddenMessageIds) {
+            if let message = self.indexPathAndMessage(forMessageId: messageId)?.message {
+                changedMessages.append(message)
+            }
+        }
+
+        for message in changedMessages {
+            self.messageHeightCache.removeHeight(forMessage: message)
+        }
     }
 
     // MARK: - Message grouping
@@ -3360,6 +3475,19 @@ import Toast
             }
         }
 
+        if let fileGroup = self.fileMessageGroup(showing: message) {
+            let cellIdentifier = message.isGroupMessage ? fileGroupGroupedMessageCellIdentifier : fileGroupMessageCellIdentifier
+
+            if let cell = self.tableView?.dequeueReusableCell(withIdentifier: cellIdentifier) as? BaseChatTableViewCell {
+                cell.delegate = self
+                cell.fileGroup = fileGroup
+                cell.availableBodyWidth = self.availableBodyWidth(forOwnMessage: message.isMessage(from: self.account.userId))
+                cell.setup(for: message, inRoom: self.room, forThread: self.thread, withAccount: self.account)
+
+                return cell
+            }
+        }
+
         if message.file() != nil {
             let cellIdentifier = message.isGroupMessage ? fileGroupedMessageCellIdentifier : fileMessageCellIdentifier
 
@@ -3457,6 +3585,11 @@ import Toast
             return 0.0
         }
 
+        // Shown as part of the group of its upload, not on its own
+        if self.isHiddenInFileMessageGroup(message) {
+            return 0.0
+        }
+
         // Chat messages
         let isOwnMessage = message.isMessage(from: self.account.userId)
         let messageString = message.parsedMarkdownForChat() ?? NSMutableAttributedString()
@@ -3466,19 +3599,10 @@ import Toast
             // 4 * right(10) + dateLabel(40)
             width -= 80.0
         } else {
-            // Avatar is already subtracted, but we need to take padding of left(10) into account
-            width -= 10.0
+            width = BaseChatTableViewCell.bodyWidth(forRowWidth: width, isOwnMessage: isOwnMessage)
 
             // MessageTextView has padding of 2*10
             width -= 20.0
-
-            if isOwnMessage {
-                // For own messages we have a padding of 40 to the avatar view and 10 to the right superview
-                width -= 50.0
-            } else {
-                // For others messages, we have a padding of 10 to the avatar view und 64 to the right superview
-                width -= 74.0
-            }
         }
 
         self.textViewForSizing.attributedText = messageString
@@ -3527,8 +3651,25 @@ import Toast
             height += 70 // quoteView(70)
         }
 
+        if let fileGroup = self.fileMessageGroup(showing: message) {
+            let files = fileGroup.messagesInUploadOrder.compactMap { $0.file() }
+
+            height += GroupedFilePreviewView.Layout(files: files, availableWidth: self.availableBodyWidth(forRowWidth: originalWidth, isOwnMessage: isOwnMessage)).height
+
+            if message.sharesFileWithoutCaption {
+                // A group shows its caption, never a file name, so a measured name takes no space
+                // here. An empty text was already subtracted above.
+                if !messageString.string.isEmpty {
+                    height -= ceil(bodyBounds.height)
+                }
+            } else {
+                // Only a caption is separated from the previews. Without one there is no text view
+                // in the layout to leave room for.
+                height += 10
+            }
+
         // Voice message should be before message.file check since it contains a file
-        if message.isVoiceMessage {
+        } else if message.isVoiceMessage {
             height -= ceil(bodyBounds.height)
             height += voiceMessageCellPlayerHeight
 
@@ -3660,6 +3801,8 @@ import Toast
         else { return nil }
 
         previewCell.frame = .init(origin: .zero, size: tableView.rectForRow(at: indexPath).size)
+        previewCell.fileGroup = self.fileMessageGroup(showing: message)
+        previewCell.availableBodyWidth = self.availableBodyWidth(forOwnMessage: message.isMessage(from: self.account.userId))
         previewCell.setup(for: message, inRoom: self.room, forThread: self.thread, withAccount: self.account)
         previewCell.layoutIfNeeded()
 
