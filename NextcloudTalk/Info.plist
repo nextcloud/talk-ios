@@ -39,6 +39,8 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>nextcloud</string>
@@ -60,31 +62,46 @@
 	<string>Microphone is used in voice and video calls</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Photo Library access is needed to share pictures and videos from your device</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Speech Recognition access is needed to transcribe a voice message to text using on-device recognition</string>
 	<key>NSUserActivityTypes</key>
 	<array>
 		<string>INSendMessageIntent</string>
 	</array>
-	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>Speech Recognition access is needed to transcribe a voice message to text using on-device recognition</string>
 	<key>UIApplicationSceneManifest</key>
-	<dict>
-		<key>UIApplicationSupportsMultipleScenes</key>
-		<false/>
-		<key>UISceneConfigurations</key>
-		<dict>
-			<key>UIWindowSceneSessionRoleApplication</key>
-			<array>
-				<dict>
-					<key>UISceneConfigurationName</key>
-					<string>Default Configuration</string>
-					<key>UISceneDelegateClassName</key>
-					<string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
-					<key>UISceneStoryboardFile</key>
-					<string>Main</string>
-				</dict>
-			</array>
-		</dict>
-	</dict>
+    <dict>
+        <key>UIApplicationSupportsMultipleScenes</key>
+        <true/>
+
+        <key>UISceneConfigurations</key>
+        <dict>
+
+            <key>UIWindowSceneSessionRoleApplication</key>
+            <array>
+                <dict>
+                    <key>UISceneConfigurationName</key>
+                    <string>Default Configuration</string>
+                    <key>UISceneDelegateClassName</key>
+                    <string>NextcloudTalk.SceneDelegate</string>
+                    <key>UISceneStoryboardFile</key>
+                    <string>Main</string>
+                </dict>
+            </array>
+
+            <key>CPTemplateApplicationSceneSessionRoleApplication</key>
+            <array>
+                <dict>
+                    <key>UISceneClassName</key>
+                    <string>CPTemplateApplicationScene</string>
+                    <key>UISceneConfigurationName</key>
+                    <string>CarPlay</string>
+                    <key>UISceneDelegateClassName</key>
+                    <string>NextcloudTalk.CarPlaySceneDelegate</string>
+                </dict>
+            </array>
+
+        </dict>
+    </dict>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>
@@ -130,7 +147,5 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
 </dict>
 </plist>
