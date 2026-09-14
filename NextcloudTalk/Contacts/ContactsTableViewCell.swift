@@ -19,11 +19,10 @@ struct ContactsTableViewCellWrapper: UIViewRepresentable {
     }
 
     func updateUIView(_ cell: ContactsTableViewCell, context: Context) {
-        if participant.canModerate, (room.type == .oneToOne || room.type == .formerOneToOne || room.type == .noteToSelf) {
-            cell.labelTitle.text = participant.displayName
-        } else {
-            cell.labelTitle.text = participant.detailedName
-        }
+        cell.labelTitle.text = participant.detailedName
+
+        let roleIcon = participant.roleIcon(in: room)
+        cell.setRoleIcon(roleIcon?.systemImageName, withAccessibilityLabel: roleIcon?.localizedName)
 
         cell.avatarView.setStatus(for: participant, inRoom: room)
         cell.setUserStatusMessage(participant.statusMessage, withIcon: participant.statusIcon)
@@ -40,15 +39,11 @@ struct ContactsTableViewCellWrapper: UIViewRepresentable {
             cell.setUserStatusMessage(invitedActorId, withIcon: nil)
         }
 
-        if participant.isOffline {
-            cell.avatarView.alpha = 0.5
-            cell.labelTitle.alpha = 0.5
-            cell.userStatusMessageLabel.alpha = 0.5
-        } else {
-            cell.avatarView.alpha = 1
-            cell.labelTitle.alpha = 1
-            cell.userStatusMessageLabel.alpha = 1
-        }
+        let contentAlpha: CGFloat = participant.isOffline ? 0.5 : 1
+        cell.avatarView.alpha = contentAlpha
+        cell.labelTitle.alpha = contentAlpha
+        cell.userStatusMessageLabel.alpha = contentAlpha
+        cell.roleIconView.alpha = contentAlpha
 
         if let callIconImageName = participant.callIconImageName, !callIconImageName.isEmpty {
             cell.accessoryView = UIImageView(image: .init(systemName: callIconImageName))

@@ -97,14 +97,8 @@ extension BaseChatTableViewCell {
 
         self.requestPreview(for: message, with: account)
 
-        if !message.sendingFailed {
-            if message.isTemporary {
-                self.addActivityIndicator(with: 0)
-            } else if let fileStatus = message.file().fileStatus {
-                if fileStatus.isDownloading, fileStatus.downloadProgress < 1 {
-                    self.addActivityIndicator(with: Float(fileStatus.downloadProgress))
-                }
-            }
+        if !message.sendingFailed, message.isTemporary {
+            self.addActivityIndicator(with: 0)
         }
 
         if let contactImage = message.file().contactPhotoImage {
@@ -231,11 +225,11 @@ extension BaseChatTableViewCell {
     }
 
     private func downloadGifPreview(for message: NCChatMessage, withFileId fileId: String, cacheKey: String, with account: TalkAccount) {
-        NCChatFileControllerWrapper.shared.downloadFile(withFileId: fileId, fromAccount: account) { [weak self] fileLocalPath in
+        ChatFileDownloader.shared.downloadFile(withFileId: fileId, fromAccount: account) { [weak self] result in
             // Delivered on the main thread, so check we are still the same cell before doing any work
             guard let self, self.message?.file()?.parameterId == fileId else { return }
 
-            guard let fileLocalPath else {
+            guard let fileLocalPath = try? result.get().fileLocalPath else {
                 // No file, try to request a normal preview
                 self.requestDefaultPreview(for: message, withPlaceholderImage: nil, with: account)
                 return

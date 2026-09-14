@@ -2155,8 +2155,8 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
 
         let menu = UIMenu(title: "", children: actions)
 
-        let configuration = UIContextMenuConfiguration(identifier: indexPath as NSIndexPath, previewProvider: { () -> UIViewController? in
-            return nil
+        let configuration = UIContextMenuConfiguration(identifier: indexPath as NSIndexPath, previewProvider: { [weak self] () -> UIViewController? in
+            return self?.contextMenuPreviewController(for: indexPath)
         }, actionProvider: { _ -> UIMenu? in
             return menu
         })
@@ -2169,57 +2169,22 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         return configuration
     }
 
-    /// Uses a cell from the nib, not the reuse pool: a label that was displayed already does not render
-    /// into a bitmap on iPad in split view, and handing over the live cell means UIKit reparents it
-    private func contextMenuPreview(for indexPath: IndexPath, alpha: CGFloat) -> UITargetedPreview? {
+    private func contextMenuPreviewController(for indexPath: IndexPath) -> UIViewController? {
         guard let room = room(for: indexPath),
               let previewCell = UINib(nibName: RoomTableViewCell.nibName, bundle: nil).instantiate(withOwner: nil).first as? RoomTableViewCell
         else { return nil }
 
-        let rowRect = self.tableView.rectForRow(at: indexPath)
-
-        previewCell.frame = CGRect(origin: .zero, size: rowRect.size)
+        previewCell.frame = CGRect(origin: .zero, size: self.tableView.rectForRow(at: indexPath).size)
         configure(previewCell, for: room)
 
-        // Only set for cells the table view displays, so the preview has to do it itself
+        // Only set for cells the table view displays, so the preview does it itself
         previewCell.avatarView.setStatus(for: room, allowCustomStatusIcon: true)
 
-        // The row takes its background from the table view, the floating card needs its own
+        // The row takes its background from the table view, the card needs its own
         previewCell.containerView.backgroundColor = .systemBackground
-        previewCell.contentView.alpha = alpha
         previewCell.layoutIfNeeded()
 
-        let parameters = UIPreviewParameters()
-
-        // The card brings its own background, UIKit filling one in would stay behind a transparent preview
-        parameters.backgroundColor = .clear
-        parameters.visiblePath = UIBezierPath(roundedRect: previewCell.containerView.frame, cornerRadius: previewCell.containerView.layer.cornerRadius)
-
-        // Our view is the table view, so the row rect is already in the coordinate space of the container
-        let target = UIPreviewTarget(container: self.view, center: CGPoint(x: rowRect.midX, y: rowRect.midY))
-
-        return UITargetedPreview(view: previewCell.contentView, parameters: parameters, target: target)
-    }
-
-    override func tableView(_ tableView: UITableView, previewForHighlightingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
-        if tableView != self.tableView {
-            return nil
-        }
-
-        guard let indexPath = configuration.identifier as? IndexPath else { return nil }
-
-        return contextMenuPreview(for: indexPath, alpha: 1)
-    }
-
-    override func tableView(_ tableView: UITableView, previewForDismissingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
-        if tableView != self.tableView {
-            return nil
-        }
-
-        guard let indexPath = configuration.identifier as? IndexPath else { return nil }
-
-        // Describes the state the menu animates back to, so a transparent card fades the whole preview out
-        return contextMenuPreview(for: indexPath, alpha: 0)
+        return ContextMenuPreviewController(for: previewCell.contentView)
     }
 
     override func tableView(_ tableView: UITableView, willDisplayContextMenu configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionAnimating?) {

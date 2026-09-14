@@ -1016,7 +1016,9 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
                 // Set room as active
                 self.activeRooms[token] = controller
             } else {
-                if self.joiningAttempts < 3 && statusCode != 403 {
+                // Some request are not recoverable by a retry - don't even try it
+                let nonRecoverableErrorCodes = [403, 429, 503]
+                if self.joiningAttempts < 3 && !nonRecoverableErrorCodes.contains(statusCode) {
                     NCLog.log("Error joining room, retrying. \(self.joiningAttempts)")
                     self.joiningAttempts += 1
                     self.joinRoomHelper(token, forAccountId: accountId, forCall: call)

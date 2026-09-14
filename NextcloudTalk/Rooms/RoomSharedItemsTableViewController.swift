@@ -8,7 +8,6 @@ import QuickLook
 import PassKit
 
 @objcMembers class RoomSharedItemsTableViewController: UITableViewController,
-                                                        NCChatFileControllerDelegate,
                                                         QLPreviewControllerDelegate,
                                                         QLPreviewControllerDataSource,
                                                         VLCKitVideoViewControllerDelegate {
@@ -262,12 +261,21 @@ import PassKit
 
         cell.fileParameter = file
 
-        let downloader = NCChatFileController(account: account)
-        downloader.delegate = self
-        downloader.downloadFile(withFileId: file.parameterId)
+        ChatFileDownloader.shared.downloadFile(withFileId: file.parameterId, fromAccount: account) { [weak self] result in
+            guard let self else { return }
+
+            switch result {
+            case .success(let fileStatus):
+                self.didLoadFile(with: fileStatus)
+            case .failure(.fileUnavailable(let errorDescription)), .failure(.downloadFailed(let errorDescription)):
+                self.didFailLoadingFile(with: errorDescription)
+            case .failure(.cancelled):
+                break
+            }
+        }
     }
 
-    func fileControllerDidLoadFile(_ fileController: NCChatFileController, with fileStatus: NCChatFileStatus) {
+    private func didLoadFile(with fileStatus: NCChatFileStatus) {
         DispatchQueue.main.async {
             if self.isPreviewControllerShown {
                 return
@@ -309,7 +317,7 @@ import PassKit
         }
     }
 
-    func fileControllerDidFailLoadingFile(_ fileController: NCChatFileController, withFileId fileId: String, withErrorDescription errorDescription: String) {
+    private func didFailLoadingFile(with errorDescription: String) {
         let alertTitle = NSLocalizedString("Unable to load file", comment: "")
         let alert = UIAlertController(
             title: alertTitle,

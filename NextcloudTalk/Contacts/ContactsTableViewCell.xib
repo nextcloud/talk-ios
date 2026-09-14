@@ -24,7 +24,7 @@
                             <constraint firstAttribute="width" secondItem="Uyr-mW-eAX" secondAttribute="height" multiplier="1:1" id="j4M-gw-fjI"/>
                         </constraints>
                     </view>
-                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillProportionally" translatesAutoresizingMaskIntoConstraints="NO" id="ifa-Ff-Eac">
+                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="leading" distribution="fillProportionally" translatesAutoresizingMaskIntoConstraints="NO" id="ifa-Ff-Eac">
                         <rect key="frame" x="72" y="12" width="233" height="48"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="17" adjustsLetterSpacingToFitWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="nOA-bG-zXZ">
@@ -61,6 +61,7 @@
             <connections>
                 <outlet property="avatarView" destination="Uyr-mW-eAX" id="Jig-yS-5UL"/>
                 <outlet property="labelTitle" destination="nOA-bG-zXZ" id="0dX-jq-5N3"/>
+                <outlet property="titleStackView" destination="ifa-Ff-Eac" id="tSv-1a-Bc2"/>
                 <outlet property="userStatusMessageLabel" destination="27H-pY-tFT" id="kAG-y7-hW7"/>
             </connections>
             <point key="canvasLocation" x="33.600000000000001" y="45.877061469265371"/>

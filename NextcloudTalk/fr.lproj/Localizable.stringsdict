@@ -481,9 +481,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator removed you and %ld more participant</string>
+			<string>Vous et %ld autre personne avez été retirés de la liste des participants par un administrateur</string>
+			<key>many</key>
+			<string>Vous et %ld autres personnes avez été retirés de la liste des participants par un administrateur</string>
 			<key>other</key>
-			<string>An administrator removed you and %ld more participants</string>
+			<string>Vous et %ld autres personnes avez été retirés de la liste des participants par un administrateur</string>
 		</dict>
 	</dict>
 	<key>An administrator removed {user0} and %ld more participants</key>
@@ -515,9 +517,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} removed you and %ld more participant</string>
+			<string>Vous et %ld autre personne avez été retirés de la liste des participants par {actor0}</string>
+			<key>many</key>
+			<string>Vous et %ld autres personnes avez été retirés de la liste des participants par {actor0}</string>
 			<key>other</key>
-			<string>{actor0} removed you and %ld more participants</string>
+			<string>Vous et %ld autres personnes avez été retirés de la liste des participants par {actor0}</string>
 		</dict>
 	</dict>
 	<key>{actor0} removed {user0} and %ld more participants</key>
@@ -567,9 +571,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator promoted you and %ld more participant to moderators</string>
+			<string>Vous et %ld autre participant avez été promus modérateurs par un administrateur</string>
+			<key>many</key>
+			<string>Vous et %ld autres participants avez été promus modérateurs par un administrateur</string>
 			<key>other</key>
-			<string>An administrator promoted you and %ld more participants to moderators</string>
+			<string>Vous et %ld autres participants avez été promus modérateurs par un administrateur</string>
 		</dict>
 	</dict>
 	<key>An administrator promoted {user0} and %ld more participants to moderators</key>
@@ -601,9 +607,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} promoted you and %ld more participant to moderators</string>
+			<string>Vous et %ld autre participant avez été promus modérateurs par {actor0}</string>
+			<key>many</key>
+			<string>Vous et %ld autres participants avez été promus modérateurs par {actor0}</string>
 			<key>other</key>
-			<string>{actor0} promoted you and %ld more participants to moderators</string>
+			<string>Vous et %ld autres participants avez été promus modérateurs par {actor0}</string>
 		</dict>
 	</dict>
 	<key>{actor0} promoted {user0} and %ld more participants to moderators</key>
@@ -653,9 +661,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator demoted you and %ld more participant from moderators</string>
+			<string>Vous et %ld autre participant avez été retirés de la liste des modérateurs par un administrateur</string>
+			<key>many</key>
+			<string>Vous et %ld autres participants avez été retirés de la liste des modérateurs par un administrateur</string>
 			<key>other</key>
-			<string>An administrator demoted you and %ld more participants from moderators</string>
+			<string>Vous et %ld autres participants avez été retirés de la liste des modérateurs par un administrateur</string>
 		</dict>
 	</dict>
 	<key>An administrator demoted {user0} and %ld more participants from moderators</key>
@@ -687,9 +697,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} demoted you and %ld more participant from moderators</string>
+			<string>Vous et %ld autre participant avez été retirés de la liste des modérateurs par {actor0}</string>
+			<key>many</key>
+			<string>Vous et %ld autres participants avez été retirés de la liste des modérateurs par {actor0}</string>
 			<key>other</key>
-			<string>{actor0} demoted you and %ld more participants from moderators</string>
+			<string>Vous et %ld autres participants avez été retirés de la liste des modérateurs par {actor0}</string>
 		</dict>
 	</dict>
 	<key>{actor0} demoted {user0} and %ld more participants from moderators</key>

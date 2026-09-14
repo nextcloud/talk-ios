@@ -31,6 +31,39 @@ final class UnitNCRoomParticipantTest: TestBaseRealm {
         return participant
     }
 
+    func createRoom(withType type: NCRoomType) -> NCRoom {
+        let room = NCRoom()
+        room.type = type
+        return room
+    }
+
+    func testRoleIcon() throws {
+        let groupRoom = createRoom(withType: .group)
+
+        let owner = createRoomParticipant(withDisplayName: "Owner")
+        owner.participantType = .owner
+
+        let moderator = createRoomParticipant(withDisplayName: "Moderator", isModerator: true)
+
+        let guestModerator = createRoomParticipant(withDisplayName: "Guest moderator", withActorType: .guest)
+        guestModerator.participantType = .guestModerator
+
+        let user = createRoomParticipant(withDisplayName: "User")
+        user.participantType = .user
+
+        XCTAssertEqual(owner.roleIcon(in: groupRoom), .owner)
+        XCTAssertEqual(moderator.roleIcon(in: groupRoom), .moderator)
+        XCTAssertEqual(guestModerator.roleIcon(in: groupRoom), .moderator)
+        XCTAssertNil(user.roleIcon(in: groupRoom))
+
+        // Conversations without ranks never mark a role
+        for type in [NCRoomType.oneToOne, .formerOneToOne, .changelog, .noteToSelf] {
+            let room = createRoom(withType: type)
+            XCTAssertNil(owner.roleIcon(in: room), "Unexpected role icon in room type \(type)")
+            XCTAssertNil(moderator.roleIcon(in: room), "Unexpected role icon in room type \(type)")
+        }
+    }
+
     func testSorting() throws {
         let team9 = createRoomParticipant(withDisplayName: "9. Team", withActorType: .teams)
         let team8 = createRoomParticipant(withDisplayName: "8. Team", withActorType: .teams)

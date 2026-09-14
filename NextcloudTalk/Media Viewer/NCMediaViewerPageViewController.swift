@@ -15,7 +15,7 @@ import SwiftyGif
     @objc func mediaViewerPageStateDidChange(_ controller: NCMediaViewerPageViewController)
 }
 
-@objcMembers class NCMediaViewerPageViewController: UIViewController, NCChatFileControllerDelegate, NCZoomableViewDelegate {
+@objcMembers class NCMediaViewerPageViewController: UIViewController, NCZoomableViewDelegate {
 
     // What the user is looking at. Never goes back to a lower quality state on its own.
     private enum MediaState {
@@ -190,8 +190,6 @@ import SwiftyGif
         ])
 
         self.zoomableView.replaceContentView(self.imageView)
-
-        fileDownloader.delegate = self
 
         self.navigationItem.title = self.message.file()?.name
 
@@ -385,7 +383,19 @@ import SwiftyGif
         self.downloadDidFail = false
         self.updateProgressPresentation()
 
-        self.fileDownloader.downloadFile(withFileId: fileId)
+        self.fileDownloader.downloadFile(withFileId: fileId) { [weak self] result in
+            guard let self else { return }
+
+            switch result {
+            case .success(let fileStatus):
+                self.didLoadFile(with: fileStatus)
+            case .failure(.fileUnavailable(let errorDescription)), .failure(.downloadFailed(let errorDescription)):
+                self.didFailLoadingFile(with: errorDescription)
+            case .failure(.cancelled):
+                // We cancelled this download ourselves and already updated our state
+                break
+            }
+        }
     }
 
     // MARK: - Display
@@ -667,7 +677,7 @@ import SwiftyGif
 
     // MARK: - NCChatFileController delegate
 
-    func fileControllerDidLoadFile(_ fileController: NCChatFileController, with fileStatus: NCChatFileStatus) {
+    private func didLoadFile(with fileStatus: NCChatFileStatus) {
         self.isDownloading = false
 
         guard let localPath = fileStatus.fileLocalPath else {
@@ -693,7 +703,7 @@ import SwiftyGif
         self.displayFile(at: url, isValidated: true)
     }
 
-    func fileControllerDidFailLoadingFile(_ fileController: NCChatFileController, withFileId fileId: String, withErrorDescription errorDescription: String) {
+    private func didFailLoadingFile(with errorDescription: String) {
         print("Error downloading picture: " + errorDescription)
 
         self.flushSharableFileHandlers(with: nil)

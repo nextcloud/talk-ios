@@ -28,7 +28,6 @@ import Toast
                                                   ShareViewControllerDelegate,
                                                   QLPreviewControllerDelegate,
                                                   QLPreviewControllerDataSource,
-                                                  NCChatFileControllerDelegate,
                                                   ShareConfirmationViewControllerDelegate,
                                                   AVAudioRecorderDelegate,
                                                   AVAudioPlayerDelegate,
@@ -90,8 +89,6 @@ import Toast
 
     private var isVoiceRecordingLocked = false
 
-    private var actionTypeTranscribeVoiceMessage = "transcribe-voice-message"
-
     private var imagePicker: UIImagePickerController?
 
     private var stopTypingTimer: Timer?
@@ -115,9 +112,6 @@ import Toast
     private var playerAudioFileStatus: NCChatFileStatus?
 
     private var photoPicker: PHPickerViewController?
-
-    private var contextMenuAccessoryView: UIView?
-    private var contextMenuMessageView: UIView?
 
     private var leftButtonLongPressGesture: UILongPressGestureRecognizer?
 
@@ -157,7 +151,7 @@ import Toast
                   let indexPath = self.indexPath(for: firstUnreadMessage)
             else { return }
 
-            self.tableView?.scrollToRow(at: indexPath, at: .none, animated: true)
+            self.scrollChat(to: indexPath, at: .none, animated: true)
         }
 
         self.view.addSubview(unreadMessageButton)
@@ -167,7 +161,7 @@ import Toast
 
     private lazy var scrollToBottomButton: UIButton = {
         let button = UIButton(frame: .init(x: 0, y: 0, width: 44, height: 44), primaryAction: UIAction { [weak self] _ in
-            self?.tableView?.slk_scrollToBottom(animated: true)
+            self?.scrollChatToBottom(animated: true)
         })
 
         if #available(iOS 26.0, *) {
@@ -235,7 +229,7 @@ import Toast
 
         // Scroll to bottom manually after hiding the textInputbar, otherwise the
         // scrollToBottom button might be briefly visible even if not needed
-        self.tableView?.slk_scrollToBottom(animated: false)
+        self.scrollChatToBottom(animated: false)
 
         self.appendMessages(messages: messages)
 
@@ -274,6 +268,13 @@ import Toast
 
         // Set delegate to retrieve typing events
         self.tableView?.separatorStyle = .none
+
+        if #available(iOS 26.0, *) {
+            // Our date headers make UIKit choose a hard edge, drawing a border below the navigation bar
+            self.tableView?.topEdgeEffect.style = .soft
+        }
+
+        self.tableView?.register(DateHeaderView.self, forHeaderFooterViewReuseIdentifier: DateHeaderView.reuseIdentifier)
 
         self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: chatMessageCellIdentifier)
         self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: chatGroupedMessageCellIdentifier)
@@ -509,7 +510,7 @@ import Toast
                 let cellRect = tableView.rectForRow(at: indexPath)
 
                 if !tableView.bounds.contains(cellRect) {
-                    self.tableView?.scrollToRow(at: indexPath, at: .bottom, animated: true)
+                    self.scrollChat(to: indexPath, at: .bottom, animated: true)
                 }
             }
         }
@@ -529,7 +530,7 @@ import Toast
 
         if tableView.isValid(indexPath: lastMessageBeforeInteraction) {
             DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
-                tableView.scrollToRow(at: lastMessageBeforeInteraction, at: .bottom, animated: true)
+                self.scrollChat(to: lastMessageBeforeInteraction, at: .bottom, animated: true)
             }
         }
     }
@@ -636,7 +637,7 @@ import Toast
                 }
 
                 self.tableView?.endUpdates()
-                self.tableView?.scrollToRow(at: lastMessageIndexPath, at: .none, animated: true)
+                self.scrollChat(to: lastMessageIndexPath, at: .none, animated: true)
             }
         }
     }
@@ -682,8 +683,10 @@ import Toast
             var reloadIndexPaths = [indexPath]
 
             let isAtBottom = self.shouldScrollOnNewMessages()
+            let anchor = self.currentScrollAnchor()
             let keyDate = self.dateSections[indexPath.section]
             updatedMessage.isGroupMessage = message.isGroupMessage && message.actorType != "bots" && updatedMessage.lastEditTimestamp == 0
+            updatedMessage.copyPendingReactions(from: message)
             self.messages[keyDate]?[indexPath.row] = updatedMessage
 
             // Check if there are any messages that reference our message as a parent -> these need to be reloaded as well
@@ -704,13 +707,14 @@ import Toast
             self.tableView?.reloadRows(at: reloadIndexPaths, with: .none)
             self.tableView?.endUpdates()
 
+            // The row heights are up to date right after endUpdates, so compensate here instead of deferring
             if isAtBottom {
-                // Make sure we're really at the bottom after updating a message
-                DispatchQueue.main.async {
-                    self.tableView?.slk_scrollToBottom(animated: false)
-                    self.updateToolbar(animated: false)
-                }
+                self.scrollChatToBottom(animated: false)
+            } else {
+                self.restoreScrollAnchor(anchor)
             }
+
+            self.updateToolbar(animated: false)
         }
     }
 
@@ -1215,7 +1219,7 @@ import Toast
 
             // Make sure we're really at the bottom after showing the replyMessageView
             if isAtBottom {
-                self.tableView?.slk_scrollToBottom(animated: false)
+                self.scrollChatToBottom(animated: false)
                 self.updateToolbar(animated: false)
             }
         }
@@ -1424,11 +1428,9 @@ import Toast
     }
 
     func didPressTranscribeVoiceMessage(for message: NCChatMessage) {
-        let downloader = NCChatFileController(account: self.account)
-        downloader.delegate = self
-        downloader.messageType = kMessageTypeVoiceMessage
-        downloader.actionType = actionTypeTranscribeVoiceMessage
-        downloader.downloadFile(withFileId: message.file().parameterId)
+        self.downloadFile(for: message) { [weak self] fileStatus in
+            self?.transcribeVoiceMessage(with: fileStatus)
+        }
     }
 
     func didPressEdit(for message: NCChatMessage) {
@@ -3138,6 +3140,16 @@ import Toast
 
             guard let (indexPath, message) = self.indexPathAndMessage(forMessageId: message.messageId) else { return }
 
+            // .added and .removed only confirm a pending reaction, there is nothing to draw or to
+            // create if the server state already landed (e.g. chat relay reaction system message)
+            if state == .added || state == .removed {
+                if message.hasTemporaryReaction(reaction) {
+                    message.setOrUpdateTemporaryReaction(reaction, state: state)
+                }
+
+                return
+            }
+
             message.setOrUpdateTemporaryReaction(reaction, state: state)
 
             CATransaction.begin()
@@ -3148,7 +3160,7 @@ import Toast
                     }
 
                     if let (indexPath, _) = self.getLastNonUpdateMessage() {
-                        self.tableView?.scrollToRow(at: indexPath, at: .bottom, animated: true)
+                        self.scrollChat(to: indexPath, at: .bottom, animated: true)
                     }
                 }
             }
@@ -3193,7 +3205,7 @@ import Toast
             return
         }
 
-        tableView.scrollToRow(at: IndexPath(row: 0, section: section), at: .none, animated: true)
+        self.scrollChat(to: IndexPath(row: 0, section: section), at: .none, animated: true)
     }
 
     // MARK: - UITableViewDataSource methods
@@ -3222,11 +3234,8 @@ import Toast
         return self.messages[dateKey]?.count ?? 0
     }
 
-    public override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        if tableView != self.tableView {
-            return super.tableView(tableView, titleForHeaderInSection: section)
-        }
-
+    // Not titleForHeaderInSection, UIKit would draw that title in addition to our DateHeaderView
+    private func getHeaderTitle(forSection section: Int) -> String? {
         let date = self.dateSections[section]
         return self.getHeaderString(fromDate: date)
     }
@@ -3242,7 +3251,7 @@ import Toast
             return 0
         }
 
-        if let headerText = self.tableView(tableView, titleForHeaderInSection: section) {
+        if let headerText = self.getHeaderTitle(forSection: section) {
             return DateHeaderView.height(for: headerText, fittingWidth: tableView.frame.width)
         }
 
@@ -3254,8 +3263,10 @@ import Toast
             return super.tableView(tableView, viewForHeaderInSection: section)
         }
 
-        let headerView = DateHeaderView()
-        if let headerText = self.tableView(tableView, titleForHeaderInSection: section) {
+        // Reused, a newly created glass background would animate itself in every time
+        guard let headerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: DateHeaderView.reuseIdentifier) as? DateHeaderView else { return nil }
+
+        if let headerText = self.getHeaderTitle(forSection: section) {
             headerView.titleLabel.text = headerText
             headerView.section = section
             headerView.delegate = self
@@ -3616,8 +3627,8 @@ import Toast
 
         let menu = UIMenu(children: actions)
 
-        let configuration = UIContextMenuConfiguration(identifier: indexPath as NSIndexPath) {
-            return nil
+        let configuration = UIContextMenuConfiguration(identifier: indexPath as NSIndexPath) { [weak self] in
+            return self?.getContextMenuPreviewController(forRowAt: indexPath)
         } actionProvider: { _ in
             return menu
         }
@@ -3626,13 +3637,6 @@ import Toast
     }
 
     public override func tableView(_ tableView: UITableView, willDisplayContextMenu configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionAnimating?) {
-        animator?.addAnimations {
-            // Only set these, when the context menu is fully visible
-            self.contextMenuAccessoryView?.alpha = 1
-            self.contextMenuMessageView?.layer.cornerRadius = 10
-            self.contextMenuMessageView?.layer.mask = nil
-        }
-
         // Hiding the keyboard due to a UIKit issue where the reported keyboard height
         // may be incorrect after dismissing a modal/context menu on iOS 26.
         // TODO: Recheck if this behavior is fixed on iOS 26+.
@@ -3649,116 +3653,18 @@ import Toast
         }
     }
 
-    internal func getContextMenuAccessoryView(forMessage message: NCChatMessage, forIndexPath indexPath: IndexPath, withCellHeight cellHeight: CGFloat) -> UIView? {
-        // We don't provide a accessory view in the BaseChatViewController, but can add it in a subclass
-        return nil
-    }
-
-    private class ContextMenuContainerView: UIView {
-        override func didMoveToWindow() {
-            super.didMoveToWindow()
-
-            if #available(iOS 26.0, *) {
-                // Make our context menu accessoryView user interactive
-                self.superview?.isUserInteractionEnabled = true
-            }
-        }
-    }
-
-    public override func tableView(_ tableView: UITableView, previewForHighlightingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
-        guard let indexPath = configuration.identifier as? NSIndexPath,
-              let message = self.message(for: indexPath as IndexPath)
+    internal func getContextMenuPreviewController(forRowAt indexPath: IndexPath) -> UIViewController? {
+        guard let tableView = self.tableView,
+              let message = self.message(for: indexPath),
+              let previewCell = UINib(nibName: BaseChatTableViewCell.nibName, bundle: nil).instantiate(withOwner: nil).first as? BaseChatTableViewCell
         else { return nil }
 
-        let maxPreviewWidth = self.view.bounds.size.width - self.view.safeAreaInsets.left - self.view.safeAreaInsets.right
-        let maxPreviewHeight = self.view.bounds.size.height * 0.4
+        previewCell.frame = .init(origin: .zero, size: tableView.rectForRow(at: indexPath).size)
+        previewCell.setup(for: message, inRoom: self.room, forThread: self.thread, withAccount: self.account)
+        previewCell.layoutIfNeeded()
 
-        // TODO: Take padding into account
-        let maxTextWidth = maxPreviewWidth - chatMessageCellAvatarHeight
-
-        // We need to get the height of the original cell to center the preview correctly (as the preview is always non-grouped)
-        let heightOfOriginalCell = self.getCellHeight(for: message, with: maxTextWidth)
-
-        // Remember grouped-status -> Create a previewView which always is a non-grouped-message
-        let isGroupMessage = message.isGroupMessage
-        message.isGroupMessage = false
-
-        let previewTableViewCell = self.getCell(for: message)
-        var cellHeight = self.getCellHeight(for: message, with: maxTextWidth)
-
-        let heightDifferenceGroupedToNonGrouped = cellHeight - heightOfOriginalCell
-
-        // Cut the height if bigger than max height
-        if cellHeight > maxPreviewHeight {
-            cellHeight = maxPreviewHeight
-        }
-
-        let heightdifferenceOriginalToPreview = cellHeight - heightOfOriginalCell
-
-        // Use the contentView of the UITableViewCell as a preview view
-        let previewMessageView = previewTableViewCell.contentView
-        previewMessageView.frame = CGRect(x: 0, y: 0, width: maxPreviewWidth, height: cellHeight)
-        previewMessageView.layer.masksToBounds = true
-        previewMessageView.backgroundColor = .clear
-
-        // Create a mask to not show the avatar part when showing a grouped messages while animating
-        // The mask will be reset in willDisplayContextMenuWithConfiguration so the avatar is visible when the context menu is shown
-        if heightDifferenceGroupedToNonGrouped > 0 {
-            let maskLayer = CAShapeLayer()
-            let maskRect = CGRect(x: 0, y: heightDifferenceGroupedToNonGrouped + 16, width: previewMessageView.frame.size.width, height: cellHeight - 8)
-            maskLayer.path = CGPath(rect: maskRect, transform: nil)
-
-            previewMessageView.layer.mask = maskLayer
-        }
-
-        previewMessageView.backgroundColor = .systemBackground
-        self.contextMenuMessageView = previewMessageView
-
-        // Restore grouped-status
-        message.isGroupMessage = isGroupMessage
-
-        var containerView: ContextMenuContainerView
-        var cellCenter = CGPoint()
-
-        if let accessoryView = self.getContextMenuAccessoryView(forMessage: message, forIndexPath: indexPath as IndexPath, withCellHeight: cellHeight) {
-            self.contextMenuAccessoryView = accessoryView
-
-            // maxY = height + y
-            let totalAccessoryFrameHeight = accessoryView.frame.maxY - cellHeight
-
-            containerView = ContextMenuContainerView(frame: .init(x: 0, y: 0, width: Int(maxPreviewWidth), height: Int(cellHeight + totalAccessoryFrameHeight)))
-            containerView.backgroundColor = .clear
-            containerView.addSubview(previewMessageView)
-            containerView.addSubview(accessoryView)
-
-            if let cell = tableView.cellForRow(at: indexPath as IndexPath) {
-                // On large iPhones (with regular landscape size, like iPhone X) we need to take the safe area into account when calculating the center
-                let cellCenterX = cell.center.x + self.view.safeAreaInsets.left / 2 - self.view.safeAreaInsets.right / 2
-                let cellCenterY = cell.center.y + totalAccessoryFrameHeight / 2 + heightdifferenceOriginalToPreview / 2 - heightDifferenceGroupedToNonGrouped
-                cellCenter = CGPoint(x: cellCenterX, y: cellCenterY)
-            }
-        } else {
-            containerView = ContextMenuContainerView(frame: .init(x: 0, y: 0, width: maxPreviewWidth, height: cellHeight))
-            containerView.backgroundColor = .clear
-            containerView.addSubview(previewMessageView)
-
-            if let cell = tableView.cellForRow(at: indexPath as IndexPath) {
-                // On large iPhones (with regular landscape size, like iPhone X) we need to take the safe area into account when calculating the center
-                let cellCenterX = cell.center.x + self.view.safeAreaInsets.left / 2 - self.view.safeAreaInsets.right / 2
-                let cellCenterY = cell.center.y + heightdifferenceOriginalToPreview / 2 - heightDifferenceGroupedToNonGrouped
-                cellCenter = CGPoint(x: cellCenterX, y: cellCenterY)
-            }
-        }
-
-        // Create a preview target which allows us to have a transparent background
-        let previewTarget = UIPreviewTarget(container: tableView, center: cellCenter)
-        let previewParameter = UIPreviewParameters()
-
-        // Remove the background and the drop shadow from our custom preview view
-        previewParameter.backgroundColor = .clear
-        previewParameter.shadowPath = UIBezierPath()
-
-        return UITargetedPreview(view: containerView, parameters: previewParameter, target: previewTarget)
+        // Truncated, the menu needs the rest of the screen for long messages
+        return ContextMenuPreviewController(for: previewCell.contentView, maxHeight: self.view.bounds.height * 0.4)
     }
 
     // MARK: - Chat functions
@@ -3773,6 +3679,53 @@ import Toast
     func hideLoadingHistoryView() {
         self.loadingHistoryView = nil
         self.tableView?.tableHeaderView = nil
+    }
+
+    // MARK: - Scroll position
+
+    // Deferred adjustments capture this and skip themselves when it changed, so they can't fight a newer scroll
+    internal private(set) var scrollGeneration = 0
+
+    internal func scrollChat(to indexPath: IndexPath, at position: UITableView.ScrollPosition, animated: Bool) {
+        self.scrollGeneration += 1
+        self.tableView?.scrollToRow(at: indexPath, at: position, animated: animated)
+    }
+
+    internal func scrollChatToBottom(animated: Bool) {
+        self.scrollGeneration += 1
+        self.tableView?.slk_scrollToBottom(animated: animated)
+    }
+
+    // Keeps what the user looks at in place, unlike scrolling to a row it also preserves the offset inside the row
+    internal struct ChatScrollAnchor {
+        let messageId: Int
+        let distanceToContentOffset: CGFloat
+    }
+
+    internal func currentScrollAnchor() -> ChatScrollAnchor? {
+        guard let tableView = self.tableView, let visibleIndexPaths = tableView.indexPathsForVisibleRows else { return nil }
+
+        for indexPath in visibleIndexPaths {
+            // Separators and temporary messages can't be found again after the update
+            guard let message = self.message(for: indexPath), message.messageId > 0 else { continue }
+
+            return ChatScrollAnchor(messageId: message.messageId, distanceToContentOffset: tableView.rectForRow(at: indexPath).minY - tableView.contentOffset.y)
+        }
+
+        return nil
+    }
+
+    internal func restoreScrollAnchor(_ anchor: ChatScrollAnchor?) {
+        guard let anchor, let tableView = self.tableView,
+              let indexPath = self.indexPathAndMessage(forMessageId: anchor.messageId)?.indexPath,
+              tableView.isValid(indexPath: indexPath)
+        else { return }
+
+        let minimumOffset = -tableView.adjustedContentInset.top
+        let maximumOffset = max(tableView.contentSize.height - tableView.bounds.height + tableView.adjustedContentInset.bottom, minimumOffset)
+        let restoredOffset = tableView.rectForRow(at: indexPath).minY - anchor.distanceToContentOffset
+
+        tableView.contentOffset.y = min(max(restoredOffset, minimumOffset), maximumOffset)
     }
 
     func shouldScrollOnNewMessages() -> Bool {
@@ -3970,6 +3923,7 @@ import Toast
     }
 
     internal func highlightMessage(at indexPath: IndexPath, with scrollPosition: UITableView.ScrollPosition) {
+        self.scrollGeneration += 1
         self.tableView?.selectRow(at: indexPath, animated: true, scrollPosition: scrollPosition)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
@@ -4053,14 +4007,9 @@ import Toast
             }
         }
 
-        if fileParameter.fileStatus != nil && fileParameter.fileStatus?.isDownloading ?? false {
-            print("File already downloading -> skipping new download")
-            return
+        self.downloadFile(for: message) { [weak self] fileStatus in
+            self?.previewFile(with: fileStatus)
         }
-
-        let downloader = NCChatFileController(account: self.account)
-        downloader.delegate = self
-        downloader.downloadFile(withFileId: fileParameter.parameterId)
     }
 
     public func cellHasDownloadedImagePreview(withSize size: CGSize, for message: NCChatMessage) {
@@ -4069,16 +4018,23 @@ import Toast
         }
 
         let isAtBottom = self.shouldScrollOnNewMessages()
+        let scrollGenerationBeforeUpdate = self.scrollGeneration
+        let anchor = self.currentScrollAnchor()
 
         message.setPreviewImageSize(size)
 
         CATransaction.begin()
         CATransaction.setCompletionBlock {
             DispatchQueue.main.async {
-                // make sure we're really at the bottom after updating a message since the file previews could grow in size if they contain a media file preview, thus giving the effect of not being at the bottom of the chat
-                if isAtBottom, !(self.tableView?.isDecelerating ?? false) {
-                    self.tableView?.slk_scrollToBottom(animated: true)
+                // Deferred, so give up when the chat scrolled somewhere on purpose in between
+                guard scrollGenerationBeforeUpdate == self.scrollGeneration, !(self.tableView?.isDecelerating ?? false) else { return }
+
+                if isAtBottom {
+                    // Previews can grow, which otherwise gives the effect of not being at the bottom anymore
+                        self.scrollChatToBottom(animated: true)
                     self.updateToolbar(animated: true)
+                } else {
+                    self.restoreScrollAnchor(anchor)
                 }
             }
         }
@@ -4098,16 +4054,7 @@ import Toast
             return
         }
 
-        if fileParameter.fileStatus != nil && fileParameter.fileStatus?.isDownloading ?? false {
-            print("File already downloading -> skipping new download")
-            return
-        }
-
-        if let fileStatus = fileParameter.fileStatus, fileStatus.fileLocalPath != nil && FileManager.default.fileExists(atPath: fileParameter.fileStatus?.fileLocalPath ?? "") {
-            self.setupVoiceMessagePlayer(with: fileParameter.fileStatus!)
-            return
-        }
-
+        // Resume an already loaded voice message
         if let voiceMessagesPlayer = self.voiceMessagesPlayer,
            let playerAudioFileStatus = self.playerAudioFileStatus,
            !voiceMessagesPlayer.isPlaying,
@@ -4118,10 +4065,18 @@ import Toast
             return
         }
 
-        let downloader = NCChatFileController(account: self.account)
-        downloader.delegate = self
-        downloader.messageType = kMessageTypeVoiceMessage
-        downloader.downloadFile(withFileId: fileParameter.parameterId)
+        // Temporary voice messages are played from their local file
+        if let fileStatus = fileParameter.fileStatus,
+           let fileLocalPath = fileStatus.fileLocalPath,
+           FileManager.default.fileExists(atPath: fileLocalPath) {
+
+            self.setupVoiceMessagePlayer(with: fileStatus)
+            return
+        }
+
+        self.downloadFile(for: message) { [weak self] fileStatus in
+            self?.setupVoiceMessagePlayer(with: fileStatus)
+        }
     }
 
     public func cellWants(toPauseAudioFile fileParameter: NCMessageFileParameter) {
@@ -4279,19 +4234,41 @@ import Toast
         // Do nothing -> override in subclass
     }
 
-    // MARK: - NCChatFileControllerDelegate
+    // MARK: - File downloads
 
-    public func fileControllerDidLoadFile(_ fileController: NCChatFileController, with fileStatus: NCChatFileStatus) {
-        if fileController.messageType == kMessageTypeVoiceMessage {
-            if fileController.actionType == actionTypeTranscribeVoiceMessage {
-                self.transcribeVoiceMessage(with: fileStatus)
-            } else {
-                self.setupVoiceMessagePlayer(with: fileStatus)
+    /// Downloads the file of a message and hands it to `completionHandler`, or shows why it failed.
+    ///
+    /// Downloads are deduplicated by file id, so requesting the same file twice downloads it once
+    /// and calls both handlers.
+    ///
+    @MainActor
+    private func downloadFile(for message: NCChatMessage, completionHandler: @escaping (_ fileStatus: NCChatFileStatus) -> Void) {
+        guard let fileParameter = message.file() else { return }
+
+        ChatFileDownloader.shared.downloadFile(withFileId: fileParameter.parameterId, fromAccount: self.account) { [weak self] result in
+            guard let self else { return }
+
+            switch result {
+            case .success(let fileStatus):
+                completionHandler(fileStatus)
+            case .failure(.fileUnavailable(let errorDescription)), .failure(.downloadFailed(let errorDescription)):
+                self.showUnableToLoadFileAlert(with: errorDescription)
+            case .failure(.cancelled):
+                break
             }
-
-            return
         }
+    }
 
+    private func showUnableToLoadFileAlert(with errorDescription: String) {
+        let alert = UIAlertController(title: NSLocalizedString("Unable to load file", comment: ""),
+                                      message: errorDescription,
+                                      preferredStyle: .alert)
+
+        alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default))
+        NCUserInterfaceController.sharedInstance().presentAlertViewController(alert)
+    }
+
+    private func previewFile(with fileStatus: NCChatFileStatus) {
         if self.isPreviewControllerShown {
             // We are showing a file already, no need to open another one
             return
@@ -4355,15 +4332,6 @@ import Toast
 
             self.present(preview, animated: true)
         }
-    }
-
-    public func fileControllerDidFailLoadingFile(_ fileController: NCChatFileController, withFileId fileId: String, withErrorDescription errorDescription: String) {
-        let alert = UIAlertController(title: NSLocalizedString("Unable to load file", comment: ""),
-                                      message: errorDescription,
-                                      preferredStyle: .alert)
-
-        alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default))
-        NCUserInterfaceController.sharedInstance().presentAlertViewController(alert)
     }
 
     // MARK: - QLPreviewControllerDelegate/DataSource

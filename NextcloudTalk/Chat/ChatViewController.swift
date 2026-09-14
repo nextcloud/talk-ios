@@ -880,7 +880,7 @@ import SwiftUI
             self.setTextInputbarHidden(false, animated: isVisible)
 
             if self.tableView?.slk_isAtBottom ?? false {
-                self.tableView?.slk_scrollToBottom(animated: true)
+                self.scrollChatToBottom(animated: true)
             }
 
             // Make sure the textinput has the correct height
@@ -956,7 +956,7 @@ import SwiftUI
         self.tableView?.tableFooterView?.backgroundColor = .secondarySystemBackground
 
         if isAtBottom {
-            self.tableView?.slk_scrollToBottom(animated: true)
+            self.scrollChatToBottom(animated: true)
         }
     }
 
@@ -1570,9 +1570,9 @@ import SwiftUI
                 self.tableView?.reloadData()
 
                 if let indexPathUnreadMessageSeparator {
-                    self.tableView?.scrollToRow(at: indexPathUnreadMessageSeparator, at: .middle, animated: false)
+                    self.scrollChat(to: indexPathUnreadMessageSeparator, at: .middle, animated: false)
                 } else {
-                    self.tableView?.slk_scrollToBottom(animated: false)
+                    self.scrollChatToBottom(animated: false)
                 }
 
                 self.updateToolbar(animated: false)
@@ -1601,7 +1601,7 @@ import SwiftUI
                 self.appendMessages(messages: messages)
                 self.setOfflineFooterView()
                 self.tableView?.reloadData()
-                self.tableView?.slk_scrollToBottom(animated: false)
+                self.scrollChatToBottom(animated: false)
                 self.updateToolbar(animated: false)
             } else {
                 self.chatBackgroundView.placeholderView.isHidden = false
@@ -1613,7 +1613,7 @@ import SwiftUI
 
                 self.insertMessages(messages: storedTemporaryMessages)
                 self.tableView?.reloadData()
-                self.tableView?.slk_scrollToBottom(animated: false)
+                self.scrollChatToBottom(animated: false)
                 self.updateToolbar(animated: false)
             }
         }
@@ -1629,13 +1629,18 @@ import SwiftUI
 
                 let shouldAddBlockSeparator = notification.userInfo?["shouldAddBlockSeparator"] as? Bool ?? false
 
+                // Taken before the history is prepended, as that shifts every row down
+                let anchor = self.currentScrollAnchor()
+
                 if let lastHistoryMessageIP = self.prependMessages(historyMessages: messages, addingBlockSeparator: shouldAddBlockSeparator),
                    let tableView = self.tableView {
 
                     self.tableView?.reloadData()
 
-                    if tableView.isValid(indexPath: lastHistoryMessageIP) {
-                        self.tableView?.scrollToRow(at: lastHistoryMessageIP, at: .top, animated: false)
+                    if anchor != nil {
+                        self.restoreScrollAnchor(anchor)
+                    } else if tableView.isValid(indexPath: lastHistoryMessageIP) {
+                        self.scrollChat(to: lastHistoryMessageIP, at: .top, animated: false)
                     }
                 }
             }
@@ -1738,9 +1743,9 @@ import SwiftUI
                         // Only scroll to unread message separator if we added it while processing the received messages
                         // Otherwise we would scroll whenever a unread message separator is available
                         if addedUnreadMessageSeparator, let indexPathUnreadMessageSeparator = self.indexPathForUnreadMessageSeparator() {
-                            tableView.scrollToRow(at: indexPathUnreadMessageSeparator, at: .middle, animated: true)
+                            self.scrollChat(to: indexPathUnreadMessageSeparator, at: .middle, animated: true)
                         } else if shouldScrollOnNewMessages || messages.containsMessage(forUserId: self.account.userId), let lastIndexPath = self.getLastNonUpdateMessage()?.indexPath {
-                            tableView.scrollToRow(at: lastIndexPath, at: .bottom, animated: true)
+                            self.scrollChat(to: lastIndexPath, at: .bottom, animated: true)
                         } else if self.firstUnreadMessage == nil, newMessagesContainVisibleMessages, let firstNewMessage = messages.first {
                             // This check is needed since several calls to receiveMessages API might be needed
                             // (if the number of unread messages is bigger than the "limit" in receiveMessages request)
@@ -2505,93 +2510,71 @@ import SwiftUI
         return [pin24h, pin7d, pin30d, pinIndefinitely, UIMenu(options: .displayInline, children: [customPinAction])]
     }
 
-    override func getContextMenuAccessoryView(forMessage message: NCChatMessage, forIndexPath indexPath: IndexPath, withCellHeight cellHeight: CGFloat) -> UIView? {
-        guard self.room.canReact && self.isMessageReactable(message: message) else { return nil }
+    // A palette shows its children as a single row of images, so the emoji has to be drawn into one
+    private func getEmojiImage(for emoji: String) -> UIImage {
+        let imageSize = CGSize(width: 30, height: 30)
+        let attributes: [NSAttributedString.Key: Any] = [.font: UIFont.systemFont(ofSize: 24)]
+        let emojiSize = (emoji as NSString).size(withAttributes: attributes)
 
-        let reactionViewPadding = 10
-        let emojiButtonPadding = 10
-        let emojiButtonSize = 48
-        let frequentlyUsedEmojis = NCDatabaseManager.sharedInstance().activeAccount().frequentlyUsedEmojis
+        let image = UIGraphicsImageRenderer(size: imageSize).image { _ in
+            let emojiRect = CGRect(x: (imageSize.width - emojiSize.width) / 2,
+                                   y: (imageSize.height - emojiSize.height) / 2,
+                                   width: emojiSize.width,
+                                   height: emojiSize.height)
 
-        let totalEmojiButtonWidth = frequentlyUsedEmojis.count * emojiButtonSize
-        let totalEmojiButtonPadding = frequentlyUsedEmojis.count * emojiButtonPadding
-        let addButtonWidth = emojiButtonSize + emojiButtonPadding
+            (emoji as NSString).draw(in: emojiRect, withAttributes: attributes)
+        }
 
-        // We need to add an extra padding to the right so the buttons are correctly padded
-        let reactionViewWidth = totalEmojiButtonWidth + totalEmojiButtonPadding + addButtonWidth + emojiButtonPadding
-        let reactionView = UIView(frame: .init(x: 0, y: Int(cellHeight) + reactionViewPadding, width: reactionViewWidth, height: emojiButtonSize))
+        // Without this the menu would tint the emoji into a single colored shape
+        let emojiImage = image.withRenderingMode(.alwaysOriginal)
 
-        var positionX = emojiButtonPadding
+        // The emoji is only drawn, so it needs a label to be read out and to be found in UI tests
+        emojiImage.accessibilityLabel = emoji
 
-        for emoji in frequentlyUsedEmojis {
-            let emojiShortcutButton = UIButton(type: .system)
-            emojiShortcutButton.frame = CGRect(x: positionX, y: 0, width: emojiButtonSize, height: emojiButtonSize)
-            emojiShortcutButton.layer.cornerRadius = CGFloat(emojiButtonSize) / 2
+        return emojiImage
+    }
 
-            emojiShortcutButton.titleLabel?.font = .systemFont(ofSize: 20)
-            emojiShortcutButton.setTitle(emoji, for: .normal)
+    private func getReactionShortcutMenu(for message: NCChatMessage, at indexPath: IndexPath) -> UIMenu {
+        var reactionActions: [UIMenuElement] = []
 
-            if #unavailable(iOS 26.0) {
-                emojiShortcutButton.backgroundColor = .systemBackground
-            }
+        for emoji in NCDatabaseManager.sharedInstance().activeAccount().frequentlyUsedEmojis {
+            // A reaction nobody used yet does not exist on the message, so it is only added by the action
+            let reaction = message.reactionsArray().first(where: { $0.reaction == emoji }) ?? NCChatReaction(reaction: emoji)
 
-            emojiShortcutButton.addAction { [weak self] in
+            let emojiAction = UIAction(title: emoji, image: self.getEmojiImage(for: emoji)) { [weak self] _ in
                 guard let self else { return }
-                self.tableView?.contextMenuInteraction?.dismissMenu()
 
+                // Wait for the menu to be dismissed, otherwise the message is reloaded while the menu animates
                 self.contextMenuActionBlock = {
-                    self.addReaction(reaction: emoji, to: message)
+                    self.addOrRemoveReaction(reaction: reaction, in: message)
                 }
             }
 
-            // Disable shortcuts, if we already reacted with that emoji
-            for reaction in message.reactionsArray() {
-                if reaction.reaction == emoji && reaction.userReacted {
-                    emojiShortcutButton.isEnabled = false
-                    emojiShortcutButton.alpha = 0.4
-                    break
-                }
-            }
+            // Selected when we reacted with it already, choosing it again removes the reaction, like on the message
+            emojiAction.state = reaction.userReacted ? .on : .off
 
-            reactionView.addSubview(emojiShortcutButton)
-            positionX += emojiButtonSize + emojiButtonPadding
+            reactionActions.append(emojiAction)
         }
 
-        let addReactionButton = UIButton(type: .system)
-        addReactionButton.frame = CGRect(x: positionX, y: 0, width: emojiButtonSize, height: emojiButtonSize)
-        addReactionButton.layer.cornerRadius = CGFloat(emojiButtonSize) / 2
-
-        addReactionButton.titleLabel?.font = .systemFont(ofSize: 22)
-        addReactionButton.setImage(.init(systemName: "plus"), for: .normal)
-        addReactionButton.tintColor = .label
-
-        if #unavailable(iOS 26.0) {
-            addReactionButton.backgroundColor = .systemBackground
-        }
-
-        addReactionButton.addAction { [weak self] in
+        let addReactionAction = UIAction(title: NSLocalizedString("Add reaction", comment: ""), image: .init(systemName: "plus")) { [weak self] _ in
             guard let self else { return }
-            self.tableView?.contextMenuInteraction?.dismissMenu()
 
             self.contextMenuActionBlock = {
                 self.didPressAddReaction(for: message, at: indexPath)
             }
         }
 
-        reactionView.addSubview(addReactionButton)
+        reactionActions.append(addReactionAction)
 
-        // The reactionView will be shown after the animation finishes, otherwise we see the view already when animating and this looks odd
-        reactionView.alpha = 0
-
-        if #available(iOS 26.0, *) {
-            let effectView = reactionView.addGlassView()
-            effectView.layer.cornerRadius = CGFloat(emojiButtonSize) / 2
-        } else {
-            reactionView.layer.cornerRadius = CGFloat(emojiButtonSize) / 2
-            reactionView.backgroundColor = .systemBackground
+        if #available(iOS 17.0, *) {
+            return UIMenu(options: [.displayInline, .displayAsPalette], children: reactionActions)
         }
 
-        return reactionView
+        // iOS 16 has no palettes, small elements are the closest thing, a single row of icon only entries
+        let reactionMenu = UIMenu(options: [.displayInline], children: reactionActions)
+        reactionMenu.preferredElementSize = .small
+
+        return reactionMenu
     }
 
     // swiftlint:disable:next cyclomatic_complexity
@@ -2626,6 +2609,13 @@ import SwiftUI
         var actions: [UIMenuElement] = []
         var informationalActions: [UIMenuElement] = []
 
+        // Reaction shortcuts, shown as a single row of emojis on top of the menu
+        var reactionShortcutMenu: UIMenu?
+
+        if self.isMessageReactable(message: message), self.room.canReact {
+            reactionShortcutMenu = self.getReactionShortcutMenu(for: message, at: indexPath)
+        }
+
         // Show edit information
         if let lastEditActorDisplayName = message.lastEditActorDisplayName, message.lastEditTimestamp > 0 {
             let timestampDate = Date(timeIntervalSince1970: TimeInterval(message.lastEditTimestamp))
@@ -2652,13 +2642,6 @@ import SwiftUI
         if self.isMessageReplyable(message: message), self.room.canChat, !self.textInputbar.isEditing {
             actions.append(UIAction(title: NSLocalizedString("Reply", comment: ""), image: .init(systemName: "arrowshape.turn.up.left")) { _ in
                 self.didPressReply(for: message)
-            })
-        }
-
-        // Show "Add reaction" when running on MacOS because we don't have an accessory view
-        if self.isMessageReactable(message: message), self.room.canReact, NCUtils.isiOSAppOnMac() {
-            actions.append(UIAction(title: NSLocalizedString("Add reaction", comment: ""), image: .init(systemName: "face.smiling")) { _ in
-                self.didPressAddReaction(for: message, at: indexPath)
             })
         }
 
@@ -2818,10 +2801,15 @@ import SwiftUI
             actions.append(UIMenu(options: [.displayInline], children: destructiveMenuActions))
         }
 
-        let menu = UIMenu(children: actions)
+        var menu = UIMenu(children: actions)
 
-        let configuration = UIContextMenuConfiguration(identifier: indexPath as NSIndexPath) {
-            return nil
+        // The emoji row is only separated from the other entries when those are a section of their own as well
+        if let reactionShortcutMenu {
+            menu = UIMenu(children: [reactionShortcutMenu, UIMenu(options: [.displayInline], children: actions)])
+        }
+
+        let configuration = UIContextMenuConfiguration(identifier: indexPath as NSIndexPath) { [weak self] in
+            return self?.getContextMenuPreviewController(forRowAt: indexPath)
         } actionProvider: { _ in
             return menu
         }

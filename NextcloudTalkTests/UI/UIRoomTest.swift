@@ -155,7 +155,8 @@ final class UIRoomTest: XCTestCase {
         // Add a reaction to close the context menu
         // In case we are testing against a nextcloud version that does not support reactions (<= NC 23)
         // we simply tap the "Reply" button from the context menu
-        let foundElement = waitForEitherElementToExist(app.staticTexts["👍"], app.buttons["Reply"], TestConstants.timeoutShort)
+        let reactionShortcut = app.descendants(matching: .any).labelContains("👍").firstMatch
+        let foundElement = waitForEitherElementToExist(reactionShortcut, app.buttons["Reply"], TestConstants.timeoutShort)
         waitForReady(object: foundElement).tap()
 
         // Start a call and hangup afterwards
@@ -401,8 +402,9 @@ final class UIRoomTest: XCTestCase {
         // Open context menu by long-pressing on the message
         messageText.press(forDuration: 2.0)
 
-        // Tap the thumbs up reaction from the context menu (same pattern as testDeallocation)
-        let thumbsUpReaction = app.staticTexts["👍"]
+        // Tap the thumbs up shortcut of the context menu. The emoji of those entries is drawn into an image,
+        // so match on the label instead of expecting a certain element type
+        let thumbsUpReaction = app.descendants(matching: .any).labelContains("👍").firstMatch
         XCTAssert(thumbsUpReaction.waitForExistence(timeout: TestConstants.timeoutShort))
         thumbsUpReaction.tap()
 

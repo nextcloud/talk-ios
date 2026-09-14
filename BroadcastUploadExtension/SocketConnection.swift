@@ -20,11 +20,15 @@ class SocketConnection: NSObject {
     private var socketHandle: Int32 = -1
     private var address: sockaddr_un?
 
+    // CFStream is not thread safe, so all stream access is serialized here
+    private let streamQueue = DispatchQueue(label: "talk.broadcast.socketConnection")
+
     private var inputStream: InputStream?
     private var outputStream: OutputStream?
 
-    private var networkQueue: DispatchQueue?
-    private var shouldKeepRunning = false
+    private var streamThread: Thread?
+    private var streamRunLoop: RunLoop?
+    private var isClosed = false
 
     init?(filePath path: String) {
         filePath = path
@@ -52,29 +56,30 @@ class SocketConnection: NSObject {
             return false
         }
 
-        setupStreams()
+        return streamQueue.sync { () -> Bool in
+            guard !isClosed else {
+                return false
+            }
 
-        inputStream?.open()
-        outputStream?.open()
+            setupStreams()
 
-        return true
+            inputStream?.open()
+            outputStream?.open()
+
+            return true
+        }
     }
 
     func close() {
-        unscheduleStreams()
-
-        inputStream?.delegate = nil
-        outputStream?.delegate = nil
-
-        inputStream?.close()
-        outputStream?.close()
-
-        inputStream = nil
-        outputStream = nil
+        streamQueue.sync { () -> Void in
+            self.closeStreams()
+        }
     }
 
     func writeToStream(buffer: UnsafePointer<UInt8>, maxLength length: Int) -> Int {
-        outputStream?.write(buffer, maxLength: length) ?? 0
+        streamQueue.sync {
+            outputStream?.write(buffer, maxLength: length) ?? 0
+        }
     }
 }
 
@@ -84,28 +89,43 @@ extension SocketConnection: StreamDelegate {
         switch eventCode {
         case .openCompleted:
             print("client stream open completed")
-            if aStream == outputStream {
+            if isOutputStream(aStream) {
                 didOpen?()
             }
         case .hasBytesAvailable:
-            if aStream == inputStream {
-                var buffer: UInt8 = 0
-                let numberOfBytesRead = inputStream?.read(&buffer, maxLength: 1)
-                if numberOfBytesRead == 0 && aStream.streamStatus == .atEnd {
-                    print("server socket closed")
-                    close()
+            guard isInputStream(aStream) else {
+                break
+            }
+
+            var buffer: UInt8 = 0
+            let numberOfBytesRead = streamQueue.sync {
+                self.inputStream?.read(&buffer, maxLength: 1)
+            }
+
+            if numberOfBytesRead == 0 && aStream.streamStatus == .atEnd {
+                print("server socket closed")
+
+                if streamQueue.sync(execute: { self.closeStreams() }) {
                     notifyDidClose(error: nil)
                 }
             }
+        case .endEncountered:
+            print("client stream end encountered")
+
+            if streamQueue.sync(execute: { self.closeStreams() }) {
+                notifyDidClose(error: nil)
+            }
         case .hasSpaceAvailable:
-            if aStream == outputStream {
+            if isOutputStream(aStream) {
                 streamHasSpaceAvailable?()
             }
         case .errorOccurred:
             print("client stream error occured: \(String(describing: aStream.streamError))")
-            close()
-            notifyDidClose(error: aStream.streamError)
+            let streamError = aStream.streamError
 
+            if streamQueue.sync(execute: { self.closeStreams() }) {
+                notifyDidClose(error: streamError)
+            }
         default:
             break
         }
@@ -113,6 +133,14 @@ extension SocketConnection: StreamDelegate {
 }
 
 private extension SocketConnection {
+
+    func isInputStream(_ aStream: Stream) -> Bool {
+        streamQueue.sync { aStream === self.inputStream }
+    }
+
+    func isOutputStream(_ aStream: Stream) -> Bool {
+        streamQueue.sync { aStream === self.outputStream }
+    }
 
     func setupAddress() -> Bool {
         var addr = sockaddr_un()
@@ -164,33 +192,73 @@ private extension SocketConnection {
         outputStream?.delegate = self
         outputStream?.setProperty(kCFBooleanTrue, forKey: Stream.PropertyKey(kCFStreamPropertyShouldCloseNativeSocket as String))
 
-        scheduleStreams()
-    }
-
-    func scheduleStreams() {
-        shouldKeepRunning = true
-
-        networkQueue = DispatchQueue.global(qos: .userInitiated)
-        networkQueue?.async { [weak self] in
-            self?.inputStream?.schedule(in: .current, forMode: .common)
-            self?.outputStream?.schedule(in: .current, forMode: .common)
-            RunLoop.current.run()
-
-            var isRunning = false
-
-            repeat {
-                isRunning = self?.shouldKeepRunning ?? false && RunLoop.current.run(mode: .default, before: .distantFuture)
-            } while (isRunning)
+        if let inputStream = inputStream, let outputStream = outputStream {
+            scheduleStreams(inputStream, outputStream)
         }
     }
 
-    func unscheduleStreams() {
-        networkQueue?.sync { [weak self] in
-            self?.inputStream?.remove(from: .current, forMode: .common)
-            self?.outputStream?.remove(from: .current, forMode: .common)
+    // a dedicated thread, so closeStreams() can unschedule the streams from the right run loop
+    func scheduleStreams(_ input: InputStream, _ output: OutputStream) {
+        let thread = Thread { [weak self] in
+            guard let self = self else {
+                return
+            }
+
+            let runLoop = RunLoop.current
+            let scheduled = self.streamQueue.sync { () -> Bool in
+                guard !self.isClosed else {
+                    return false
+                }
+
+                self.streamRunLoop = runLoop
+                input.schedule(in: runLoop, forMode: .common)
+                output.schedule(in: runLoop, forMode: .common)
+
+                return true
+            }
+
+            guard scheduled else {
+                return
+            }
+
+            while !Thread.current.isCancelled, runLoop.run(mode: .default, before: .distantFuture) {}
         }
 
-        shouldKeepRunning = false
+        thread.name = "talk.broadcast.socketConnection"
+        streamThread = thread
+        thread.start()
+    }
+
+    // returns whether this call was the one that closed, so a doubled close only reports back once
+    @discardableResult
+    func closeStreams() -> Bool {
+        guard !isClosed else {
+            return false
+        }
+
+        isClosed = true
+
+        streamThread?.cancel()
+
+        if let streamRunLoop = streamRunLoop {
+            inputStream?.remove(from: streamRunLoop, forMode: .common)
+            outputStream?.remove(from: streamRunLoop, forMode: .common)
+            CFRunLoopStop(streamRunLoop.getCFRunLoop())
+        }
+
+        inputStream?.delegate = nil
+        outputStream?.delegate = nil
+
+        inputStream?.close()
+        outputStream?.close()
+
+        inputStream = nil
+        outputStream = nil
+
+        streamThread = nil
+        streamRunLoop = nil
+
+        return true
     }
 
     func notifyDidClose(error: Error?) {

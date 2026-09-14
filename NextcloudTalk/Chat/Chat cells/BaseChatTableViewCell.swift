@@ -67,6 +67,8 @@ public let pollGroupedMessageCellIdentifier = "pollGroupedMessageCellIdentifier"
 
 class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, ReactionsViewDelegate {
 
+    public static let nibName = "BaseChatTableViewCell"
+
     // TODO: Reset cache when theming changes
     static var bubbleColorCache = NSCache<NSString, UIColor>()
 
