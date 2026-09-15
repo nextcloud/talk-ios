@@ -16,6 +16,13 @@ struct FileMessageGroup {
         return self.messages[self.messages.count - 1]
     }
 
+    /// Whether the group continues a block from the same author, and so shows no avatar or name.
+    ///
+    /// Follows the first message: the group is shown as its last one, which is always a continuation.
+    var continuesAuthorBlock: Bool {
+        return self.messages[0].isGroupMessage
+    }
+
     /// Not the order the messages arrived in: files of one upload can be posted in parallel.
     var messagesInUploadOrder: [NCChatMessage] {
         return self.messages.sorted { first, second in

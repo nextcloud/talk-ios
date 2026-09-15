@@ -3476,7 +3476,7 @@ import Toast
         }
 
         if let fileGroup = self.fileMessageGroup(showing: message) {
-            let cellIdentifier = message.isGroupMessage ? fileGroupGroupedMessageCellIdentifier : fileGroupMessageCellIdentifier
+            let cellIdentifier = fileGroup.continuesAuthorBlock ? fileGroupGroupedMessageCellIdentifier : fileGroupMessageCellIdentifier
 
             if let cell = self.tableView?.dequeueReusableCell(withIdentifier: cellIdentifier) as? BaseChatTableViewCell {
                 cell.delegate = self
@@ -3614,7 +3614,9 @@ import Toast
 
         height += 15.0 // MessageTextTop(10) + MessageTextBottom(5)
 
-        if (message.isGroupMessage && !message.willShowParentMessageInThread(self.thread)) || message.isSystemMessage || isOwnMessage {
+        let continuesAuthorBlock = self.fileMessageGroup(showing: message)?.continuesAuthorBlock ?? message.isGroupMessage
+
+        if (continuesAuthorBlock && !message.willShowParentMessageInThread(self.thread)) || message.isSystemMessage || isOwnMessage {
             if height < chatGroupedMessageCellMinimumHeight {
                 height = chatGroupedMessageCellMinimumHeight
             }
