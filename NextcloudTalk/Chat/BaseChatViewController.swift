@@ -2808,11 +2808,8 @@ import Toast
 
     // MARK: - Grouping of files shared as one upload
 
-    /// The width the body of a message has, which is what the previews of a group have to share.
-    ///
-    /// Measuring a group and building it have to agree on this, or the cell is a different height
-    /// than the previews it shows. Heights are measured and cached against a row width, so take
-    /// that width rather than asking the table view, which has already changed on a rotation.
+    /// Takes the row width rather than asking the table view, which has already changed during a
+    /// rotation while rows are still measured against the old one.
     internal func availableBodyWidth(forRowWidth rowWidth: CGFloat, isOwnMessage: Bool) -> CGFloat {
         let bubbleWidth = BaseChatTableViewCell.bubbleWidth(forRowWidth: rowWidth, isOwnMessage: isOwnMessage)
 
@@ -2829,8 +2826,7 @@ import Toast
         return self.availableBodyWidth(forRowWidth: rowWidth, isOwnMessage: isOwnMessage)
     }
 
-    /// The group a message is shown as, when it is the one its upload is shown as, or a group of
-    /// one for a file that is drawn on a card without belonging to an upload.
+    /// A file drawn on a card without belonging to an upload is a group of one.
     internal func fileMessageGroup(showing message: NCChatMessage) -> FileMessageGroup? {
         if message.messageId > 0, let group = self.fileMessageGroups[message.messageId] {
             return group
@@ -2839,19 +2835,15 @@ import Toast
         return message.isFileCardMessage ? FileMessageGroup(messages: [message]) : nil
     }
 
-    /// Whether a message is shown as part of the group of its upload rather than on its own.
     internal func isHiddenInFileMessageGroup(_ message: NCChatMessage) -> Bool {
         guard message.messageId > 0 else { return false }
 
         return self.messageIdsHiddenInFileGroups.contains(message.messageId)
     }
 
-    /// Works out which files are shown together, over the messages currently loaded.
-    ///
-    /// Runs after every change to the data source instead of while messages are added, because a
-    /// group is not something a message can decide on its own: files of one upload can arrive in
-    /// separate batches, history can be prepended in front of a group, and removing a message can
-    /// join or split one.
+    /// Runs after every change to the data source rather than while messages are added: files of
+    /// one upload can arrive in separate batches, history can be prepended in front of a group, and
+    /// removing a message can join or split one.
     internal func regroupFileMessages() {
         var groups: [Int: FileMessageGroup] = [:]
         var hiddenMessageIds: Set<Int> = []
@@ -2877,8 +2869,7 @@ import Toast
         self.messageIdsHiddenInFileGroups = hiddenMessageIds
     }
 
-    /// A message that joined or left a group, or whose group gained or lost a file, is a different
-    /// height than it was measured at.
+    /// A message that joined or left a group is a different height than it was measured at.
     private func invalidateHeights(previousGroups: [Int: FileMessageGroup],
                                    groups: [Int: FileMessageGroup],
                                    previousHiddenMessageIds: Set<Int>,
@@ -3657,14 +3648,12 @@ import Toast
             height += GroupedFilePreviewView.Layout(files: files, availableWidth: self.availableBodyWidth(forRowWidth: originalWidth, isOwnMessage: isOwnMessage)).height
 
             if message.sharesFileWithoutCaption {
-                // A group shows its caption, never a file name, so a measured name takes no space
-                // here. An empty text was already subtracted above.
+                // A group shows its caption, never a file name. An empty text was subtracted above.
                 if !messageString.string.isEmpty {
                     height -= ceil(bodyBounds.height)
                 }
             } else {
-                // Only a caption is separated from the previews. Without one there is no text view
-                // in the layout to leave room for.
+                // Only a caption is separated from the previews; without one there is no text view
                 height += 10
             }
 

@@ -119,11 +119,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     /// What the body keeps to each side of the bubble, see `BaseChatTableViewCell.xib`
     static let bodyHorizontalInset = 20.0
 
-    /// The width the body of a message has, from the width its row has.
-    ///
-    /// The chat view measures a message before there is a cell to measure, so this has to be
-    /// answerable without one. It lives here so that it is maintained together with the bubble
-    /// constraints below, which are where the paddings come from.
+    /// Static because the chat view measures a message before there is a cell to measure.
     static func bubbleWidth(forRowWidth rowWidth: CGFloat, isOwnMessage: Bool) -> CGFloat {
         return max(0, rowWidth - (isOwnMessage ? self.ownMessageBubbleInsets : self.otherMessageBubbleInsets))
     }
@@ -443,7 +439,6 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         }
 
         if let fileGroup = self.fileGroup {
-            // The files of one upload, shown as a single message
             self.setupForFileGroupCell(with: fileGroup, with: account)
         } else if message.isVoiceMessage {
             // Audio message
