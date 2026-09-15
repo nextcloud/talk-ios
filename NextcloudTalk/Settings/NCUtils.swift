@@ -317,6 +317,16 @@ import AVFoundation
         return hexBytes.joined()
     }
 
+    public static func sha256(fromString string: String) -> String {
+        let data = string.data(using: .utf8)!
+        var digest = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
+        data.withUnsafeBytes {
+            _ = CC_SHA256($0.baseAddress, CC_LONG(data.count), &digest)
+        }
+        let hexBytes = digest.map { String(format: "%02hhx", $0) }
+        return hexBytes.joined()
+    }
+
     // MARK: - Image utils
 
     public static func blurImage(fromImage image: UIImage) -> UIImage? {
