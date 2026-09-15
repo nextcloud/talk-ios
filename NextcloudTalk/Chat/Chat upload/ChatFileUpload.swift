@@ -21,10 +21,7 @@ struct ChatFileUpload {
 
     var metadata = ChatFileUploadMetadata()
 
-    /// Reference id of the message this upload will become.
-    ///
-    /// Files shared in one go carry the same upload hash here, which is how the clients recognize
-    /// them as one upload and show them as a single message. See `referenceId(uploadId:index:)`.
+    /// Files shared together carry the same upload hash here. See `FileUploadReference`.
     var referenceId: String?
 
     /// Whether the other participants may modify the file, instead of only viewing it.
@@ -36,12 +33,8 @@ struct ChatFileUpload {
 
 extension ChatFileUpload {
 
-    /// Builds the reference id for one file of an upload, so that the clients can recognize the
-    /// files shared together and show them as a single message. See `FileUploadReference`.
-    ///
-    /// - Parameter uploadId: Identifies one upload. The same value has to be passed for every file
-    ///                       shared together, and a different one for the next upload.
-    /// - Parameter index: Zero-based position of the file within the upload.
+    /// - Parameter uploadId: The same value for every file shared together, a new one per upload.
+    /// - Parameter index: Zero-based.
     static func referenceId(uploadId: String, index: Int) -> String? {
         return FileUploadReference(uploadId: uploadId, index: index)?.referenceId
     }
