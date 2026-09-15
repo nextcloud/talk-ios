@@ -870,8 +870,7 @@ private let kShareConfirmationOptionsViewHeight: CGFloat = 44
     /// Builds the uploads for the items to share, compressing the images among them when the
     /// standard quality is asked for.
     internal func uploads(for shareItems: [ShareItem], quality: ChatImageQuality) async -> [ChatFileUpload] {
-        // Everything shared in one go belongs to the same upload, which is what lets the clients
-        // show these files as a single message
+        // Everything shared in one go belongs to the same upload
         let uploadId = UUID().uuidString
 
         guard quality == .standard,

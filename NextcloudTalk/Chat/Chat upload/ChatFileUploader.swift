@@ -25,9 +25,8 @@ enum ChatFileUploader {
     /// All uploads need to be for the same conversation and account: with conversation subfolders
     /// enabled, the draft folder is requested once for all of them.
     ///
-    /// The files are uploaded in parallel, but posted into the conversation one after the other, in
-    /// the order they are given in. Files shared together are only recognizable as one upload while
-    /// their messages sit next to each other, and the server orders those as they arrive.
+    /// The files are uploaded in parallel, but posted one after the other: clients recognize an
+    /// upload by adjacent messages.
     ///
     /// - Parameter progress: Called with the index of an upload and the fraction of it that has been
     ///                       uploaded so far.
@@ -54,10 +53,7 @@ enum ChatFileUploader {
         return await self.announce(uploads, at: destinations)
     }
 
-    /// Uploads the files in parallel, without posting anything into the conversation yet.
-    ///
-    /// - Returns: Where each file was uploaded to, or why it could not be uploaded, in the order
-    ///            the uploads were given in.
+    /// Uploads the files without posting anything into the conversation yet.
     private static func put(_ uploads: [ChatFileUpload],
                             inDraftFolder draftFolder: String?,
                             progress: ((_ index: Int, _ fractionCompleted: Double) -> Void)?) async -> [Result<ChatFileUploadDestination, Error>] {
@@ -93,11 +89,7 @@ enum ChatFileUploader {
         }
     }
 
-    /// Posts the uploaded files into the conversation, one after the other in the order they were
-    /// given in, so that files shared together end up next to each other.
-    ///
-    /// - Returns: One result per upload, carrying the upload error for files that never made it to
-    ///            the server.
+    /// Posts the files in the order they were given in, so that they end up next to each other.
     private static func announce(_ uploads: [ChatFileUpload],
                                  at destinations: [Result<ChatFileUploadDestination, Error>]) async -> [Result<Void, Error>] {
         var results = [Result<Void, Error>](repeating: .success(()), count: uploads.count)

@@ -25,9 +25,8 @@ extension BaseChatTableViewCell {
 
             self.messageBodyView.addSubview(messageTextView)
 
-            // Without a caption the text view is taken out of the layout entirely. Hiding it is not
-            // enough: an empty text view still takes its line height, which would make the body
-            // taller than the cell was measured to be, and everything below it stops taking taps.
+            // Hiding the text view is not enough: an empty one still takes its line height, which
+            // would push the rows below the cell, where they draw but take no taps
             self.fileGroupCaptionConstraints = [
                 messageTextView.topAnchor.constraint(equalTo: groupedFilePreviewView.bottomAnchor, constant: 10),
                 messageTextView.bottomAnchor.constraint(equalTo: self.messageBodyView.bottomAnchor)
