@@ -110,29 +110,22 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     @IBOutlet weak var bubbleView: UIView!
     @IBOutlet weak var bubbleStackView: UIStackView!
 
-    /// What the bubble keeps between itself and the avatar, on top of the paddings below
-    static let bubbleInsetToAvatar = 10.0
+    /// 10 to the safe area, 40 to the avatar and 10 to the superview, see `rightBubbleConstraints`
+    static let ownMessageBubbleInsets = 60.0
 
-    /// 40 to the avatar view and 10 to the superview, see `rightBubbleConstraints`
-    static let ownMessageBubbleInsets = 50.0
+    /// 10 to the safe area, 10 to the avatar and 64 to the superview, see `leftBubbleConstraints`
+    static let otherMessageBubbleInsets = 84.0
 
-    /// 10 to the avatar view and 64 to the superview, see `leftBubbleConstraints`
-    static let otherMessageBubbleInsets = 74.0
-
-    /// The bubble ends up a little narrower again than its constraints suggest. Erring on the small
-    /// side costs a few points of preview width, while erring the other way puts previews past the
-    /// bubble, where they are clipped and stop taking taps.
-    static let bubbleWidthSafetyMargin = 10.0
+    /// What the body keeps to each side of the bubble, see `BaseChatTableViewCell.xib`
+    static let bodyHorizontalInset = 20.0
 
     /// The width the body of a message has, from the width its row has.
     ///
     /// The chat view measures a message before there is a cell to measure, so this has to be
     /// answerable without one. It lives here so that it is maintained together with the bubble
     /// constraints below, which are where the paddings come from.
-    static func bodyWidth(forRowWidth rowWidth: CGFloat, isOwnMessage: Bool) -> CGFloat {
-        let bubbleInsets = isOwnMessage ? self.ownMessageBubbleInsets : self.otherMessageBubbleInsets
-
-        return max(0, rowWidth - self.bubbleInsetToAvatar - bubbleInsets)
+    static func bubbleWidth(forRowWidth rowWidth: CGFloat, isOwnMessage: Bool) -> CGFloat {
+        return max(0, rowWidth - (isOwnMessage ? self.ownMessageBubbleInsets : self.otherMessageBubbleInsets))
     }
 
     // Since we use different relations depending on the bubble (other user or app user) we setup

@@ -2814,9 +2814,9 @@ import Toast
     /// than the previews it shows. Heights are measured and cached against a row width, so take
     /// that width rather than asking the table view, which has already changed on a rotation.
     internal func availableBodyWidth(forRowWidth rowWidth: CGFloat, isOwnMessage: Bool) -> CGFloat {
-        let bodyWidth = BaseChatTableViewCell.bodyWidth(forRowWidth: rowWidth, isOwnMessage: isOwnMessage)
+        let bubbleWidth = BaseChatTableViewCell.bubbleWidth(forRowWidth: rowWidth, isOwnMessage: isOwnMessage)
 
-        return max(0, bodyWidth - BaseChatTableViewCell.bubbleWidthSafetyMargin)
+        return max(0, bubbleWidth - BaseChatTableViewCell.bodyHorizontalInset)
     }
 
     /// The same, for the width the rows of the chat currently have.
@@ -3599,10 +3599,8 @@ import Toast
             // 4 * right(10) + dateLabel(40)
             width -= 80.0
         } else {
-            width = BaseChatTableViewCell.bodyWidth(forRowWidth: width, isOwnMessage: isOwnMessage)
-
-            // MessageTextView has padding of 2*10
-            width -= 20.0
+            width = BaseChatTableViewCell.bubbleWidth(forRowWidth: width, isOwnMessage: isOwnMessage)
+            width -= BaseChatTableViewCell.bodyHorizontalInset
         }
 
         self.textViewForSizing.attributedText = messageString
