@@ -5,83 +5,64 @@
 
 import Foundation
 
-/// The files of one upload, shown as a single message instead of one message per file.
-///
-/// The server stores one message per shared file and knows nothing about this. Mirrors
-/// `combineFileMessages.ts` of the web client, so that a conversation reads the same everywhere.
 struct FileMessageGroup {
 
-    /// The messages of the group, in the order they appear in the conversation.
-    ///
-    /// `groups(in:)` only ever builds these from two messages or more. A single file drawn the same
-    /// way, which is what a file without a preview gets, is a group of one.
+    /// A file drawn the same way without belonging to an upload is a group of one.
     let messages: [NCChatMessage]
 
-    /// The message the group is shown as.
-    ///
-    /// The last one, so that the timestamp, the read state and the message actions of the group are
-    /// those of its newest message. A caption ends the group it belongs to, so the caption of an
-    /// upload is always the text of this message.
+    /// The last message, so the group carries the newest timestamp and read state. A caption ends
+    /// its group, so the caption of an upload is always the text of this message.
     var anchor: NCChatMessage {
         return self.messages[self.messages.count - 1]
     }
 
-    /// The messages of the group in the order their files were shared in.
-    ///
-    /// Not necessarily the order the messages arrived in: a client that posts the files of an
-    /// upload in parallel has them arrive in any order, and one that failed to upload a file in
-    /// the middle leaves a gap.
+    /// Not the order the messages arrived in: files of one upload can be posted in parallel.
     var messagesInUploadOrder: [NCChatMessage] {
         return self.messages.sorted { first, second in
             (first.fileUploadReference?.position ?? 0) < (second.fileUploadReference?.position ?? 0)
         }
     }
 
-    /// Splits the messages of a conversation, in the order they are shown in, into the groups of
-    /// files that were shared as one upload.
-    ///
-    /// A file shared on its own stays an ordinary message, so only runs of more than one message
-    /// are returned. Anything that is not a plain file share of the same upload ends the run before
-    /// it, and so does a reply to another message. A file shared with a caption ends the run it
-    /// belongs to, because the caption is added to the file shared last.
+    /// Splits the messages of a conversation, in the order they are shown, into the groups of files
+    /// that were shared as one upload. Anything that is not a file of the same upload ends a group.
     static func groups(in messages: [NCChatMessage]) -> [FileMessageGroup] {
         var groups: [FileMessageGroup] = []
-        var run: [NCChatMessage] = []
+        var currentGroup: [NCChatMessage] = []
 
-        func endRun() {
-            if run.count > 1 {
-                groups.append(FileMessageGroup(messages: run))
+        /// Closes the group being collected. A single file is an ordinary message, not a group.
+        func finishCurrentGroup() {
+            if currentGroup.count > 1 {
+                groups.append(FileMessageGroup(messages: currentGroup))
             }
 
-            run = []
+            currentGroup = []
         }
 
         for message in messages {
             guard message.isGroupableFileMessage else {
-                endRun()
+                finishCurrentGroup()
                 continue
             }
 
-            if let previous = run.last, !self.belongToTheSameUpload(message, previous) {
-                endRun()
+            if let previous = currentGroup.last, !self.belongToTheSameUpload(message, previous) {
+                finishCurrentGroup()
             }
 
-            run.append(message)
+            currentGroup.append(message)
 
+            // The caption is added to the file shared last, so it closes its group
             if !message.sharesFileWithoutCaption {
-                endRun()
+                finishCurrentGroup()
             }
         }
 
-        endRun()
+        finishCurrentGroup()
 
         return groups
     }
 
-    /// Whether two file shares are part of the same upload, and reply to the same message.
-    ///
-    /// Their position within the upload is deliberately not compared: a file that failed to upload
-    /// leaves a gap, and the files around it still belong together.
+    /// Position within the upload is deliberately not compared: a file that failed to upload leaves
+    /// a gap, and the files around it still belong together.
     private static func belongToTheSameUpload(_ message: NCChatMessage, _ other: NCChatMessage) -> Bool {
         return message.fileUploadReference?.uploadHash == other.fileUploadReference?.uploadHash
             && message.parentId == other.parentId
