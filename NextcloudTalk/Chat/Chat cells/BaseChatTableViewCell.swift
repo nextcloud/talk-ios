@@ -336,7 +336,9 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             self.quotedMessageView?.avatarImageView.setActorAvatar(forMessage: parent, withAccount: account)
         }
 
-        if message.isGroupMessage, !message.willShowParentMessageInThread(thread) {
+        let continuesAuthorBlock = self.fileGroup?.continuesAuthorBlock ?? message.isGroupMessage
+
+        if continuesAuthorBlock, !message.willShowParentMessageInThread(thread) {
             self.titleLabel.text = ""
             self.headerPart.isHidden = true
             self.avatarButton.isHidden = true
