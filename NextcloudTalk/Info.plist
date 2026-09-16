@@ -39,6 +39,8 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>nextcloud</string>
@@ -60,12 +62,12 @@
 	<string>Microphone is used in voice and video calls</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Photo Library access is needed to share pictures and videos from your device</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Speech Recognition access is needed to transcribe a voice message to text using on-device recognition</string>
 	<key>NSUserActivityTypes</key>
 	<array>
 		<string>INSendMessageIntent</string>
 	</array>
-	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>Speech Recognition access is needed to transcribe a voice message to text using on-device recognition</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -130,7 +132,5 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
 </dict>
 </plist>
