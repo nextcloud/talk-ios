@@ -62,17 +62,24 @@ class GroupedFilePreviewView: UIView {
         return stackView
     }()
 
-    /// Takes the width the tiles do not need, so that the stack view stretches this instead of the
-    /// last tile when a file row is longer than the tile row
-    private lazy var tileRowSpacer: UIView = {
+    /// Fills the width the tiles do not need.
+    private lazy var tileRowContainer: UIView = {
         let view = UIView()
-        view.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        view.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        view.addSubview(self.tileRow)
+        self.tileRow.translatesAutoresizingMaskIntoConstraints = false
+
+        NSLayoutConstraint.activate([
+            self.tileRow.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            self.tileRow.topAnchor.constraint(equalTo: view.topAnchor),
+            self.tileRow.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            self.tileRow.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor)
+        ])
+
         return view
     }()
 
     private lazy var contentStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [self.tileRow, self.fileRows])
+        let stackView = UIStackView(arrangedSubviews: [self.tileRowContainer, self.fileRows])
         stackView.axis = .vertical
         stackView.spacing = GroupedFilePreviewView.contentSpacing
         // The rows are as wide as the widest thing in the bubble, so that all of a row takes taps
@@ -95,7 +102,6 @@ class GroupedFilePreviewView: UIView {
 
     private func setupContentView() {
         self.addSubview(self.contentStackView)
-        self.tileRow.addArrangedSubview(self.tileRowSpacer)
 
         // A cap, not a width: a bubble of file rows ends at the longest name, not at the edge
         let contentWidthConstraint = self.widthAnchor.constraint(lessThanOrEqualToConstant: 0)
@@ -203,7 +209,7 @@ class GroupedFilePreviewView: UIView {
             }
 
             self.tileViews.append(tileView)
-            self.tileRow.insertArrangedSubview(tileView, at: index)
+            self.tileRow.addArrangedSubview(tileView)
         }
 
         for file in layout.files {
@@ -220,7 +226,7 @@ class GroupedFilePreviewView: UIView {
             self.fileRows.addArrangedSubview(rowView)
         }
 
-        self.tileRow.isHidden = layout.tiles.isEmpty
+        self.tileRowContainer.isHidden = layout.tiles.isEmpty
         self.fileRows.isHidden = layout.files.isEmpty
     }
 
