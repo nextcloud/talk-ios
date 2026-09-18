@@ -186,8 +186,31 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
     internal var groupedFilePreviewView: GroupedFilePreviewView?
 
-    /// The width the message body has, which the previews of a group have to share
-    public var availableBodyWidth: CGFloat = 0
+    /// The width the previews of a group have to share.
+    public var availableBodyWidth: CGFloat {
+        guard let message = self.message, let account = self.account else { return 0 }
+
+        var rowWidth = self.bounds.width - chatMessageCellAvatarHeight
+        rowWidth -= self.safeAreaInsets.left + self.safeAreaInsets.right
+
+        let bubbleWidth = Self.bubbleWidth(forRowWidth: rowWidth, isOwnMessage: message.isMessage(from: account.userId))
+
+        return max(0, bubbleWidth - Self.bodyHorizontalInset)
+    }
+
+    /// The width the previews were built for, so they are built again when it changes
+    private var fileGroupWidth: CGFloat = 0
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        guard let fileGroup = self.fileGroup, let account = self.account,
+              self.availableBodyWidth != self.fileGroupWidth
+        else { return }
+
+        self.fileGroupWidth = self.availableBodyWidth
+        self.groupedFilePreviewView?.setup(with: fileGroup, account: account, availableWidth: self.availableBodyWidth)
+    }
 
     internal var fileGroupCaptionConstraints: [NSLayoutConstraint] = []
     internal var fileGroupWithoutCaptionConstraint: NSLayoutConstraint?
@@ -267,6 +290,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         self.referenceView?.prepareForReuse()
 
         self.fileGroup = nil
+        self.fileGroupWidth = 0
 
         self.prepareForReuseFileGroupCell()
         self.prepareForReuseFileCell()
