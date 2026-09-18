@@ -3472,7 +3472,6 @@ import Toast
             if let cell = self.tableView?.dequeueReusableCell(withIdentifier: cellIdentifier) as? BaseChatTableViewCell {
                 cell.delegate = self
                 cell.fileGroup = fileGroup
-                cell.availableBodyWidth = self.availableBodyWidth(forOwnMessage: message.isMessage(from: self.account.userId))
                 cell.setup(for: message, inRoom: self.room, forThread: self.thread, withAccount: self.account)
 
                 return cell
@@ -3791,7 +3790,6 @@ import Toast
 
         previewCell.frame = .init(origin: .zero, size: tableView.rectForRow(at: indexPath).size)
         previewCell.fileGroup = self.fileMessageGroup(showing: message)
-        previewCell.availableBodyWidth = self.availableBodyWidth(forOwnMessage: message.isMessage(from: self.account.userId))
         previewCell.setup(for: message, inRoom: self.room, forThread: self.thread, withAccount: self.account)
         previewCell.layoutIfNeeded()
 
