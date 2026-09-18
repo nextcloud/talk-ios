@@ -161,6 +161,8 @@
 		847EFC7236336B67A1A89358 /* libPods-BroadcastUploadExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A3D305FCD7BF7E727A62F35 /* libPods-BroadcastUploadExtension.a */; };
 		8789AE73BFCAA413B43319C0 /* libPods-ShareExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 684807120F4439797973DF73 /* libPods-ShareExtension.a */; };
 		9993261EDAC77481FF4EF58A /* libPods-NextcloudTalk.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F7C31E9D74F550EAF89931B /* libPods-NextcloudTalk.a */; };
+		FEF2798C303AF9E500E7039D /* Intents.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1FA93D8B2D70FB3400DF6CDF /* Intents.framework */; };
+		FEF27993303AF9E500E7039D /* TalkCallIntents.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = FEF2798B303AF9E500E7039D /* TalkCallIntents.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -205,6 +207,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 2CC0014E24A1F0E900A20167;
 			remoteInfo = NotificationServiceExtension;
+		};
+		FEF27991303AF9E500E7039D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2C0574751EDD9E8E00D9E7F2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FEF2798A303AF9E500E7039D;
+			remoteInfo = TalkCallIntents;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -278,6 +287,7 @@
 			files = (
 				2C62AFAE24C08845007E460A /* ShareExtension.appex in Embed App Extensions */,
 				2CC0015724A1F0E900A20167 /* NotificationServiceExtension.appex in Embed App Extensions */,
+				FEF27993303AF9E500E7039D /* TalkCallIntents.appex in Embed App Extensions */,
 				1FF2FD722AB99CCB000C9905 /* BroadcastUploadExtension.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
@@ -464,6 +474,7 @@
 		B7874918820589BF8FD69BED /* Pods-NextcloudTalkTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NextcloudTalkTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-NextcloudTalkTests/Pods-NextcloudTalkTests.release.xcconfig"; sourceTree = "<group>"; };
 		D6DF51D976DC0F681FF83F7B /* Pods-NotificationServiceExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationServiceExtension.debug.xcconfig"; path = "Pods/Target Support Files/Pods-NotificationServiceExtension/Pods-NotificationServiceExtension.debug.xcconfig"; sourceTree = "<group>"; };
 		D86091EC1125C3057B9A299B /* Pods-NotificationServiceExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationServiceExtension.release.xcconfig"; path = "Pods/Target Support Files/Pods-NotificationServiceExtension/Pods-NotificationServiceExtension.release.xcconfig"; sourceTree = "<group>"; };
+		FEF2798B303AF9E500E7039D /* TalkCallIntents.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TalkCallIntents.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -980,6 +991,13 @@
 			);
 			target = 2C05747C1EDD9E8E00D9E7F2 /* NextcloudTalk */;
 		};
+		FEF27997303AF9E500E7039D /* Exceptions for "TalkCallIntents" folder in "TalkCallIntents" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = FEF2798A303AF9E500E7039D /* TalkCallIntents */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -1177,6 +1195,19 @@
 			path = TalkIntents;
 			sourceTree = "<group>";
 		};
+		FEF26F573039D9C400E7039D /* Carplay */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Carplay;
+			sourceTree = "<group>";
+		};
+		FEF2798D303AF9E500E7039D /* TalkCallIntents */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				FEF27997303AF9E500E7039D /* Exceptions for "TalkCallIntents" folder in "TalkCallIntents" target */,
+			);
+			path = TalkCallIntents;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1313,6 +1344,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		FEF27988303AF9E500E7039D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FEF2798C303AF9E500E7039D /* Intents.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -1324,6 +1363,7 @@
 				1F2058A32CEBE4EA00AAA673 /* BroadcastUploadExtension */,
 				1F8977F52DB0F76100E8114D /* NextcloudTalkTests */,
 				1FA93D9D2D70FCC200DF6CDF /* TalkIntents */,
+				FEF2798D303AF9E500E7039D /* TalkCallIntents */,
 				2C05747E1EDD9E8E00D9E7F2 /* Products */,
 				2C05749C1EDDA01700D9E7F2 /* ThirdParty */,
 				2C05747F1EDD9E8E00D9E7F2 /* NextcloudTalk */,
@@ -1343,6 +1383,7 @@
 				1FF2FD5B2AB99CCB000C9905 /* BroadcastUploadExtension.appex */,
 				1F6D8C302B2E3756004376B8 /* NextcloudTalkTests.xctest */,
 				1FA93D9C2D70FCC200DF6CDF /* TalkIntents.appex */,
+				FEF2798B303AF9E500E7039D /* TalkCallIntents.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1350,6 +1391,7 @@
 		2C05747F1EDD9E8E00D9E7F2 /* NextcloudTalk */ = {
 			isa = PBXGroup;
 			children = (
+				FEF26F573039D9C400E7039D /* Carplay */,
 				1F9629252E8E6A2100EC9BEE /* Calls */,
 				1F9629262E8E6A6800EC9BEE /* Chat */,
 				1F9629302E8E6B3D00EC9BEE /* Contacts */,
@@ -1670,6 +1712,7 @@
 				2C62AFAD24C08845007E460A /* PBXTargetDependency */,
 				1FF2FD712AB99CCB000C9905 /* PBXTargetDependency */,
 				1FA93DA42D70FCC200DF6CDF /* PBXTargetDependency */,
+				FEF27992303AF9E500E7039D /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				1F2058832CEBE4E700AAA673 /* ShareExtension */,
@@ -1692,6 +1735,7 @@
 				1F96297A2E8E6D1200EC9BEE /* User Interface */,
 				1F9629822E8E6D5400EC9BEE /* WebRTC */,
 				1F9629882E8E6E2900EC9BEE /* Sounds */,
+				FEF26F573039D9C400E7039D /* Carplay */,
 			);
 			name = NextcloudTalk;
 			packageProductDependencies = (
@@ -1798,13 +1842,35 @@
 			productReference = 2CC0014F24A1F0E900A20167 /* NotificationServiceExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		FEF2798A303AF9E500E7039D /* TalkCallIntents */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FEF27994303AF9E500E7039D /* Build configuration list for PBXNativeTarget "TalkCallIntents" */;
+			buildPhases = (
+				FEF27987303AF9E500E7039D /* Sources */,
+				FEF27988303AF9E500E7039D /* Frameworks */,
+				FEF27989303AF9E500E7039D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				FEF2798D303AF9E500E7039D /* TalkCallIntents */,
+			);
+			name = TalkCallIntents;
+			packageProductDependencies = (
+			);
+			productName = TalkCallIntents;
+			productReference = FEF2798B303AF9E500E7039D /* TalkCallIntents.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
 		2C0574751EDD9E8E00D9E7F2 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1620;
+				LastSwiftUpdateCheck = 2650;
 				LastUpgradeCheck = 1320;
 				ORGANIZATIONNAME = "";
 				TargetAttributes = {
@@ -1851,6 +1917,9 @@
 						CreatedOnToolsVersion = 11.5;
 						LastSwiftMigration = 1220;
 						ProvisioningStyle = Automatic;
+					};
+					FEF2798A303AF9E500E7039D = {
+						CreatedOnToolsVersion = 26.5;
 					};
 				};
 			};
@@ -1924,6 +1993,7 @@
 				1FD8AD892A3A162100787C16 /* NextcloudTalkUITests */,
 				1F6D8C2F2B2E3756004376B8 /* NextcloudTalkTests */,
 				1FA93D9B2D70FCC200DF6CDF /* TalkIntents */,
+				FEF2798A303AF9E500E7039D /* TalkCallIntents */,
 			);
 		};
 /* End PBXProject section */
@@ -1997,6 +2067,13 @@
 				1F59446225B8EDF5002AD65F /* Localizable.strings in Resources */,
 				1FE7DE352BBC8FA10040EE12 /* PrivacyInfo.xcprivacy in Resources */,
 				2C8D3BAF2FA9DEF900F0A900 /* AppIcon.icon in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FEF27989303AF9E500E7039D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2299,6 +2376,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		FEF27987303AF9E500E7039D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -2331,6 +2415,11 @@
 			isa = PBXTargetDependency;
 			target = 2CC0014E24A1F0E900A20167 /* NotificationServiceExtension */;
 			targetProxy = 2CC0015524A1F0E900A20167 /* PBXContainerItemProxy */;
+		};
+		FEF27992303AF9E500E7039D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = FEF2798A303AF9E500E7039D /* TalkCallIntents */;
+			targetProxy = FEF27991303AF9E500E7039D /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -2560,6 +2649,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TalkIntents/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "$(PRODUCT_NAME)";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -2602,6 +2692,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TalkIntents/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "$(PRODUCT_NAME)";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -3296,6 +3387,87 @@
 			};
 			name = Release;
 		};
+		FEF27995303AF9E500E7039D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = NKUJUXUJ3B;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TalkCallIntents/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = TalkCallIntents;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.TalkCallIntents;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		FEF27996303AF9E500E7039D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Nextcloud GmbH (NKUJUXUJ3B)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = NKUJUXUJ3B;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TalkCallIntents/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = TalkCallIntents;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.TalkCallIntents;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -3367,6 +3539,15 @@
 			buildConfigurations = (
 				2CC0015824A1F0E900A20167 /* Debug */,
 				2CC0015924A1F0E900A20167 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FEF27994303AF9E500E7039D /* Build configuration list for PBXNativeTarget "TalkCallIntents" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FEF27995303AF9E500E7039D /* Debug */,
+				FEF27996303AF9E500E7039D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
