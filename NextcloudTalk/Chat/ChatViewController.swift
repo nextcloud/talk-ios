@@ -1773,6 +1773,11 @@ import SwiftUI
                     }
                 }
 
+                if newMessagesContainVisibleMessages {
+                    // The initial history can be empty (e.g. message expiration) and the placeholder still visible
+                    self.chatBackgroundView.placeholderView.isHidden = true
+                }
+
                 if firstNewMessagesAfterHistory {
                     self.chatBackgroundView.loadingView.stopAnimating()
                     self.chatBackgroundView.loadingView.isHidden = true

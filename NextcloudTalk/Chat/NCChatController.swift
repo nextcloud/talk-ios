@@ -985,7 +985,9 @@ public class NCChatController: NSObject {
         }
 
         fetchHistoryUntilVisible(fromMessageId: lastReadMessageId, forInitialChatHistory: true, isFirstIteration: true) { messages, lastCommonReadMessage, error, statusCode in
-            if let error {
+            // A 304 means no message at or before the last read one is left, which is an empty history and not
+            // a failure. Reporting it as an error would go offline instead of polling for the newer messages.
+            if let error, statusCode != 304 {
                 if self.isChatBeingBlocked(statusCode) {
                     self.notifyChatIsBlocked()
                     return
