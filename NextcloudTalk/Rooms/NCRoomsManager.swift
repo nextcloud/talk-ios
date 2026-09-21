@@ -55,6 +55,7 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
     private var highlightMessageDict: [AnyHashable: Any]?
     private var showThreadPushNotification: NCPushNotification?
     private var pendingPrivateReplyInternalId: String?
+    private var pendingSIPDialOutAttendees: [String: Int] = [:]
 
     override init() {
         super.init()
@@ -544,6 +545,10 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
 
     // MARK: - Call
 
+    public func scheduleSIPDialOut(attendeeId: Int, forRoomToken token: String) {
+        pendingSIPDialOutAttendees[token] = attendeeId
+    }
+
     // swiftlint:disable:next function_parameter_count
     public func startCall(withVideo video: Bool, inRoom room: NCRoom, withVideoEnabled videoEnabled: Bool, asInitiator initiator: Bool, silently: Bool, withRecordingConsent recordingConsent: Bool, withVoiceChatMode voiceChatMode: Bool) {
         guard self.callViewController == nil else {
@@ -557,6 +562,9 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
         }
 
         let callViewController = CallViewController(for: room, withAccount: account, audioOnly: !video)
+        if let attendeeId = pendingSIPDialOutAttendees.removeValue(forKey: room.token) {
+            callViewController.sipDialOutAttendeeId = attendeeId
+        }
         self.callViewController = callViewController
 
         callViewController.videoDisabledAtStart = !videoEnabled
