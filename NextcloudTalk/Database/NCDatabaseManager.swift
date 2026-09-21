@@ -7,7 +7,7 @@ import Foundation
 
 public let kTalkDatabaseFolder = "Library/Application Support/Talk"
 public let kTalkDatabaseFileName = "talk.realm"
-public let kTalkDatabaseSchemaVersion: UInt64 = 94
+public let kTalkDatabaseSchemaVersion: UInt64 = 95
 
 // Objective-C bridge for the Talk database constants that are still referenced from Objective-C code.
 // These reference the Swift values and can be removed once those call sites are migrated to Swift.
@@ -39,6 +39,8 @@ public enum TalkCapability: String {
     case conversationV4 = "conversation-v4"
     case sipSupport = "sip-support"
     case sipSupportNoPIN = "sip-support-nopin"
+    case sipSupportDialOut = "sip-support-dialout"
+    case sipDirectDialIn = "sip-direct-dialin"
     case voiceMessage = "voice-message-sharing"
     case signalingV3 = "signaling-v3"
     case clearHistory = "clear-history"
@@ -417,6 +419,7 @@ public extension Notification.Name {
         // Call capabilities
         let callConfig = config?["call"] as? [String: Any]
         capabilities.callEnabled = (callConfig?["enabled"] as? NSNumber)?.boolValue ?? true
+        capabilities.sipDialOutEnabled = (callConfig?["sip-dialout-enabled"] as? NSNumber)?.boolValue ?? false
         capabilities.recordingEnabled = (callConfig?["recording"] as? NSNumber)?.boolValue ?? false
         capabilities.setValue(callConfig?["supported-reactions"] as? [String] ?? [], forKey: "callReactions")
         capabilities.e2eeCallsEnabled = (callConfig?["end-to-end-encryption"] as? NSNumber)?.boolValue ?? false

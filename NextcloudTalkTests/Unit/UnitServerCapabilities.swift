@@ -101,6 +101,7 @@ final class UnitServerCapabilities: TestBaseRealm {
 
         // call
         XCTAssertTrue(capabilities.callEnabled)
+        XCTAssertTrue(capabilities.sipDialOutEnabled)
         XCTAssertFalse(capabilities.recordingEnabled)
         XCTAssertFalse(capabilities.e2eeCallsEnabled)
         XCTAssertEqual(capabilities.callReactions.count, 12)
@@ -204,6 +205,7 @@ final class UnitServerCapabilities: TestBaseRealm {
         XCTAssertEqual(capabilities.roomsSortOrder, NCRoomSortOrder.unsupported.rawValue)
         XCTAssertEqual(capabilities.roomsGroupMode, NCRoomGroupMode.unsupported.rawValue)
 
+        XCTAssertFalse(capabilities.sipDialOutEnabled)
         XCTAssertFalse(capabilities.recordingEnabled)
         XCTAssertFalse(capabilities.e2eeCallsEnabled)
         XCTAssertFalse(capabilities.attachmentsAllowed)

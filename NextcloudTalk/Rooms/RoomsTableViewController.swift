@@ -42,6 +42,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
     private var unifiedSearchController: NCUnifiedSearchController?
     private var roomsBackgroundView: PlaceholderView!
     private var newConversationButton: UIBarButtonItem?
+    private var phoneDialOutButton: UIBarButtonItem?
     private var filterButton: UIBarButtonItem?
     private var settingsButton: UIBarButtonItem!
     private var profileButton: UIButton!
@@ -230,6 +231,18 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
     private func configureRightBarButtonItems() {
         var rightItems: [UIBarButtonItem] = []
 
+        // SIP dial-out button. Keep the same prerequisites as Talk Web/Desktop:
+        // the server must advertise the sip-support-dialout feature and dial-out
+        // must be enabled in config.call.sip-dialout-enabled.
+        if isSIPDialOutAvailable() {
+            let phoneDialOutButton = UIBarButtonItem(image: UIImage(systemName: "phone.arrow.up.right"), style: .plain, target: self, action: #selector(presentPhoneDialPad))
+            phoneDialOutButton.accessibilityLabel = NSLocalizedString("Call a phone number", comment: "")
+            self.phoneDialOutButton = phoneDialOutButton
+            rightItems.append(phoneDialOutButton)
+        } else {
+            self.phoneDialOutButton = nil
+        }
+
         // New conversation button
         if NCSettingsController.sharedInstance().canCreateGroupAndPublicRooms() ||
             NCDatabaseManager.sharedInstance().serverHasTalkCapability(.listableRooms) {
@@ -254,6 +267,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         // iOS 26 style
         if #available(iOS 26.0, *) {
             newConversationButton?.tintColor = NCAppBranding.elementColor()
+            phoneDialOutButton?.tintColor = NCAppBranding.elementColor()
 
             if UIDevice.current.userInterfaceIdiom != .phone {
                 // On non-iPhones we want to hide the shared background (glass effect)
@@ -264,6 +278,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
                 // On iPhones we want to have a prominent glass button with non-filled icon
                 newConversationButton?.image = UIImage(systemName: "plus")
                 newConversationButton?.style = .prominent
+                phoneDialOutButton?.image = UIImage(systemName: "phone.arrow.up.right")
             }
         }
 
@@ -275,6 +290,26 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
             return UIDevice.current.userInterfaceIdiom == .phone
         }
         return false
+    }
+
+    private func isSIPDialOutAvailable() -> Bool {
+        guard NCDatabaseManager.sharedInstance().serverHasTalkCapability(.sipSupportDialOut),
+              let capabilities = NCDatabaseManager.sharedInstance().serverCapabilities()
+        else { return false }
+
+        return capabilities.callEnabled && capabilities.sipDialOutEnabled
+    }
+
+    @objc private func presentPhoneDialPad() {
+        guard isSIPDialOutAvailable() else {
+            configureRightBarButtonItems()
+            return
+        }
+
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let dialPad = PhoneDialPadViewController(account: activeAccount)
+        let navigationController = NCNavigationController(rootViewController: dialPad)
+        self.present(navigationController, animated: true)
     }
 
     @objc private func presentNewRoomViewController() {
@@ -2244,3 +2279,223 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         }
     }
 }
+
+// MARK: - SIP Dial-out
+
+private final class PhoneDialPadViewController: UIViewController, UITextFieldDelegate {
+    private let account: TalkAccount
+    private let numberField = UITextField()
+    private let callButton = UIButton(type: .system)
+    private let activityIndicator = UIActivityIndicatorView(style: .medium)
+
+    init(account: TalkAccount) {
+        self.account = account
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        title = NSLocalizedString("Call a phone number", comment: "")
+        view.backgroundColor = .systemBackground
+        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancel))
+
+        numberField.translatesAutoresizingMaskIntoConstraints = false
+        numberField.borderStyle = .roundedRect
+        numberField.keyboardType = .phonePad
+        numberField.textAlignment = .center
+        numberField.font = .preferredFont(forTextStyle: .title2)
+        numberField.adjustsFontForContentSizeCategory = true
+        numberField.placeholder = NSLocalizedString("Phone number", comment: "")
+        numberField.delegate = self
+        numberField.addTarget(self, action: #selector(numberChanged), for: .editingChanged)
+
+        let keypad = UIStackView()
+        keypad.translatesAutoresizingMaskIntoConstraints = false
+        keypad.axis = .vertical
+        keypad.spacing = 12
+        keypad.distribution = .fillEqually
+
+        for row in [["1", "2", "3"], ["4", "5", "6"], ["7", "8", "9"], ["*", "0", "#"]] {
+            let stack = UIStackView()
+            stack.axis = .horizontal
+            stack.spacing = 12
+            stack.distribution = .fillEqually
+
+            for digit in row {
+                let button = UIButton(type: .system)
+                button.setTitle(digit, for: .normal)
+                button.titleLabel?.font = .preferredFont(forTextStyle: .title1)
+                button.accessibilityLabel = digit
+                button.heightAnchor.constraint(greaterThanOrEqualToConstant: 56).isActive = true
+                button.addAction(UIAction { [weak self] _ in self?.append(digit) }, for: .touchUpInside)
+                stack.addArrangedSubview(button)
+            }
+            keypad.addArrangedSubview(stack)
+        }
+
+        let editRow = UIStackView()
+        editRow.translatesAutoresizingMaskIntoConstraints = false
+        editRow.axis = .horizontal
+        editRow.spacing = 12
+        editRow.distribution = .fillEqually
+
+        let plusButton = UIButton(type: .system)
+        plusButton.setTitle("+", for: .normal)
+        plusButton.titleLabel?.font = .preferredFont(forTextStyle: .title2)
+        plusButton.accessibilityLabel = NSLocalizedString("Plus", comment: "")
+        plusButton.addAction(UIAction { [weak self] _ in self?.append("+") }, for: .touchUpInside)
+
+        let deleteButton = UIButton(type: .system)
+        deleteButton.setImage(UIImage(systemName: "delete.left"), for: .normal)
+        deleteButton.accessibilityLabel = NSLocalizedString("Delete", comment: "")
+        deleteButton.addAction(UIAction { [weak self] _ in self?.deleteLastDigit() }, for: .touchUpInside)
+
+        editRow.addArrangedSubview(plusButton)
+        editRow.addArrangedSubview(deleteButton)
+
+        callButton.translatesAutoresizingMaskIntoConstraints = false
+        callButton.configuration = .filled()
+        callButton.configuration?.image = UIImage(systemName: "phone.fill")
+        callButton.configuration?.title = NSLocalizedString("Call", comment: "")
+        callButton.configuration?.imagePadding = 8
+        callButton.isEnabled = false
+        callButton.addTarget(self, action: #selector(placeCall), for: .touchUpInside)
+
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        activityIndicator.hidesWhenStopped = true
+
+        view.addSubview(numberField)
+        view.addSubview(keypad)
+        view.addSubview(editRow)
+        view.addSubview(callButton)
+        view.addSubview(activityIndicator)
+
+        NSLayoutConstraint.activate([
+            numberField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
+            numberField.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
+            numberField.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
+
+            keypad.topAnchor.constraint(equalTo: numberField.bottomAnchor, constant: 24),
+            keypad.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor, constant: 20),
+            keypad.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor, constant: -20),
+
+            editRow.topAnchor.constraint(equalTo: keypad.bottomAnchor, constant: 12),
+            editRow.leadingAnchor.constraint(equalTo: keypad.leadingAnchor),
+            editRow.trailingAnchor.constraint(equalTo: keypad.trailingAnchor),
+
+            callButton.topAnchor.constraint(equalTo: editRow.bottomAnchor, constant: 24),
+            callButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            callButton.widthAnchor.constraint(greaterThanOrEqualToConstant: 160),
+            callButton.heightAnchor.constraint(equalToConstant: 50),
+
+            activityIndicator.centerYAnchor.constraint(equalTo: callButton.centerYAnchor),
+            activityIndicator.leadingAnchor.constraint(equalTo: callButton.trailingAnchor, constant: 12),
+        ])
+    }
+
+    @objc private func cancel() {
+        dismiss(animated: true)
+    }
+
+    @objc private func numberChanged() {
+        updateCallButton()
+    }
+
+    private func append(_ character: String) {
+        if character == "+", !(numberField.text ?? "").isEmpty {
+            return
+        }
+        numberField.text = (numberField.text ?? "") + character
+        updateCallButton()
+    }
+
+    private func deleteLastDigit() {
+        guard var value = numberField.text, !value.isEmpty else { return }
+        value.removeLast()
+        numberField.text = value
+        updateCallButton()
+    }
+
+    private func updateCallButton() {
+        let value = sanitizedPhoneNumber(numberField.text ?? "")
+        callButton.isEnabled = !value.isEmpty && !activityIndicator.isAnimating
+    }
+
+    private func sanitizedPhoneNumber(_ value: String) -> String {
+        let allowed = CharacterSet(charactersIn: "+0123456789*#")
+        return String(value.unicodeScalars.filter { allowed.contains($0) })
+    }
+
+    private func setLoading(_ loading: Bool) {
+        numberField.isEnabled = !loading
+        callButton.isEnabled = !loading && !sanitizedPhoneNumber(numberField.text ?? "").isEmpty
+        navigationItem.leftBarButtonItem?.isEnabled = !loading
+        loading ? activityIndicator.startAnimating() : activityIndicator.stopAnimating()
+    }
+
+    @objc private func placeCall() {
+        let phoneNumber = sanitizedPhoneNumber(numberField.text ?? "")
+        guard !phoneNumber.isEmpty else { return }
+
+        setLoading(true)
+
+        let objectType = NCDatabaseManager.sharedInstance().serverHasTalkCapability(.sipDirectDialIn) ? "phone_temporary" : "phone_legacy"
+        let parameters: [String: Any] = [
+            "roomType": NCRoomType.group.rawValue,
+            "roomName": phoneNumber,
+            "objectType": objectType,
+        ]
+
+        NCAPIController.sharedInstance().createRoom(forAccount: account, withParameters: parameters) { [weak self] room, error in
+            guard let self else { return }
+
+            guard error == nil, let room else {
+                self.presentError(NSLocalizedString("An error occurred while calling a phone number", comment: ""))
+                return
+            }
+
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                do {
+                    _ = try await NCAPIController.sharedInstance().addParticipant(phoneNumber, ofType: "phones", toRoom: room.token, forAccount: account)
+                    let participants = try await NCAPIController.sharedInstance().getParticipants(forRoom: room.token, forAccount: account)
+                    guard let phoneParticipant = participants.first(where: { $0.actorType == .phone }) else {
+                        throw PhoneDialOutError.phoneParticipantMissing
+                    }
+
+                    NCRoomsManager.shared.scheduleSIPDialOut(attendeeId: phoneParticipant.attendeeId, forRoomToken: room.token)
+
+                    self.dismiss(animated: true) {
+                        CallKitManager.sharedInstance().startCall(room.token,
+                                                                  withVideoEnabled: false,
+                                                                  andDisplayName: phoneNumber,
+                                                                  asInitiator: true,
+                                                                  silently: false,
+                                                                  recordingConsent: true,
+                                                                  withAccountId: self.account.accountId)
+                    }
+                } catch {
+                    NCLog.log("Unable to prepare SIP dial-out: \(error)")
+                    self.presentError(NSLocalizedString("Phone number could not be called", comment: ""))
+                }
+            }
+        }
+    }
+
+    private func presentError(_ message: String) {
+        setLoading(false)
+        let alert = UIAlertController(title: NSLocalizedString("Call failed", comment: ""), message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default))
+        present(alert, animated: true)
+    }
+
+    private enum PhoneDialOutError: Error {
+        case phoneParticipantMissing
+    }
+}
+

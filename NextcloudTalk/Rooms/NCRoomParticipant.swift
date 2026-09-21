@@ -16,6 +16,7 @@ enum AttendeeType: String {
     case email = "emails"
     case federated = "federated_users"
     case bots = "bots"
+    case phone = "phones"
 }
 
 public enum ParticipantRole {

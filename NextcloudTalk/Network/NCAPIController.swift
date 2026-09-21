@@ -2079,6 +2079,17 @@ class NCAPIController: NSObject, NKCommonDelegate {
     }
 
     @nonobjc
+    @MainActor
+    @discardableResult
+    public func dialOutPhone(attendeeId: Int, inRoom token: String, forAccount account: TalkAccount) async throws -> OcsResponse {
+        guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
+              let encodedToken = token.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        else { throw ApiControllerError.preconditionError }
+
+        let urlString = self.getRequestURL(forEndpoint: "call/\(encodedToken)/dialout/\(attendeeId)", withAPIType: .call, forAccount: account)
+        return try await apiSessionManager.postOcs(urlString, account: account)
+    }
+
     @discardableResult
     public func sendCallNotification(toAttendee attendeeId: String, inRoom token: String, forAccount account: TalkAccount, completionBlock: @escaping (_ error: OcsError?) -> Void) -> URLSessionDataTask? {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
