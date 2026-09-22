@@ -1923,10 +1923,14 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
 
     private func userHasStreams(_ sessionId: String) -> Bool {
         for user in self.usersInRoom {
-            if let userSessionId = user["sessionId"] as? String, sessionId == userSessionId, let userCallFlagsRaw = user["inCall"] as? Int {
+            if let userSessionId = user["sessionId"] as? String,
+               sessionId == userSessionId,
+               let userCallFlagsRaw = user["inCall"] as? Int {
+
                 let userCallFlags = CallFlag(rawValue: userCallFlagsRaw)
 
-                return userCallFlags.contains(.withAudio) || userCallFlags.contains(.withVideo)
+                return userCallFlags.contains(.withAudio)
+                    || userCallFlags.contains(.withVideo)
             }
         }
 
@@ -1972,7 +1976,12 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
             }
 
             // Add session if inCall and if it's not an internal client
-            if inCall > 0, !internalClient {
+            let callFlags = CallFlag(rawValue: inCall)
+
+            let internalClientHasMedia = internalClient
+                && (callFlags.contains(.withAudio) || callFlags.contains(.withVideo))
+
+            if inCall > 0, !internalClient || internalClientHasMedia {
                 sessions.append(sessionId)
             }
         }

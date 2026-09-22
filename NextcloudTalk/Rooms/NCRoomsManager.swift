@@ -547,6 +547,19 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
 
     public func scheduleSIPDialOut(attendeeId: Int, forRoomToken token: String) {
         pendingSIPDialOutAttendees[token] = attendeeId
+        NCLog.log("SIP dial-out scheduled: room=\(token) attendee=\(attendeeId)")
+    }
+
+    public func consumeSIPDialOut(forRoomToken token: String) -> Int? {
+        let attendeeId = pendingSIPDialOutAttendees.removeValue(forKey: token)
+
+        if let attendeeId {
+            NCLog.log("SIP dial-out consumed: room=\(token) attendee=\(attendeeId)")
+        } else {
+            NCLog.log("No pending SIP dial-out for room=\(token)")
+        }
+
+        return attendeeId
     }
 
     // swiftlint:disable:next function_parameter_count
@@ -562,9 +575,7 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
         }
 
         let callViewController = CallViewController(for: room, withAccount: account, audioOnly: !video)
-        if let attendeeId = pendingSIPDialOutAttendees.removeValue(forKey: room.token) {
-            callViewController.sipDialOutAttendeeId = attendeeId
-        }
+        
         self.callViewController = callViewController
 
         callViewController.videoDisabledAtStart = !videoEnabled

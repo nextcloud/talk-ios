@@ -55,7 +55,6 @@ class CallViewController: UIViewController,
     public var initiator = false
     public var silentCall = false
     public var recordingConsent = false
-    public var sipDialOutAttendeeId: Int?
 
     private var speakers: [NCPeerConnection] = []
     private var callViewMode = CallViewMode(rawValue: NCUserDefaults.preferredCallViewMode() ?? "") ?? .grid
@@ -1102,13 +1101,20 @@ class CallViewController: UIViewController,
     func callControllerDidJoinCall(_ callController: NCCallController) {
         self.setCallStateForPeersInCall()
 
-        if let attendeeId = sipDialOutAttendeeId {
-            sipDialOutAttendeeId = nil
+        if let attendeeId = NCRoomsManager.shared.consumeSIPDialOut(forRoomToken: room.token) {
+            NCLog.log("Starting SIP dial-out: room=\(room.token) attendee=\(attendeeId)")
+
             Task { @MainActor in
                 do {
-                    _ = try await NCAPIController.sharedInstance().dialOutPhone(attendeeId: attendeeId, inRoom: room.token, forAccount: account)
+                    _ = try await NCAPIController.sharedInstance().dialOutPhone(
+                        attendeeId: attendeeId,
+                        inRoom: room.token,
+                        forAccount: account
+                    )
+
+                    NCLog.log("SIP dial-out request accepted: room=\(room.token) attendee=\(attendeeId)")
                 } catch {
-                    NCLog.log("SIP dial-out failed for attendee \(attendeeId): \(error)")
+                    NCLog.log("SIP dial-out failed: room=\(room.token) attendee=\(attendeeId) error=\(error)")
                     CallKitManager.sharedInstance().endCall(room.token, withStatusCode: 0)
                 }
             }

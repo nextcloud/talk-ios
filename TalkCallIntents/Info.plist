@@ -10,7 +10,7 @@
 			<array/>
 			<key>IntentsSupported</key>
 			<array>
-                <string>INStartCallIntent</string>
+				<string>INStartCallIntent</string>
 			</array>
 		</dict>
 		<key>NSExtensionPointIdentifier</key>
