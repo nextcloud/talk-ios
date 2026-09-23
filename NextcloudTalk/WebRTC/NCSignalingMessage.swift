@@ -50,6 +50,7 @@ enum MessageTypeValue {
     static let reaction = "reaction"
     static let startedTyping = "startedTyping"
     static let stoppedTyping = "stoppedTyping"
+    static let selectStream = "selectStream"
 }
 
 @objcMembers

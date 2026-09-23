@@ -70,6 +70,8 @@ class CallViewController: UIViewController,
     private var pipLocalRendererAttached = false
     private var isPiPActive = false
 
+    private var simulcastDebugQuality: SimulcastVideoQuality?
+
     @IBOutlet public var localVideoView: MTKView!
     @IBOutlet public var localVideoViewWrapper: UIView!
     @IBOutlet public var screensharingView: NCZoomableView!
@@ -656,6 +658,7 @@ class CallViewController: UIViewController,
         self.viewModeButton.isHidden = peersInCall.count <= 1
 
         self.setCallStateForPeersInCall()
+        self.updateSimulcastVideoQualities()
     }
 
     func priority(for peerConnection: NCPeerConnection) -> (Int, Int) {
@@ -765,6 +768,7 @@ class CallViewController: UIViewController,
             }
 
             self.updateViewModeButton()
+            self.updateSimulcastVideoQualities()
         }
     }
 
@@ -837,6 +841,50 @@ class CallViewController: UIViewController,
         }
     }
 
+    // MARK: - Simulcast
+
+    // Based on adjustSimulcastQualityForParticipant in CallView.vue of the web client
+    private func simulcastVideoQuality(for peer: NCPeerConnection) -> SimulcastVideoQuality {
+        if let simulcastDebugQuality {
+            return simulcastDebugQuality
+        }
+
+        if isPiPActive {
+            // Only the small Picture in Picture window is visible
+            return .low
+        }
+
+        if callViewMode == .speaker {
+            return peer.peerIdentifier == promotedPeerIdentifier ? .high : .low
+        }
+
+        // Unlike web, a single participant is shown fullscreen in the grid
+        return peersInCall.count == 1 ? .high : .medium
+    }
+
+    private func updateSimulcastVideoQualities() {
+        guard let callController else { return }
+
+        for peer in peersInCall {
+            callController.setSimulcastVideoQuality(simulcastVideoQuality(for: peer), forPeerId: peer.peerId)
+        }
+    }
+
+    private func getSimulcastDebugMenu() -> UIMenu {
+        let options: [(String, SimulcastVideoQuality?)] = [("Automatic", nil), ("Low", .low), ("Medium", .medium), ("High", .high)]
+
+        let actions = options.map { title, quality in
+            let action = UIAction(title: title) { [unowned self] _ in
+                self.simulcastDebugQuality = quality
+                self.updateSimulcastVideoQualities()
+            }
+            action.state = quality == simulcastDebugQuality ? .on : .off
+            return action
+        }
+
+        return UIMenu(title: "Simulcast (debug)", image: .init(systemName: "ladybug"), children: actions)
+    }
+
     // MARK: - Picture in Picture
 
     func setupPictureInPicture() {
@@ -888,6 +936,7 @@ class CallViewController: UIViewController,
         self.pipPeerIdentifier = nil
         self.detachPiPRenderer()
         self.detachPiPLocalRenderer()
+        self.updateSimulcastVideoQualities()
 
         if pipController.isPictureInPictureActive {
             pipController.stopPictureInPicture()
@@ -2040,6 +2089,10 @@ class CallViewController: UIViewController,
             }))
         }
 
+        if NCUtils.isTestEnvironment {
+            items.append(self.getSimulcastDebugMenu())
+        }
+
         return items
     }
 
@@ -3162,6 +3215,7 @@ extension CallViewController: AVPictureInPictureControllerDelegate {
         self.pipPeerIdentifier = self.initialPiPPeer()?.peerIdentifier
         self.updatePiPContent()
         self.attachPiPLocalRendererIfNeeded()
+        self.updateSimulcastVideoQualities()
     }
 
     func pictureInPictureControllerDidStartPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
@@ -3183,6 +3237,7 @@ extension CallViewController: AVPictureInPictureControllerDelegate {
         self.pipPeerIdentifier = nil
         self.detachPiPRenderer()
         self.detachPiPLocalRenderer()
+        self.updateSimulcastVideoQualities()
     }
 
     func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, failedToStartPictureInPictureWithError error: Error) {
@@ -3192,6 +3247,7 @@ extension CallViewController: AVPictureInPictureControllerDelegate {
         self.pipPeerIdentifier = nil
         self.detachPiPRenderer()
         self.detachPiPLocalRenderer()
+        self.updateSimulcastVideoQualities()
     }
 
     func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void) {

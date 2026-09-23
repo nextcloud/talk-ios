@@ -48,6 +48,7 @@ public class NCPeerConnection: NSObject {
     var isHandRaised = false
     var showRemoteVideoInOriginalSize = false
     var addedTime: Int = 0
+    var selectedSimulcastVideoQuality: SimulcastVideoQuality?
 
     /// "peerId-sid"
     var peerIdentifier: String {
