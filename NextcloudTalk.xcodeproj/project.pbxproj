@@ -1911,6 +1911,7 @@
 				2C349B042D70D360004EC882 /* XCRemoteSwiftPackageReference "SwiftyXMLParser" */,
 				1F89A8422EFAC35D00890727 /* XCRemoteSwiftPackageReference "SwiftyRSA" */,
 				1FBB6EE12F8ECE5B003CBA30 /* XCRemoteSwiftPackageReference "Toast-Swift" */,
+				1F0B7C3E2F8F1A2B00C4D5E6 /* XCRemoteSwiftPackageReference "CocoaLumberjack" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 2C05747E1EDD9E8E00D9E7F2 /* Products */;
@@ -3374,6 +3375,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		1F0B7C3E2F8F1A2B00C4D5E6 /* XCRemoteSwiftPackageReference "CocoaLumberjack" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/CocoaLumberjack/CocoaLumberjack.git";
+			requirement = {
+				kind = upToNextMinorVersion;
+				minimumVersion = 3.9.1;
+			};
+		};
 		1F0ECBF32A68274400921E90 /* XCRemoteSwiftPackageReference "CDMarkdownKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/nextcloud-deps/CDMarkdownKit.git";
