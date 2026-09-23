@@ -1910,7 +1910,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
             // Hang up call if user sessionId is no longer in the call
             // Could be because a moderator "ended the call for everyone"
             if sessionId == self.signalingSessionId {
-                print("User sessionId is no longer in the call -> hang up call")
+                NCLog.log("User sessionId is no longer in the call -> hang up call")
                 self.delegate?.callControllerWants(toHangUpCall: self)
 
                 return
