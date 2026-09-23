@@ -275,7 +275,7 @@
 			<key>one</key>
 			<string>Nahráva sa %ld prvok</string>
 			<key>few</key>
-			<string>Nahráva sa %ld prvkov</string>
+			<string>Nahrávajú sa %ld prvky</string>
 			<key>many</key>
 			<string>Nahráva sa %ld prvkov</string>
 			<key>other</key>
