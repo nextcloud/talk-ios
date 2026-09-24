@@ -12,7 +12,11 @@ import Foundation
     public lazy var peerConnectionFactory: RTCPeerConnectionFactory = {
         // Ref https://github.com/nextcloud/talk-ios/issues/1912
         // Ref https://issues.webrtc.org/issues/502461765
-        RTCInitFieldTrialDictionary([kRTCFieldTrialUseNWPathMonitor: kRTCFieldTrialEnabledValue])
+        RTCInitFieldTrialDictionary([
+            kRTCFieldTrialUseNWPathMonitor: kRTCFieldTrialEnabledValue,
+            // Otherwise the highest simulcast layer is dropped for resolutions up to 640x480
+            "WebRTC-LegacySimulcastLayerLimit": "Disabled"
+        ])
 
         return RTCPeerConnectionFactory(encoderFactory: encoderFactory, decoderFactory: decoderFactory)
     }()

@@ -48,6 +48,7 @@ public class NCPeerConnection: NSObject {
     var isHandRaised = false
     var showRemoteVideoInOriginalSize = false
     var addedTime: Int = 0
+    var selectedSimulcastVideoQuality: SimulcastVideoQuality?
 
     /// "peerId-sid"
     var peerIdentifier: String {
@@ -348,7 +349,13 @@ public class NCPeerConnection: NSObject {
 
             WebRTCCommon.shared.dispatch {
                 guard let self else { return }
-                self.delegate?.peerConnection(self, needsToSend: sdpPreferringCodec)
+
+                if self.isMCUPublisherPeer {
+                    let mcuSdp = RTCSessionDescription(type: sdpPreferringCodec.type, sdp: self.sdpWithReversedSimulcastLayers(sdpPreferringCodec.sdp))
+                    self.delegate?.peerConnection(self, needsToSend: mcuSdp)
+                } else {
+                    self.delegate?.peerConnection(self, needsToSend: sdpPreferringCodec)
+                }
             }
         }
     }
@@ -396,9 +403,51 @@ public class NCPeerConnection: NSObject {
             }
         }
 
+        if isMCUPublisherPeer {
+            disableSimulcastIfUnsupported()
+        }
+
         if peerConnection?.remoteDescription != nil {
             drainRemoteCandidates()
         }
+    }
+
+    // Only the VP8 encoder supports simulcast, others encode a single stream
+    private func disableSimulcastIfUnsupported() {
+        for transceiver in peerConnection?.transceivers ?? [] where transceiver.mediaType == .video {
+            let parameters = transceiver.sender.parameters
+
+            guard parameters.encodings.filter({ $0.isActive }).count > 1,
+                  let codecName = parameters.codecs.first?.name, codecName.caseInsensitiveCompare(kRTCVideoCodecVp8Name) != .orderedSame
+            else { continue }
+
+            NCLog.log("Disable simulcast for unsupported codec \(codecName)")
+
+            // Keep the highest layer, which is the last one
+            for (index, encoding) in parameters.encodings.enumerated() {
+                encoding.isActive = index == parameters.encodings.count - 1
+            }
+
+            transceiver.sender.parameters = parameters
+        }
+    }
+
+    // The MCU treats the first rid as the highest layer, the encoder requires them from lowest to highest
+    private func sdpWithReversedSimulcastLayers(_ sdp: String) -> String {
+        let simulcastPrefix = "a=simulcast:send "
+        var lines = sdp.components(separatedBy: "\r\n")
+
+        let ridIndices = lines.indices.filter { lines[$0].hasPrefix("a=rid:") }
+        for (index, ridLine) in zip(ridIndices, ridIndices.reversed().map { lines[$0] }) {
+            lines[index] = ridLine
+        }
+
+        for index in lines.indices where lines[index].hasPrefix(simulcastPrefix) {
+            let layers = lines[index].dropFirst(simulcastPrefix.count).split(separator: ";")
+            lines[index] = simulcastPrefix + layers.reversed().joined(separator: ";")
+        }
+
+        return lines.joined(separator: "\r\n")
     }
 
     // MARK: - Utils

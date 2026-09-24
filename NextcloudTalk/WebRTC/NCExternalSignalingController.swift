@@ -50,6 +50,7 @@ public enum NCExternalSignalingSendMessageStatus {
     public private(set) var disconnected: Bool = true
     public private(set) var hasMCU: Bool = false
     public private(set) var hasUpdateSdp: Bool = false
+    public private(set) var hasSimulcast: Bool = false
     public private(set) var hasChatRelay: Bool = false
     public private(set) var sessionId: String?
     public private(set) var participantsMap = [String: SignalingParticipant]()
@@ -362,6 +363,7 @@ public enum NCExternalSignalingSendMessageStatus {
 
         self.hasMCU = serverFeatures.contains(where: { $0 == "mcu" })
         self.hasUpdateSdp = serverFeatures.contains(where: { $0 == "update-sdp" })
+        self.hasSimulcast = serverFeatures.contains(where: { $0 == "simulcast" })
         self.hasChatRelay = serverFeatures.contains(where: { $0 == "chat-relay" })
 
         DispatchQueue.main.async {

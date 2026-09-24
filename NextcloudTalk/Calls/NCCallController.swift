@@ -37,6 +37,7 @@ internal protocol NCCallControllerDelegate: NSObjectProtocol {
 internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignalingControllerObserver, NCExternalSignalingControllerDelegate, NCCameraControllerDelegate {
 
     typealias PeerKey = String
+    typealias SessionId = String
 
     public weak var delegate: NCCallControllerDelegate?
 
@@ -104,6 +105,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
 
     private var connectionsDict = [PeerKey: NCPeerConnection]()
     private var pendingOffersDict = [PeerKey: Timer]()
+    private var simulcastVideoQualities = [SessionId: SimulcastVideoQuality]()
 
     private var sessionsInCall = [String]()
     private var cameraController: NCCameraController?
@@ -1171,6 +1173,62 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
         }
     }
 
+    // MARK: - Simulcast
+
+    // Without a selection the MCU relays the highest quality
+    func setSimulcastVideoQuality(_ quality: SimulcastVideoQuality, forPeerId peerId: String) {
+        WebRTCCommon.shared.dispatch {
+            self.simulcastVideoQualities[peerId] = quality
+
+            if let peerConnectionWrapper = self.getPeerConnectionWrapper(forSessionId: peerId, ofType: kRoomTypeVideo) {
+                self.selectSimulcastVideoQualityIfNeeded(for: peerConnectionWrapper)
+            }
+        }
+    }
+
+    private func selectSimulcastVideoQualityIfNeeded(for peerConnectionWrapper: NCPeerConnection) {
+        WebRTCCommon.shared.assertQueue()
+
+        guard let externalSignalingController, externalSignalingController.hasSimulcast,
+              peerConnectionWrapper.roomType == kRoomTypeVideo, !peerConnectionWrapper.isMCUPublisherPeer,
+              peerConnectionWrapper.peerId != self.signalingSessionId,
+              let quality = self.simulcastVideoQualities[peerConnectionWrapper.peerId],
+              quality != peerConnectionWrapper.selectedSimulcastVideoQuality
+        else { return }
+
+        // Before the answer the subscriber might not exist in the MCU yet
+        guard peerConnectionWrapper.getPeerConnection()?.localDescription?.type == .answer else { return }
+
+        let message = NCSelectStreamMessage(from: self.signalingSessionId,
+                                            to: peerConnectionWrapper.peerId,
+                                            sid: peerConnectionWrapper.sid,
+                                            roomType: kRoomTypeVideo,
+                                            quality: quality)
+
+        externalSignalingController.sendCallMessage(message)
+        peerConnectionWrapper.selectedSimulcastVideoQuality = quality
+    }
+
+    // Same layers as web, but ordered from lowest to highest as the VP8 encoder requires
+    private func simulcastSendEncodings() -> [RTCRtpEncodingParameters] {
+        return [
+            // Announced but not sent, keeps web's substream indices, the MCU falls back to medium
+            self.simulcastEncoding(rid: "l", scaleResolutionDownBy: 4, maxBitrateBps: 100_000, isActive: false),
+            self.simulcastEncoding(rid: "m", scaleResolutionDownBy: 2, maxBitrateBps: 300_000),
+            self.simulcastEncoding(rid: "h", scaleResolutionDownBy: 1, maxBitrateBps: 900_000)
+        ]
+    }
+
+    private func simulcastEncoding(rid: String, scaleResolutionDownBy: Double, maxBitrateBps: Int, isActive: Bool = true) -> RTCRtpEncodingParameters {
+        let encoding = RTCRtpEncodingParameters()
+        encoding.rid = rid
+        encoding.scaleResolutionDownBy = NSNumber(value: scaleResolutionDownBy)
+        encoding.maxBitrateBps = NSNumber(value: maxBitrateBps)
+        encoding.isActive = isActive
+
+        return encoding
+    }
+
     // MARK: - External signaling support
 
     private func createPublisherPeerConnection() {
@@ -1201,16 +1259,21 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
             peerConnection.add(localAudioTrack, streamIds: [NCCallController.kNCMediaStreamId])
         }
 
+        let transceiverInit = RTCRtpTransceiverInit()
+        transceiverInit.direction = .sendOnly
+        transceiverInit.streamIds = [NCCallController.kNCMediaStreamId]
+
+        if self.externalSignalingController?.hasSimulcast == true {
+            transceiverInit.sendEncodings = self.simulcastSendEncodings()
+        }
+
         if let localVideoTrack {
-            peerConnection.add(localVideoTrack, streamIds: [NCCallController.kNCMediaStreamId])
+            peerConnection.addTransceiver(with: localVideoTrack, init: transceiverInit)
         } else if self.room.canPublishVideo {
             // In voice only calls, already negotiate a placeholder video m-line (a transceiver
             // without a track), so the call can later be upgraded to a video call by just replacing
             // the sender track. A renegotiation that adds a new m-line to an existing publisher
             // peer connection completes on the SDP level, but the MCU never relays its media.
-            let transceiverInit = RTCRtpTransceiverInit()
-            transceiverInit.direction = .sendOnly
-            transceiverInit.streamIds = [NCCallController.kNCMediaStreamId]
             peerConnection.addTransceiver(of: .video, init: transceiverInit)
         }
 
@@ -1661,6 +1724,10 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
             externalSignalingController.sendCallMessage(message)
         } else {
             signalingController.send(message)
+        }
+
+        if sessionDescription.type == .answer {
+            self.selectSimulcastVideoQualityIfNeeded(for: peerConnection)
         }
     }
 

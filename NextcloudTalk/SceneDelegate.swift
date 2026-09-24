@@ -19,9 +19,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         NCUserInterfaceController.sharedInstance().roomsTableViewController = NCUserInterfaceController.sharedInstance().mainViewController.viewControllers.first?.children.first as? RoomsTableViewController
         NCUserInterfaceController.sharedInstance().mainViewController.displayModeButtonVisibility = .never
 
-        let arguments = ProcessInfo.processInfo.arguments
-
-        if arguments.contains("-TestEnvironment") {
+        if NCUtils.isTestEnvironment {
             let mainView: UIView = NCUserInterfaceController.sharedInstance().mainViewController.view
 
             let debugLabel = UILabel(frame: CGRect(x: 20, y: 30, width: 200, height: 20))
