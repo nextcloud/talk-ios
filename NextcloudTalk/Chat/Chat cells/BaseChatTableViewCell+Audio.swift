@@ -22,6 +22,10 @@ extension BaseChatTableViewCell {
                 audioPlayerView.rightAnchor.constraint(lessThanOrEqualTo: self.messageBodyView.rightAnchor)
             ])
         }
+
+        if let fileParameter = message.file() {
+            self.restoreDownloadState(for: fileParameter)
+        }
     }
 
     func prepareForReuseAudioCell() {
