@@ -767,6 +767,15 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         self.statusView.addArrangedSubview(fileActivityIndicator)
     }
 
+    func restoreDownloadState(for fileParameter: NCMessageFileParameter) {
+        guard let fileStatus = ChatFileDownloader.shared.downloadStatus(forFileId: fileParameter.parameterId),
+              fileStatus.isStatus(for: fileParameter),
+              fileStatus.isDownloading
+        else { return }
+
+        self.addActivityIndicator(with: fileStatus.canReportProgress ? fileStatus.downloadProgress : 0)
+    }
+
     // MARK: - File notifications
 
     @objc func didChangeIsDownloading(notification: Notification) {

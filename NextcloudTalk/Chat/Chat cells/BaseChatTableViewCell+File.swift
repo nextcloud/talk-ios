@@ -99,6 +99,8 @@ extension BaseChatTableViewCell {
 
         if !message.sendingFailed, message.isTemporary {
             self.addActivityIndicator(with: 0)
+        } else if let fileParameter = message.file() {
+            self.restoreDownloadState(for: fileParameter)
         }
 
         if let contactImage = message.file().contactPhotoImage {

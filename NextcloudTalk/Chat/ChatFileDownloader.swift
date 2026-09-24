@@ -32,6 +32,11 @@ public class ChatFileDownloader: NSObject {
         }
     }
 
+    @MainActor
+    public func downloadStatus(forFileId fileId: String) -> NCChatFileStatus? {
+        return fileControllers[fileId]?.fileStatus
+    }
+
     private func executeCompletionHandlers(forFileId fileId: String, with result: Result<NCChatFileStatus, ChatFileDownloadError>) {
         DispatchQueue.main.async { [self] in
             fileControllers.removeValue(forKey: fileId)

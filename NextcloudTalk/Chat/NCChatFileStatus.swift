@@ -23,7 +23,7 @@ import Foundation
     }
 
     public func isStatus(for messageFileParameter: NCMessageFileParameter) -> Bool {
-        return self.fileId == messageFileParameter.parameterId && self.filePath == messageFileParameter.path
+        return self.fileId == messageFileParameter.parameterId
     }
 
     public static func getStatus(from notification: Notification, for messageFileParameter: NCMessageFileParameter) -> NCChatFileStatus? {

@@ -20,7 +20,7 @@ public class NCChatFileController: NSObject {
 
     private let account: TalkAccount
     private let deleteFilesOlderThanDays = 7
-    private var fileStatus: NCChatFileStatus?
+    private(set) var fileStatus: NCChatFileStatus?
     private var cancelDownloadHandler: (() -> Void)?
     private var completionHandler: CompletionHandler?
     private var isCancelled = false
@@ -175,16 +175,19 @@ public class NCChatFileController: NSObject {
         self.cancelDownloadHandler?()
         self.cancelDownloadHandler = nil
 
-        if self.fileStatus?.isDownloading == true {
-            self.didChangeIsDownloadingNotification(isDownloading: false)
-        }
-
         self.finish(with: .failure(.cancelled))
     }
 
     public func downloadFile(withFileId fileId: String, completionHandler: @escaping CompletionHandler) {
         self.isCancelled = false
         self.completionHandler = completionHandler
+
+        // Name and path are only known once the file metadata arrives
+        let fileStatus = NCChatFileStatus(fileId: fileId, fileName: "", filePath: "")
+        self.fileStatus = fileStatus
+
+        // Setting just isDownloading without a concrete progress will show an indeterminate activity indicator
+        self.didChangeIsDownloadingNotification(isDownloading: true)
 
         // getFileById already sets up NextcloudKit
         NCAPIController.sharedInstance().getFileById(forAccount: self.account, withFileId: fileId) { file, error in
@@ -201,21 +204,17 @@ public class NCChatFileController: NSObject {
 
             let filePath = "\(directoryPath)\(file.fileName)"
 
-            let fileStatus = NCChatFileStatus(fileId: file.fileId, fileName: file.fileName, filePath: filePath)
-            self.fileStatus = fileStatus
+            fileStatus.fileName = file.fileName
+            fileStatus.filePath = filePath
 
             let serverUrlFileName = "\(self.account.server)\(NCAPIController.sharedInstance().filesPath(forAccount: self.account))/\(fileStatus.filePath)"
             let fileLocalPath = (self.tempDirectoryPath as NSString).appendingPathComponent(fileStatus.fileName)
             fileStatus.fileLocalPath = fileLocalPath
 
-            // Setting just isDownloading without a concrete progress will show an indeterminate activity indicator
-            self.didChangeIsDownloadingNotification(isDownloading: true)
-
             // File exists on server -> check our cache
             if self.isFileInCache(fileLocalPath, withModificationDate: file.date as Date, withSize: file.size) {
                 print("Found file in cache: \(fileLocalPath)")
 
-                self.didChangeIsDownloadingNotification(isDownloading: false)
                 self.finish(with: .success(fileStatus))
 
                 return
@@ -229,8 +228,6 @@ public class NCChatFileController: NSObject {
                 self.cancelDownloadHandler = nil
 
                 guard !self.isCancelled else { return }
-
-                self.didChangeIsDownloadingNotification(isDownloading: false)
 
                 if error.errorCode == 0 {
                     // Set modification date to invalidate our cache
@@ -248,6 +245,10 @@ public class NCChatFileController: NSObject {
 
     /// Reports the outcome of a download, making sure the completion handler runs only once.
     private func finish(with result: Result<NCChatFileStatus, ChatFileDownloadError>) {
+        if self.fileStatus?.isDownloading == true {
+            self.didChangeIsDownloadingNotification(isDownloading: false)
+        }
+
         let completionHandler = self.completionHandler
         self.completionHandler = nil
 
