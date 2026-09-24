@@ -1056,7 +1056,11 @@ private let kShareConfirmationOptionsViewHeight: CGFloat = 44
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: kShareConfirmationCellIdentifier, for: indexPath) as? ShareConfirmationCollectionViewCell
         else { return UICollectionViewCell() }
 
-        let item = self.shareItemController.shareItems[indexPath.row]
+        // removeAllItems() after a send does not reload, so prefetching during the dismissal can still ask for old rows
+        let shareItems = self.shareItemController.shareItems
+        guard indexPath.row < shareItems.count else { return cell }
+
+        let item = shareItems[indexPath.row]
 
         // Setting placeholder here in case we can't generate any other preview
         cell.setPlaceHolderImage(item.placeholderImage)
