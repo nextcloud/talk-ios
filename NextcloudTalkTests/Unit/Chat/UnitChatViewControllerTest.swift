@@ -553,4 +553,92 @@ final class UnitChatViewControllerTest: TestBaseRealm {
         XCTAssertEqual(tableView.numberOfRows(inSection: 1), 2)
         XCTAssertEqual(chatViewController.message(for: IndexPath(row: 1, section: 1))?.messageId, 101)
     }
+
+    private func receiveMessageWithTableViewOutOfSync(desyncMessageTimestamp: (Int) -> Int) throws -> UITableView {
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let room = addRoom(withToken: "batchOutOfSync\(desyncMessageTimestamp(0))")
+        let chatViewController = try XCTUnwrap(ChatViewController(forRoom: room, withAccount: activeAccount))
+        chatViewController.loadViewIfNeeded()
+        let tableView = try XCTUnwrap(chatViewController.tableView)
+
+        let now = Int(Date().timeIntervalSince1970)
+
+        chatViewController.appendMessages(messages: [makeMessage(id: 1, timestamp: now - 86400, actorId: "bob", inRoom: room, withAccount: activeAccount)])
+        tableView.reloadData()
+        tableView.layoutIfNeeded()
+        XCTAssertEqual(tableView.numberOfSections, 1)
+
+        // The data source grows without the tableView being told about it
+        chatViewController.appendMessages(messages: [makeMessage(id: 2, timestamp: desyncMessageTimestamp(now), actorId: "bob", inRoom: room, withAccount: activeAccount)])
+
+        let notification = Notification(name: .NCChatControllerDidReceiveChatMessages,
+                                        object: chatViewController.chatController,
+                                        userInfo: ["messages": [makeMessage(id: 3, timestamp: now, actorId: "bob", inRoom: room, withAccount: activeAccount)]])
+        chatViewController.didReceiveChatMessages(notification: notification)
+
+        let processed = expectation(description: "Processed received messages")
+        DispatchQueue.main.async { processed.fulfill() }
+        wait(for: [processed], timeout: TestConstants.timeoutShort)
+
+        return tableView
+    }
+
+    func testReceivedMessagesWithRowsOutOfSyncDoNotRaise() throws {
+        let tableView = try receiveMessageWithTableViewOutOfSync(desyncMessageTimestamp: { $0 - 86400 + 60 })
+
+        XCTAssertEqual(tableView.numberOfSections, 2)
+        XCTAssertEqual(tableView.numberOfRows(inSection: 0), 2)
+        XCTAssertEqual(tableView.numberOfRows(inSection: 1), 1)
+    }
+
+    func testReceivedMessagesWithSectionsOutOfSyncDoNotRaise() throws {
+        let tableView = try receiveMessageWithTableViewOutOfSync(desyncMessageTimestamp: { $0 - 60 })
+
+        XCTAssertEqual(tableView.numberOfSections, 2)
+        XCTAssertEqual(tableView.numberOfRows(inSection: 0), 1)
+        XCTAssertEqual(tableView.numberOfRows(inSection: 1), 2)
+    }
+
+    private func receiveMessageAfterInvalidatingTableView(token: String, _ invalidate: (UITableView) -> Void) throws {
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        // Unmanaged like in the app, savePendingMessage() writes to it when the window goes away
+        let room = NCRoom(value: addRoom(withToken: token))
+        let chatViewController = try XCTUnwrap(ChatViewController(forRoom: room, withAccount: activeAccount))
+
+        let window = UIWindow(frame: UIScreen.main.bounds)
+        window.rootViewController = chatViewController
+        window.makeKeyAndVisible()
+        defer { window.isHidden = true }
+
+        let tableView = try XCTUnwrap(chatViewController.tableView)
+        let now = Int(Date().timeIntervalSince1970)
+
+        chatViewController.appendMessages(messages: [makeMessage(id: 1, timestamp: now - 86400, actorId: "bob", inRoom: room, withAccount: activeAccount)])
+        tableView.reloadData()
+        tableView.layoutIfNeeded()
+        XCTAssertEqual(tableView.numberOfSections, 1)
+
+        invalidate(tableView)
+
+        let notification = Notification(name: .NCChatControllerDidReceiveChatMessages,
+                                        object: chatViewController.chatController,
+                                        userInfo: ["messages": [makeMessage(id: 2, timestamp: now, actorId: "bob", inRoom: room, withAccount: activeAccount)]])
+        chatViewController.didReceiveChatMessages(notification: notification)
+
+        let processed = expectation(description: "Processed received messages")
+        DispatchQueue.main.async { processed.fulfill() }
+        wait(for: [processed], timeout: TestConstants.timeoutShort)
+
+        XCTAssertEqual(tableView.numberOfSections, 2)
+    }
+
+    func testReceivedMessagesAfterContentSizeCategoryChangeDoNotRaise() throws {
+        try XCTSkipUnless(ProcessInfo.processInfo.isOperatingSystemAtLeast(OperatingSystemVersion(majorVersion: 17, minorVersion: 0, patchVersion: 0)))
+
+        try receiveMessageAfterInvalidatingTableView(token: "traitContentSize") { tableView in
+            if #available(iOS 17.0, *) {
+                tableView.traitOverrides.preferredContentSizeCategory = .accessibilityLarge
+            }
+        }
+    }
 }

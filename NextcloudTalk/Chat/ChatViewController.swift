@@ -1668,6 +1668,18 @@ import SwiftUI
             let firstNewMessagesAfterHistory = notification.userInfo?["firstNewMessagesAfterHistory"] as? Bool ?? false
 
             if let messages = notification.userInfo?["messages"] as? [NCChatMessage], let tableView = self.tableView, !messages.isEmpty {
+                // A pending trait change drops the tableView's cached row counts when applied, so apply it before the data
+                // source changes, otherwise the batch update is validated against a state that already contains the messages
+                tableView.layoutIfNeeded()
+
+                let tableViewRowsPerSection = (0..<tableView.numberOfSections).map { tableView.numberOfRows(inSection: $0) }
+                let dataSourceRowsPerSection = self.dateSections.map { self.messages[$0]?.count ?? 0 }
+
+                if tableViewRowsPerSection != dataSourceRowsPerSection {
+                    NCLog.log("Chat tableView out of sync before receiving \(messages.count) messages, tableView: \(tableViewRowsPerSection), data source: \(dataSourceRowsPerSection)")
+                    tableView.reloadData()
+                }
+
                 // Detect if we should scroll to new messages before we issue a reloadData
                 // Otherwise longer messages will prevent scrolling
                 let shouldScrollOnNewMessages = self.shouldScrollOnNewMessages()
