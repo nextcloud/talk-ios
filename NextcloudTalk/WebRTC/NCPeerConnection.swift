@@ -351,7 +351,7 @@ public class NCPeerConnection: NSObject {
                 guard let self else { return }
 
                 if self.isMCUPublisherPeer {
-                    let mcuSdp = RTCSessionDescription(type: sdpPreferringCodec.type, sdp: self.sdpWithReversedSimulcastLayers(sdpPreferringCodec.sdp))
+                    let mcuSdp = RTCSessionDescription(type: sdpPreferringCodec.type, sdp: NCPeerConnection.sdpWithReversedSimulcastLayers(sdpPreferringCodec.sdp))
                     self.delegate?.peerConnection(self, needsToSend: mcuSdp)
                 } else {
                     self.delegate?.peerConnection(self, needsToSend: sdpPreferringCodec)
@@ -433,7 +433,7 @@ public class NCPeerConnection: NSObject {
     }
 
     // The MCU treats the first rid as the highest layer, the encoder requires them from lowest to highest
-    private func sdpWithReversedSimulcastLayers(_ sdp: String) -> String {
+    static func sdpWithReversedSimulcastLayers(_ sdp: String) -> String {
         let simulcastPrefix = "a=simulcast:send "
         var lines = sdp.components(separatedBy: "\r\n")
 
