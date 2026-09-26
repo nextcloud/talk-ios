@@ -706,5 +706,21 @@
 			<string>{actor0} and %ld more participants left the call</string>
 		</dict>
 	</dict>
+	<key>%ld unread messages</key>
+	<dict>
+    	<key>NSStringLocalizedFormatKey</key>
+    	<string>%#@count@</string>
+    	<key>count</key>
+    	<dict>
+        	<key>NSStringFormatSpecTypeKey</key>
+        	<string>NSStringPluralRuleType</string>
+        	<key>NSStringFormatValueTypeKey</key>
+        	<string>ld</string>
+        	<key>one</key>
+        	<string>%ld unread message</string>
+        	<key>other</key>
+        	<string>%ld unread messages</string>
+    	</dict>
+	</dict>
 </dict>
 </plist>
