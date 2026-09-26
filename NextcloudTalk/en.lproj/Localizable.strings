@@ -113,6 +113,9 @@
 "%ld replies" = "%ld replies";
 
 /* No comment provided by engineer. */
+"%ld unread messages" = "%ld unread messages";
+
+/* No comment provided by engineer. */
 "'Do not disturb' user status is ignored for important conversations" = "'Do not disturb' user status is ignored for important conversations";
 
 /* No comment provided by engineer. */
@@ -561,6 +564,18 @@
 
 /* No comment provided by engineer. */
 "Calendar" = "Calendar";
+
+/* No comment provided by engineer. */
+"Call" = "Call";
+
+/* No comment provided by engineer. */
+"Call a phone number" = "Call a phone number";
+
+/* No comment provided by engineer. */
+"Call failed" = "Call failed";
+
+/* No comment provided by engineer. */
+"Call in progress" = "Call in progress";
 
 /* No comment provided by engineer. */
 "Call notification sent" = "Call notification sent";
@@ -1352,6 +1367,9 @@
 "High" = "High";
 
 /* No comment provided by engineer. */
+"History" = "History";
+
+/* No comment provided by engineer. */
 "hours" = "hours";
 
 /* No comment provided by engineer. */
@@ -1737,6 +1755,9 @@
 "Nextcloud server not found" = "Nextcloud server not found";
 
 /* No comment provided by engineer. */
+"Nextcloud Talk" = "Nextcloud Talk";
+
+/* No comment provided by engineer. */
 "No" = "No";
 
 /* No comment provided by engineer. */
@@ -1756,6 +1777,9 @@
 
 /* No comment provided by engineer. */
 "No bots available for this conversation" = "No bots available for this conversation";
+
+/* No comment provided by engineer. */
+"No conversations" = "No conversations";
 
 /* No comment provided by engineer. */
 "No description provided" = "No description provided";
@@ -1786,6 +1810,9 @@
 
 /* No comment provided by engineer. */
 "No poll drafts saved yet" = "No poll drafts saved yet";
+
+/* No comment provided by engineer. */
+"No recent calls" = "No recent calls";
 
 /* No comment provided by engineer. */
 "No recent threads" = "No recent threads";
@@ -1951,6 +1978,12 @@
 "Pending invitations" = "Pending invitations";
 
 /* No comment provided by engineer. */
+"Phone" = "Phone";
+
+/* No comment provided by engineer. */
+"Phone dial-out is not available on this server" = "Phone dial-out is not available on this server";
+
+/* No comment provided by engineer. */
 "Phone number" = "Phone number";
 
 /* No comment provided by engineer. */
@@ -2003,6 +2036,9 @@
 
 /* No comment provided by engineer. */
 "Please update." = "Please update.";
+
+/* No comment provided by engineer. */
+"Plus" = "Plus";
 
 /* No comment provided by engineer. */
 "Poll" = "Poll";
@@ -2183,6 +2219,9 @@
 /* Button to retry a failed operation
    Retry downloading the original file */
 "Retry" = "Retry";
+
+/* No comment provided by engineer. */
+"Rooms" = "Rooms";
 
 /* Save conversation description */
 "Save" = "Save";
@@ -2392,6 +2431,9 @@
 /* No comment provided by engineer. */
 "Speech recognition failed" = "Speech recognition failed";
 
+/* No comment provided by engineer. */
+"Speed Dial" = "Speed Dial";
+
 /* Upload images at a reduced size */
 "Standard quality" = "Standard quality";
 
@@ -2461,6 +2503,9 @@
 /* 'Tags' meaning 'Conversation tags' */
 "Tags" = "Tags";
 
+/* No comment provided by engineer. */
+"Talk" = "Talk";
+
 /* Talk to a user */
 "Talk to" = "Talk to";
 
@@ -2504,7 +2549,22 @@
 "The password is wrong" = "The password is wrong";
 
 /* No comment provided by engineer. */
+"The phone conversation could not be created" = "The phone conversation could not be created";
+
+/* No comment provided by engineer. */
+"The phone number is invalid" = "The phone number is invalid";
+
+/* No comment provided by engineer. */
+"The phone participant could not be found" = "The phone participant could not be found";
+
+/* No comment provided by engineer. */
 "The recording might include your voice, video from camera, and screen share. Your consent is required before joining the call." = "The recording might include your voice, video from camera, and screen share. Your consent is required before joining the call.";
+
+/* No comment provided by engineer. */
+"The Talk account is not available" = "The Talk account is not available";
+
+/* No comment provided by engineer. */
+"The Talk conversation could not be created" = "The Talk conversation could not be created";
 
 /* No comment provided by engineer. */
 "The token might be used already or is expired. Please generate a new QR code and retry." = "The token might be used already or is expired. Please generate a new QR code and retry.";
