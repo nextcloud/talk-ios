@@ -293,11 +293,8 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
     }
 
     private func isSIPDialOutAvailable() -> Bool {
-        guard NCDatabaseManager.sharedInstance().serverHasTalkCapability(.sipSupportDialOut),
-              let capabilities = NCDatabaseManager.sharedInstance().serverCapabilities()
-        else { return false }
-
-        return capabilities.callEnabled && capabilities.sipDialOutEnabled
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        return NCTelephonyManager.shared.isDialOutAvailable(for: activeAccount)
     }
 
     @objc private func presentPhoneDialPad() {
@@ -2439,93 +2436,51 @@ private final class PhoneDialPadViewController: UIViewController, UITextFieldDel
     }
 
     @objc private func placeCall() {
-        let phoneNumber = sanitizedPhoneNumber(numberField.text ?? "")
+        let phoneNumber = NCTelephonyManager.shared.sanitizedPhoneNumber(numberField.text ?? "")
         guard !phoneNumber.isEmpty else { return }
 
         setLoading(true)
-        NCLog.log("SIP dial-out requested: number=\(phoneNumber)")
 
-        let objectType = NCDatabaseManager.sharedInstance().serverHasTalkCapability(.sipDirectDialIn) ? "phone_temporary" : "phone_legacy"
-        let parameters: [String: Any] = [
-            "roomType": NCRoomType.group.rawValue,
-            "roomName": phoneNumber,
-            "objectType": objectType,
-        ]
-
-        NCAPIController.sharedInstance().createRoom(forAccount: account, withParameters: parameters) { [weak self] room, error in
+        Task { @MainActor [weak self] in
             guard let self else { return }
 
-            guard error == nil, let room else {
-                NCLog.log("SIP dial-out: unable to create temporary phone room: \(String(describing: error))")
-                self.presentError(NSLocalizedString("An error occurred while calling a phone number", comment: ""))
-                return
-            }
+            do {
+                let preparedCall = try await NCTelephonyManager.shared.prepareDialOut(
+                    phoneNumber: phoneNumber,
+                    for: account
+                )
 
-            NCLog.log("SIP dial-out room ready: room=\(room.token) objectType=\(objectType)")
+                NCRoomsManager.shared.scheduleSIPDialOut(
+                    attendeeId: preparedCall.attendeeId,
+                    forRoomToken: preparedCall.room.token
+                )
 
-            Task { @MainActor [weak self] in
-                guard let self else { return }
+                NCLog.log("SIP dial-out scheduled before dismiss: room=\(preparedCall.room.token) attendee=\(preparedCall.attendeeId)")
 
-                do {
-                    _ = try await NCAPIController.sharedInstance().addParticipant(
-                        phoneNumber,
-                        ofType: "phones",
-                        toRoom: room.token,
-                        forAccount: account
-                    )
-
-                    NCLog.log("SIP dial-out phone participant added: room=\(room.token) number=\(phoneNumber)")
-
-                    let participants = try await NCAPIController.sharedInstance().getParticipants(
-                        forRoom: room.token,
-                        forAccount: account
-                    )
-
-                    guard let phoneParticipant = participants.first(where: { $0.actorType == .phone }) else {
-                        NCLog.log("SIP dial-out: no phones participant found in room=\(room.token)")
-                        throw PhoneDialOutError.phoneParticipantMissing
-                    }
-
-                    let attendeeId = phoneParticipant.attendeeId
-
-                    NCLog.log("SIP dial-out phone participant ready: room=\(room.token) attendee=\(attendeeId)")
-
-                    // Store the attendee before dismissing the dial pad.
+                self.dismiss(animated: true) {
+                    // Keep the attendee pending immediately before CallKit starts.
+                    // This protects the dial-out from controller lifecycle changes
+                    // while dismissing the dial pad.
                     NCRoomsManager.shared.scheduleSIPDialOut(
-                        attendeeId: attendeeId,
-                        forRoomToken: room.token
+                        attendeeId: preparedCall.attendeeId,
+                        forRoomToken: preparedCall.room.token
                     )
 
-                    NCLog.log("SIP dial-out scheduled before dismiss: room=\(room.token) attendee=\(attendeeId)")
+                    NCLog.log("SIP dial-out scheduled immediately before CallKit: room=\(preparedCall.room.token) attendee=\(preparedCall.attendeeId)")
 
-                    self.dismiss(animated: true) {
-                        // Re-schedule immediately before CallKit starts the call.
-                        //
-                        // Dismissing the dial pad can trigger room/controller lifecycle
-                        // changes. Re-inserting the same attendee here makes sure that
-                        // CallViewController can consume it when NCCallController reports
-                        // that the Talk call has actually been joined.
-                        NCRoomsManager.shared.scheduleSIPDialOut(
-                            attendeeId: attendeeId,
-                            forRoomToken: room.token
-                        )
-
-                        NCLog.log("SIP dial-out scheduled immediately before CallKit: room=\(room.token) attendee=\(attendeeId)")
-
-                        CallKitManager.sharedInstance().startCall(
-                            room.token,
-                            withVideoEnabled: false,
-                            andDisplayName: phoneNumber,
-                            asInitiator: true,
-                            silently: false,
-                            recordingConsent: true,
-                            withAccountId: self.account.accountId
-                        )
-                    }
-                } catch {
-                    NCLog.log("Unable to prepare SIP dial-out: \(error)")
-                    self.presentError(NSLocalizedString("Phone number could not be called", comment: ""))
+                    CallKitManager.sharedInstance().startCall(
+                        preparedCall.room.token,
+                        withVideoEnabled: false,
+                        andDisplayName: preparedCall.phoneNumber,
+                        asInitiator: true,
+                        silently: false,
+                        recordingConsent: true,
+                        withAccountId: self.account.accountId
+                    )
                 }
+            } catch {
+                NCLog.log("Unable to prepare SIP dial-out: \(error)")
+                self.presentError(error.localizedDescription)
             }
         }
     }
@@ -2537,7 +2492,4 @@ private final class PhoneDialPadViewController: UIViewController, UITextFieldDel
         present(alert, animated: true)
     }
 
-    private enum PhoneDialOutError: Error {
-        case phoneParticipantMissing
-    }
 }
