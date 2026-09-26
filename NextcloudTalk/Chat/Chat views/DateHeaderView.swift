@@ -51,17 +51,21 @@ class DateHeaderView: UITableViewHeaderFooterView {
 
         labelBackgroundView.clipsToBounds = true
 
+        addSubview(labelBackgroundView)
+
         if #available(iOS 26.0, *) {
             // A flat color is adjusted until it equals the text color when the header touches the navigation
             // bar, glass stays legible, but animates itself in when created, so these views have to be reused
-            labelGlassView = labelBackgroundView.addGlassView()
-            labelGlassView?.layer.masksToBounds = true
+            let glassView = labelBackgroundView.addGlassView()
+            glassView.layer.masksToBounds = true
+            labelGlassView = glassView
+
+            // Inside the effect view, so the label and the glass behind it are adapted as one element
+            glassView.contentView.addSubview(titleLabel)
         } else {
             labelBackgroundView.backgroundColor = .secondarySystemGroupedBackground
+            labelBackgroundView.addSubview(titleLabel)
         }
-
-        addSubview(labelBackgroundView)
-        addSubview(titleLabel)
 
         labelBackgroundView.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -78,19 +82,22 @@ class DateHeaderView: UITableViewHeaderFooterView {
     }
 
     private func setupConstraints() {
+        // The glass contentView on iOS 26, labelBackgroundView below that
+        guard let labelContainer = titleLabel.superview else { return }
+
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(greaterThanOrEqualTo: topAnchor, constant: DateHeaderView.verticalPadding / 2),
-            titleLabel.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -DateHeaderView.verticalPadding / 2),
-            titleLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
+            titleLabel.topAnchor.constraint(equalTo: labelContainer.topAnchor),
+            titleLabel.bottomAnchor.constraint(equalTo: labelContainer.bottomAnchor),
+            titleLabel.leadingAnchor.constraint(equalTo: labelContainer.leadingAnchor),
+            titleLabel.trailingAnchor.constraint(equalTo: labelContainer.trailingAnchor),
 
-            titleLabel.leadingAnchor.constraint(greaterThanOrEqualTo: safeAreaLayoutGuide.leadingAnchor, constant: DateHeaderView.horizontalPadding / 2),
-            titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: safeAreaLayoutGuide.trailingAnchor, constant: -DateHeaderView.horizontalPadding / 2),
-            titleLabel.centerXAnchor.constraint(equalTo: safeAreaLayoutGuide.centerXAnchor),
+            labelBackgroundView.topAnchor.constraint(greaterThanOrEqualTo: topAnchor, constant: DateHeaderView.verticalPadding / 2),
+            labelBackgroundView.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -DateHeaderView.verticalPadding / 2),
+            labelBackgroundView.centerYAnchor.constraint(equalTo: centerYAnchor),
 
-            labelBackgroundView.topAnchor.constraint(equalTo: titleLabel.topAnchor),
-            labelBackgroundView.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
-            labelBackgroundView.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
-            labelBackgroundView.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
+            labelBackgroundView.leadingAnchor.constraint(greaterThanOrEqualTo: safeAreaLayoutGuide.leadingAnchor, constant: DateHeaderView.horizontalPadding / 2),
+            labelBackgroundView.trailingAnchor.constraint(lessThanOrEqualTo: safeAreaLayoutGuide.trailingAnchor, constant: -DateHeaderView.horizontalPadding / 2),
+            labelBackgroundView.centerXAnchor.constraint(equalTo: safeAreaLayoutGuide.centerXAnchor),
 
             heightAnchor.constraint(lessThanOrEqualToConstant: DateHeaderView.maxHeight)
         ])
