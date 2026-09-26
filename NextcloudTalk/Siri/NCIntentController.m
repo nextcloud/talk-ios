@@ -5,6 +5,7 @@
 
 #import <Intents/INInteraction.h>
 #import <Intents/INSendMessageIntent.h>
+#import <Intents/INStartCallIntent.h>
 #import <Intents/INSendMessageIntent+UserNotifications.h>
 #import <Intents/INSpeakableString.h>
 #import <Intents/INOutgoingMessageType.h>
@@ -86,6 +87,8 @@
 
 - (void)donateSendMessageIntentForRoom:(NCRoom *)room
 {
+    [self donateCallIntentForRoom:room];
+
     // When the system suggest to write a message to "someone", we don't receive the conversationIdentifier.
     // Therefore we also add a recipient here, although it's technically not a "Person", but a "Room".
     INPersonHandle *handle = [[INPersonHandle alloc] initWithValue:nil type:INPersonHandleTypeUnknown];
@@ -117,6 +120,49 @@
             INImage *intentImage = [INImage imageWithUIImage:image];
             [sendMessageIntent setImage:intentImage forParameterNamed:@"speakableGroupName"];
             [self donateMessageSentIntent:sendMessageIntent];
+        }
+    }];
+}
+
+- (void)donateCallIntentForRoom:(NCRoom *)room
+{
+    // Siri needs app-specific people in the calling domain, not only in the
+    // messaging domain. Donate one-to-one Talk rooms as native Talk call
+    // destinations. The prefixed custom identifier is later used by the main
+    // app to keep Talk calls distinct from PSTN calls.
+    if (room.type != kNCRoomTypeOneToOne || !room.canStartCall || room.internalId.length == 0) {
+        return;
+    }
+
+    NSString *customIdentifier = [@"talk-room:" stringByAppendingString:room.internalId];
+    NSString *handleValue = room.name.length > 0 ? room.name : room.displayName;
+    INPersonHandle *handle = [[INPersonHandle alloc] initWithValue:handleValue type:INPersonHandleTypeUnknown];
+    INPerson *person = [[INPerson alloc]
+                        initWithPersonHandle:handle
+                        nameComponents:nil
+                        displayName:room.displayName
+                        image:nil
+                        contactIdentifier:nil
+                        customIdentifier:customIdentifier];
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    INStartCallIntent *callIntent = [[INStartCallIntent alloc]
+                                     initWithCallRecordFilter:nil
+                                     callRecordToCallBack:nil
+                                     audioRoute:INCallAudioRouteUnknown
+                                     destinationType:INCallDestinationTypeNormal
+                                     contacts:@[person]
+                                     callCapability:INCallCapabilityAudioCall];
+#pragma clang diagnostic pop
+
+    INInteraction *interaction = [[INInteraction alloc] initWithIntent:callIntent response:nil];
+    interaction.direction = INInteractionDirectionOutgoing;
+    [interaction donateInteractionWithCompletion:^(NSError * _Nullable error) {
+        if (error) {
+            NSLog(@"Failed to donate Talk call intent for %@: %@", room.displayName, error.description);
+        } else {
+            NSLog(@"Talk call intent donated for %@", room.displayName);
         }
     }];
 }

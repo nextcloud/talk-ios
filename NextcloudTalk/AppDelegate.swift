@@ -6,6 +6,7 @@
 import UIKit
 import PushKit
 import Intents
+import Contacts
 import UserNotifications
 import BackgroundTasks
 import SDWebImage
@@ -91,11 +92,41 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
         // When we include VLCKit we need to manually call this because otherwise, device rotation might not work
         UIDevice.current.beginGeneratingDeviceOrientationNotifications()
 
+        // Required for the CarPlay assistant cell / SiriKit call flow.
+        // The usage description and Siri entitlement remain configured in the
+        // app target. Requesting again is harmless once authorization is known.
+        INPreferences.requestSiriAuthorization { status in
+            NCLog.log("Siri authorization status: \(status.rawValue)")
+        }
+
         return true
     }
 
     func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
         let intent = userActivity.interaction?.intent
+
+        // Modern Siri / CarPlay call intent. The Intents extension deliberately
+        // accepts a spoken person even when Siri has not attached a Talk
+        // customIdentifier or a phone number yet. The containing app has access
+        // to both the Talk directory and the iPhone address book, so the final
+        // destination resolution happens here.
+        if let startCallIntent = intent as? INStartCallIntent {
+            NCLog.log("Siri/CarPlay INStartCallIntent received contacts=\(startCallIntent.contacts?.count ?? 0)")
+
+            guard let person = startCallIntent.contacts?.first else {
+                NCLog.log("Siri/CarPlay call rejected: no contact supplied")
+                return false
+            }
+
+            Task { @MainActor in
+                await self.routeSiriStartCall(person)
+            }
+
+            return true
+        }
+
+        // Keep compatibility with the legacy call intents already supported by
+        // Talk on older iOS versions.
         let audioCallIntent = intent is INStartAudioCallIntent
         let videoCallIntent = intent is INStartVideoCallIntent
         if audioCallIntent || videoCallIntent {
@@ -119,6 +150,261 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
         }
 
         return true
+    }
+
+    @MainActor
+    private func routeSiriStartCall(_ person: INPerson) async {
+        do {
+            // 1. A Talk identity donated by the app is authoritative. This is
+            // how Siri can distinguish a native Talk destination from a PSTN
+            // contact with the same display name.
+            if let customIdentifier = person.customIdentifier,
+               customIdentifier.hasPrefix("talk-room:") {
+                let internalId = String(customIdentifier.dropFirst("talk-room:".count))
+
+                guard let room = NCDatabaseManager.sharedInstance().room(withInternalId: internalId) else {
+                    NCLog.log("Siri/CarPlay Talk target not found: internalId=\(internalId)")
+                    return
+                }
+
+                NCLog.log("Siri/CarPlay target resolved: Talk room=\(room.token)")
+                try await NCCallRouter.shared.call(.room(room))
+                return
+            }
+
+            // Compatibility with older Talk donations where the room internal
+            // id was stored directly without the talk-room: prefix.
+            if let customIdentifier = person.customIdentifier,
+               !customIdentifier.isEmpty,
+               let room = NCDatabaseManager.sharedInstance().room(withInternalId: customIdentifier) {
+                NCLog.log("Siri/CarPlay target resolved: legacy Talk room=\(room.token)")
+                try await NCCallRouter.shared.call(.room(room))
+                return
+            }
+
+            // 2. If Siri already resolved a phone handle, respect it. Do not
+            // override an explicit phone destination with a Talk directory hit.
+            if let handle = person.personHandle,
+               handle.type == .phoneNumber,
+               let phoneNumber = handle.value,
+               !phoneNumber.isEmpty {
+                NCLog.log("Siri/CarPlay target resolved directly: PSTN number=\(phoneNumber)")
+                try await NCCallRouter.shared.call(
+                    .phoneNumber(number: phoneNumber, displayName: person.displayName)
+                )
+                return
+            }
+
+            // Siri may resolve a CNContact but omit the actual phone handle in
+            // the intent. Resolve the contactIdentifier before doing a name
+            // based search.
+            if let phoneNumber = await phoneNumberFromAddressBook(
+                contactIdentifier: person.contactIdentifier,
+                displayName: person.displayName
+            ) {
+                NCLog.log("Siri/CarPlay target resolved from iPhone contact: PSTN number=\(phoneNumber)")
+                try await NCCallRouter.shared.call(
+                    .phoneNumber(number: phoneNumber, displayName: person.displayName)
+                )
+                return
+            }
+
+            let spokenName = person.displayName.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !spokenName.isEmpty else {
+                NCLog.log("Siri/CarPlay call rejected: empty display name")
+                return
+            }
+
+            // 3. Siri only gave us a spoken name. Search the Talk directory
+            // first because the user explicitly chose Talk as the calling app.
+            let account = NCDatabaseManager.sharedInstance().activeAccount()
+            if let talkUser = await findTalkUser(named: spokenName, account: account) {
+                NCLog.log("Siri/CarPlay target resolved from Talk directory: user=\(talkUser.userId) name=\(talkUser.name)")
+                try await NCCallRouter.shared.call(
+                    .talkUser(userId: talkUser.userId, displayName: talkUser.name),
+                    for: account
+                )
+                return
+            }
+
+            // 4. Not a Talk user: fall back to the iPhone address book and
+            // route the selected number through our SIP/PSTN path.
+            if let phoneNumber = await phoneNumberFromAddressBook(
+                contactIdentifier: nil,
+                displayName: spokenName
+            ) {
+                NCLog.log("Siri/CarPlay target resolved from address book name: PSTN number=\(phoneNumber)")
+                try await NCCallRouter.shared.call(
+                    .phoneNumber(number: phoneNumber, displayName: spokenName),
+                    for: account
+                )
+                return
+            }
+
+            NCLog.log("Siri/CarPlay call rejected: no Talk or PSTN target found for '\(spokenName)'")
+        } catch {
+            NCLog.log("Siri/CarPlay call routing failed: \(error)")
+        }
+    }
+
+    private func findTalkUser(named name: String, account: TalkAccount) async -> NCUser? {
+        await withCheckedContinuation { continuation in
+            NCAPIController.sharedInstance().getContacts(
+                forAccount: account,
+                forRoom: nil,
+                forGroupRoom: false,
+                withSearchParam: name
+            ) { users, error in
+                guard error == nil, let users, !users.isEmpty else {
+                    NCLog.log("Siri: Talk directory search returned no result for '\(name)'")
+                    continuation.resume(returning: nil)
+                    return
+                }
+
+                let normalizedName = self.normalizedPersonName(name)
+                let exactMatches = users.filter {
+                    self.normalizedPersonName($0.name) == normalizedName
+                }
+
+                if exactMatches.count == 1 {
+                    continuation.resume(returning: exactMatches[0])
+                    return
+                }
+
+                // The Talk autocomplete endpoint is already scoped to call
+                // targets. A single returned result is safe to accept even if
+                // Siri's spelling differs slightly from the server display name.
+                if users.count == 1 {
+                    continuation.resume(returning: users[0])
+                    return
+                }
+
+                NCLog.log("Siri: ambiguous Talk directory search for '\(name)': \(users.count) results")
+                continuation.resume(returning: nil)
+            }
+        }
+    }
+
+    private func phoneNumberFromAddressBook(contactIdentifier: String?, displayName: String) async -> String? {
+        guard await ensureContactsAuthorization() else {
+            NCLog.log("Siri: Contacts access is not authorized")
+            return nil
+        }
+
+        let store = CNContactStore()
+        let keys: [CNKeyDescriptor] = [
+            CNContactIdentifierKey as CNKeyDescriptor,
+            CNContactGivenNameKey as CNKeyDescriptor,
+            CNContactFamilyNameKey as CNKeyDescriptor,
+            CNContactPhoneNumbersKey as CNKeyDescriptor
+        ]
+
+        do {
+            // A concrete contactIdentifier should normally already have been
+            // disambiguated by TalkCallIntents. Never choose the first of
+            // several phone numbers here; only accept one unique destination.
+            if let contactIdentifier, !contactIdentifier.isEmpty {
+                let contact = try store.unifiedContact(withIdentifier: contactIdentifier, keysToFetch: keys)
+                let numbers = uniquePhoneNumbers(from: [contact])
+
+                if numbers.count == 1 {
+                    return numbers[0]
+                }
+
+                if numbers.count > 1 {
+                    NCLog.log("Siri: contact '\(displayName)' still has \(numbers.count) phone destinations after intent resolution")
+                }
+                return nil
+            }
+
+            let trimmedName = displayName.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmedName.isEmpty else { return nil }
+
+            let contacts = try store.unifiedContacts(
+                matching: CNContact.predicateForContacts(matchingName: trimmedName),
+                keysToFetch: keys
+            )
+
+            guard !contacts.isEmpty else {
+                NCLog.log("Siri: no iPhone contact found for '\(trimmedName)'")
+                return nil
+            }
+
+            let normalizedName = normalizedPersonName(trimmedName)
+            let exactMatches = contacts.filter { contact in
+                let components = [contact.givenName, contact.familyName]
+                    .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                    .filter { !$0.isEmpty }
+
+                guard !components.isEmpty else { return false }
+                return normalizedPersonName(components.joined(separator: " ")) == normalizedName
+            }
+
+            let relevantContacts = exactMatches.isEmpty ? contacts : exactMatches
+            let numbers = uniquePhoneNumbers(from: relevantContacts)
+
+            if numbers.count == 1 {
+                return numbers[0]
+            }
+
+            if numbers.count > 1 {
+                NCLog.log("Siri: ambiguous iPhone phone destinations for '\(trimmedName)': \(numbers.count) unique numbers")
+            } else {
+                NCLog.log("Siri: iPhone contacts found for '\(trimmedName)' but none has a phone number")
+            }
+            return nil
+        } catch {
+            NCLog.log("Siri: Contacts lookup failed for '\(displayName)': \(error)")
+            return nil
+        }
+    }
+
+    private func uniquePhoneNumbers(from contacts: [CNContact]) -> [String] {
+        var numbers: [String] = []
+        var seen = Set<String>()
+
+        for contact in contacts {
+            for labeledNumber in contact.phoneNumbers {
+                let number = labeledNumber.value.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !number.isEmpty else { continue }
+
+                let normalized = normalizedPhoneNumber(number)
+                guard !normalized.isEmpty, seen.insert(normalized).inserted else { continue }
+                numbers.append(number)
+            }
+        }
+
+        return numbers
+    }
+
+    private func normalizedPhoneNumber(_ value: String) -> String {
+        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        let digits = trimmed.filter(\.isNumber)
+        return trimmed.hasPrefix("+") ? "+" + digits : digits
+    }
+
+    private func ensureContactsAuthorization() async -> Bool {
+        let status = CNContactStore.authorizationStatus(for: .contacts)
+
+        if status == .authorized {
+            return true
+        }
+
+        if status != .notDetermined {
+            return false
+        }
+
+        return await withCheckedContinuation { continuation in
+            CNContactStore().requestAccess(for: .contacts) { granted, _ in
+                continuation.resume(returning: granted)
+            }
+        }
+    }
+
+    private func normalizedPersonName(_ value: String) -> String {
+        value
+            .folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     // The active/inactive/background/foreground transitions are dispatched per-scene, so they live on SceneDelegate as

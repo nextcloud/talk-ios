@@ -1101,6 +1101,25 @@ class CallViewController: UIViewController,
     func callControllerDidJoinCall(_ callController: NCCallController) {
         self.setCallStateForPeersInCall()
 
+        if let attendeeId = NCRoomsManager.shared.consumeSIPDialOut(forRoomToken: room.token) {
+            NCLog.log("Starting SIP dial-out: room=\(room.token) attendee=\(attendeeId)")
+
+            Task { @MainActor in
+                do {
+                    _ = try await NCAPIController.sharedInstance().dialOutPhone(
+                        attendeeId: attendeeId,
+                        inRoom: room.token,
+                        forAccount: account
+                    )
+
+                    NCLog.log("SIP dial-out request accepted: room=\(room.token) attendee=\(attendeeId)")
+                } catch {
+                    NCLog.log("SIP dial-out failed: room=\(room.token) attendee=\(attendeeId) error=\(error)")
+                    CallKitManager.sharedInstance().endCall(room.token, withStatusCode: 0)
+                }
+            }
+        }
+
         // Show chat if it was visible before room switch
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             if self.showChatAfterRoomSwitch, self.chatViewController == nil {

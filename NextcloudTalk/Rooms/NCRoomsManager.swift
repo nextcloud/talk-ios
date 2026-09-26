@@ -55,6 +55,7 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
     private var highlightMessageDict: [AnyHashable: Any]?
     private var showThreadPushNotification: NCPushNotification?
     private var pendingPrivateReplyInternalId: String?
+    private var pendingSIPDialOutAttendees: [String: Int] = [:]
 
     override init() {
         super.init()
@@ -544,6 +545,27 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
 
     // MARK: - Call
 
+    public func scheduleSIPDialOut(attendeeId: Int, forRoomToken token: String) {
+        pendingSIPDialOutAttendees[token] = attendeeId
+        NCLog.log("SIP dial-out scheduled: room=\(token) attendee=\(attendeeId)")
+    }
+
+    public func hasPendingSIPDialOut(forRoomToken token: String) -> Bool {
+        return pendingSIPDialOutAttendees[token] != nil
+    }
+
+    public func consumeSIPDialOut(forRoomToken token: String) -> Int? {
+        let attendeeId = pendingSIPDialOutAttendees.removeValue(forKey: token)
+
+        if let attendeeId {
+            NCLog.log("SIP dial-out consumed: room=\(token) attendee=\(attendeeId)")
+        } else {
+            NCLog.log("No pending SIP dial-out for room=\(token)")
+        }
+
+        return attendeeId
+    }
+
     // swiftlint:disable:next function_parameter_count
     public func startCall(withVideo video: Bool, inRoom room: NCRoom, withVideoEnabled videoEnabled: Bool, asInitiator initiator: Bool, silently: Bool, withRecordingConsent recordingConsent: Bool, withVoiceChatMode voiceChatMode: Bool) {
         guard self.callViewController == nil else {
@@ -553,6 +575,67 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
 
         guard let account = room.account else {
             NCLog.log("Trying to start call in room \(room.token ?? "(Unknown)") without account")
+            return
+        }
+
+        // A call started from an existing phone room (history, chat or later Siri)
+        // reaches this method through CallKit without having passed through the
+        // dial pad. Prepare the phone attendee before joining the Talk call.
+        if NCTelephonyManager.shared.isPhoneRoom(room),
+           !hasPendingSIPDialOut(forRoomToken: room.token) {
+
+            NCLog.log("Preparing existing SIP phone room before call: room=\(room.token)")
+
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+
+                do {
+                    let preparedCall = try await NCTelephonyManager.shared.prepareDialOut(in: room, for: account)
+                    self.scheduleSIPDialOut(
+                        attendeeId: preparedCall.attendeeId,
+                        forRoomToken: preparedCall.room.token
+                    )
+
+                    NCLog.log("Existing SIP phone room prepared: room=\(preparedCall.room.token) attendee=\(preparedCall.attendeeId)")
+
+                    self.startPreparedCall(
+                        withVideo: video,
+                        inRoom: room,
+                        withVideoEnabled: videoEnabled,
+                        asInitiator: initiator,
+                        silently: silently,
+                        withRecordingConsent: recordingConsent,
+                        withVoiceChatMode: voiceChatMode
+                    )
+                } catch {
+                    NCLog.log("Unable to prepare existing SIP phone room: \(error)")
+                    CallKitManager.sharedInstance().endCall(room.token, withStatusCode: 0)
+                }
+            }
+
+            return
+        }
+
+        startPreparedCall(
+            withVideo: video,
+            inRoom: room,
+            withVideoEnabled: videoEnabled,
+            asInitiator: initiator,
+            silently: silently,
+            withRecordingConsent: recordingConsent,
+            withVoiceChatMode: voiceChatMode
+        )
+    }
+
+    // swiftlint:disable:next function_parameter_count
+    private func startPreparedCall(withVideo video: Bool, inRoom room: NCRoom, withVideoEnabled videoEnabled: Bool, asInitiator initiator: Bool, silently: Bool, withRecordingConsent recordingConsent: Bool, withVoiceChatMode voiceChatMode: Bool) {
+        guard self.callViewController == nil else {
+            print("Not starting prepared call due to in another call.")
+            return
+        }
+
+        guard let account = room.account else {
+            NCLog.log("Trying to start prepared call in room \(room.token ?? "(Unknown)") without account")
             return
         }
 
@@ -575,15 +658,9 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
             let extSignalingRoomToken = extSignalingController.currentRoom
 
             if extSignalingRoomToken != joiningRoomToken {
-                // Since we are going to join another conversation, we don't need to leaveRoom() in extSignalingController.
-                // That's why we set currentRoom = nil, so when leaveRoom() is called in extSignalingController the currentRoom
-                // is no longer the room we want to leave (so no message is sent to the external signaling server).
                 extSignalingController.currentRoom = nil
             }
 
-            // Make sure the external signaling contoller is connected.
-            // Could be that the call has been received while the app was inactive or in the background,
-            // so the external signaling controller might be disconnected at this point.
             if extSignalingController.disconnected {
                 extSignalingController.forceConnect()
             }
@@ -591,10 +668,8 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
 
         if let chatViewController {
             if chatViewControllerRoomToken == joiningRoomToken {
-                // We're in the chat of the room we want to start a call, so stop chat for now
                 chatViewController.stopChat()
             } else {
-                // We're in a different chat, so make sure we leave the chat and go back to the conversation list
                 chatViewController.leaveChat()
                 NCUserInterfaceController.sharedInstance().presentConversationsList()
             }

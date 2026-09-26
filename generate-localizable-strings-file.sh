@@ -13,14 +13,10 @@ STABLE_BRANCH=$(<.tx/backport)
 if [[ "$CURRENT_BRANCH" != $STABLE_BRANCH && ! "$CURRENT_BRANCH" =~ ^backport/[[:digit:]]+/"$STABLE_BRANCH"$ ]]; then
   echo "Not on $STABLE_BRANCH branch, cloning $STABLE_BRANCH branch"
 
-  REMOTE_URL=$(git config --get remote.origin.url)
-  if [ -z "$REMOTE_URL" ]; then
-  	echo "No remote URL found. Please check your git config."
-  	exit 1
-  fi
+  REMOTE_URL="https://github.com/nextcloud/talk-ios.git"
 
-  git clone --branch $STABLE_BRANCH --single-branch --depth 1 $REMOTE_URL $STABLE_BRANCH
-  cd $STABLE_BRANCH
+  git clone --branch "$STABLE_BRANCH" --single-branch --depth 1 "$REMOTE_URL" "$STABLE_BRANCH"
+  cd "$STABLE_BRANCH"
   git submodule update --init
   cd ..
 

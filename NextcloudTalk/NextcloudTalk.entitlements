@@ -2,14 +2,18 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>com.apple.developer.siri</key>
+	<true/>
 	<key>aps-environment</key>
 	<string>development</string>
+	<key>com.apple.developer.carplay-communication</key>
+	<true/>
 	<key>com.apple.developer.usernotifications.communication</key>
 	<true/>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.com.nextcloud.Talk</string>
-		<string>group.com.nextcloud.apps</string>
+		<string>group.com.2MProd.Talk</string>
+		<string>group.com.2MProd.apps</string>
 	</array>
 </dict>
 </plist>

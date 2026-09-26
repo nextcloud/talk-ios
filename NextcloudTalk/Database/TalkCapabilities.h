@@ -21,6 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property BOOL readStatusPrivacy;
 @property BOOL typingPrivacy;
 @property BOOL callEnabled;
+@property BOOL sipDialOutEnabled;
 @property RLMArray<RLMString> *callReactions;
 @property NSString *talkVersion;
 @property BOOL recordingEnabled;
