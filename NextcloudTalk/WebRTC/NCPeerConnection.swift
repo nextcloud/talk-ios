@@ -28,6 +28,9 @@ import WebRTC
 
     /// Called when a peer connection creates a session description.
     func peerConnection(_ peerConnection: NCPeerConnection, needsToSend sessionDescription: RTCSessionDescription)
+
+    /// Called when the first video packet of the remote peer was received.
+    func peerConnectionDidReceiveFirstVideoPacket(_ peerConnection: NCPeerConnection)
 }
 
 public class NCPeerConnection: NSObject {
@@ -49,6 +52,7 @@ public class NCPeerConnection: NSObject {
     var showRemoteVideoInOriginalSize = false
     var addedTime: Int = 0
     var selectedSimulcastVideoQuality: SimulcastVideoQuality?
+    var isRemoteVideoBlockedInMCU = false
 
     /// "peerId-sid"
     var peerIdentifier: String {
@@ -386,6 +390,8 @@ public class NCPeerConnection: NSObject {
             // that is known to work with the MCU (it is what the web client does to block remote videos).
             // Constraints are no longer supported when creating answers (with Unified Plan semantics)
             for transceiver in peerConnection?.transceivers ?? [] where transceiver.mediaType == .video {
+                transceiver.receiver.delegate = self
+
                 if isAudioOnly, transceiver.direction != .inactive {
                     NSLog("Set video transceiver to inactive in audio only peer connection.")
                     transceiver.setDirection(.inactive, error: nil)
@@ -648,6 +654,19 @@ extension NCPeerConnection: RTCDataChannelDelegate {
 
             let messagePayload = message["payload"]
             self.setStatusForDataChannelMessageType(messageType, withPayload: messagePayload)
+        }
+    }
+}
+
+// MARK: - RTCRtpReceiverDelegate
+
+extension NCPeerConnection: RTCRtpReceiverDelegate {
+
+    public func rtpReceiver(_ rtpReceiver: RTCRtpReceiver, didReceiveFirstPacketFor mediaType: RTCRtpMediaType) {
+        guard mediaType == .video else { return }
+
+        WebRTCCommon.shared.dispatch {
+            self.delegate?.peerConnectionDidReceiveFirstVideoPacket(self)
         }
     }
 }

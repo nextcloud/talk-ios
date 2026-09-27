@@ -20,6 +20,10 @@ public class NCSelectStreamMessage: NCSignalingMessage {
         super.init(from: from, to: to, sid: sid, type: MessageTypeValue.selectStream, payload: payload, roomType: roomType, broadcaster: nil)
     }
 
+    init(from: String?, to: String?, sid: String?, roomType: String?, videoEnabled: Bool) {
+        super.init(from: from, to: to, sid: sid, type: MessageTypeValue.selectStream, payload: ["video": videoEnabled], roomType: roomType, broadcaster: nil)
+    }
+
     public override func messageType() -> NCSignalingMessageType {
         return .selectStream
     }

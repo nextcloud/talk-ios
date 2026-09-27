@@ -106,6 +106,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
     private var connectionsDict = [PeerKey: NCPeerConnection]()
     private var pendingOffersDict = [PeerKey: Timer]()
     private var simulcastVideoQualities = [SessionId: SimulcastVideoQuality]()
+    private var remoteVideoBlocked = [SessionId: Bool]()
 
     private var sessionsInCall = [String]()
     private var cameraController: NCCameraController?
@@ -1173,7 +1174,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
         }
     }
 
-    // MARK: - Simulcast
+    // MARK: - Stream selection
 
     // Without a selection the MCU relays the highest quality
     func setSimulcastVideoQuality(_ quality: SimulcastVideoQuality, forPeerId peerId: String) {
@@ -1186,18 +1187,58 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
         }
     }
 
-    private func selectSimulcastVideoQualityIfNeeded(for peerConnectionWrapper: NCPeerConnection) {
+    // Blocking the video in the MCU while it is not shown saves bandwidth, same as web
+    func setRemoteVideoBlocked(_ blocked: Bool, forPeerId peerId: String) {
+        WebRTCCommon.shared.dispatch {
+            self.remoteVideoBlocked[peerId] = blocked
+
+            if let peerConnectionWrapper = self.getPeerConnectionWrapper(forSessionId: peerId, ofType: kRoomTypeVideo) {
+                self.blockRemoteVideoIfNeeded(for: peerConnectionWrapper)
+            }
+        }
+    }
+
+    private func selectStreamsIfNeeded(for peerConnectionWrapper: NCPeerConnection) {
+        self.selectSimulcastVideoQualityIfNeeded(for: peerConnectionWrapper)
+        self.blockRemoteVideoIfNeeded(for: peerConnectionWrapper)
+    }
+
+    // A subscriber only exists in the MCU once it was answered
+    private func signalingControllerForStreamSelection(of peerConnectionWrapper: NCPeerConnection) -> NCExternalSignalingController? {
         WebRTCCommon.shared.assertQueue()
 
-        guard let externalSignalingController, externalSignalingController.hasSimulcast,
+        guard let externalSignalingController, externalSignalingController.hasMCU,
               peerConnectionWrapper.roomType == kRoomTypeVideo, !peerConnectionWrapper.isMCUPublisherPeer,
               peerConnectionWrapper.peerId != self.signalingSessionId,
+              peerConnectionWrapper.getPeerConnection()?.localDescription?.type == .answer
+        else { return nil }
+
+        return externalSignalingController
+    }
+
+    private func blockRemoteVideoIfNeeded(for peerConnectionWrapper: NCPeerConnection) {
+        guard let externalSignalingController = self.signalingControllerForStreamSelection(of: peerConnectionWrapper),
+              externalSignalingController.hasUpdateSdp,
+              let blocked = self.remoteVideoBlocked[peerConnectionWrapper.peerId],
+              blocked != peerConnectionWrapper.isRemoteVideoBlockedInMCU
+        else { return }
+
+        let message = NCSelectStreamMessage(from: self.signalingSessionId,
+                                            to: peerConnectionWrapper.peerId,
+                                            sid: peerConnectionWrapper.sid,
+                                            roomType: kRoomTypeVideo,
+                                            videoEnabled: !blocked)
+
+        externalSignalingController.sendCallMessage(message)
+        peerConnectionWrapper.isRemoteVideoBlockedInMCU = blocked
+    }
+
+    private func selectSimulcastVideoQualityIfNeeded(for peerConnectionWrapper: NCPeerConnection) {
+        guard let externalSignalingController = self.signalingControllerForStreamSelection(of: peerConnectionWrapper),
+              externalSignalingController.hasSimulcast,
               let quality = self.simulcastVideoQualities[peerConnectionWrapper.peerId],
               quality != peerConnectionWrapper.selectedSimulcastVideoQuality
         else { return }
-
-        // Before the answer the subscriber might not exist in the MCU yet
-        guard peerConnectionWrapper.getPeerConnection()?.localDescription?.type == .answer else { return }
 
         let message = NCSelectStreamMessage(from: self.signalingSessionId,
                                             to: peerConnectionWrapper.peerId,
@@ -1727,7 +1768,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
         }
 
         if sessionDescription.type == .answer {
-            self.selectSimulcastVideoQualityIfNeeded(for: peerConnection)
+            self.selectStreamsIfNeeded(for: peerConnection)
         }
     }
 
@@ -1737,6 +1778,12 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
 
     func peerConnection(_ peerConnection: NCPeerConnection, didReceivePeerNick nick: String) {
         self.delegate?.callController(self, didReceiveNick: nick, fromPeer: peerConnection)
+    }
+
+    func peerConnectionDidReceiveFirstVideoPacket(_ peerConnection: NCPeerConnection) {
+        // The keyframe the MCU requests for a substream switch is lost while no media is flowing yet
+        peerConnection.selectedSimulcastVideoQuality = nil
+        self.selectSimulcastVideoQualityIfNeeded(for: peerConnection)
     }
 
     // MARK: - Signaling functions
