@@ -13,6 +13,8 @@ import AVFoundation
 
     private static let nextcloudScheme = "nextcloud:"
 
+    public static let isTestEnvironment = ProcessInfo.processInfo.arguments.contains("-TestEnvironment")
+
     public static func previewImage(forFileExtension fileExtension: String) -> String {
         return previewImage(forFileType: UTType(filenameExtension: fileExtension))
     }
