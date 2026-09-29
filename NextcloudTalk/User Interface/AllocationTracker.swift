@@ -10,14 +10,9 @@ import UIKit
     public static let shared = AllocationTracker()
 
     private var allocationDict: [String: Int] = [:]
-    private lazy var isTestEnvironment = {
-        let arguments = ProcessInfo.processInfo.arguments
-
-        return arguments.contains(where: { $0 == "-TestEnvironment" })
-    }()
 
     public func addAllocation(_ name: String = #fileID) {
-        if !isTestEnvironment {
+        if !NCUtils.isTestEnvironment {
             return
         }
 
@@ -25,7 +20,7 @@ import UIKit
     }
 
     public func removeAllocation(_ name: String = #fileID) {
-        if !isTestEnvironment {
+        if !NCUtils.isTestEnvironment {
             return
         }
 
@@ -41,7 +36,7 @@ import UIKit
     }
 
     override var description: String {
-        if !isTestEnvironment {
+        if !NCUtils.isTestEnvironment {
             return "Not running in testing environment."
         }
 

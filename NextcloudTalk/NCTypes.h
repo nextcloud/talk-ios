@@ -202,7 +202,8 @@ typedef NS_ENUM(NSInteger, NCSignalingMessageType) {
     kNCSignalingMessageTypeRecording,
     kNCSignalingMessageTypeReaction,
     kNCSignalingMessageTypeStartedTyping,
-    kNCSignalingMessageTypeStoppedTyping
+    kNCSignalingMessageTypeStoppedTyping,
+    kNCSignalingMessageTypeSelectStream
 };
 
 typedef NS_ENUM(NSInteger, DetailedOptionsSelectorType) {
