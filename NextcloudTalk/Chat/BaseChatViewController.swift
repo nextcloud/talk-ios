@@ -36,7 +36,8 @@ import Toast
                                                   UITableViewDataSourcePrefetching,
                                                   MessageSeparatorTableViewCellDelegate,
                                                   DateHeaderViewDelegate,
-                                                  PinnedMessageViewDelegate {
+                                                  PinnedMessageViewDelegate,
+                                                  UITextDropDelegate {
 
     // MARK: - Internal var
     internal var messages: [Date: [NCChatMessage]] = [:]
@@ -335,6 +336,7 @@ import Toast
         self.replyMessageView?.addObserver(self, forKeyPath: "visible", options: .new, context: nil)
 
         self.textView.pastableMediaTypes = .images
+        self.textView.textDropDelegate = self
 
         // Allow pasting Memojis and Genmojis
         self.textView.allowsEditingTextAttributes = true
@@ -1804,6 +1806,46 @@ import Toast
                 shareConfirmationVC.shareItemController.addItem(with: image)
             }
         }
+    }
+
+    // MARK: - TextView drop support
+
+    private func isPlainTextDrop(_ drop: UITextDropRequest) -> Bool {
+        // Text files also conform to plain text, but unlike dragged text they have a name
+        return drop.dropSession.items.allSatisfy {
+            $0.itemProvider.hasItemConformingToTypeIdentifier("public.plain-text") && $0.itemProvider.suggestedName == nil
+        }
+    }
+
+    public func textDroppableView(_ textDroppableView: UIView & UITextDroppable, proposalForDrop drop: UITextDropRequest) -> UITextDropProposal {
+        if self.isPlainTextDrop(drop) {
+            return drop.suggestedProposal
+        }
+
+        let proposal = UITextDropProposal(operation: .copy)
+        proposal.dropPerformer = .delegate
+
+        return proposal
+    }
+
+    public func textDroppableView(_ textDroppableView: UIView & UITextDroppable, willPerformDrop drop: UITextDropRequest) {
+        guard !self.isPlainTextDrop(drop),
+              let (shareConfirmationVC, navigationController) = self.createShareConfirmationViewController()
+        else { return }
+
+        shareConfirmationVC.setChatMessage(self.textView.text)
+        self.setChatMessage("")
+
+        // Start loading before presenting, dropped items are only accessible during the drop
+        for dragItem in drop.dropSession.items {
+            dragItem.itemProvider.loadFileRepresentation(forTypeIdentifier: "public.item") { url, error in
+                guard error == nil, let url else { return }
+
+                shareConfirmationVC.shareItemController.addItem(with: url)
+            }
+        }
+
+        self.present(navigationController, animated: true)
     }
 
     // MARK: - PHPhotoPicker Delegate
