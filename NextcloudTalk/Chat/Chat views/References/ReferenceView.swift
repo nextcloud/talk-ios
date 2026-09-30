@@ -11,15 +11,6 @@ class ReferenceView: UIView {
 
     var activityIndicator: MDCActivityIndicator = MDCActivityIndicator(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
 
-    /// A filled card instead of a hairline border, which used the very same translucent colour and so
-    /// would have doubled up. White in both appearances, so the card reads as a panel *lighter* than the
-    /// bubble – the semantic fills darken instead. Light mode needs the higher alpha, starting lighter.
-    private static let backgroundFill = UIColor { traitCollection in
-        let alpha = traitCollection.userInterfaceStyle == .dark ? 0.10 : 0.65
-
-        return UIColor.white.withAlphaComponent(alpha)
-    }
-
     private var aspectRatioConstraint: NSLayoutConstraint?
 
     /// The GIF whose load the indicator is waiting on. A load can outlive the card that started it – by
@@ -76,10 +67,10 @@ class ReferenceView: UIView {
             activityIndicatorView.heightAnchor.constraint(equalToConstant: activityIndicator.frame.height)
         ])
 
-        layer.cornerRadius = 8.0
+        layer.cornerRadius = chatBubbleCardCornerRadius
         layer.masksToBounds = true
 
-        backgroundColor = ReferenceView.backgroundFill
+        backgroundColor = chatBubbleCardFill
 
         self.addSubview(contentView)
     }

@@ -56,7 +56,7 @@ struct RoomInfoDestructiveSection: View {
                         Button(role: .destructive, action: {
                             clearHistory()
                         }, label: {
-                            Text("Delete all", comment: "Short version for confirmation button. Complete text is 'Delete all messages'.")
+                            Text("Delete all", comment: "Short for 'Delete all messages'")
                         })
 
                         Button("Cancel", role: .cancel) {}
