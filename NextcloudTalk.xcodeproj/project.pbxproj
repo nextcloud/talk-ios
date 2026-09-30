@@ -23,6 +23,7 @@
 		1F35F8F02AEEBC1D00044BDA /* SLKDefaultTypingIndicatorView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F66B72B29FA9414003FB168 /* SLKDefaultTypingIndicatorView.m */; };
 		1F35F8F52AEEDA9800044BDA /* SwiftyAttributes in Frameworks */ = {isa = PBXBuildFile; productRef = 1F35F8F42AEEDA9800044BDA /* SwiftyAttributes */; };
 		1F35F8FD2AEEDCCB00044BDA /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CA1CCC91F17C503002FE6A2 /* AudioToolbox.framework */; };
+		1F3F1EBD306A9F3700318056 /* OLMKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F3F1EBC306A9F3700318056 /* OLMKit */; };
 		1F45A1162A01D6EC005FE87D /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 1F45A1152A01D6EC005FE87D /* SDWebImage */; };
 		1F45A11A2A01D70E005FE87D /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 1F45A1192A01D70E005FE87D /* SDWebImage */; };
 		1F45A11E2A01D719005FE87D /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 1F45A11D2A01D719005FE87D /* SDWebImage */; };
@@ -1266,6 +1267,7 @@
 				1F549B692D3A9AA500E9AA9E /* DebouncedOnChange in Frameworks */,
 				1FC4B3332CC057DD00D28138 /* MBProgressHUD in Frameworks */,
 				1FC4B3222CC0538B00D28138 /* JDStatusBarNotification in Frameworks */,
+				1F3F1EBD306A9F3700318056 /* OLMKit in Frameworks */,
 				1F0ECBF52A68274400921E90 /* CDMarkdownKit in Frameworks */,
 				1F66B72F29FABD01003FB168 /* SwiftyAttributes in Frameworks */,
 				1F7AE07829142CA1009F72AD /* NextcloudKit in Frameworks */,
@@ -1715,6 +1717,7 @@
 				1F899F202EF9E5FF00890727 /* SwiftyRSA */,
 				1F89A8432EFAC35D00890727 /* SwiftyRSA */,
 				1FBB6EE22F8ECE5B003CBA30 /* Toast */,
+				1F3F1EBC306A9F3700318056 /* OLMKit */,
 			);
 			productName = NextcloudTalk;
 			productReference = 2C05747D1EDD9E8E00D9E7F2 /* NextcloudTalk.app */;
@@ -1912,6 +1915,7 @@
 				1F89A8422EFAC35D00890727 /* XCRemoteSwiftPackageReference "SwiftyRSA" */,
 				1FBB6EE12F8ECE5B003CBA30 /* XCRemoteSwiftPackageReference "Toast-Swift" */,
 				1F0B7C3E2F8F1A2B00C4D5E6 /* XCRemoteSwiftPackageReference "CocoaLumberjack" */,
+				1F3F1EBB306A9F3700318056 /* XCRemoteSwiftPackageReference "olm" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 2C05747E1EDD9E8E00D9E7F2 /* Products */;
@@ -3391,6 +3395,14 @@
 				revision = 632cd89fb53fcb6bf04d53219e984bdf279ea19a;
 			};
 		};
+		1F3F1EBB306A9F3700318056 /* XCRemoteSwiftPackageReference "olm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://gitlab.matrix.org/matrix-org/olm.git";
+			requirement = {
+				kind = exactVersion;
+				version = 3.2.16;
+			};
+		};
 		1F45A1142A01D6EC005FE87D /* XCRemoteSwiftPackageReference "SDWebImage" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SDWebImage/SDWebImage.git";
@@ -3468,7 +3480,7 @@
 			repositoryURL = "https://github.com/nextcloud-releases/talk-clients-webrtc";
 			requirement = {
 				kind = revision;
-				revision = 904c6624658e65786ac098597e05ef77072cc0d9;
+				revision = 9aaf90b0e8d651742156ce038fe36d8ec10a5ef0;
 			};
 		};
 		1FBB6EE12F8ECE5B003CBA30 /* XCRemoteSwiftPackageReference "Toast-Swift" */ = {
@@ -3557,6 +3569,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 1F66B72D29FABD01003FB168 /* XCRemoteSwiftPackageReference "SwiftyAttributes" */;
 			productName = SwiftyAttributes;
+		};
+		1F3F1EBC306A9F3700318056 /* OLMKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F3F1EBB306A9F3700318056 /* XCRemoteSwiftPackageReference "olm" */;
+			productName = OLMKit;
 		};
 		1F45A1152A01D6EC005FE87D /* SDWebImage */ = {
 			isa = XCSwiftPackageProductDependency;
