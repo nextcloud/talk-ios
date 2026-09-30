@@ -1383,11 +1383,14 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
         peerConnectionWrapper.sendPublisherOffer()
     }
 
-    // Nothing must be sent unencrypted in an encrypted call, e.g. before the key exchange exists after a reconnect
+    // Nothing must be sent unencrypted in an encrypted call. Ends the call instead of leaving it silently receive only,
+    // the key exchange only goes missing when it could not be created at all
     private func canPublish() -> Bool {
         guard self.isCallEncryptionEnabled, self.callEncryption == nil else { return true }
 
         NCLog.log("Not publishing, the call is end-to-end encrypted but there is no key exchange")
+        let errorReason = NSLocalizedString("End-to-end encryption could not be set up for this call", comment: "")
+        self.delegate?.callControllerDidFailedJoiningCall(self, statusCode: 0, errorReason: errorReason)
         return false
     }
 

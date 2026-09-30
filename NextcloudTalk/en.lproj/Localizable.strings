@@ -1163,6 +1163,9 @@
 "End-to-end encrypted calls require the high-performance backend" = "End-to-end encrypted calls require the high-performance backend";
 
 /* No comment provided by engineer. */
+"End-to-end encryption could not be set up for this call" = "End-to-end encryption could not be set up for this call";
+
+/* No comment provided by engineer. */
 "Enter a new password" = "Enter a new password";
 
 /* No comment provided by engineer. */
