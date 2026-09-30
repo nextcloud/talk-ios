@@ -1490,7 +1490,24 @@ import Toast
         }
     }
 
-    func didPressDelete(for message: NCChatMessage) {
+    func didPressDeleteAll(in fileGroup: FileMessageGroup) {
+        let alert = UIAlertController(title: NSLocalizedString("Delete all", comment: "Short for 'Delete all messages'"),
+                                      message: NSLocalizedString("Do you really want to delete all files?", comment: ""),
+                                      preferredStyle: .alert)
+
+        alert.addAction(UIAlertAction(title: NSLocalizedString("Delete all", comment: "Short for 'Delete all messages'"), style: .destructive) { _ in
+            // One success notification for the whole group, errors are still shown per file
+            for message in fileGroup.messages {
+                self.didPressDelete(for: message, showSuccess: message.messageId == fileGroup.anchor.messageId)
+            }
+        })
+
+        alert.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel))
+
+        self.present(alert, animated: true)
+    }
+
+    func didPressDelete(for message: NCChatMessage, showSuccess: Bool = true) {
         if message.sendingFailed || message.isOfflineMessage {
             self.removePermanentlyTemporaryMessage(temporaryMessage: message)
             return
@@ -1507,9 +1524,9 @@ import Toast
                let messageDict,
                let parent = messageDict["parent"] as? [AnyHashable: Any] {
 
-                if statusCode == 202 {
+                if statusCode == 202, showSuccess {
                     self.view.makeToast(NSLocalizedString("Message deleted successfully, but Matterbridge is configured and the message might already be distributed to other services", comment: ""), duration: 5, position: .center)
-                } else if statusCode == 200 {
+                } else if statusCode == 200, showSuccess {
                     NotificationPresenter.shared().present(text: NSLocalizedString("Message deleted successfully", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
                 }
 

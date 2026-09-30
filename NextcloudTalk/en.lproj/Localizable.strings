@@ -922,7 +922,7 @@
 /* No comment provided by engineer. */
 "Delete" = "Delete";
 
-/* Short version for confirmation button. Complete text is 'Delete all messages'. */
+/* Short for 'Delete all messages' */
 "Delete all" = "Delete all";
 
 /* No comment provided by engineer. */
@@ -1002,6 +1002,9 @@
 
 /* No comment provided by engineer. */
 "Do you really want to clear the image cache?" = "Do you really want to clear the image cache?";
+
+/* No comment provided by engineer. */
+"Do you really want to delete all files?" = "Do you really want to delete all files?";
 
 /* No comment provided by engineer. */
 "Do you really want to delete all messages in this conversation?" = "Do you really want to delete all messages in this conversation?";
