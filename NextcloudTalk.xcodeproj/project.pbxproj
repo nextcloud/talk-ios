@@ -1203,6 +1203,11 @@
 			path = TalkCallIntents;
 			sourceTree = "<group>";
 		};
+		FEFE56F8306E467A00C85526 /* Carplay */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Carplay;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1386,6 +1391,7 @@
 		2C05747F1EDD9E8E00D9E7F2 /* NextcloudTalk */ = {
 			isa = PBXGroup;
 			children = (
+				FEFE56F8306E467A00C85526 /* Carplay */,
 				1F9629252E8E6A2100EC9BEE /* Calls */,
 				1F9629262E8E6A6800EC9BEE /* Chat */,
 				1F9629302E8E6B3D00EC9BEE /* Contacts */,
@@ -1729,6 +1735,7 @@
 				1F96297A2E8E6D1200EC9BEE /* User Interface */,
 				1F9629822E8E6D5400EC9BEE /* WebRTC */,
 				1F9629882E8E6E2900EC9BEE /* Sounds */,
+				FEFE56F8306E467A00C85526 /* Carplay */,
 			);
 			name = NextcloudTalk;
 			packageProductDependencies = (
