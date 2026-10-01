@@ -82,8 +82,8 @@ final class UnitCallEncryptionTest: XCTestCase {
         try super.setUpWithError()
 
         signaling = Signaling()
-        higher = try XCTUnwrap(CallEncryption(ownSessionId: higherSessionId, debouncePeriod: 0.1, requestTimeout: 1, sendMessage: signaling.sendMessage(from: higherSessionId)))
-        lower = try XCTUnwrap(CallEncryption(ownSessionId: lowerSessionId, debouncePeriod: 0.1, requestTimeout: 1, sendMessage: signaling.sendMessage(from: lowerSessionId)))
+        higher = CallEncryption(ownSessionId: higherSessionId, debouncePeriod: 0.1, requestTimeout: 1, sendMessage: signaling.sendMessage(from: higherSessionId))
+        lower = CallEncryption(ownSessionId: lowerSessionId, debouncePeriod: 0.1, requestTimeout: 1, sendMessage: signaling.sendMessage(from: lowerSessionId))
         signaling.add(higher, forSessionId: higherSessionId)
         signaling.add(lower, forSessionId: lowerSessionId)
     }
@@ -188,13 +188,13 @@ final class UnitCallEncryptionTest: XCTestCase {
             weakEncryption = encryption
 
             // A ratchet that actually ran, then a rotation that close cancels
-            encryption?.usersJoined(["session-x"])
+            encryption.usersJoined(["session-x"])
             let ratcheted = expectation(description: "ratchet ran")
             DispatchQueue.global().asyncAfter(deadline: .now() + 0.3) { ratcheted.fulfill() }
             wait(for: [ratcheted], timeout: TestConstants.timeoutShort)
 
-            encryption?.usersLeft(["session-y"])
-            encryption?.close()
+            encryption.usersLeft(["session-y"])
+            encryption.close()
         }
 
         // Queued closures keep it alive until they ran

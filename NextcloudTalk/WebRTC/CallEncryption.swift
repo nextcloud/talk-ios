@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import OLMKit
 import Security
 import WebRTC
 
@@ -29,7 +28,7 @@ final class CallEncryption {
     }
 
     private struct SessionData {
-        var session: OLMSession?
+        var session: OlmSessionProtocol?
         var startMessageId: String?
         var lastKey: Data?
     }
@@ -46,8 +45,7 @@ final class CallEncryption {
     private let ownSessionId: String
     private let sendMessage: SendMessage
 
-    private let account: OLMAccount
-    private let identityKey: String
+    private let account: OlmAccountProtocol
 
     private var key: Data
     private var keyIndex: UInt32 = 0
@@ -64,23 +62,13 @@ final class CallEncryption {
     private var remoteKeyRings = [String: RTCTalkKeyRing]()
 
     // The default periods are the web client's, tests use shorter ones
-    init?(ownSessionId: String, debouncePeriod: TimeInterval = 5, requestTimeout: TimeInterval = 5, sendMessage: @escaping SendMessage) {
-        // OLMKit has no nullability annotations, so this compiles whether the init is imported as failable or not
-        let newAccount: OLMAccount? = OLMAccount(newAccount: ())
-
-        guard let account = newAccount,
-              let identityKey = account.identityKeys()?["curve25519"] as? String
-        else {
-            NCLog.log("CallEncryption: Unable to create Olm account")
-            return nil
-        }
-
+    init(ownSessionId: String, account: OlmAccountProtocol = VodozemacOlmAccount(), debouncePeriod: TimeInterval = 5, requestTimeout: TimeInterval = 5,
+         sendMessage: @escaping SendMessage) {
         self.ownSessionId = ownSessionId
         self.debouncePeriod = debouncePeriod
         self.requestTimeout = requestTimeout
         self.sendMessage = sendMessage
         self.account = account
-        self.identityKey = identityKey
         self.key = Self.generateKey()
 
         ownKeyRing.setKey(key, at: keyIndex)
@@ -192,16 +180,10 @@ final class CallEncryption {
             return
         }
 
-        account.generateOneTimeKeys(1)
-
-        guard let oneTimeKeys = account.oneTimeKeys()?["curve25519"] as? [String: String],
-              let oneTimeKey = oneTimeKeys.values.first
-        else {
+        guard let oneTimeKey = account.createOneTimeKey() else {
             NCLog.log("CallEncryption: No one-time key created")
             return
         }
-
-        account.markOneTimeKeysAsPublished()
 
         let messageId = UUID().uuidString.lowercased()
         sessionData.startMessageId = messageId
@@ -215,7 +197,7 @@ final class CallEncryption {
         sendMessage(sessionId, [
             "id": messageId,
             "type": MessageType.start.rawValue,
-            "identity": identityKey,
+            "identity": account.identityKey,
             "key": oneTimeKey
         ])
     }
@@ -231,7 +213,7 @@ final class CallEncryption {
         guard let messageId = payload["id"] as? String,
               let theirIdentityKey = payload["identity"] as? String,
               let theirOneTimeKey = payload["key"] as? String,
-              let session = try? OLMSession(outboundSessionWith: account, theirIdentityKey: theirIdentityKey, theirOneTimeKey: theirOneTimeKey),
+              let session = try? account.createOutboundSession(theirIdentityKey: theirIdentityKey, theirOneTimeKey: theirOneTimeKey),
               let encryptedKey = encryptKey(with: session)
         else {
             NCLog.log("CallEncryption: Invalid start message from \(sessionId)")
@@ -262,17 +244,16 @@ final class CallEncryption {
         }
 
         guard let encryptedKey = payload["key"] as? [String: Any],
-              let body = encryptedKey["body"] as? String,
-              let session = try? OLMSession(inboundSessionWith: account, oneTimeKeyMessage: body)
+              let message = Self.olmMessage(from: encryptedKey),
+              let inbound = try? account.createInboundSession(preKeyMessage: message)
         else {
             NCLog.log("CallEncryption: Invalid finish message from \(sessionId)")
             return
         }
 
-        account.removeOneTimeKeys(for: session)
-
         // The finish message already carries the remote key
-        let remoteKey = decryptKey(encryptedKey, with: session)
+        let session = inbound.session
+        let remoteKey = Self.parseKey(inbound.plaintext)
 
         sessions[sessionId, default: SessionData()].session = session
         sessions[sessionId]?.startMessageId = nil
@@ -410,24 +391,36 @@ final class CallEncryption {
     // MARK: - Helpers
 
     // The key as the web client sends it, JSON encrypted with the Olm session
-    private func encryptKey(with session: OLMSession) -> [String: Any]? {
+    private func encryptKey(with session: OlmSessionProtocol) -> [String: Any]? {
         let data: [String: Any] = ["key": key.base64EncodedString(), "index": keyIndex]
 
         guard let json = try? JSONSerialization.data(withJSONObject: data),
               let jsonString = String(data: json, encoding: .utf8),
-              let message = try? session.encryptMessage(jsonString)
+              let message = try? session.encrypt(jsonString)
         else { return nil }
 
-        return ["type": message.type.rawValue, "body": message.ciphertext]
+        return ["type": message.kind.rawValue, "body": message.body]
     }
 
-    private func decryptKey(_ encryptedKey: [String: Any], with session: OLMSession) -> (key: Data, index: UInt32)? {
+    private func decryptKey(_ encryptedKey: [String: Any], with session: OlmSessionProtocol) -> (key: Data, index: UInt32)? {
+        guard let message = Self.olmMessage(from: encryptedKey),
+              let plaintext = try? session.decrypt(message)
+        else { return nil }
+
+        return Self.parseKey(plaintext)
+    }
+
+    private static func olmMessage(from encryptedKey: [String: Any]) -> OlmMessage? {
         guard let typeValue = encryptedKey["type"] as? Int,
-              let type = OLMMessageType(rawValue: typeValue),
-              let body = encryptedKey["body"] as? String,
-              let message = OLMMessage(ciphertext: body, type: type),
-              let jsonString = try? session.decryptMessage(message),
-              let json = try? JSONSerialization.jsonObject(with: Data(jsonString.utf8)) as? [String: Any],
+              let kind = OlmMessage.Kind(rawValue: typeValue),
+              let body = encryptedKey["body"] as? String
+        else { return nil }
+
+        return OlmMessage(kind: kind, body: body)
+    }
+
+    private static func parseKey(_ plaintext: String) -> (key: Data, index: UInt32)? {
+        guard let json = try? JSONSerialization.jsonObject(with: Data(plaintext.utf8)) as? [String: Any],
               let keyString = json["key"] as? String,
               let key = Data(base64Encoded: keyString),
               let index = json["index"] as? Int

@@ -1383,8 +1383,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
         peerConnectionWrapper.sendPublisherOffer()
     }
 
-    // Nothing must be sent unencrypted in an encrypted call. Ends the call instead of leaving it silently receive only,
-    // the key exchange only goes missing when it could not be created at all
+    // Nothing must be sent unencrypted in an encrypted call. Ends the call instead of leaving it silently receive only
     private func canPublish() -> Bool {
         guard self.isCallEncryptionEnabled, self.callEncryption == nil else { return true }
 
