@@ -35,6 +35,8 @@ class CallViewController: UIViewController,
                             UIGestureRecognizerDelegate,
                             NCChatTitleViewDelegate {
 
+    typealias PeerId = String
+
     class PendingCellUpdate: NSObject {
         public var peer: NCPeerConnection
         public var block: (CallParticipantViewCell) -> Void
@@ -69,6 +71,11 @@ class CallViewController: UIViewController,
     private weak var pipRendererAttachedPeer: NCPeerConnection?
     private var pipLocalRendererAttached = false
     private var isPiPActive = false
+
+    private var simulcastDebugQuality: SimulcastVideoQuality?
+    private var remoteVideoBlockedDebugOverride: Bool?
+    private var remoteVideoBlockWorkItems = [PeerId: DispatchWorkItem]() // Kept after executing, while the video stays blocked
+    private var isRemoteVideoVisibilityUpdateScheduled = false
 
     @IBOutlet public var localVideoView: MTKView!
     @IBOutlet public var localVideoViewWrapper: UIView!
@@ -178,6 +185,7 @@ class CallViewController: UIViewController,
         NotificationCenter.default.addObserver(self, selector: #selector(audioSessionDidChangeRoutingInformation(notification:)), name: NSNotification.Name.AudioSessionDidChangeRoutingInformation, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(appDidBecomeActive(notification:)), name: UIApplication.didBecomeActiveNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(appWillResignActive(notification:)), name: UIApplication.willResignActiveNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(appDidEnterBackground(notification:)), name: UIApplication.didEnterBackgroundNotification, object: nil)
 
         AllocationTracker.shared.addAllocation("CallViewController")
     }
@@ -473,6 +481,12 @@ class CallViewController: UIViewController,
             // Only enabled video if it was not disabled by the user
             self.enableLocalVideo()
         }
+
+        self.setNeedsRemoteVideoVisibilityUpdate()
+    }
+
+    func appDidEnterBackground(notification: NSNotification) {
+        self.setNeedsRemoteVideoVisibilityUpdate()
     }
 
     func appWillResignActive(notification: NSNotification) {
@@ -656,6 +670,8 @@ class CallViewController: UIViewController,
         self.viewModeButton.isHidden = peersInCall.count <= 1
 
         self.setCallStateForPeersInCall()
+        self.updateSimulcastVideoQualities()
+        self.setNeedsRemoteVideoVisibilityUpdate()
     }
 
     func priority(for peerConnection: NCPeerConnection) -> (Int, Int) {
@@ -765,6 +781,7 @@ class CallViewController: UIViewController,
             }
 
             self.updateViewModeButton()
+            self.updateSimulcastVideoQualities()
         }
     }
 
@@ -837,6 +854,126 @@ class CallViewController: UIViewController,
         }
     }
 
+    // MARK: - Simulcast
+
+    // Based on adjustSimulcastQualityForParticipant in CallView.vue of the web client
+    private func simulcastVideoQuality(for peer: NCPeerConnection) -> SimulcastVideoQuality {
+        if let simulcastDebugQuality {
+            return simulcastDebugQuality
+        }
+
+        if isPiPActive {
+            // Only the small Picture in Picture window is visible
+            return .low
+        }
+
+        if callViewMode == .speaker {
+            return peer.peerIdentifier == promotedPeerIdentifier ? .high : .low
+        }
+
+        // Unlike web, a single participant is shown fullscreen in the grid
+        return peersInCall.count == 1 ? .high : .medium
+    }
+
+    private func updateSimulcastVideoQualities() {
+        guard let callController else { return }
+
+        for peer in peersInCall {
+            callController.setSimulcastVideoQuality(simulcastVideoQuality(for: peer), forPeerId: peer.peerId)
+        }
+    }
+
+    // MARK: - Remote video blocking
+
+    private func setNeedsRemoteVideoVisibilityUpdate() {
+        guard !isRemoteVideoVisibilityUpdateScheduled else { return }
+        isRemoteVideoVisibilityUpdateScheduled = true
+
+        // The visible items are only up to date once the pending layout pass is done
+        DispatchQueue.main.async {
+            self.isRemoteVideoVisibilityUpdateScheduled = false
+            self.updateRemoteVideoVisibility()
+        }
+    }
+
+    private func visibleVideoPeerIds() -> Set<String> {
+        if isPiPActive {
+            guard let pipPeerIdentifier, let pipPeer = self.peerConnection(forPeerIdentifier: pipPeerIdentifier) else { return [] }
+
+            return [pipPeer.peerId]
+        }
+
+        // A presented screen share covers all participants
+        guard UIApplication.shared.applicationState != .background, screensharingView.isHidden else { return [] }
+
+        return Set(collectionView.indexPathsForVisibleItems.compactMap { dataSource.itemIdentifier(for: $0)?.peerId })
+    }
+
+    // Based on RemoteVideoBlocker.js of the web client
+    private func updateRemoteVideoVisibility() {
+        guard let callController else { return }
+
+        let peerIds = Set(peersInCall.map { $0.peerId })
+        let visiblePeerIds = self.visibleVideoPeerIds()
+
+        for peerId in remoteVideoBlockWorkItems.keys where !peerIds.contains(peerId) {
+            remoteVideoBlockWorkItems.removeValue(forKey: peerId)?.cancel()
+        }
+
+        if let remoteVideoBlockedDebugOverride {
+            for peerId in peerIds {
+                remoteVideoBlockWorkItems.removeValue(forKey: peerId)?.cancel()
+                callController.setRemoteVideoBlocked(remoteVideoBlockedDebugOverride, forPeerId: peerId)
+            }
+
+            return
+        }
+
+        for peerId in peerIds {
+            if visiblePeerIds.contains(peerId) {
+                remoteVideoBlockWorkItems.removeValue(forKey: peerId)?.cancel()
+                callController.setRemoteVideoBlocked(false, forPeerId: peerId)
+            } else if remoteVideoBlockWorkItems[peerId] == nil {
+                // Delayed, so quickly scrolling back and forth does not interrupt the video
+                let workItem = DispatchWorkItem { [weak self] in
+                    self?.callController?.setRemoteVideoBlocked(true, forPeerId: peerId)
+                }
+
+                remoteVideoBlockWorkItems[peerId] = workItem
+                DispatchQueue.main.asyncAfter(deadline: .now() + 5, execute: workItem)
+            }
+        }
+    }
+
+    // MARK: - Debug menu
+
+    private func getDebugMenu() -> UIMenu {
+        let qualityOptions: [(String, SimulcastVideoQuality?)] = [("Automatic", nil), ("Low", .low), ("Medium", .medium), ("High", .high)]
+        let qualityActions = qualityOptions.map { title, quality in
+            let action = UIAction(title: title) { [unowned self] _ in
+                self.simulcastDebugQuality = quality
+                self.updateSimulcastVideoQualities()
+            }
+            action.state = quality == simulcastDebugQuality ? .on : .off
+            return action
+        }
+
+        let blockingOptions: [(String, Bool?)] = [("Automatic", nil), ("Block all", true), ("Block none", false)]
+        let blockingActions = blockingOptions.map { title, blocked in
+            let action = UIAction(title: title) { [unowned self] _ in
+                self.remoteVideoBlockedDebugOverride = blocked
+                self.updateRemoteVideoVisibility()
+            }
+            action.state = blocked == remoteVideoBlockedDebugOverride ? .on : .off
+            return action
+        }
+
+        return UIMenu(title: "Debug", image: .init(systemName: "ladybug"), children: [
+            UIMenu(title: "Simulcast quality", options: .displayInline, children: qualityActions),
+            UIMenu(title: "Remote video", options: .displayInline, children: blockingActions)
+        ])
+    }
+
     // MARK: - Picture in Picture
 
     func setupPictureInPicture() {
@@ -888,6 +1025,8 @@ class CallViewController: UIViewController,
         self.pipPeerIdentifier = nil
         self.detachPiPRenderer()
         self.detachPiPLocalRenderer()
+        self.updateSimulcastVideoQualities()
+        self.setNeedsRemoteVideoVisibilityUpdate()
 
         if pipController.isPictureInPictureActive {
             pipController.stopPictureInPicture()
@@ -960,6 +1099,8 @@ class CallViewController: UIViewController,
     }
 
     private func updatePiPContent() {
+        self.setNeedsRemoteVideoVisibilityUpdate()
+
         guard isPiPActive, let pipViewController else { return }
 
         guard let peer = peersInCall.first(where: { $0.peerIdentifier == pipPeerIdentifier }) else {
@@ -1094,6 +1235,11 @@ class CallViewController: UIViewController,
 
         let peerConnection = peersInCall[indexPath.row]
         self.updateParticipantCell(cell: participantCell, withPeerConnection: peerConnection)
+        self.setNeedsRemoteVideoVisibilityUpdate()
+    }
+
+    func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        self.setNeedsRemoteVideoVisibilityUpdate()
     }
 
     // MARK: - Call Controller delegate
@@ -2059,6 +2205,10 @@ class CallViewController: UIViewController,
             }))
         }
 
+        if NCUtils.isTestEnvironment {
+            items.append(self.getDebugMenu())
+        }
+
         return items
     }
 
@@ -2898,6 +3048,8 @@ class CallViewController: UIViewController,
             UIView.transition(with: self.screensharingView, duration: 0.4, options: .transitionCrossDissolve) {
                 self.screensharingView.isHidden = false
             }
+
+            self.setNeedsRemoteVideoVisibilityUpdate()
         }
 
         // Enable/Disable detailed view with tap gesture
@@ -2938,6 +3090,8 @@ class CallViewController: UIViewController,
             UIView.transition(with: self.screensharingView, duration: 0.4, options: .transitionCrossDissolve) {
                 self.screensharingView.isHidden = true
             }
+
+            self.setNeedsRemoteVideoVisibilityUpdate()
         }
 
         // Back to normal voice only UI
@@ -3181,6 +3335,7 @@ extension CallViewController: AVPictureInPictureControllerDelegate {
         self.pipPeerIdentifier = self.initialPiPPeer()?.peerIdentifier
         self.updatePiPContent()
         self.attachPiPLocalRendererIfNeeded()
+        self.updateSimulcastVideoQualities()
     }
 
     func pictureInPictureControllerDidStartPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
@@ -3202,6 +3357,8 @@ extension CallViewController: AVPictureInPictureControllerDelegate {
         self.pipPeerIdentifier = nil
         self.detachPiPRenderer()
         self.detachPiPLocalRenderer()
+        self.updateSimulcastVideoQualities()
+        self.setNeedsRemoteVideoVisibilityUpdate()
     }
 
     func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, failedToStartPictureInPictureWithError error: Error) {
@@ -3211,6 +3368,8 @@ extension CallViewController: AVPictureInPictureControllerDelegate {
         self.pipPeerIdentifier = nil
         self.detachPiPRenderer()
         self.detachPiPLocalRenderer()
+        self.updateSimulcastVideoQualities()
+        self.setNeedsRemoteVideoVisibilityUpdate()
     }
 
     func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void) {

@@ -19,6 +19,7 @@ CGFloat const kCallParticipantCellMinHeight = 128;
     UIView<RTCVideoRenderer> *_videoView;
     CGSize _remoteVideoSize;
     NSTimer *_disconnectedTimer;
+    UILabel *_videoSizeDebugLabel;
 }
 
 @end
@@ -55,6 +56,34 @@ CGFloat const kCallParticipantCellMinHeight = 128;
     UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(toggleZoom)];
     [tapGestureRecognizer setNumberOfTapsRequired:2];
     [self.contentView addGestureRecognizer:tapGestureRecognizer];
+
+    if (NCUtils.isTestEnvironment) {
+        [self setupVideoSizeDebugLabel];
+    }
+}
+
+// Shows the received video resolution, e.g. to check which simulcast layer is relayed
+- (void)setupVideoSizeDebugLabel
+{
+    _videoSizeDebugLabel = [[UILabel alloc] init];
+    _videoSizeDebugLabel.translatesAutoresizingMaskIntoConstraints = NO;
+    _videoSizeDebugLabel.font = [UIFont monospacedDigitSystemFontOfSize:UIFont.smallSystemFontSize weight:UIFontWeightMedium];
+    _videoSizeDebugLabel.textColor = UIColor.whiteColor;
+    _videoSizeDebugLabel.backgroundColor = [UIColor colorWithWhite:0 alpha:0.5];
+    _videoSizeDebugLabel.hidden = YES;
+
+    [self.contentView addSubview:_videoSizeDebugLabel];
+
+    [NSLayoutConstraint activateConstraints:@[
+        [_videoSizeDebugLabel.topAnchor constraintEqualToAnchor:self.contentView.topAnchor constant:12],
+        [_videoSizeDebugLabel.leadingAnchor constraintEqualToAnchor:self.contentView.leadingAnchor constant:16]
+    ]];
+}
+
+- (void)updateVideoSizeDebugLabel
+{
+    _videoSizeDebugLabel.text = [NSString stringWithFormat:@"%.0fx%.0f", _remoteVideoSize.width, _remoteVideoSize.height];
+    _videoSizeDebugLabel.hidden = CGSizeEqualToSize(_remoteVideoSize, CGSizeZero);
 }
 
 - (void)prepareForReuse
@@ -294,6 +323,7 @@ CGFloat const kCallParticipantCellMinHeight = 128;
 {
     self->_remoteVideoSize = size;
     [self resizeRemoteVideoView];
+    [self updateVideoSizeDebugLabel];
 }
 
 - (void)resizeRemoteVideoView

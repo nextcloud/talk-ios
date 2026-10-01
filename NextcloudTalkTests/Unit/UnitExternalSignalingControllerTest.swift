@@ -32,7 +32,7 @@ final class UnitExternalSignalingControllerTest: TestBaseRealm {
         waitForExpectations(timeout: TestConstants.timeoutShort, handler: nil)
     }
 
-    private func helloMessage(withSessionId sessionId: String) -> [AnyHashable: Any] {
+    private func helloMessage(withSessionId sessionId: String, features: [String] = ["mcu", "chat-relay"]) -> [AnyHashable: Any] {
         return [
             "type": "hello",
             "id": "1",
@@ -41,7 +41,7 @@ final class UnitExternalSignalingControllerTest: TestBaseRealm {
                 "resumeid": "fakeResumeId",
                 "server": [
                     "version": "2.0.0",
-                    "features": ["mcu", "chat-relay"]
+                    "features": features
                 ]
             ]
         ]
@@ -134,5 +134,28 @@ final class UnitExternalSignalingControllerTest: TestBaseRealm {
 
         signalingController.errorResponseReceived(messageDict: errorMessage)
         XCTAssertEqual(signalingController.joinedRoomToken, "joinedToken")
+    }
+
+    func testSimulcastFeatureIsParsedFromHello() throws {
+        signalingController.helloResponseReceived(messageDict: helloMessage(withSessionId: "session-1"))
+        XCTAssertFalse(signalingController.hasSimulcast)
+
+        signalingController.helloResponseReceived(messageDict: helloMessage(withSessionId: "session-1", features: ["mcu", "simulcast"]))
+        XCTAssertTrue(signalingController.hasSimulcast)
+
+        drainMainQueue()
+    }
+
+    func testSelectStreamMessageAlwaysRequestsTheHighestTemporalLayer() throws {
+        let message = NCSelectStreamMessage(from: "own", to: "remote", sid: "1234", roomType: kRoomTypeVideo, quality: .low)
+        let functionDict = message.functionDict()
+
+        XCTAssertEqual(functionDict["type"] as? String, "selectStream")
+        XCTAssertEqual(functionDict["to"] as? String, "remote")
+        XCTAssertEqual(functionDict["roomType"] as? String, "video")
+
+        let payload = try XCTUnwrap(functionDict["payload"] as? [AnyHashable: Any])
+        XCTAssertEqual(payload["substream"] as? Int, 0)
+        XCTAssertEqual(payload["temporal"] as? Int, 2)
     }
 }

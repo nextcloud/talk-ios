@@ -475,7 +475,7 @@
 			<key>one</key>
 			<string>{actor0} vás pridal(a) a %ld ďalšieho účastníka</string>
 			<key>few</key>
-			<string>{actor0} vás pridal(a) a %ld ďalších účastníkov</string>
+			<string>{actor0} vás pridal(a) a %ld ďalší účastníci</string>
 			<key>many</key>
 			<string>{actor0} vás pridal(a) a %ld ďalších účastníkov</string>
 			<key>other</key>
