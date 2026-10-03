@@ -1371,6 +1371,14 @@ import Toast
         if message.messageType != kMessageTypeVoiceMessage {
             self.sendChatMessage(message: originalMessage, withParentMessage: message.parent, messageParameters: message.messageParametersJSONString ?? "", silently: message.isSilent)
         } else {
+            // Show and store the message as sending again, so it can be marked as failed again
+            message.sendingFailed = false
+            message.isOfflineMessage = false
+
+            RLMRealm.writeTransaction { realm in
+                realm.addOrUpdate(NCChatMessage(value: message))
+            }
+
             if NCDatabaseManager.sharedInstance().roomHasTalkCapability(.chatReferenceId, for: room) {
                 self.appendTemporaryMessage(temporaryMessage: message)
             }
@@ -2245,8 +2253,30 @@ import Toast
                 try await ChatFileUploader.upload(upload)
                 NCLog.log("Successfully uploaded and shared \(upload.fileName)")
             } catch {
+                if let referenceId = upload.referenceId {
+                    self.markTemporaryMessageAsFailed(referenceId: referenceId)
+                }
+
                 self.presentUploadError(error, for: upload)
             }
+        }
+    }
+
+    internal func markTemporaryMessageAsFailed(referenceId: String) {
+        // Allow to resend or delete the message, instead of showing it as sending until it expires
+        RLMRealm.writeTransaction { _ in
+            if let managedTemporaryMessage = NCChatMessage.objects(where: "referenceId = %@ AND isTemporary = true", referenceId).firstObject() as? NCChatMessage {
+                managedTemporaryMessage.sendingFailed = true
+                managedTemporaryMessage.isOfflineMessage = false
+            }
+        }
+
+        self.modifyMessageWith(referenceId: referenceId) { message in
+            // The message might have been received from the server in the meantime
+            guard message.isTemporary else { return }
+
+            message.sendingFailed = true
+            message.isOfflineMessage = false
         }
     }
 
