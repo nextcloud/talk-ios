@@ -16,6 +16,10 @@ import UICKeyChainStore
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
 
+    private enum SiriCallError: Error {
+            case roomCreationFailed
+        }
+    
     public var shouldLockInterfaceOrientation: Bool = false {
         didSet {
             lockedInterfaceOrientation = UIApplication.shared.statusBarOrientation
@@ -90,12 +94,40 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
 
         // When we include VLCKit we need to manually call this because otherwise, device rotation might not work
         UIDevice.current.beginGeneratingDeviceOrientationNotifications()
+        
+        // Required for the CarPlay assistant cell / SiriKit call flow.
+        // The usage description and Siri entitlement remain configured in the
+        // app target. Requesting again is harmless once authorization is known.
+        INPreferences.requestSiriAuthorization { status in
+            NCLog.log("Siri authorization status: \(status.rawValue)")
+        }
 
         return true
     }
 
     func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
         let intent = userActivity.interaction?.intent
+
+        // Modern Siri / CarPlay call intent. The Intents extension accepts a
+        // spoken person even when Siri has not attached a Talk customIdentifier;
+        // the containing app resolves the destination against the Talk directory.
+        if let startCallIntent = intent as? INStartCallIntent {
+            NCLog.log("Siri/CarPlay INStartCallIntent received contacts=\(startCallIntent.contacts?.count ?? 0)")
+
+            guard let person = startCallIntent.contacts?.first else {
+                NCLog.log("Siri/CarPlay call rejected: no contact supplied")
+                return false
+            }
+
+            Task { @MainActor in
+                await self.routeSiriStartCall(person)
+            }
+            return true
+        }
+
+        // Keep compatibility with the legacy call intents already supported by
+        // Talk on older iOS versions.
+
         let audioCallIntent = intent is INStartAudioCallIntent
         let videoCallIntent = intent is INStartVideoCallIntent
         if audioCallIntent || videoCallIntent {
@@ -119,6 +151,130 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
         }
 
         return true
+    }
+    
+    @MainActor
+    private func routeSiriStartCall(_ person: INPerson) async {
+        // A Talk identity donated by the app is authoritative.
+        if let customIdentifier = person.customIdentifier,
+           customIdentifier.hasPrefix("talk-room:") {
+            let internalId = String(customIdentifier.dropFirst("talk-room:".count))
+            guard let room = NCDatabaseManager.sharedInstance().room(withInternalId: internalId) else {
+                NCLog.log("Siri/CarPlay Talk target not found: internalId=\(internalId)")
+                return
+            }
+            startTalkCall(in: room)
+            return
+        }
+
+        // Compatibility with older Talk donations where the room internal id
+        // was stored directly without the talk-room: prefix.
+        if let customIdentifier = person.customIdentifier,
+           !customIdentifier.isEmpty,
+           let room = NCDatabaseManager.sharedInstance().room(withInternalId: customIdentifier) {
+            startTalkCall(in: room)
+            return
+        }
+
+        let spokenName = person.displayName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !spokenName.isEmpty else {
+            NCLog.log("Siri/CarPlay call rejected: empty display name")
+            return
+        }
+
+        let account = NCDatabaseManager.sharedInstance().activeAccount()
+        guard let talkUser = await findTalkUser(named: spokenName, account: account) else {
+            NCLog.log("Siri/CarPlay call rejected: no Talk target found for '\(spokenName)'")
+            return
+        }
+
+        do {
+            let room = try await talkRoom(for: talkUser.userId, account: account)
+            startTalkCall(in: room, displayName: talkUser.name)
+        } catch {
+            NCLog.log("Siri/CarPlay Talk call setup failed: \(error)")
+        }
+    }
+
+    private func findTalkUser(named name: String, account: TalkAccount) async -> NCUser? {
+        await withCheckedContinuation { continuation in
+            NCAPIController.sharedInstance().getContacts(
+                forAccount: account,
+                forRoom: nil,
+                forGroupRoom: false,
+                withSearchParam: name
+            ) { users, error in
+                guard error == nil, let users, !users.isEmpty else {
+                    NCLog.log("Siri: Talk directory search returned no result for '\(name)'")
+                    continuation.resume(returning: nil)
+                    return
+                }
+
+                let normalizedName = self.normalizedPersonName(name)
+                let exactMatches = users.filter {
+                    self.normalizedPersonName($0.name) == normalizedName
+                }
+
+                if exactMatches.count == 1 {
+                    continuation.resume(returning: exactMatches[0])
+                    return
+                }
+
+                if users.count == 1 {
+                    continuation.resume(returning: users[0])
+                    return
+                }
+
+                NCLog.log("Siri: ambiguous Talk directory search for '\(name)': \(users.count) results")
+                continuation.resume(returning: nil)
+            }
+        }
+    }
+
+    private func talkRoom(for userId: String, account: TalkAccount) async throws -> NCRoom {
+        let accountRooms = NCDatabaseManager.sharedInstance().roomsForAccountId(account.accountId, withRealm: nil)
+        if let room = accountRooms.first(where: { $0.type == .oneToOne && $0.name == userId }) {
+            return room
+        }
+
+        return try await withCheckedThrowingContinuation { continuation in
+            NCAPIController.sharedInstance().createRoom(
+                forAccount: account,
+                withInvite: userId,
+                ofType: .oneToOne,
+                andName: nil
+            ) { room, error in
+                guard error == nil, let room else {
+                    continuation.resume(throwing: SiriCallError.roomCreationFailed)
+                    return
+                }
+
+                continuation.resume(returning: room)
+            }
+        }
+    }
+
+    private func startTalkCall(in room: NCRoom, displayName: String? = nil) {
+        guard let account = room.account else {
+            NCLog.log("Siri/CarPlay call rejected: room has no account, room=\(room.token)")
+            return
+        }
+
+        CallKitManager.sharedInstance().startCall(
+            room.token,
+            withVideoEnabled: false,
+            andDisplayName: displayName ?? room.displayName,
+            asInitiator: !room.hasCall,
+            silently: false,
+            recordingConsent: false,
+            withAccountId: account.accountId
+        )
+    }
+
+    private func normalizedPersonName(_ value: String) -> String {
+        value
+            .folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     // The active/inactive/background/foreground transitions are dispatched per-scene, so they live on SceneDelegate as
