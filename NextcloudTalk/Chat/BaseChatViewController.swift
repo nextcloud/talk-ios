@@ -2300,6 +2300,9 @@ import Toast
         case ChatFileUploadError.tooManyRequests:
             NCLog.log("Too many requests while uploading")
             message = NSLocalizedString("Too many requests, please try again later", comment: "")
+        case ChatFileUploadError.uploadFailed(_, let errorDescription) where !errorDescription.isEmpty:
+            NCLog.log("Failed to upload \(upload.fileName). Error: \(errorDescription)")
+            message = errorDescription
         default:
             NCLog.log("Failed to upload \(upload.fileName). Error: \(error.localizedDescription)")
             message = NSLocalizedString("Unknown error occurred", comment: "")
