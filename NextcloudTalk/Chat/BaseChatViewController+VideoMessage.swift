@@ -27,7 +27,7 @@ extension BaseChatViewController {
     /// and the camera is in use during a call.
     var isVideoMessageRecordingAvailable: Bool {
         return !self.room.isFederated
-            && UIImagePickerController.isSourceTypeAvailable(.camera)
+            && InAppCameraViewController.isCameraAvailable
             && NCRoomsManager.shared.callViewController == nil
     }
 

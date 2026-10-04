@@ -53,6 +53,13 @@ enum CameraCaptureHelpers {
             connection.videoOrientation = videoOrientation
         }
     }
+
+    /// The orientation of the interface a view is shown in, portrait as long as that is not known
+    static func interfaceOrientation(of view: UIView?) -> UIInterfaceOrientation {
+        let orientation = view?.window?.windowScene?.interfaceOrientation ?? .portrait
+
+        return orientation == .unknown ? .portrait : orientation
+    }
 }
 
 /// Live preview of a capture session, which follows the orientation of the interface
@@ -80,6 +87,17 @@ class CameraPreviewView: UIView {
 
         self.previewLayer.videoGravity = .resizeAspectFill
         self.layer.addSublayer(self.previewLayer)
+
+        // The session is set up on another queue, so the layer has no connection to rotate before it ran
+        NotificationCenter.default.addObserver(self, selector: #selector(sessionDidStartRunning), name: AVCaptureSession.didStartRunningNotification, object: session)
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
+    @objc private func sessionDidStartRunning() {
+        DispatchQueue.main.async { self.setNeedsLayout() }
     }
 
     required init?(coder: NSCoder) {

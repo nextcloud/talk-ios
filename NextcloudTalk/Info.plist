@@ -53,7 +53,7 @@
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Camera is used in video calls and to record videos to share in chats</string>
+	<string>Camera is used in video calls and to take photos and videos to share in chats</string>
 	<key>NSContactsUsageDescription</key>
 	<string>Contacts access is needed to match your address book contacts with contacts in your server</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
