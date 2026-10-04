@@ -108,6 +108,7 @@ import Toast
     internal var isVideoGestureActive = false
     internal var videoMessageRecorder: VideoMessageRecorder?
     internal var videoMessagePreviewView: VideoMessagePreviewView?
+    internal var videoMessageScrimView: UIView?
     internal var videoMessageLimitTimer: Timer?
 
     private var animationDispatchGroup = DispatchGroup()
@@ -477,6 +478,22 @@ import Toast
 
         if dismissNotificationsOnViewWillDisappear {
             NotificationPresenter.shared().dismiss(animated: false)
+        }
+    }
+
+    public override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+
+        self.updateVideoMessagePreviewLayout()
+    }
+
+    public override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+
+        // The orientation of the interface is the new one at the latest when the transition is done (on an iPad
+        // it can change after the layout), so the preview is placed once more then
+        coordinator.animate(alongsideTransition: nil) { [weak self] _ in
+            self?.updateVideoMessagePreviewLayout()
         }
     }
 
@@ -2068,6 +2085,8 @@ import Toast
 
         self.expandedUIHostingController = hostingController
         self.view.addSubview(expandedVoiceMessageRecordingView)
+        // The preview of a video makes room for the panel
+        self.view.setNeedsLayout()
 
         expandedVoiceMessageRecordingView.translatesAutoresizingMaskIntoConstraints = false
 
@@ -2131,6 +2150,19 @@ import Toast
         self.expandedUIHostingController?.removeFromParent()
         self.expandedUIHostingController?.view.isHidden = true
         self.textInputbar.bringSubviewToFront(self.textInputbar)
+        self.view.setNeedsLayout()
+    }
+
+    /// The panel of a locked recording while it is shown
+    internal var visibleExpandedRecordingPanel: UIView? {
+        guard let panel = self.expandedUIHostingController?.view, !panel.isHidden, panel.superview === self.view else { return nil }
+
+        return panel
+    }
+
+    /// Brings the lock button of the recording above the views that are added for a video, which are shown over the chat
+    internal func bringVoiceRecordingLockButtonToFront() {
+        self.view.bringSubviewToFront(self.voiceRecordingLockButton)
     }
 
     func setupAudioRecorder() {
