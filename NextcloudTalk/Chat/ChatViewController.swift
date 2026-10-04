@@ -1223,8 +1223,7 @@ import SwiftUI
 
         // If in offline mode, we don't want to show the voice button
         if !offlineMode, !canPress, !presentedInCall,
-           NCDatabaseManager.sharedInstance().roomHasTalkCapability(.voiceMessage, for: room),
-           !room.isFederated {
+           self.isVoiceMessageRecordingAvailable || self.isVideoMessageRecordingAvailable {
 
             self.showVoiceMessageRecordButton()
             return true

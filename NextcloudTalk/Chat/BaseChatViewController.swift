@@ -100,6 +100,16 @@ import Toast
     private var longPressStartingPoint: CGPoint?
     private var recordCancelled: Bool = false
 
+    // Video messages, see BaseChatViewController+VideoMessage.swift. The mode lives here and not in the
+    // button, as SlackTextViewController replaces the button state whenever the text changes.
+    internal var recordButtonMode = RecordButtonMode(rawValue: NCUserDefaults.preferredRecordButtonMode() ?? "") ?? .voice {
+        didSet { NCUserDefaults.setPreferredRecordButtonMode(recordButtonMode.rawValue) }
+    }
+    internal var isVideoGestureActive = false
+    internal var videoMessageRecorder: VideoMessageRecorder?
+    internal var videoMessagePreviewView: VideoMessagePreviewView?
+    internal var videoMessageLimitTimer: Timer?
+
     private var animationDispatchGroup = DispatchGroup()
     private var animationDispatchQueue = DispatchQueue(label: "\(groupIdentifier).animationQueue")
 
@@ -458,6 +468,9 @@ import Toast
 
         self.isVisible = false
 
+        // The camera is not available anymore without the view
+        self.finishVideoMessageRecording(send: false)
+
         if !self.textInputbar.isHidden {
             self.savePendingMessage()
         }
@@ -737,15 +750,23 @@ import Toast
     func showVoiceMessageRecordButton() {
         self.rightButton.setTitle("", for: .normal)
 
+        let isVideoMode = self.effectiveRecordMode == .video
+
         if self.room.hasScheduledMessages {
             self.setInputbarImage(UIImage(systemName: "clock"), for: self.rightButton)
         } else {
-            self.setInputbarImage(UIImage(systemName: "mic"), for: self.rightButton)
+            self.setInputbarImage(UIImage(systemName: isVideoMode ? "video" : "mic"), for: self.rightButton)
         }
 
         self.rightButton.tag = sendButtonTagVoice
-        self.rightButton.accessibilityLabel = NSLocalizedString("Record voice message", comment: "")
-        self.rightButton.accessibilityHint = NSLocalizedString("Tap and hold to record a voice message", comment: "")
+
+        if isVideoMode {
+            self.rightButton.accessibilityLabel = NSLocalizedString("Record video message", comment: "")
+            self.rightButton.accessibilityHint = NSLocalizedString("Tap and hold to record a video message", comment: "")
+        } else {
+            self.rightButton.accessibilityLabel = NSLocalizedString("Record voice message", comment: "")
+            self.rightButton.accessibilityHint = NSLocalizedString("Tap and hold to record a voice message", comment: "")
+        }
 
         self.addGestureRecognizerToRightButton()
     }
@@ -856,7 +877,7 @@ import Toast
                 let scheduledViewController = ScheduledMessagesChatViewController(forRoom: self.room, withAccount: self.account)!
                 self.presentWithNavigation(scheduledViewController, animated: true)
             } else {
-                self.showVoiceMessageRecordHint()
+                self.handleTapOnRecordButton()
             }
         default:
             break
@@ -866,6 +887,11 @@ import Toast
     func addGestureRecognizerToRightButton() {
         // Remove a potential menu so it does not interfere with the long gesture recognizer
         self.rightButton.menu = nil
+
+        // Changing the mode of the record button does not replace the button, so avoid adding a second recognizer
+        if let voiceMessageLongPressGesture, self.rightButton.gestureRecognizers?.contains(voiceMessageLongPressGesture) == true {
+            return
+        }
 
         // Add long press gesture recognizer for voice message recording button
         self.voiceMessageLongPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPressInVoiceMessageRecordButton(gestureRecognizer:)))
@@ -1975,10 +2001,12 @@ import Toast
         self.view.makeToast(NSLocalizedString("Tap and hold to record a voice message, release the button to send it.", comment: ""), duration: 3, point: toastPosition, title: nil, image: nil, completion: nil)
     }
 
-    func showVoiceMessageRecordingView() {
+    func showVoiceMessageRecordingView(iconName: String = "mic.fill") {
         self.voiceMessageRecordingView = VoiceMessageRecordingView()
 
         guard let voiceMessageRecordingView = self.voiceMessageRecordingView else { return }
+
+        voiceMessageRecordingView.recordingImageView.image = UIImage(systemName: iconName)
 
         voiceMessageRecordingView.translatesAutoresizingMaskIntoConstraints = false
 
@@ -2030,9 +2058,9 @@ import Toast
 
     // MARK: - Expanded voice message recording
 
-    func showExpandedVoiceMessageRecordingView(offset: Int) {
+    func showExpandedVoiceMessageRecordingView(offset: Int, allowsPause: Bool = true) {
         let expandedView = ExpandedVoiceMessageRecordingView(
-            deleteFunc: handleDelete, sendFunc: handleSend, recordFunc: handleRecord(isRecording:), timeElapsed: offset
+            deleteFunc: handleDelete, sendFunc: handleSend, recordFunc: handleRecord(isRecording:), allowsPause: allowsPause, timeElapsed: offset
         )
 
         let hostingController = UIHostingController(rootView: expandedView)
@@ -2052,6 +2080,11 @@ import Toast
     }
 
     func handleDelete() {
+        if self.videoMessageRecorder != nil {
+            self.finishVideoMessageRecording(send: false)
+            return
+        }
+
         self.recordCancelled = true
         self.stopRecordingVoiceMessage()
         handleCollapseVoiceRecording()
@@ -2059,6 +2092,11 @@ import Toast
     }
 
     func handleSend() {
+        if self.videoMessageRecorder != nil {
+            self.finishVideoMessageRecording(send: true)
+            return
+        }
+
         if let recorder = self.recorder, recorder.isRecording {
             self.recordCancelled = false
             self.stopRecordingVoiceMessage()
@@ -2163,6 +2201,12 @@ import Toast
         self.showVoiceMessageRecordButton()
         guard let recorder = self.recorder else { return }
 
+        self.shareRecording(fromPath: recorder.url.path, namePrefix: "Talk recording from", fileExtension: "mp3", isVoiceMessage: true)
+    }
+
+    /// Uploads a recording without a confirmation. Voice messages get a temporary message and the voice message
+    /// type, other recordings (videos) are ordinary files without both.
+    internal func shareRecording(fromPath sourcePath: String, namePrefix: String, fileExtension: String, isVoiceMessage: Bool) {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd HH-mm-ss"
         let dateString = dateFormatter.string(from: Date())
@@ -2176,18 +2220,26 @@ import Toast
             roomString = regex.stringByReplacingMatches(in: roomString, range: .init(location: 0, length: roomString.count), withTemplate: " ")
         }
 
-        var audioFileName = "Talk recording from \(dateString) (\(roomString))"
+        var baseFileName = "\(namePrefix) \(dateString) (\(roomString))"
 
         // Trim the file name if too long
-        if audioFileName.count > 146 {
-            audioFileName = String(audioFileName.prefix(146))
+        if baseFileName.count > 146 {
+            baseFileName = String(baseFileName.prefix(146))
         }
-
-        audioFileName += ".mp3"
 
         let chatFileController = NCChatFileController(account: self.account)
         let tempDirectoryURL = URL(fileURLWithPath: chatFileController.tempDirectoryPath)
-        let destinationFilePath = tempDirectoryURL.appendingPathComponent(audioFileName).path
+
+        // Never replace or lose a recording made in the same second, as the temporary directory is shared
+        var fileName = "\(baseFileName).\(fileExtension)"
+        var duplicateCounter = 1
+
+        while FileManager.default.fileExists(atPath: tempDirectoryURL.appendingPathComponent(fileName).path) {
+            duplicateCounter += 1
+            fileName = "\(baseFileName) (\(duplicateCounter)).\(fileExtension)"
+        }
+
+        let destinationFilePath = tempDirectoryURL.appendingPathComponent(fileName).path
 
         var replyToMessage: NCChatMessage?
         if let replyMessageView, replyMessageView.isVisible {
@@ -2195,48 +2247,55 @@ import Toast
             replyMessageView.dismiss()
         }
 
-        if let temporaryMessage = self.createTemporaryMessage(
-            message: audioFileName,
-            replyTo: replyToMessage,
-            messageParameters: "\(destinationFilePath)",
-            silently: false,
-            isVoiceMessage: true
-        ) {
-            let movedFileToTemporaryDirectory = chatFileController.moveFileToTemporaryDirectory(
-                fromSourcePath: recorder.url.path,
-                destinationPath: destinationFilePath
+        var temporaryMessage: NCChatMessage?
+
+        if isVoiceMessage {
+            temporaryMessage = self.createTemporaryMessage(
+                message: fileName,
+                replyTo: replyToMessage,
+                messageParameters: "\(destinationFilePath)",
+                silently: false,
+                isVoiceMessage: true
             )
 
-            if !movedFileToTemporaryDirectory {
-                print("Failed to move voice-message to temporary directory.")
+            if temporaryMessage == nil {
+                print("Temporary message could not be created")
                 return
             }
-
-            if movedFileToTemporaryDirectory, NCDatabaseManager.sharedInstance().roomHasTalkCapability(.chatReferenceId, for: room) {
-                self.appendTemporaryMessage(temporaryMessage: temporaryMessage)
-            }
-
-            var metaData = ChatFileUploadMetadata()
-            metaData.isVoiceMessage = true
-            metaData.replyTo = replyToMessage?.messageId
-            metaData.threadId = self.thread?.threadId
-
-            // A parent living in another conversation means this is a private reply
-            if let replyToToken = replyToMessage?.token, replyToToken != self.room.token {
-                metaData.replyToToken = replyToToken
-            }
-
-            var upload = ChatFileUpload(localPath: destinationFilePath,
-                                        fileName: audioFileName,
-                                        room: self.room,
-                                        account: self.account)
-            upload.metadata = metaData
-            upload.referenceId = temporaryMessage.referenceId
-
-            self.upload(upload)
-        } else {
-            print("Temporary message could not be created")
         }
+
+        let movedFileToTemporaryDirectory = chatFileController.moveFileToTemporaryDirectory(
+            fromSourcePath: sourcePath,
+            destinationPath: destinationFilePath
+        )
+
+        if !movedFileToTemporaryDirectory {
+            print("Failed to move recording to temporary directory.")
+            return
+        }
+
+        if let temporaryMessage, NCDatabaseManager.sharedInstance().roomHasTalkCapability(.chatReferenceId, for: room) {
+            self.appendTemporaryMessage(temporaryMessage: temporaryMessage)
+        }
+
+        var metaData = ChatFileUploadMetadata()
+        metaData.isVoiceMessage = isVoiceMessage
+        metaData.replyTo = replyToMessage?.messageId
+        metaData.threadId = self.thread?.threadId
+
+        // A parent living in another conversation means this is a private reply
+        if let replyToToken = replyToMessage?.token, replyToToken != self.room.token {
+            metaData.replyToToken = replyToToken
+        }
+
+        var upload = ChatFileUpload(localPath: destinationFilePath,
+                                    fileName: fileName,
+                                    room: self.room,
+                                    account: self.account)
+        upload.metadata = metaData
+        upload.referenceId = temporaryMessage?.referenceId
+
+        self.upload(upload)
     }
 
     func upload(_ upload: ChatFileUpload) {
@@ -2454,22 +2513,23 @@ import Toast
 
             // 'Pop' feedback (strong boom)
             AudioServicesPlaySystemSound(1520)
-            self.checkPermissionAndRecordVoiceMessage()
+            self.startRecordingForGesture()
             self.shouldLockInterfaceOrientation(lock: true)
             self.recordCancelled = false
             self.longPressStartingPoint = point
             self.voiceRecordingLockButton.alpha = 1
-            self.setInputbarImage(UIImage(systemName: "mic"), for: self.rightButton)
         } else if gestureRecognizer.state == .ended {
             self.shouldLockInterfaceOrientation(lock: false)
             self.resetVoiceRecordingLockButton()
 
             if !isVoiceRecordingLocked {
-                if let recordingTime = self.recorder?.currentTime {
+                if let recordingTime = self.recorder?.currentTime, !self.isVideoGestureActive {
                     // Mark record as cancelled if audio message is no longer than one second
                     self.recordCancelled = recordingTime < 1
                 }
-                self.stopRecordingVoiceMessage()
+
+                // Too short videos are dropped while finishing, like short voice messages
+                self.stopRecordingForGesture(send: !self.recordCancelled)
                 print("Stop recording audio message")
             }
         } else if gestureRecognizer.state == .changed {
@@ -2496,7 +2556,7 @@ import Toast
                     // 'Cancelled' feedback (three sequential weak booms)
                     AudioServicesPlaySystemSound(1521)
                     self.recordCancelled = true
-                    self.stopRecordingVoiceMessage()
+                    self.stopRecordingForGesture(send: false)
                     self.resetVoiceRecordingLockButton()
                 }
             }
@@ -2508,7 +2568,7 @@ import Toast
                         self.voiceRecordingLockButton.setImage(UIImage(systemName: "lock"), for: .normal)
                         let offset = self.voiceMessageRecordingView?.getTimeCounted()
                         let intOffset = Int(offset!.magnitude)
-                        showExpandedVoiceMessageRecordingView(offset: intOffset)
+                        showExpandedVoiceMessageRecordingView(offset: intOffset, allowsPause: !self.isVideoGestureActive)
                         print("LOCKED")
                         isVoiceRecordingLocked = true
                     }
@@ -2519,7 +2579,7 @@ import Toast
             self.shouldLockInterfaceOrientation(lock: false)
             self.recordCancelled = false
             self.resetVoiceRecordingLockButton()
-            self.stopRecordingVoiceMessage()
+            self.stopRecordingForGesture(send: false)
         }
     }
 

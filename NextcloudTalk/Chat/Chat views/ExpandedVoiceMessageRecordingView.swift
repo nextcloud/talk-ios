@@ -18,6 +18,9 @@ struct ExpandedVoiceMessageRecordingView: View {
     var sendFunc: () -> Void
     var recordFunc: (Bool) -> Void
 
+    /// A video can not be paused, so the stop/restart button is not usable for it
+    var allowsPause = true
+
     @State var isRecording = true
     @State var timeElapsed: Int
     @State var timeFormatted = ""
@@ -58,6 +61,8 @@ struct ExpandedVoiceMessageRecordingView: View {
                 }, label: {
                     Label("", systemImage: isRecording ? "square.fill" : "arrow.clockwise.square").font(.title2)
                 })
+                .opacity(allowsPause ? 1 : 0)
+                .disabled(!allowsPause)
                 Spacer()
                 Button(action: { // Send Recording
                     self.sendFunc()
