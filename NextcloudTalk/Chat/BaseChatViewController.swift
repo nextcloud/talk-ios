@@ -16,10 +16,9 @@ import Toast
 
 @objcMembers public class BaseChatViewController: InputbarViewController,
                                                   UITextFieldDelegate,
-                                                  UIImagePickerControllerDelegate,
                                                   UIAdaptivePresentationControllerDelegate,
                                                   PHPickerViewControllerDelegate,
-                                                  UINavigationControllerDelegate,
+                                                  InAppCameraViewControllerDelegate,
                                                   ShareLocationViewControllerDelegate,
                                                   GiphyPickerViewControllerDelegate,
                                                   CNContactPickerDelegate,
@@ -88,8 +87,6 @@ import Toast
     private var sendButtonTagVoice = 98
 
     private var isVoiceRecordingLocked = false
-
-    private var imagePicker: UIImagePickerController?
 
     private var stopTypingTimer: Timer?
     private var typingTimer: Timer?
@@ -1169,23 +1166,19 @@ import Toast
 
     func presentCamera() {
         DispatchQueue.main.async {
-            self.imagePicker = UIImagePickerController()
+            guard InAppCameraViewController.isCameraAvailable else { return }
 
-            if let imagePicker = self.imagePicker,
-                let sourceType = UIImagePickerController.availableMediaTypes(for: imagePicker.sourceType) {
-                imagePicker.sourceType = .camera
-                imagePicker.cameraFlashMode = UIImagePickerController.CameraFlashMode(rawValue: NCUserDefaults.preferredCameraFlashMode()) ?? .off
-                imagePicker.mediaTypes = sourceType
-                imagePicker.delegate = self
-                self.present(imagePicker, animated: true)
-            }
+            let camera = InAppCameraViewController()
+            camera.delegate = self
+            camera.modalPresentationStyle = .fullScreen
+            self.present(camera, animated: true)
         }
     }
 
     func presentPhotoLibrary() {
         DispatchQueue.main.async {
             var pickerConfig = PHPickerConfiguration()
-            pickerConfig.selectionLimit = 20
+            pickerConfig.selectionLimit = kShareConfirmationMaxItems
             pickerConfig.filter = PHPickerFilter.any(of: [.images, .videos])
 
             self.photoPicker = PHPickerViewController(configuration: pickerConfig)
@@ -1881,46 +1874,27 @@ import Toast
         }
     }
 
-    // MARK: - UIImagePickerController delegate
+    // MARK: - InAppCameraViewController delegate
 
-    public func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
-        self.saveImagePickerSettings(picker)
-
-        guard let (shareConfirmationVC, navigationController) = self.createShareConfirmationViewController(),
-              let mediaType = info[.mediaType] as? String
-        else { return }
+    func inAppCameraViewController(_ controller: InAppCameraViewController, didCaptureMediaAt fileURL: URL) {
+        guard let (shareConfirmationVC, navigationController) = self.createShareConfirmationViewController() else {
+            try? FileManager.default.removeItem(at: fileURL)
+            controller.dismiss(animated: true)
+            return
+        }
 
         shareConfirmationVC.setChatMessage(self.textView.text)
         self.setChatMessage("")
 
-        if mediaType == "public.image" {
-            guard let image = info[.originalImage] as? UIImage else { return }
-
-            self.dismiss(animated: true) {
-                self.present(navigationController, animated: true) {
-                    shareConfirmationVC.shareItemController.addItem(with: image)
-                }
-            }
-        } else if mediaType == "public.movie" {
-            guard let imageUrl = info[.mediaURL] as? URL else { return }
-
-            self.dismiss(animated: true) {
-                self.present(navigationController, animated: true) {
-                    shareConfirmationVC.shareItemController.addItem(with: imageUrl)
-                }
+        controller.dismiss(animated: true) {
+            self.present(navigationController, animated: true) {
+                shareConfirmationVC.shareItemController.addItem(with: fileURL)
             }
         }
     }
 
-    public func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        self.saveImagePickerSettings(picker)
-        self.dismiss(animated: true)
-    }
-
-    public func saveImagePickerSettings(_ picker: UIImagePickerController) {
-        if picker.sourceType == .camera && picker.cameraCaptureMode == .photo {
-            NCUserDefaults.setPreferredCameraFlashMode(picker.cameraFlashMode.rawValue)
-        }
+    func inAppCameraViewControllerDidCancel(_ controller: InAppCameraViewController) {
+        controller.dismiss(animated: true)
     }
 
     // MARK: - UIDocumentPickerViewController Delegate

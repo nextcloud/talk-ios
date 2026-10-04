@@ -1,4 +1,4 @@
-NSCameraUsageDescription = "Camera is used in video calls and to record videos to share in chats";
+NSCameraUsageDescription = "Camera is used in video calls and to take photos and videos to share in chats";
 NSMicrophoneUsageDescription = "Microphone is used in voice and video calls and to record videos to share in chats";
 NSPhotoLibraryUsageDescription = "Photo Library access is needed to share pictures and videos from your device";
 NSContactsUsageDescription = "Contacts access is needed to match your address book contacts with contacts in your server";
