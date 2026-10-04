@@ -270,29 +270,25 @@ extension BaseChatViewController {
         self.videoMessagePreviewView = nil
         self.videoMessageScrimView?.removeFromSuperview()
         self.videoMessageScrimView = nil
+        self.lockedVideoSendButton?.removeFromSuperview()
+        self.lockedVideoSendButton = nil
 
         self.tableView?.accessibilityElementsHidden = false
     }
 
     /// Places the preview in the free space above the recording panel: it follows the orientation of the interface,
-    /// and is placed again whenever the layout changes, e.g. by a rotation or when the panel of a locked recording appears.
+    /// and is placed again whenever the layout changes, e.g. by a rotation.
     func updateVideoMessagePreviewLayout() {
         guard let previewView = self.videoMessagePreviewView else { return }
 
         let inputbarTop = self.view.convert(self.textInputbar.bounds, from: self.textInputbar).minY
-        var areaBottom = inputbarTop
-
-        if let panel = self.visibleExpandedRecordingPanel {
-            areaBottom = min(areaBottom, self.view.convert(panel.bounds, from: panel).minY)
-        }
-
         self.videoMessageScrimView?.frame = CGRect(x: 0, y: 0, width: self.view.bounds.width, height: max(inputbarTop, 0))
 
         let insets = self.view.safeAreaInsets
         let area = CGRect(x: insets.left,
                           y: insets.top,
                           width: self.view.bounds.width - insets.left - insets.right,
-                          height: areaBottom - insets.top)
+                          height: inputbarTop - insets.top)
 
         let orientation = CameraCaptureHelpers.interfaceOrientation(of: self.view)
 
