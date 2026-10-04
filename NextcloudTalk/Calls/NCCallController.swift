@@ -45,6 +45,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
     private static var kNCAudioTrackId = "NCa0"
     private static var kNCVideoTrackId = "NCv0"
     private static var kNCScreenTrackId = "NCs0"
+    private static let kPublisherAnswerTimeout: TimeInterval = 10
 
     private let room: NCRoom
     private let account: TalkAccount
@@ -847,8 +848,9 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
             peerConnectionWrapper.close()
         }
 
-        for (_, pendingOfferTimer) in self.pendingOffersDict {
-            pendingOfferTimer.invalidate()
+        let pendingOfferTimers = Array(self.pendingOffersDict.values)
+        DispatchQueue.main.async {
+            pendingOfferTimers.forEach { $0.invalidate() }
         }
 
         self.connectionsDict = [:]
@@ -1319,6 +1321,31 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
         }
 
         peerConnectionWrapper.sendPublisherOffer()
+        self.recreatePublisherPeerConnectionIfNotAnswered(peerConnectionWrapper)
+    }
+
+    // A lost answer leaves ICE in "new", so the connection never fails and we would silently not publish. Same as web
+    private func recreatePublisherPeerConnectionIfNotAnswered(_ peerConnectionWrapper: NCPeerConnection) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + NCCallController.kPublisherAnswerTimeout) { [weak self, weak peerConnectionWrapper] in
+            WebRTCCommon.shared.dispatch {
+                guard let self, let peerConnectionWrapper, !self.isLeavingCall,
+                      self.publisherPeerConnection === peerConnectionWrapper,
+                      let peerConnection = peerConnectionWrapper.getPeerConnection(),
+                      peerConnection.remoteDescription == nil
+                else { return }
+
+                NCLog.log("No answer for the publisher offer, recreating the publisher peer connection")
+
+                let peerKey = self.getPeerKey(withSessionId: peerConnectionWrapper.peerId, ofType: kRoomTypeVideo, forOwnScreenshare: false)
+                self.connectionsDict.removeValue(forKey: peerKey)
+                self.publisherPeerConnection = nil
+
+                peerConnectionWrapper.delegate = nil
+                peerConnectionWrapper.close()
+
+                self.createPublisherPeerConnection()
+            }
+        }
     }
 
     private func createScreenPublisherPeerConnection() {
