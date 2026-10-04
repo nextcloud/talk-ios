@@ -33,6 +33,9 @@ final class VideoMessageRecorder: NSObject, AVCaptureVideoDataOutputSampleBuffer
     /// Called on the main queue when the recording can not go on (session interrupted, runtime error)
     var onFailure: (() -> Void)?
 
+    /// Called on the main queue after the camera was switched, as the connection of a preview is created again then
+    var onCameraSwitched: (() -> Void)?
+
     /// Time of the start of the recording, only set on the main queue
     private(set) var startDate: Date?
 
@@ -181,6 +184,8 @@ final class VideoMessageRecorder: NSObject, AVCaptureVideoDataOutputSampleBuffer
             self.configureVideoConnection()
 
             self.session.commitConfiguration()
+
+            DispatchQueue.main.async { self.onCameraSwitched?() }
         }
     }
 
