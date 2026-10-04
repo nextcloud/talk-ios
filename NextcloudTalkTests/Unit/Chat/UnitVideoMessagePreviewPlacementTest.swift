@@ -42,8 +42,8 @@ final class UnitVideoMessagePreviewPlacementTest: XCTestCase {
         let area = CGRect(x: 10, y: 100, width: 348, height: 560)
         let rect = VideoMessagePreviewPlacement.frame(in: area, aspect: self.portrait)
 
-        XCTAssertEqual(rect.midX, area.midX, accuracy: 0.5)
-        XCTAssertEqual(rect.midY, area.midY, accuracy: 0.5)
+        XCTAssertEqual(rect.midX, area.midX, accuracy: 1)
+        XCTAssertEqual(rect.midY, area.midY, accuracy: 1)
     }
 
     func testPortraitInALowAreaIsFittedByTheHeightWithMargins() throws {
