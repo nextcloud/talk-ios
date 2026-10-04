@@ -161,8 +161,7 @@ extension BaseChatViewController {
         // Playing a voice message and recording do not go together
         self.pauseVoiceMessagePlayer()
 
-        let interfaceOrientation = self.view.window?.windowScene?.interfaceOrientation ?? .portrait
-        let recorder = VideoMessageRecorder(interfaceOrientation: interfaceOrientation == .unknown ? .portrait : interfaceOrientation)
+        let recorder = VideoMessageRecorder(interfaceOrientation: CameraCaptureHelpers.interfaceOrientation(of: self.view))
         recorder.onFailure = { [weak self, weak recorder] in
             guard let self, let recorder, self.videoMessageRecorder === recorder else { return }
 
@@ -262,6 +261,17 @@ extension BaseChatViewController {
         self.tableView?.accessibilityElementsHidden = true
 
         self.updateVideoMessagePreviewLayout()
+
+        UIAccessibility.post(notification: .layoutChanged, argument: previewView)
+    }
+
+    /// Adds a view to the chat, below the dimming of a video recording when it is shown, so it is not left over it
+    func addBelowVideoMessageScrim(_ overlayView: UIView) {
+        if let scrimView = self.videoMessageScrimView {
+            self.view.insertSubview(overlayView, belowSubview: scrimView)
+        } else {
+            self.view.addSubview(overlayView)
+        }
     }
 
     /// Removes the preview and what is shown with it, whatever the way the recording ended
@@ -274,6 +284,9 @@ extension BaseChatViewController {
         self.lockedVideoSendButton = nil
 
         self.tableView?.accessibilityElementsHidden = false
+        self.rightButton.accessibilityElementsHidden = false
+
+        UIAccessibility.post(notification: .layoutChanged, argument: nil)
     }
 
     /// Places the preview in the free space above the recording panel: it follows the orientation of the interface,

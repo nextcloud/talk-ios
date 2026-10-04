@@ -2128,6 +2128,8 @@ import Toast
     /// A locked video recording stays in the row of the inputbar, which shows the indicator and the time. It gets the
     /// button to cancel in the row and the one to send over the record button, which is no longer held.
     internal func showLockedVideoMessageActions() {
+        self.lockedVideoSendButton?.removeFromSuperview()
+
         self.voiceMessageRecordingView?.showCancelButton { [weak self] in
             self?.handleDelete()
         }
@@ -2135,8 +2137,8 @@ import Toast
         var configuration = UIButton.Configuration.filled()
         configuration.image = UIImage(systemName: "paperplane.fill")
         configuration.cornerStyle = .capsule
-        configuration.baseBackgroundColor = .systemBlue
-        configuration.baseForegroundColor = .white
+        configuration.baseBackgroundColor = NCAppBranding.themeColor()
+        configuration.baseForegroundColor = NCAppBranding.themeTextColor()
 
         let sendButton = UIButton(configuration: configuration)
         sendButton.translatesAutoresizingMaskIntoConstraints = false
@@ -2145,6 +2147,9 @@ import Toast
 
         self.textInputbar.addSubview(sendButton)
         self.lockedVideoSendButton = sendButton
+
+        // The send button takes its place, VoiceOver does not read the record button below it as well
+        self.rightButton.accessibilityElementsHidden = true
 
         NSLayoutConstraint.activate([
             sendButton.centerXAnchor.constraint(equalTo: self.rightButton.centerXAnchor),
