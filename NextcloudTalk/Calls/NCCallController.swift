@@ -1884,10 +1884,19 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
     }
 
     private func processCandidate(_ signalingMessage: NCSignalingMessage) {
-        let peerConnectionWrapper = self.getOrCreatePeerConnectionWrapper(forSessionId: signalingMessage.from, withSid: signalingMessage.sid, ofType: signalingMessage.roomType)
-        if let candidateMessage = signalingMessage as? NCICECandidateMessage {
-            peerConnectionWrapper.add(candidateMessage.candidate)
+        guard let candidateMessage = signalingMessage as? NCICECandidateMessage else { return }
+
+        var peerConnectionWrapper = self.getPeerConnectionWrapper(forSessionId: signalingMessage.from, ofType: signalingMessage.roomType)
+
+        // Candidates for our own screen peer have the same "from" and type as a received screenshare, only the "sid" tells them apart
+        if signalingMessage.roomType == kRoomTypeScreen,
+           let ownScreenPeerConnectionWrapper = self.getPeerConnectionWrapper(forSessionId: signalingMessage.from, ofType: kRoomTypeScreen, forOwnScreenshare: true),
+           ownScreenPeerConnectionWrapper.sid == signalingMessage.sid {
+            peerConnectionWrapper = ownScreenPeerConnectionWrapper
         }
+
+        // Only offers create peers, a candidate for an unknown peer is late, same as web
+        peerConnectionWrapper?.add(candidateMessage.candidate)
     }
 
     private func processUnshareScreen(_ signalingMessage: NCSignalingMessage) {
