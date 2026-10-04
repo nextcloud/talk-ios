@@ -169,4 +169,26 @@ final class UnitVideoMessagePreviewPlacementTest: XCTestCase {
         XCTAssertLessThan(inPortrait.width, inPortrait.height)
         XCTAssertGreaterThan(inLandscape.width, inLandscape.height)
     }
+
+    // MARK: - Compact recording panel (iPhone 390x844 and 844x390, areas from the estimates in the report)
+
+    func testLandscapePhoneGetsMoreWhenThePanelIsTheHeightOfTheInputbar() throws {
+        // Between the navigation bar (32) and the top of the inputbar (317), safe area left and right 47
+        let compact = VideoMessagePreviewPlacement.frame(in: CGRect(x: 47, y: 32, width: 750, height: 285), aspect: self.landscape)
+        // Between the navigation bar and the top of the big panel of the first version (about 282)
+        let big = VideoMessagePreviewPlacement.frame(in: CGRect(x: 47, y: 32, width: 750, height: 250), aspect: self.landscape)
+
+        XCTAssertEqual(compact, CGRect(x: 197, y: 48, width: 450, height: 253))
+        XCTAssertEqual(big, CGRect(x: 228, y: 48, width: 388, height: 218))
+        XCTAssertGreaterThan(compact.height, big.height)
+        self.assertAspect(compact, self.landscape)
+    }
+
+    func testPortraitPhoneIsCappedByTheLongestSideWithTheCompactPanel() throws {
+        // Between the navigation bar (47 + 44) and the top of the inputbar (758)
+        let compact = VideoMessagePreviewPlacement.frame(in: CGRect(x: 0, y: 91, width: 390, height: 667), aspect: self.portrait)
+
+        XCTAssertEqual(compact, CGRect(x: 60, y: 185, width: 270, height: 480))
+        XCTAssertLessThanOrEqual(compact.maxY, 758 - 16)
+    }
 }

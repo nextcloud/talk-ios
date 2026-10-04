@@ -106,6 +106,7 @@ import Toast
     internal var videoMessageRecorder: VideoMessageRecorder?
     internal var videoMessagePreviewView: VideoMessagePreviewView?
     internal var videoMessageScrimView: UIView?
+    internal var lockedVideoSendButton: UIButton?
     internal var videoMessageLimitTimer: Timer?
 
     private var animationDispatchGroup = DispatchGroup()
@@ -1939,9 +1940,9 @@ import Toast
 
     // MARK: - Expanded voice message recording
 
-    func showExpandedVoiceMessageRecordingView(offset: Int, allowsPause: Bool = true) {
+    func showExpandedVoiceMessageRecordingView(offset: Int) {
         let expandedView = ExpandedVoiceMessageRecordingView(
-            deleteFunc: handleDelete, sendFunc: handleSend, recordFunc: handleRecord(isRecording:), allowsPause: allowsPause, timeElapsed: offset
+            deleteFunc: handleDelete, sendFunc: handleSend, recordFunc: handleRecord(isRecording:), timeElapsed: offset
         )
 
         let hostingController = UIHostingController(rootView: expandedView)
@@ -1949,8 +1950,6 @@ import Toast
 
         self.expandedUIHostingController = hostingController
         self.view.addSubview(expandedVoiceMessageRecordingView)
-        // The preview of a video makes room for the panel
-        self.view.setNeedsLayout()
 
         expandedVoiceMessageRecordingView.translatesAutoresizingMaskIntoConstraints = false
 
@@ -2014,14 +2013,35 @@ import Toast
         self.expandedUIHostingController?.removeFromParent()
         self.expandedUIHostingController?.view.isHidden = true
         self.textInputbar.bringSubviewToFront(self.textInputbar)
-        self.view.setNeedsLayout()
     }
 
-    /// The panel of a locked recording while it is shown
-    internal var visibleExpandedRecordingPanel: UIView? {
-        guard let panel = self.expandedUIHostingController?.view, !panel.isHidden, panel.superview === self.view else { return nil }
+    /// A locked video recording stays in the row of the inputbar, which shows the indicator and the time. It gets the
+    /// button to cancel in the row and the one to send over the record button, which is no longer held.
+    internal func showLockedVideoMessageActions() {
+        self.voiceMessageRecordingView?.showCancelButton { [weak self] in
+            self?.handleDelete()
+        }
 
-        return panel
+        var configuration = UIButton.Configuration.filled()
+        configuration.image = UIImage(systemName: "paperplane.fill")
+        configuration.cornerStyle = .capsule
+        configuration.baseBackgroundColor = .systemBlue
+        configuration.baseForegroundColor = .white
+
+        let sendButton = UIButton(configuration: configuration)
+        sendButton.translatesAutoresizingMaskIntoConstraints = false
+        sendButton.accessibilityLabel = NSLocalizedString("Send message", comment: "")
+        sendButton.addAction(UIAction { [weak self] _ in self?.handleSend() }, for: .touchUpInside)
+
+        self.textInputbar.addSubview(sendButton)
+        self.lockedVideoSendButton = sendButton
+
+        NSLayoutConstraint.activate([
+            sendButton.centerXAnchor.constraint(equalTo: self.rightButton.centerXAnchor),
+            sendButton.centerYAnchor.constraint(equalTo: self.rightButton.centerYAnchor),
+            sendButton.widthAnchor.constraint(equalTo: self.rightButton.widthAnchor),
+            sendButton.heightAnchor.constraint(equalTo: self.rightButton.heightAnchor)
+        ])
     }
 
     /// Brings the lock button of the recording above the views that are added for a video, which are shown over the chat
@@ -2462,9 +2482,14 @@ import Toast
                 if slideY > maxSlideY, !self.recordCancelled {
                     if !isVoiceRecordingLocked {
                         self.voiceRecordingLockButton.setImage(UIImage(systemName: "lock"), for: .normal)
-                        let offset = self.voiceMessageRecordingView?.getTimeCounted()
-                        let intOffset = Int(offset!.magnitude)
-                        showExpandedVoiceMessageRecordingView(offset: intOffset, allowsPause: !self.isVideoGestureActive)
+                        if self.isVideoGestureActive {
+                            // A video keeps the row of the inputbar, so the preview gets the height of a panel
+                            self.showLockedVideoMessageActions()
+                        } else {
+                            let offset = self.voiceMessageRecordingView?.getTimeCounted()
+                            let intOffset = Int(offset!.magnitude)
+                            showExpandedVoiceMessageRecordingView(offset: intOffset)
+                        }
                         print("LOCKED")
                         isVoiceRecordingLocked = true
                     }
