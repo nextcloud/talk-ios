@@ -337,8 +337,6 @@ import Toast
         self.scrollToBottomButton.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -10).isActive = true
         self.voiceRecordingLockButton.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -10).isActive = true
 
-        self.addMenuToLeftButton()
-
         self.replyMessageView?.addObserver(self, forKeyPath: "visible", options: .new, context: nil)
 
         self.textView.pastableMediaTypes = .images
@@ -771,7 +769,7 @@ import Toast
     func showAttachmentButton() {
         self.setInputbarImage(UIImage(systemName: "plus"), for: self.leftButton)
         self.leftButton.accessibilityLabel = NSLocalizedString("Share a file from your Nextcloud", comment: "")
-        self.leftButton.accessibilityHint = NSLocalizedString("Double tap to open file browser", comment: "")
+        self.leftButton.accessibilityHint = NSLocalizedString("Double tap to choose what to share", comment: "Accessibility hint of the button that opens the attachment sheet")
         self.leftButton.accessibilityIdentifier = "shareButton"
     }
 
@@ -854,7 +852,10 @@ import Toast
             return
         }
 
-        super.didPressLeftButton(sender)
+        // No sharing options in federation v1, the button has no image there
+        guard !self.room.isFederated else { return }
+
+        self.presentAttachmentSheet()
     }
 
     public override func didPressRightButton(_ sender: Any?) {
@@ -1017,121 +1018,14 @@ import Toast
         self.rightButton.menu = UIMenu(children: actions.reversed())
     }
 
-    func addMenuToLeftButton() {
-        // The keyboard will be hidden when an action is invoked. Depending on what
-        // attachment is shared, not resigning might lead to a currupted chat view
-        var items: [UIMenuElement] = []
-
-        let cameraAction = UIAction(title: NSLocalizedString("Camera", comment: ""), image: UIImage(systemName: "camera")) { [unowned self] _ in
-            self.textView.resignFirstResponder()
-            self.checkAndPresentCamera()
-        }
-
-        let photoLibraryAction = UIAction(title: NSLocalizedString("Photo Library", comment: ""), image: UIImage(systemName: "photo")) { [unowned self] _ in
-            self.textView.resignFirstResponder()
-            self.presentPhotoLibrary()
-        }
-
-        let shareLocationAction = UIAction(title: NSLocalizedString("Location", comment: ""), image: UIImage(systemName: "location")) { [unowned self] _ in
-            self.textView.resignFirstResponder()
-            self.presentShareLocation()
-        }
-
-        let contactShareAction = UIAction(title: NSLocalizedString("Contacts", comment: ""), image: UIImage(systemName: "person")) { [unowned self] _ in
-            self.textView.resignFirstResponder()
-            self.presentShareContact()
-        }
-
-        let filesAction = UIAction(title: NSLocalizedString("Files", comment: ""), image: UIImage(systemName: "doc")) { [unowned self] _ in
-            self.textView.resignFirstResponder()
-            self.presentDocumentPicker()
-        }
-
-        let ncFilesAction = UIAction(title: filesAppName, image: UIImage(named: "logo-action")?.withRenderingMode(.alwaysTemplate)) { [unowned self] _ in
-            self.textView.resignFirstResponder()
-            self.presentNextcloudFilesBrowser()
-        }
-
-        let pollAction = UIAction(title: NSLocalizedString("Poll", comment: ""), image: UIImage(systemName: "chart.bar")) { [unowned self] _ in
-            self.textView.resignFirstResponder()
-            self.presentPollCreation()
-        }
-
-        let threadAction = UIAction(title: NSLocalizedString("Thread", comment: "Context menu action to reply to a message in a thread"), image: UIImage(systemName: "bubble.left.and.bubble.right")) { [unowned self] _ in
-            self.textView.resignFirstResponder()
-            self.presentThreadCreation()
-        }
-
-        // Not localized: "GIF" is a file format and "Giphy" a company name
-        let giphyAction = UIAction(title: "GIF (Giphy)", image: UIImage(systemName: "play.square.stack")) { [unowned self] _ in
-            self.textView.resignFirstResponder()
-            self.presentGiphyPicker()
-        }
-
-        // Add actions (inverted)
-        var objectItems = [UIMenuElement]()
-        objectItems.append(contactShareAction)
-
-        if NCDatabaseManager.sharedInstance().roomHasTalkCapability(.locationSharing, for: self.room) {
-            objectItems.append(shareLocationAction)
-        }
-
-        if NCDatabaseManager.sharedInstance().roomHasTalkCapability(.talkPolls, for: self.room),
-            self.room.type != .oneToOne, self.room.type != .noteToSelf {
-
-            objectItems.append(pollAction)
-        }
-
-        if NCDatabaseManager.sharedInstance().roomHasTalkCapability(.threads, for: self.room),
-           self.thread == nil {
-
-            objectItems.append(threadAction)
-        }
-
-        // TODO: Remove this check when rich objects and polls can be shared in threads
-        if thread == nil {
-            items.append(UIMenu(options: .displayInline, children: objectItems))
-        }
-
-        items.append(ncFilesAction)
-        items.append(filesAction)
-
-        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: self.account.accountId)
-        if serverCapabilities?.giphyEnabled == true, serverCapabilities?.giphyConfigured == true {
-            items.append(giphyAction)
-        }
-
-        items.append(photoLibraryAction)
-
-        if UIImagePickerController.isSourceTypeAvailable(.camera) {
-            items.append(cameraAction)
-        }
-
-        self.leftButton.menu = UIMenu(children: items)
-        self.leftButton.showsMenuAsPrimaryAction = true
-
-        // Ensure that our longPressGestureRecognizer does not interfere with the native ones
-        _ = self.leftButton.gestureRecognizers?.map { recognizer in
-            if let leftButtonLongPressGesture {
-                recognizer.require(toFail: leftButtonLongPressGesture)
-            }
-        }
-    }
-
     func longPress(gestureRecognizer: UILongPressGestureRecognizer) {
         guard gestureRecognizer.state == .began else { return }
-
-        // Remove the menu, so we don't accidentially open the menu on a long press
-        self.leftButton.menu = nil
 
         // Add haptic feedback
         let generator = UIImpactFeedbackGenerator(style: .heavy)
         generator.impactOccurred()
 
         self.presentPhotoLibrary()
-
-        // Re-add the menu to the left button
-        self.addMenuToLeftButton()
     }
 
     func presentNextcloudFilesBrowser() {
@@ -1579,9 +1473,6 @@ import Toast
         guard self.hasGlassInputbar else { return }
 
         if self.textInputbar.isEditing {
-            // The attachment menu is the primary action of the left button, so no press is reported while it's set
-            self.leftButton.menu = nil
-            self.leftButton.showsMenuAsPrimaryAction = false
             self.leftButtonLongPressGesture?.isEnabled = false
 
             self.setInputbarImage(UIImage(systemName: "xmark"), for: self.leftButton)
@@ -1594,7 +1485,6 @@ import Toast
         } else {
             self.leftButtonLongPressGesture?.isEnabled = true
             self.showAttachmentButton()
-            self.addMenuToLeftButton()
 
             // Both buttons are set up from scratch instead of being restored: showAttachmentButton() knows
             // about federation, and canPressRightButton() about send or record for the text we have now

@@ -722,6 +722,38 @@
 			<string>You can select up to %ld items</string>
 		</dict>
 	</dict>
+	<key>Send (%ld)</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>Send (%ld)</string>
+			<key>other</key>
+			<string>Send (%ld)</string>
+		</dict>
+	</dict>
+	<key>Preparing %1$ld of %2$ld…</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Preparing %1$ld of %2$#@total@</string>
+		<key>total</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%2$ld…</string>
+			<key>other</key>
+			<string>%2$ld…</string>
+		</dict>
+	</dict>
 	<key>%1$ld of %2$ld</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>

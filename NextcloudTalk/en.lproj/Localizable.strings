@@ -175,6 +175,9 @@
 /* No comment provided by engineer. */
 "Accept" = "Accept";
 
+/* Shown in the attachment sheet when the photo library can not be used */
+"Access to your photos is restricted on this device" = "Access to your photos is restricted on this device";
+
 /* No comment provided by engineer. */
 "Account" = "Account";
 
@@ -249,6 +252,12 @@
 
 /* No comment provided by engineer. */
 "All notifications are muted" = "All notifications are muted";
+
+/* Button to allow access to the photo library in the settings */
+"Allow access" = "Allow access";
+
+/* Shown in the attachment sheet when the access to the photo library was denied */
+"Allow access to your photos to see your recent photos and videos here" = "Allow access to your photos to see your recent photos and videos here";
 
 /* No comment provided by engineer. */
 "Allow guests to join this conversation via link" = "Allow guests to join this conversation via link";
@@ -844,6 +853,9 @@
 /* No comment provided by engineer. */
 "Could not login with QR code" = "Could not login with QR code";
 
+/* Title of an error shown when photos or videos could not be read from the photo library */
+"Could not prepare the selected items" = "Could not prepare the selected items";
+
 /* No comment provided by engineer. */
 "Could not prepare upload folder" = "Could not prepare upload folder";
 
@@ -1065,6 +1077,9 @@
 
 /* No comment provided by engineer. */
 "Double tap to change who can modify the shared files" = "Double tap to change who can modify the shared files";
+
+/* Accessibility hint of the button that opens the attachment sheet */
+"Double tap to choose what to share" = "Double tap to choose what to share";
 
 /* No comment provided by engineer. */
 "Double tap to discard the changes" = "Double tap to discard the changes";
@@ -1989,6 +2004,9 @@
 /* No comment provided by engineer. */
 "Phone number set successfully" = "Phone number set successfully";
 
+/* A photo in the photo library */
+"Photo" = "Photo";
+
 /* No comment provided by engineer. */
 "Photo Library" = "Photo Library";
 
@@ -2051,6 +2069,9 @@
 
 /* No comment provided by engineer. */
 "Polls" = "Polls";
+
+/* Photos and videos are being prepared for sending, the numbers are the current one and all of them */
+"Preparing %1$ld of %2$ld…" = "Preparing %1$ld of %2$ld…";
 
 /* No comment provided by engineer. */
 "Preview" = "Preview";
@@ -2272,11 +2293,20 @@
 /* No comment provided by engineer. */
 "Select language" = "Select language";
 
+/* Opens the system picker to allow access to more photos */
+"Select more photos" = "Select more photos";
+
+/* An item of the attachment sheet is selected */
+"Selected" = "Selected";
+
 /* Copy a 'selection' of a message */
 "Selection" = "Selection";
 
 /* Button to send the shared content to a conversation */
 "Send" = "Send";
+
+/* Sends the selected photos and videos, the number is how many */
+"Send (%ld)" = "Send (%ld)";
 
 /* No comment provided by engineer. */
 "Send a reaction" = "Send a reaction";
@@ -2785,6 +2815,9 @@
 /* No comment provided by engineer. */
 "Version" = "Version";
 
+/* A video in the photo library */
+"Video" = "Video";
+
 /* Join a call in video call mode */
 "Video call" = "Video call";
 
@@ -2832,6 +2865,9 @@
 
 /* Please put {user0} and {user1} placeholders in the correct position on the translated text but do not translate them */
 "You added {user0} and {user1}" = "You added {user0} and {user1}";
+
+/* Shown in the attachment sheet when the access to the photo library is limited */
+"You allowed access to some of your photos only" = "You allowed access to some of your photos only";
 
 /* Please put %ld placeholder in the correct position on the translated text but do not translate it */
 "You and %ld more participants joined the call" = "You and %ld more participants joined the call";
@@ -3060,6 +3096,12 @@
 
 /* No comment provided by engineer. */
 "{actor} stopped the video recording" = "{actor} stopped the video recording";
+
+/* File name, error description */
+"“%1$@” could not be prepared: %2$@" = "“%1$@” could not be prepared: %2$@";
+
+/* File name */
+"“%@” could not be read from the photo library" = "“%@” could not be read from the photo library";
 
 /* No comment provided by engineer. */
 "↓ New messages" = "↓ New messages";
