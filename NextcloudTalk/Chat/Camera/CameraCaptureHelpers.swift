@@ -53,6 +53,13 @@ enum CameraCaptureHelpers {
             connection.videoOrientation = videoOrientation
         }
     }
+
+    /// The orientation of the interface a view is shown in, portrait as long as that is not known
+    static func interfaceOrientation(of view: UIView?) -> UIInterfaceOrientation {
+        let orientation = view?.window?.windowScene?.interfaceOrientation ?? .portrait
+
+        return orientation == .unknown ? .portrait : orientation
+    }
 }
 
 /// Live preview of a capture session, which follows the orientation of the interface
