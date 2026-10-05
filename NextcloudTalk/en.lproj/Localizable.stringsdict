@@ -706,5 +706,37 @@
 			<string>{actor0} and %ld more participants left the call</string>
 		</dict>
 	</dict>
+	<key>You can select up to %ld items</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@items@</string>
+		<key>items</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>You can select up to %ld item</string>
+			<key>other</key>
+			<string>You can select up to %ld items</string>
+		</dict>
+	</dict>
+	<key>%1$ld of %2$ld</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%1$ld of %2$#@total@</string>
+		<key>total</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%2$ld</string>
+			<key>other</key>
+			<string>%2$ld</string>
+		</dict>
+	</dict>
 </dict>
 </plist>
