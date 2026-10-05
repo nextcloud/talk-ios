@@ -2596,17 +2596,7 @@ import Toast
                 let maxSlideY = 64.0
                 if slideY > maxSlideY, !self.recordCancelled {
                     if !isVoiceRecordingLocked {
-                        self.voiceRecordingLockButton.setImage(UIImage(systemName: "lock"), for: .normal)
-                        if self.isVideoGestureActive {
-                            // A video keeps the row of the inputbar, so the preview gets the height of a panel
-                            self.showLockedVideoMessageActions()
-                        } else {
-                            let offset = self.voiceMessageRecordingView?.getTimeCounted()
-                            let intOffset = Int(offset!.magnitude)
-                            showExpandedVoiceMessageRecordingView(offset: intOffset)
-                        }
-                        print("LOCKED")
-                        isVoiceRecordingLocked = true
+                        self.lockVoiceMessageRecording()
                     }
                 }
             }
@@ -2617,6 +2607,23 @@ import Toast
             self.resetVoiceRecordingLockButton()
             self.stopRecordingForGesture(send: false)
         }
+    }
+
+    /// Locks the recording, so it goes on without holding the button. A video keeps the row of the inputbar, so its
+    /// preview gets the height of a panel, a voice message gets the expanded panel.
+    private func lockVoiceMessageRecording() {
+        self.voiceRecordingLockButton.setImage(UIImage(systemName: "lock"), for: .normal)
+
+        if self.isVideoGestureActive {
+            self.showLockedVideoMessageActions()
+        } else {
+            let offset = self.voiceMessageRecordingView?.getTimeCounted()
+            let intOffset = Int(offset!.magnitude)
+            showExpandedVoiceMessageRecordingView(offset: intOffset)
+        }
+
+        print("LOCKED")
+        isVoiceRecordingLocked = true
     }
 
     func shouldLockInterfaceOrientation(lock: Bool) {
