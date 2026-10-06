@@ -77,9 +77,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%n minut siden</string>
+			<string>%d minut siden</string>
 			<key>other</key>
-			<string>%n minutter siden</string>
+			<string>%d minutter siden</string>
 		</dict>
 	</dict>
 	<key>%d hours ago</key>
@@ -93,9 +93,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%n timer siden</string>
+			<string>%d time siden</string>
 			<key>other</key>
-			<string>%n timer siden</string>
+			<string>%d timer siden</string>
 		</dict>
 	</dict>
 	<key>%d days ago</key>
@@ -109,9 +109,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%n dag siden</string>
+			<string>%d dag siden</string>
 			<key>other</key>
-			<string>%n dage siden</string>
+			<string>%d dage siden</string>
 		</dict>
 	</dict>
 	<key>%ld notifications</key>
