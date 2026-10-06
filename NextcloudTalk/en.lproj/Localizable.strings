@@ -25,6 +25,9 @@
 /* Alice, Bob, Charlie and 1 other is typing… */
 "%1$@, %2$@, %3$@ and 1 other is typing…" = "%1$@, %2$@, %3$@ and 1 other is typing…";
 
+/* Position of the shown item in the selection, e.g. '2 of 5' */
+"%1$ld of %2$ld" = "%1$ld of %2$ld";
+
 /* 'Alice (bot)' - a participant that is a bot, not a person */
 "%@ (bot)" = "%@ (bot)";
 
@@ -172,6 +175,9 @@
 /* No comment provided by engineer. */
 "Accept" = "Accept";
 
+/* Shown in the attachment sheet when the photo library can not be used */
+"Access to your photos is restricted on this device" = "Access to your photos is restricted on this device";
+
 /* No comment provided by engineer. */
 "Account" = "Account";
 
@@ -193,6 +199,9 @@
 /* No comment provided by engineer. */
 "Add (%lu)" = "Add (%lu)";
 
+/* Placeholder of the field for the text sent along with the photos and files */
+"Add a caption …" = "Add a caption …";
+
 /* No comment provided by engineer. */
 "Add account" = "Add account";
 
@@ -204,6 +213,9 @@
 
 /* No comment provided by engineer. */
 "Add attendees" = "Add attendees";
+
+/* Add more photos, videos or files to the share */
+"Add more" = "Add more";
 
 /* No comment provided by engineer. */
 "Add participants" = "Add participants";
@@ -240,6 +252,12 @@
 
 /* No comment provided by engineer. */
 "All notifications are muted" = "All notifications are muted";
+
+/* Button to allow access to the photo library in the settings */
+"Allow access" = "Allow access";
+
+/* Shown in the attachment sheet when the access to the photo library was denied */
+"Allow access to your photos to see your recent photos and videos here" = "Allow access to your photos to see your recent photos and videos here";
 
 /* No comment provided by engineer. */
 "Allow guests to join this conversation via link" = "Allow guests to join this conversation via link";
@@ -835,8 +853,14 @@
 /* No comment provided by engineer. */
 "Could not login with QR code" = "Could not login with QR code";
 
+/* Title of an error shown when photos or videos could not be read from the photo library */
+"Could not prepare the selected items" = "Could not prepare the selected items";
+
 /* No comment provided by engineer. */
 "Could not prepare upload folder" = "Could not prepare upload folder";
+
+/* No comment provided by engineer. */
+"Could not record the video" = "Could not record the video";
 
 /* No comment provided by engineer. */
 "Could not remove participant" = "Could not remove participant";
@@ -878,6 +902,9 @@
 "Could not start group conversation" = "Could not start group conversation";
 
 /* No comment provided by engineer. */
+"Could not take the photo" = "Could not take the photo";
+
+/* No comment provided by engineer. */
 "Could not update tags" = "Could not update tags";
 
 /* Generic 'Create' button label (e.g. new conversation, new tag) */
@@ -903,6 +930,9 @@
 
 /* No comment provided by engineer. */
 "Credentials for this account were no longer valid" = "Credentials for this account were no longer valid";
+
+/* No comment provided by engineer. */
+"Crop and rotate" = "Crop and rotate";
 
 /* Custom message expiration */
 "Custom" = "Custom";
@@ -1048,6 +1078,9 @@
 /* No comment provided by engineer. */
 "Double tap to change who can modify the shared files" = "Double tap to change who can modify the shared files";
 
+/* Accessibility hint of the button that opens the attachment sheet */
+"Double tap to choose what to share" = "Double tap to choose what to share";
+
 /* No comment provided by engineer. */
 "Double tap to discard the changes" = "Double tap to discard the changes";
 
@@ -1134,6 +1167,9 @@
 
 /* Accessibility label of the indicator shown while the original file is downloaded */
 "Downloading full quality media" = "Downloading full quality media";
+
+/* No comment provided by engineer. */
+"Draw" = "Draw";
 
 /* No comment provided by engineer. */
 "Duplicate session" = "Duplicate session";
@@ -1275,6 +1311,15 @@
 
 /* First day of the absence */
 "First day" = "First day";
+
+/* No comment provided by engineer. */
+"Flash auto" = "Flash auto";
+
+/* No comment provided by engineer. */
+"Flash off" = "Flash off";
+
+/* No comment provided by engineer. */
+"Flash on" = "Flash on";
 
 /* No comment provided by engineer. */
 "Follow conversation settings" = "Follow conversation settings";
@@ -1959,6 +2004,9 @@
 /* No comment provided by engineer. */
 "Phone number set successfully" = "Phone number set successfully";
 
+/* A photo in the photo library */
+"Photo" = "Photo";
+
 /* No comment provided by engineer. */
 "Photo Library" = "Photo Library";
 
@@ -2022,6 +2070,9 @@
 /* No comment provided by engineer. */
 "Polls" = "Polls";
 
+/* Photos and videos are being prepared for sending, the numbers are the current one and all of them */
+"Preparing %1$ld of %2$ld…" = "Preparing %1$ld of %2$ld…";
+
 /* No comment provided by engineer. */
 "Preview" = "Preview";
 
@@ -2069,6 +2120,12 @@
 
 /* No comment provided by engineer. */
 "Recent threads" = "Recent threads";
+
+/* Accessibility action of the shutter button of the camera that starts recording a video */
+"Record video" = "Record video";
+
+/* No comment provided by engineer. */
+"Record video message" = "Record video message";
 
 /* No comment provided by engineer. */
 "Record voice message" = "Record voice message";
@@ -2236,11 +2293,20 @@
 /* No comment provided by engineer. */
 "Select language" = "Select language";
 
+/* Opens the system picker to allow access to more photos */
+"Select more photos" = "Select more photos";
+
+/* An item of the attachment sheet is selected */
+"Selected" = "Selected";
+
 /* Copy a 'selection' of a message */
 "Selection" = "Selection";
 
 /* Button to send the shared content to a conversation */
 "Send" = "Send";
+
+/* Sends the selected photos and videos, the number is how many */
+"Send (%ld)" = "Send (%ld)";
 
 /* No comment provided by engineer. */
 "Send a reaction" = "Send a reaction";
@@ -2447,6 +2513,9 @@
 "Switch account" = "Switch account";
 
 /* No comment provided by engineer. */
+"Switch camera" = "Switch camera";
+
+/* No comment provided by engineer. */
 "Switch to voice-only call" = "Switch to voice-only call";
 
 /* No comment provided by engineer. */
@@ -2461,6 +2530,9 @@
 /* 'Tags' meaning 'Conversation tags' */
 "Tags" = "Tags";
 
+/* No comment provided by engineer. */
+"Take photo" = "Take photo";
+
 /* Talk to a user */
 "Talk to" = "Talk to";
 
@@ -2468,10 +2540,25 @@
 "Talk to %@" = "Talk to %@";
 
 /* No comment provided by engineer. */
+"Tap and hold to record a video message" = "Tap and hold to record a video message";
+
+/* No comment provided by engineer. */
+"Tap and hold to record a video, release the button to send it." = "Tap and hold to record a video, release the button to send it.";
+
+/* No comment provided by engineer. */
+"Tap and hold to record a video. Tap to switch to voice messages." = "Tap and hold to record a video. Tap to switch to voice messages.";
+
+/* No comment provided by engineer. */
 "Tap and hold to record a voice message" = "Tap and hold to record a voice message";
 
 /* No comment provided by engineer. */
 "Tap and hold to record a voice message, release the button to send it." = "Tap and hold to record a voice message, release the button to send it.";
+
+/* No comment provided by engineer. */
+"Tap and hold to record a voice message. Tap to switch to video messages." = "Tap and hold to record a voice message. Tap to switch to video messages.";
+
+/* No comment provided by engineer. */
+"Tap for photo, hold for video" = "Tap for photo, hold for video";
 
 /* No comment provided by engineer. */
 "Test failed" = "Test failed";
@@ -2499,6 +2586,12 @@
 
 /* No comment provided by engineer. */
 "The call might be recorded" = "The call might be recorded";
+
+/* No comment provided by engineer. */
+"The camera can not be used during a call" = "The camera can not be used during a call";
+
+/* No comment provided by engineer. */
+"The camera is not available right now" = "The camera is not available right now";
 
 /* No comment provided by engineer. */
 "The password is wrong" = "The password is wrong";
@@ -2722,8 +2815,14 @@
 /* No comment provided by engineer. */
 "Version" = "Version";
 
+/* A video in the photo library */
+"Video" = "Video";
+
 /* Join a call in video call mode */
 "Video call" = "Video call";
+
+/* No comment provided by engineer. */
+"Video message could not be recorded" = "Video message could not be recorded";
 
 /* No comment provided by engineer. */
 "Video quality" = "Video quality";
@@ -2767,6 +2866,9 @@
 /* Please put {user0} and {user1} placeholders in the correct position on the translated text but do not translate them */
 "You added {user0} and {user1}" = "You added {user0} and {user1}";
 
+/* Shown in the attachment sheet when the access to the photo library is limited */
+"You allowed access to some of your photos only" = "You allowed access to some of your photos only";
+
 /* Please put %ld placeholder in the correct position on the translated text but do not translate it */
 "You and %ld more participants joined the call" = "You and %ld more participants joined the call";
 
@@ -2793,6 +2895,9 @@
 
 /* No comment provided by engineer. */
 "You can enable your microphone again in a few seconds" = "You can enable your microphone again in a few seconds";
+
+/* Shown when more photos and videos are selected than can be sent at once */
+"You can select up to %ld items" = "You can select up to %ld items";
 
 /* No comment provided by engineer. */
 "You can set your phone number so other users will be able to find you" = "You can set your phone number so other users will be able to find you";
@@ -2991,6 +3096,12 @@
 
 /* No comment provided by engineer. */
 "{actor} stopped the video recording" = "{actor} stopped the video recording";
+
+/* File name, error description */
+"“%1$@” could not be prepared: %2$@" = "“%1$@” could not be prepared: %2$@";
+
+/* File name */
+"“%@” could not be read from the photo library" = "“%@” could not be read from the photo library";
 
 /* No comment provided by engineer. */
 "↓ New messages" = "↓ New messages";

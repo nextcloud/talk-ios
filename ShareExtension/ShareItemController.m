@@ -12,6 +12,11 @@
 // be encoded here. The sender picks the quality later on, so nothing is thrown away yet.
 CGFloat const kShareItemControllerImageQuality = 1.0f;
 
+// An edited (cropped or rotated) photo is stored as JPEG with this quality, a PNG stays a PNG.
+// Its longest side is limited, so a crop of a huge photo stays a reasonable file.
+static CGFloat const kShareItemControllerEditedImageQuality = 0.95f;
+static CGFloat const kShareItemControllerEditedImageMaxPixelSize = 4096.0f;
+
 @interface ShareItemController ()
 
 @property (nonatomic, strong) NSString *tempDirectoryPath;
@@ -200,12 +205,43 @@ CGFloat const kShareItemControllerImageQuality = 1.0f;
 
 - (void)updateItem:(ShareItem *)item withImage:(UIImage *)image
 {
-    NSData *jpegData = UIImageJPEGRepresentation(image, kShareItemControllerImageQuality);
-    [jpegData writeToFile:item.filePath atomically:YES];
+    UIImage *limitedImage = [self image:image limitedToMaxPixelSize:kShareItemControllerEditedImageMaxPixelSize];
+    NSData *imageData;
+
+    if ([[item.filePath.pathExtension lowercaseString] isEqualToString:@"png"]) {
+        imageData = UIImagePNGRepresentation(limitedImage);
+    } else {
+        imageData = UIImageJPEGRepresentation(limitedImage, kShareItemControllerEditedImageQuality);
+    }
+
+    [imageData writeToFile:item.filePath atomically:YES];
     
     NSLog(@"Updating shareItem with Image: %@ %@", item.fileName, item.fileURL);
     
     [self.delegate shareItemControllerItemsChanged:self];
+}
+
+- (UIImage *)image:(UIImage *)image limitedToMaxPixelSize:(CGFloat)maxPixelSize
+{
+    CGFloat pixelWidth = image.size.width * image.scale;
+    CGFloat pixelHeight = image.size.height * image.scale;
+    CGFloat longestSide = MAX(pixelWidth, pixelHeight);
+
+    if (longestSide <= maxPixelSize) {
+        return image;
+    }
+
+    CGFloat ratio = maxPixelSize / longestSide;
+    CGSize targetSize = CGSizeMake(floor(pixelWidth * ratio), floor(pixelHeight * ratio));
+
+    UIGraphicsImageRendererFormat *format = [UIGraphicsImageRendererFormat preferredFormat];
+    format.scale = 1;
+
+    UIGraphicsImageRenderer *renderer = [[UIGraphicsImageRenderer alloc] initWithSize:targetSize format:format];
+
+    return [renderer imageWithActions:^(UIGraphicsImageRendererContext * _Nonnull context) {
+        [image drawInRect:CGRectMake(0, 0, targetSize.width, targetSize.height)];
+    }];
 }
 
 - (void)removeItem:(ShareItem *)item

@@ -998,7 +998,7 @@ import SwiftUI
             oooView.setupAbsence(withData: absenceData, inRoom: self.room)
             oooView.alpha = 0
 
-            self.view.addSubview(oooView)
+            self.addBelowVideoMessageScrim(oooView)
 
             NSLayoutConstraint.activate([
                 oooView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor),
@@ -1041,7 +1041,7 @@ import SwiftUI
             view.setupPinnedMessage(withMessage: message, inRoom: self.room)
             view.alpha = 0
 
-            self.view.addSubview(view)
+            self.addBelowVideoMessageScrim(view)
 
             NSLayoutConstraint.activate([
                 view.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor),
@@ -1223,8 +1223,7 @@ import SwiftUI
 
         // If in offline mode, we don't want to show the voice button
         if !offlineMode, !canPress, !presentedInCall,
-           NCDatabaseManager.sharedInstance().roomHasTalkCapability(.voiceMessage, for: room),
-           !room.isFederated {
+           self.isVoiceMessageRecordingAvailable || self.isVideoMessageRecordingAvailable {
 
             self.showVoiceMessageRecordButton()
             return true
