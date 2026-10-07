@@ -95,7 +95,7 @@ CGFloat const kCallParticipantCellMinHeight = 128;
 
     _displayName = nil;
     _peerNameLabel.text = nil;
-    [_videoView removeFromSuperview];
+    [[self attachedVideoView] removeFromSuperview];
     _videoView = nil;
     _showOriginalSize = NO;
     self.layer.borderWidth = 0.0f;
@@ -273,11 +273,11 @@ CGFloat const kCallParticipantCellMinHeight = 128;
 {
     _videoDisabled = videoDisabled;
     if (videoDisabled) {
-        [_videoView setHidden:YES];
+        [[self attachedVideoView] setHidden:YES];
         [_peerAvatarImageView setHidden:NO];
     } else {
         [_peerAvatarImageView setHidden:YES];
-        [_videoView setHidden:NO];
+        [[self attachedVideoView] setHidden:NO];
     }
 }
 
@@ -301,12 +301,11 @@ CGFloat const kCallParticipantCellMinHeight = 128;
 - (void)setVideoView:(RTCMTLVideoView *)videoView
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if (videoView == self->_videoView) {
+        if (videoView == [self attachedVideoView]) {
             return;
         }
 
-        [self->_videoView removeFromSuperview];
-        self->_videoView = nil;
+        [[self attachedVideoView] removeFromSuperview];
         self->_videoView = videoView;
         [self->_peerVideoView addSubview:self->_videoView];
         [self->_videoView setHidden:self->_videoDisabled];
@@ -345,11 +344,21 @@ CGFloat const kCallParticipantCellMinHeight = 128;
         
         remoteVideoFrame.size.height *= scale;
         remoteVideoFrame.size.width *= scale;
-        _videoView.frame = remoteVideoFrame;
-        _videoView.center = CGPointMake(CGRectGetMidX(bounds), CGRectGetMidY(bounds));
+        [self attachedVideoView].frame = remoteVideoFrame;
+        [self attachedVideoView].center = CGPointMake(CGRectGetMidX(bounds), CGRectGetMidY(bounds));
     } else {
-        _videoView.frame = bounds;
+        [self attachedVideoView].frame = bounds;
     }
+}
+
+// A participant's video view moves between cells, so this cell may still point to a view another cell shows now
+- (UIView<RTCVideoRenderer> *)attachedVideoView
+{
+    if (_videoView && _videoView.superview == _peerVideoView) {
+        return _videoView;
+    }
+
+    return nil;
 }
 
 @end

@@ -1254,6 +1254,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
 
         externalSignalingController.sendCallMessage(message)
         peerConnectionWrapper.isRemoteVideoBlockedInMCU = blocked
+        NCLog.log("Remote video \(blocked ? "blocked" : "unblocked") in MCU for \(peerConnectionWrapper.peerId)")
     }
 
     private func selectSimulcastVideoQualityIfNeeded(for peerConnectionWrapper: NCPeerConnection) {
