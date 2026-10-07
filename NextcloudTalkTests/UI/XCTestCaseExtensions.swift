@@ -80,7 +80,8 @@ extension XCTestCase {
         waitForReady(object: loginWebview, timeout: TestConstants.timeoutLong)
 
         // Wait for the login button to be available and to get enabled/hittable
-        let loginButtonWeb = loginWebview.buttons["Log in"]
+        // Newer servers render the button as a plain link without a button role
+        let loginButtonWeb = waitForEitherElementToExist(loginWebview.buttons["Log in"], loginWebview.links["Log in"], TestConstants.timeoutLong)
         waitForReady(object: loginButtonWeb, timeout: TestConstants.timeoutLong)
 
         loginButtonWeb.tap()
