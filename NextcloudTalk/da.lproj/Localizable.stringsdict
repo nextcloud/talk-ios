@@ -13,9 +13,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%ld active bot</string>
+			<string>%ld aktiv bot</string>
 			<key>other</key>
-			<string>%ld active bots</string>
+			<string>%ld aktive bots</string>
 		</dict>
 	</dict>
 	<key>%d votes</key>
@@ -61,9 +61,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%ld participant in this call</string>
+			<string>%ld deltager i dette opkald</string>
 			<key>other</key>
-			<string>%ld participants in this call</string>
+			<string>%ld deltagere i dette opkald</string>
 		</dict>
 	</dict>
 	<key>%d minutes ago</key>
@@ -77,9 +77,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%n minut siden</string>
+			<string>%d minut siden</string>
 			<key>other</key>
-			<string>%n minutter siden</string>
+			<string>%d minutter siden</string>
 		</dict>
 	</dict>
 	<key>%d hours ago</key>
@@ -93,9 +93,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%n timer siden</string>
+			<string>%d time siden</string>
 			<key>other</key>
-			<string>%n timer siden</string>
+			<string>%d timer siden</string>
 		</dict>
 	</dict>
 	<key>%d days ago</key>
@@ -109,9 +109,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%n dag siden</string>
+			<string>%d dag siden</string>
 			<key>other</key>
-			<string>%n dage siden</string>
+			<string>%d dage siden</string>
 		</dict>
 	</dict>
 	<key>%ld notifications</key>
@@ -173,9 +173,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>This conversation will be automatically deleted for everyone in %ld day of no activity.</string>
+			<string>Denne samtale slettes automatisk for alle efter %ld dag uden aktivitet.</string>
 			<key>other</key>
-			<string>This conversation will be automatically deleted for everyone in %ld days of no activity.</string>
+			<string>Denne samtale slettes automatisk for alle efter %ld dage uden aktivitet.</string>
 		</dict>
 	</dict>
 	<key>%ld replies</key>
@@ -189,9 +189,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%ld reply</string>
+			<string>%ld svar</string>
 			<key>other</key>
-			<string>%ld replies</string>
+			<string>%ld svar</string>
 		</dict>
 	</dict>
 	<key>Password needs to be at least %d characters long</key>
@@ -205,9 +205,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>Password needs to be at least %d character long</string>
+			<string>Adgangskoden skal være på mindst %d tegn</string>
 			<key>other</key>
-			<string>Password needs to be at least %d characters long</string>
+			<string>Adgangskoden skal være på mindst %d tegn</string>
 		</dict>
 	</dict>
 	<key>Uploading %ld elements</key>
@@ -221,9 +221,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>Uploading %ld element</string>
+			<string>Overfører %ld element</string>
 			<key>other</key>
-			<string>Uploading %ld elements</string>
+			<string>Overfører %ld elementer</string>
 		</dict>
 	</dict>
 	<key>%ld conversations with unread messages</key>
@@ -237,9 +237,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%ld conversation with unread messages</string>
+			<string>%ld samtale med ulæste beskeder</string>
 			<key>other</key>
-			<string>%ld conversations with unread messages</string>
+			<string>%ld samtaler med ulæste beskeder</string>
 		</dict>
 	</dict>
 	<key>%ld days</key>
@@ -253,9 +253,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%ld day</string>
+			<string>%ld dag</string>
 			<key>other</key>
-			<string>%ld days</string>
+			<string>%ld dage</string>
 		</dict>
 	</dict>
 	<key>%ld hours</key>
@@ -269,9 +269,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%ld hour</string>
+			<string>%ld time</string>
 			<key>other</key>
-			<string>%ld hours</string>
+			<string>%ld timer</string>
 		</dict>
 	</dict>
 	<key>%ld minutes</key>
@@ -285,9 +285,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%ld minute</string>
+			<string>%ld minut</string>
 			<key>other</key>
-			<string>%ld minutes</string>
+			<string>%ld minutter</string>
 		</dict>
 	</dict>
 	<key>%1$@, %2$@, %3$@ and %4$ld others will receive invitations</key>
@@ -301,9 +301,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%4$ld other will receive invitations</string>
+			<string>%4$ld anden modtager en invitation</string>
 			<key>other</key>
-			<string>%4$ld others will receive invitations</string>
+			<string>%4$ld andre modtager invitationer</string>
 		</dict>
 	</dict>
 	<key>%1$@, %2$@, %3$@ and %4$ld others are typing…</key>
@@ -317,9 +317,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%4$ld other is typing…</string>
+			<string>%4$ld anden skriver …</string>
 			<key>other</key>
-			<string>%4$ld others are typing…</string>
+			<string>%4$ld andre skriver …</string>
 		</dict>
 	</dict>
 	<key>You added {user0} and %ld more participants</key>
@@ -333,9 +333,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>You added {user0} and %ld more participant</string>
+			<string>Du tilføjede {user0} og %ld anden deltager</string>
 			<key>other</key>
-			<string>You added {user0} and %ld more participants</string>
+			<string>Du tilføjede {user0} og %ld andre deltagere</string>
 		</dict>
 	</dict>
 	<key>An administrator added you and %ld more participants</key>
@@ -349,9 +349,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator added you and %ld more participant</string>
+			<string>En administrator tilføjede dig og %ld anden deltager</string>
 			<key>other</key>
-			<string>An administrator added you and %ld more participants</string>
+			<string>En administrator tilføjede dig og %ld andre deltagere</string>
 		</dict>
 	</dict>
 	<key>An administrator added {user0} and %ld more participants</key>
@@ -365,9 +365,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator added {user0} and %ld more participant</string>
+			<string>En administrator tilføjede {user0} og %ld anden deltager</string>
 			<key>other</key>
-			<string>An administrator added {user0} and %ld more participants</string>
+			<string>En administrator tilføjede {user0} og %ld andre deltagere</string>
 		</dict>
 	</dict>
 	<key>{actor0} added you and %ld more participants</key>
@@ -381,9 +381,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} added you and %ld more participant</string>
+			<string>{actor0} tilføjede dig og %ld anden deltager</string>
 			<key>other</key>
-			<string>{actor0} added you and %ld more participants</string>
+			<string>{actor0} tilføjede dig og %ld andre deltagere</string>
 		</dict>
 	</dict>
 	<key>{actor0} added {user0} and %ld more participants</key>
@@ -397,9 +397,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} added {user0} and %ld more participant</string>
+			<string>{actor0} tilføjede {user0} og %ld anden deltager</string>
 			<key>other</key>
-			<string>{actor0} added {user0} and %ld more participants</string>
+			<string>{actor0} tilføjede {user0} og %ld andre deltagere</string>
 		</dict>
 	</dict>
 	<key>You removed {user0} and %ld more participants</key>
@@ -413,9 +413,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>You removed {user0} and %ld more participant</string>
+			<string>Du fjernede {user0} og %ld anden deltager</string>
 			<key>other</key>
-			<string>You removed {user0} and %ld more participants</string>
+			<string>Du fjernede {user0} og %ld andre deltagere</string>
 		</dict>
 	</dict>
 	<key>An administrator removed you and %ld more participants</key>
@@ -429,9 +429,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator removed you and %ld more participant</string>
+			<string>En administrator fjernede dig og %ld anden deltager</string>
 			<key>other</key>
-			<string>An administrator removed you and %ld more participants</string>
+			<string>En administrator fjernede dig og %ld andre deltagere</string>
 		</dict>
 	</dict>
 	<key>An administrator removed {user0} and %ld more participants</key>
@@ -445,9 +445,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator removed {user0} and %ld more participant</string>
+			<string>En administrator fjernede {user0} og %ld anden deltager</string>
 			<key>other</key>
-			<string>An administrator removed {user0} and %ld more participants</string>
+			<string>En administrator fjernede {user0} og %ld andre deltagere</string>
 		</dict>
 	</dict>
 	<key>{actor0} removed you and %ld more participants</key>
@@ -461,9 +461,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} removed you and %ld more participant</string>
+			<string>{actor0} fjernede dig og %ld anden deltager</string>
 			<key>other</key>
-			<string>{actor0} removed you and %ld more participants</string>
+			<string>{actor0} fjernede dig og %ld andre deltagere</string>
 		</dict>
 	</dict>
 	<key>{actor0} removed {user0} and %ld more participants</key>
@@ -477,9 +477,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} removed {user0} and %ld more participant</string>
+			<string>{actor0} fjernede {user0} og %ld anden deltager</string>
 			<key>other</key>
-			<string>{actor0} removed {user0} and %ld more participants</string>
+			<string>{actor0} fjernede {user0} og %ld andre deltagere</string>
 		</dict>
 	</dict>
 	<key>You promoted {user0} and %ld more participants to moderators</key>
@@ -493,9 +493,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>You promoted {user0} and %ld more participant to moderators</string>
+			<string>Du gjorde {user0} og %ld anden deltager til moderatorer</string>
 			<key>other</key>
-			<string>You promoted {user0} and %ld more participants to moderators</string>
+			<string>Du gjorde {user0} og %ld andre deltagere til moderatorer</string>
 		</dict>
 	</dict>
 	<key>An administrator promoted you and %ld more participants to moderators</key>
@@ -509,9 +509,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator promoted you and %ld more participant to moderators</string>
+			<string>En administrator gjorde dig og %ld anden deltager til moderatorer</string>
 			<key>other</key>
-			<string>An administrator promoted you and %ld more participants to moderators</string>
+			<string>En administrator gjorde dig og %ld andre deltagere til moderatorer</string>
 		</dict>
 	</dict>
 	<key>An administrator promoted {user0} and %ld more participants to moderators</key>
@@ -525,9 +525,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator promoted {user0} and %ld more participant to moderators</string>
+			<string>En administrator gjorde {user0} og %ld anden deltager til moderatorer</string>
 			<key>other</key>
-			<string>An administrator promoted {user0} and %ld more participants to moderators</string>
+			<string>En administrator gjorde {user0} og %ld andre deltagere til moderatorer</string>
 		</dict>
 	</dict>
 	<key>{actor0} promoted you and %ld more participants to moderators</key>
@@ -541,9 +541,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} promoted you and %ld more participant to moderators</string>
+			<string>{actor0} gjorde dig og %ld anden deltager til moderatorer</string>
 			<key>other</key>
-			<string>{actor0} promoted you and %ld more participants to moderators</string>
+			<string>{actor0} gjorde dig og %ld andre deltagere til moderatorer</string>
 		</dict>
 	</dict>
 	<key>{actor0} promoted {user0} and %ld more participants to moderators</key>
@@ -557,9 +557,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} promoted {user0} and %ld more participant to moderators</string>
+			<string>{actor0} gjorde {user0} og %ld anden deltager til moderatorer</string>
 			<key>other</key>
-			<string>{actor0} promoted {user0} and %ld more participants to moderators</string>
+			<string>{actor0} gjorde {user0} og %ld andre deltagere til moderatorer</string>
 		</dict>
 	</dict>
 	<key>You demoted {user0} and %ld more participants from moderators</key>
@@ -573,9 +573,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>You demoted {user0} and %ld more participant from moderators</string>
+			<string>Du fjernede {user0} og %ld anden deltager som moderatorer</string>
 			<key>other</key>
-			<string>You demoted {user0} and %ld more participants from moderators</string>
+			<string>Du fjernede {user0} og %ld andre deltagere som moderatorer</string>
 		</dict>
 	</dict>
 	<key>An administrator demoted you and %ld more participants from moderators</key>
@@ -589,9 +589,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator demoted you and %ld more participant from moderators</string>
+			<string>En administrator fjernede dig og %ld anden deltager som moderatorer</string>
 			<key>other</key>
-			<string>An administrator demoted you and %ld more participants from moderators</string>
+			<string>En administrator fjernede dig og %ld andre deltagere som moderatorer</string>
 		</dict>
 	</dict>
 	<key>An administrator demoted {user0} and %ld more participants from moderators</key>
@@ -605,9 +605,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator demoted {user0} and %ld more participant from moderators</string>
+			<string>En administrator fjernede {user0} og %ld anden deltager som moderatorer</string>
 			<key>other</key>
-			<string>An administrator demoted {user0} and %ld more participants from moderators</string>
+			<string>En administrator fjernede {user0} og %ld andre deltagere som moderatorer</string>
 		</dict>
 	</dict>
 	<key>{actor0} demoted you and %ld more participants from moderators</key>
@@ -621,9 +621,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} demoted you and %ld more participant from moderators</string>
+			<string>{actor0} fjernede dig og %ld anden deltager som moderatorer</string>
 			<key>other</key>
-			<string>{actor0} demoted you and %ld more participants from moderators</string>
+			<string>{actor0} fjernede dig og %ld andre deltagere som moderatorer</string>
 		</dict>
 	</dict>
 	<key>{actor0} demoted {user0} and %ld more participants from moderators</key>
@@ -637,9 +637,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} demoted {user0} and %ld more participant from moderators</string>
+			<string>{actor0} fjernede {user0} og %ld anden deltager som moderatorer</string>
 			<key>other</key>
-			<string>{actor0} demoted {user0} and %ld more participants from moderators</string>
+			<string>{actor0} fjernede {user0} og %ld andre deltagere som moderatorer</string>
 		</dict>
 	</dict>
 	<key>You and %ld more participants joined the call</key>
@@ -653,9 +653,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>You and %ld more participant joined the call</string>
+			<string>Du og %ld anden deltager deltog i opkaldet</string>
 			<key>other</key>
-			<string>You and %ld more participants joined the call</string>
+			<string>Du og %ld andre deltagere deltog i opkaldet</string>
 		</dict>
 	</dict>
 	<key>{actor0} and %ld more participants joined the call</key>
@@ -669,9 +669,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} and %ld more participant joined the call</string>
+			<string>{actor0} og %ld anden deltager deltog i opkaldet</string>
 			<key>other</key>
-			<string>{actor0} and %ld more participants joined the call</string>
+			<string>{actor0} og %ld andre deltagere deltog i opkaldet</string>
 		</dict>
 	</dict>
 	<key>You and %ld more participants left the call</key>
@@ -685,9 +685,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>You and %ld more participant left the call</string>
+			<string>Du og %ld anden deltager forlod opkaldet</string>
 			<key>other</key>
-			<string>You and %ld more participants left the call</string>
+			<string>Du og %ld andre deltagere forlod opkaldet</string>
 		</dict>
 	</dict>
 	<key>{actor0} and %ld more participants left the call</key>
@@ -701,9 +701,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} and %ld more participant left the call</string>
+			<string>{actor0} og %ld anden deltager forlod opkaldet</string>
 			<key>other</key>
-			<string>{actor0} and %ld more participants left the call</string>
+			<string>{actor0} og %ld andre deltagere forlod opkaldet</string>
 		</dict>
 	</dict>
 </dict>
