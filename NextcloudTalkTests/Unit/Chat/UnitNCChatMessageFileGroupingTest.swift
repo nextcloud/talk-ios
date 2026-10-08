@@ -151,39 +151,19 @@ final class UnitNCChatMessageFileGroupingTest: TestBaseRealm {
         XCTAssertFalse(second.isDeletedFileShare(ofTheSameUploadAs: first))
     }
 
-    // MARK: - Files drawn on a card on their own
+    // MARK: - Plain file shares
 
-    /// A file the server has no preview of said no more than its name next to a generic icon the
-    /// size of a photo, so it is drawn the way the files of a group are
-    func testAFileWithoutAPreviewIsDrawnOnACard() throws {
-        let parameters = ["file": self.fileParameter(mimetype: "text/plain")]
-        XCTAssertTrue(try self.message(parameters: parameters).isFileCardMessage)
-    }
-
-    func testMediaKeepsItsPreview() throws {
-        var file = self.fileParameter()
-        file["preview-available"] = "yes"
-
-        XCTAssertFalse(try self.message(parameters: ["file": file]).isFileCardMessage)
-    }
-
-    func testMediaWithoutAPreviewIsDrawnOnACard() throws {
-        // A video the server cannot make a thumbnail of, which showed a generic icon before
-        let parameters = ["file": self.fileParameter(mimetype: "video/quicktime")]
-        XCTAssertTrue(try self.message(parameters: parameters).isFileCardMessage)
-    }
-
-    func testWidgetsOfTheirOwnAreNotDrawnOnCards() throws {
-        XCTAssertFalse(try self.message(["messageType": "voice-message"]).isFileCardMessage)
-        XCTAssertFalse(try self.message(parameters: ["file": self.fileParameter(mimetype: "text/vcard")]).isFileCardMessage)
+    func testWidgetsOfTheirOwnAreNoPlainFileShares() throws {
+        XCTAssertNil(try self.message(["messageType": "voice-message"]).plainFileShare)
+        XCTAssertNil(try self.message(parameters: ["file": self.fileParameter(mimetype: "text/vcard")]).plainFileShare)
     }
 
     /// Unlike grouping, this does not depend on the file having been shared as part of an upload
-    func testAFileOfNoUploadIsStillDrawnOnACard() throws {
-        let message = try self.message(["referenceId": ""], parameters: ["file": self.fileParameter(mimetype: "text/plain")])
+    func testAFileOfNoUploadIsStillAPlainFileShare() throws {
+        let message = try self.message(["referenceId": ""])
 
         XCTAssertFalse(message.isGroupableFileMessage)
-        XCTAssertTrue(message.isFileCardMessage)
+        XCTAssertNotNil(message.plainFileShare)
     }
 
     // MARK: - Reading the upload back

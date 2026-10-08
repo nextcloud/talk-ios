@@ -2833,13 +2833,17 @@ import Toast
         return self.availableBodyWidth(forRowWidth: rowWidth, isOwnMessage: isOwnMessage)
     }
 
-    /// A file drawn on a card without belonging to an upload is a group of one.
     internal func fileMessageGroup(showing message: NCChatMessage) -> FileMessageGroup? {
         if message.messageId > 0, let group = self.fileMessageGroups[message.messageId] {
             return group
         }
 
-        return message.isFileCardMessage ? FileMessageGroup(messages: [message]) : nil
+        // A file the server has no preview of is drawn on a card, like the files of a group
+        if let file = message.plainFileShare, !file.previewAvailable {
+            return FileMessageGroup(messages: [message])
+        }
+
+        return nil
     }
 
     internal func isHiddenInFileMessageGroup(_ message: NCChatMessage) -> Bool {

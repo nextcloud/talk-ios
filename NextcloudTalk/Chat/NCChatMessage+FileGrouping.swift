@@ -24,14 +24,8 @@ extension NCChatMessage {
         return upload.uploadHash == otherUpload.uploadHash && self.parentId == other.parentId
     }
 
-    var isFileCardMessage: Bool {
-        guard let file = self.plainFileShare else { return false }
-
-        return !file.isPreviewableMedia
-    }
-
     /// The single file this message shares, if it shares one and nothing else.
-    private var plainFileShare: NCMessageFileParameter? {
+    var plainFileShare: NCMessageFileParameter? {
         // A comment excludes deleted messages, voice messages and call recordings by type alone
         guard !self.isSystemMessage, self.messageType == kMessageTypeComment else {
             return nil
