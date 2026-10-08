@@ -7,7 +7,6 @@ import UIKit
 import MapKit
 import SDWebImage
 
-/// Shows the download progress of its file as accessory
 class SharedItemTableViewCell: UITableViewCell {
 
     var fileParameter: NCMessageFileParameter?
@@ -279,7 +278,6 @@ class SharedAudioCell: SharedItemTableViewCell, AudioPlayerViewDelegate {
         self.playerView.resetPlayer()
     }
 
-    /// Voice messages are titled by their sender, other audio files by their name
     func configure(with message: NCChatMessage) {
         let file = message.file()
         let actorDisplayName = message.actorDisplayName ?? ""

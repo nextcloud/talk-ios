@@ -21,11 +21,15 @@ class RoomSharedItemsViewController: UIViewController,
                                      QLPreviewControllerDataSource,
                                      VLCKitVideoViewControllerDelegate {
 
-    private struct MediaSection {
-        let month: DateComponents
-        let title: String
+    private struct ItemSection {
+        let month: DateComponents?
+        let title: String?
         var items: [NCChatMessage]
     }
+
+    private static let itemTypeOrder = [kSharedItemTypeMedia, kSharedItemTypeFile, kSharedItemTypeVoice, kSharedItemTypeAudio,
+                                        kSharedItemTypeRecording, kSharedItemTypeLocation, kSharedItemTypePoll,
+                                        kSharedItemTypeDeckcard, kSharedItemTypePinned, kSharedItemTypeOther]
 
     let room: NCRoom
     private let itemsOverviewLimit: Int = 1
@@ -49,7 +53,7 @@ class RoomSharedItemsViewController: UIViewController,
     private var currentItemType: String = "all"
     /// All loaded items of the current type, newest first
     private var currentItems: [NCChatMessage] = []
-    private var mediaSections: [MediaSection] = []
+    private var sections: [ItemSection] = []
     private var currentLastItemId: Int = -1
     private var hasMore = true
     private var isLoading = false
@@ -112,6 +116,21 @@ class RoomSharedItemsViewController: UIViewController,
         return collectionView
     }()
 
+    private lazy var typeFilterView: RoomTagsFilterView = {
+        let filterView = RoomTagsFilterView(frame: .zero)
+        // The default chip background is the grouped background color in light mode
+        filterView.unselectedChipBackgroundColor = .secondarySystemGroupedBackground
+        filterView.onChipSelected = { [weak self] itemType in
+            guard let self, itemType != self.currentItemType else { return }
+
+            self.setupViewForItemType(itemType: itemType)
+        }
+        return filterView
+    }()
+
+    // Collapsed until the available types are known
+    private lazy var typeFilterViewHeightConstraint = self.typeFilterView.heightAnchor.constraint(equalToConstant: 0)
+
     /// Pinned to the screen, a footer would move while scrolling and as items are appended
     private lazy var loadingMoreIndicator: UIActivityIndicatorView = {
         let indicator = UIActivityIndicatorView(style: .medium)
@@ -137,10 +156,12 @@ class RoomSharedItemsViewController: UIViewController,
         self.navigationItem.title = NSLocalizedString("Shared items", comment: "")
         self.view.backgroundColor = .systemGroupedBackground
 
+        self.view.addSubview(self.typeFilterView)
         self.view.addSubview(self.tableView)
         self.view.addSubview(self.collectionView)
         self.view.addSubview(self.loadingMoreIndicator)
 
+        self.typeFilterView.translatesAutoresizingMaskIntoConstraints = false
         self.tableView.translatesAutoresizingMaskIntoConstraints = false
         self.collectionView.translatesAutoresizingMaskIntoConstraints = false
         self.loadingMoreIndicator.translatesAutoresizingMaskIntoConstraints = false
@@ -150,12 +171,17 @@ class RoomSharedItemsViewController: UIViewController,
         self.collectionView.contentInset.bottom = Self.loadingMoreIndicatorHeight
 
         NSLayoutConstraint.activate([
-            self.tableView.topAnchor.constraint(equalTo: self.view.topAnchor),
+            self.typeFilterView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor),
+            self.typeFilterView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
+            self.typeFilterView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
+            self.typeFilterViewHeightConstraint,
+
+            self.tableView.topAnchor.constraint(equalTo: self.typeFilterView.bottomAnchor),
             self.tableView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
             self.tableView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
             self.tableView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
 
-            self.collectionView.topAnchor.constraint(equalTo: self.view.topAnchor),
+            self.collectionView.topAnchor.constraint(equalTo: self.typeFilterView.bottomAnchor),
             self.collectionView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
             self.collectionView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
             self.collectionView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
@@ -192,14 +218,15 @@ class RoomSharedItemsViewController: UIViewController,
     }
 
     func availableItemTypes() -> [String] {
-        var availableItemTypes: [String] = []
-        for itemType in sharedItemsOverview.keys {
-            guard let items = sharedItemsOverview[itemType] else {continue}
-            if !items.isEmpty {
-                availableItemTypes.append(itemType)
-            }
+        let availableItemTypes = sharedItemsOverview.filter { !$0.value.isEmpty }.keys
+
+        // Types this version doesn't know yet go last
+        return availableItemTypes.sorted { lhs, rhs in
+            let lhsIndex = Self.itemTypeOrder.firstIndex(of: lhs) ?? Self.itemTypeOrder.count
+            let rhsIndex = Self.itemTypeOrder.firstIndex(of: rhs) ?? Self.itemTypeOrder.count
+
+            return lhsIndex != rhsIndex ? lhsIndex < rhsIndex : lhs < rhs
         }
-        return availableItemTypes.sorted(by: { $0 < $1 })
     }
 
     // MARK: - Loading
@@ -213,15 +240,10 @@ class RoomSharedItemsViewController: UIViewController,
             .getSharedItemsOverview(inRoom: room.token, withLimit: itemsOverviewLimit, forAccount: account) { itemsOverview, error in
                 if error == nil {
                     self.sharedItemsOverview = itemsOverview ?? [:]
-                    let availableItemTypes = self.availableItemTypes()
-                    if availableItemTypes.isEmpty {
-                        self.hideFetchingItemsPlaceholderView()
-                    } else if availableItemTypes.contains(kSharedItemTypeMedia) {
-                        self.setupViewForItemType(itemType: kSharedItemTypeMedia)
-                    } else if availableItemTypes.contains(kSharedItemTypeFile) {
-                        self.setupViewForItemType(itemType: kSharedItemTypeFile)
-                    } else if let firstItemType = availableItemTypes.first {
+                    if let firstItemType = self.availableItemTypes().first {
                         self.setupViewForItemType(itemType: firstItemType)
+                    } else {
+                        self.hideFetchingItemsPlaceholderView()
                     }
                 } else {
                     self.hideFetchingItemsPlaceholderView()
@@ -246,7 +268,10 @@ class RoomSharedItemsViewController: UIViewController,
         self.tableView.backgroundView = nil
         self.collectionView.backgroundView = nil
 
-        setupTitleButtonForItemType(itemType: itemType)
+        let chips = self.availableItemTypes().map { TagFilterChip(id: $0, title: self.nameForItemType(itemType: $0)) }
+        self.typeFilterView.update(chips: chips, selectedChipId: itemType)
+        // Also picks up text size changes since the last switch
+        self.typeFilterViewHeightConstraint.constant = RoomTagsFilterView.viewHeight
         loadMoreItems()
     }
 
@@ -255,7 +280,7 @@ class RoomSharedItemsViewController: UIViewController,
         let removedSectionCount = self.collectionView.numberOfSections
 
         self.currentItems = []
-        self.mediaSections = []
+        self.sections = []
 
         self.tableView.reloadData()
         self.tableView.setContentOffset(CGPoint(x: 0, y: -self.tableView.adjustedContentInset.top), animated: false)
@@ -331,32 +356,34 @@ class RoomSharedItemsViewController: UIViewController,
 
         self.currentItems.append(contentsOf: items)
 
+        // Read first, so UIKit checks the insert against its real counts even if it never loaded them
+        let oldSectionCount = self.isShowingMedia ? self.collectionView.numberOfSections : self.sections.count
+        var insertedIndexPaths: [IndexPath] = []
+
+        for message in items {
+            let date = Date(timeIntervalSince1970: TimeInterval(message.timestamp))
+            // Pinned messages are ordered by when they were pinned, months would chop them up
+            let month = self.currentItemType == kSharedItemTypePinned ? nil : Calendar.current.dateComponents([.year, .month], from: date)
+
+            if let lastSection = self.sections.indices.last, self.sections[lastSection].month == month {
+                self.sections[lastSection].items.append(message)
+
+                if lastSection < oldSectionCount {
+                    insertedIndexPaths.append(IndexPath(item: self.sections[lastSection].items.count - 1, section: lastSection))
+                }
+            } else {
+                let title = month == nil ? nil : Self.monthFormatter.string(from: date)
+                self.sections.append(ItemSection(month: month, title: title, items: [message]))
+            }
+        }
+
         guard self.isShowingMedia else {
             self.tableView.reloadData()
             return
         }
 
-        // Read first, so UIKit checks the insert against its real counts even if it never loaded them
-        let oldSectionCount = self.collectionView.numberOfSections
-        var insertedIndexPaths: [IndexPath] = []
-
-        for message in items {
-            let date = Date(timeIntervalSince1970: TimeInterval(message.timestamp))
-            let month = Calendar.current.dateComponents([.year, .month], from: date)
-
-            if let lastSection = self.mediaSections.indices.last, self.mediaSections[lastSection].month == month {
-                self.mediaSections[lastSection].items.append(message)
-
-                if lastSection < oldSectionCount {
-                    insertedIndexPaths.append(IndexPath(item: self.mediaSections[lastSection].items.count - 1, section: lastSection))
-                }
-            } else {
-                self.mediaSections.append(MediaSection(month: month, title: Self.monthFormatter.string(from: date), items: [message]))
-            }
-        }
-
         self.collectionView.performBatchUpdates {
-            self.collectionView.insertSections(IndexSet(oldSectionCount..<self.mediaSections.count))
+            self.collectionView.insertSections(IndexSet(oldSectionCount..<self.sections.count))
             self.collectionView.insertItems(at: insertedIndexPaths)
         }
     }
@@ -381,38 +408,6 @@ class RoomSharedItemsViewController: UIViewController,
     }
 
     // MARK: - User interface
-
-    func setupTitleButtonForItemType(itemType: String) {
-        let itemTypeSelectorButton = UIButton(type: .custom)
-        let buttonTitle = nameForItemType(itemType: itemType) + " ▼"
-        itemTypeSelectorButton.setTitle(buttonTitle, for: .normal)
-        itemTypeSelectorButton.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .medium)
-        itemTypeSelectorButton.setTitleColor(NCAppBranding.themeTextColor(), for: .normal)
-        if #available(iOS 26.0, *) {
-            itemTypeSelectorButton.setTitleColor(.label, for: .normal)
-        } else {
-            itemTypeSelectorButton.setTitleColor(NCAppBranding.themeTextColor(), for: .normal)
-        }
-        self.navigationItem.titleView = itemTypeSelectorButton
-
-        var menuActions: [UIAction] = []
-
-        for itemType in availableItemTypes() {
-            let itemTypeName = nameForItemType(itemType: itemType)
-            let action = UIAction(title: itemTypeName, image: nil) { [unowned self] _ in
-                self.setupViewForItemType(itemType: itemType)
-            }
-
-            if itemType == currentItemType {
-                action.state = .on
-            }
-
-            menuActions.append(action)
-        }
-
-        itemTypeSelectorButton.showsMenuAsPrimaryAction = true
-        itemTypeSelectorButton.menu = UIMenu(children: menuActions)
-    }
 
     func showFetchingItemsPlaceholderView() {
         sharedItemsBackgroundView.placeholderView.isHidden = true
@@ -501,12 +496,12 @@ class RoomSharedItemsViewController: UIViewController,
         return 1
     }
 
-    private func mediaMessage(at indexPath: IndexPath) -> NCChatMessage? {
-        guard indexPath.section < self.mediaSections.count,
-              indexPath.item < self.mediaSections[indexPath.section].items.count
+    private func message(at indexPath: IndexPath) -> NCChatMessage? {
+        guard indexPath.section < self.sections.count,
+              indexPath.item < self.sections[indexPath.section].items.count
         else { return nil }
 
-        return self.mediaSections[indexPath.section].items[indexPath.item]
+        return self.sections[indexPath.section].items[indexPath.item]
     }
 
     private func presentMedia(of message: NCChatMessage) {
@@ -829,12 +824,20 @@ class RoomSharedItemsViewController: UIViewController,
     // MARK: - Table view
 
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
+        // The media type is shown by the collection view
+        return self.isShowingMedia ? 0 : self.sections.count
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // The media type is shown by the collection view
-        return self.isShowingMedia ? 0 : currentItems.count
+        guard section < self.sections.count else { return 0 }
+
+        return self.sections[section].items.count
+    }
+
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        guard section < self.sections.count else { return nil }
+
+        return self.sections[section].title
     }
 
     private enum RowKind {
@@ -856,7 +859,7 @@ class RoomSharedItemsViewController: UIViewController,
     }
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        guard indexPath.row < currentItems.count, self.rowKind(for: currentItems[indexPath.row]) == .other else {
+        guard let message = self.message(at: indexPath), self.rowKind(for: message) == .other else {
             return UITableView.automaticDimension
         }
 
@@ -864,7 +867,7 @@ class RoomSharedItemsViewController: UIViewController,
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let message = currentItems[indexPath.row]
+        guard let message = self.message(at: indexPath) else { return UITableViewCell() }
 
         switch self.rowKind(for: message) {
         case .audio:
@@ -925,9 +928,9 @@ class RoomSharedItemsViewController: UIViewController,
     }
 
     func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
-        guard indexPath.row < currentItems.count else { return nil }
+        guard let message = self.message(at: indexPath) else { return nil }
 
-        return self.contextMenuConfiguration(for: currentItems[indexPath.row], identifier: indexPath as NSCopying)
+        return self.contextMenuConfiguration(for: message, identifier: indexPath as NSCopying)
     }
 
     func tableView(_ tableView: UITableView, willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionCommitAnimating) {
@@ -937,7 +940,7 @@ class RoomSharedItemsViewController: UIViewController,
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let message = currentItems[indexPath.row]
+        guard let message = self.message(at: indexPath) else { return }
 
         self.tableView.deselectRow(at: indexPath, animated: true)
 
@@ -981,20 +984,20 @@ class RoomSharedItemsViewController: UIViewController,
     // MARK: - Collection view
 
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return self.mediaSections.count
+        return self.isShowingMedia ? self.sections.count : 0
     }
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        guard section < self.mediaSections.count else { return 0 }
+        guard section < self.sections.count else { return 0 }
 
-        return self.mediaSections[section].items.count
+        return self.sections[section].items.count
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SharedMediaCell.identifier, for: indexPath)
 
         guard let mediaCell = cell as? SharedMediaCell,
-              let message = self.mediaMessage(at: indexPath),
+              let message = self.message(at: indexPath),
               let account = self.room.account
         else { return cell }
 
@@ -1006,21 +1009,21 @@ class RoomSharedItemsViewController: UIViewController,
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: SharedMediaSectionHeaderView.identifier, for: indexPath)
 
-        if let headerView = view as? SharedMediaSectionHeaderView, indexPath.section < self.mediaSections.count {
-            headerView.setTitle(self.mediaSections[indexPath.section].title)
+        if let headerView = view as? SharedMediaSectionHeaderView, indexPath.section < self.sections.count {
+            headerView.setTitle(self.sections[indexPath.section].title ?? "")
         }
 
         return view
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard let message = self.mediaMessage(at: indexPath) else { return }
+        guard let message = self.message(at: indexPath) else { return }
 
         self.presentMedia(of: message)
     }
 
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
-        guard indexPaths.count == 1, let indexPath = indexPaths.first, let message = self.mediaMessage(at: indexPath) else { return nil }
+        guard indexPaths.count == 1, let indexPath = indexPaths.first, let message = self.message(at: indexPath) else { return nil }
 
         return self.contextMenuConfiguration(for: message, identifier: indexPath as NSCopying)
     }
@@ -1034,7 +1037,7 @@ class RoomSharedItemsViewController: UIViewController,
     // MARK: - WaterfallLayoutDelegate
 
     func waterfallLayout(_ layout: WaterfallLayout, aspectRatioForItemAt indexPath: IndexPath) -> CGFloat {
-        guard let message = self.mediaMessage(at: indexPath) else { return 1 }
+        guard let message = self.message(at: indexPath) else { return 1 }
 
         return self.aspectRatio(of: message)
     }
