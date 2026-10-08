@@ -21,10 +21,8 @@ extension UIScrollView {
         let canScrollToLeading = self.contentOffset.x > minOffset + 1
         let canScrollToTrailing = self.contentOffset.x < maxOffset - 1
 
-        guard canScrollToLeading || canScrollToTrailing else {
-            self.layer.mask = nil
-            return
-        }
+        // Without anything to fade there's no need for a mask yet
+        guard canScrollToLeading || canScrollToTrailing || self.layer.mask != nil else { return }
 
         let fadeLayer = self.layer.mask as? CAGradientLayer ?? {
             let gradientLayer = CAGradientLayer()
@@ -41,12 +39,25 @@ extension UIScrollView {
 
         // Scroll views scroll by moving their bounds origin, so using the bounds here keeps the
         // mask in place while the content moves underneath it
+        let colors = [canScrollToLeading ? clear : opaque, opaque, opaque, canScrollToTrailing ? clear : opaque]
+        let previousColors = fadeLayer.colors as? [CGColor]
+
         CATransaction.begin()
         CATransaction.setDisableActions(true)
         fadeLayer.frame = self.bounds
-        fadeLayer.colors = [canScrollToLeading ? clear : opaque, opaque, opaque, canScrollToTrailing ? clear : opaque]
+        fadeLayer.colors = colors
         fadeLayer.locations = [0, NSNumber(value: fade), NSNumber(value: 1 - fade), 1]
         CATransaction.commit()
+
+        // An edge reaching or leaving its end fades, instead of the fade popping in and out
+        if let previousColors, previousColors != colors {
+            let animation = CABasicAnimation(keyPath: "colors")
+            animation.fromValue = fadeLayer.presentation()?.colors ?? previousColors
+            animation.toValue = colors
+            animation.duration = 0.2
+            animation.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+            fadeLayer.add(animation, forKey: "colors")
+        }
     }
 
     /// Scrolls `view` into the visible area, keeping it clear of the fade at the edges

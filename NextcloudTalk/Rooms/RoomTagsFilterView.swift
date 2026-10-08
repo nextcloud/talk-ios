@@ -44,6 +44,9 @@ class RoomTagsFilterView: UIView {
     public var onChipSelected: ((String) -> Void)?
     public var onChipLongPressed: (() -> Void)?
 
+    // Same background as InfoLabelTableViewCell (e.g. pending invitations row)
+    public var unselectedChipBackgroundColor: UIColor = .secondarySystemBackground
+
     private let scrollView = FadingScrollView()
     private let stackView = UIStackView()
     private let feedbackGenerator = UISelectionFeedbackGenerator()
@@ -91,7 +94,7 @@ class RoomTagsFilterView: UIView {
         stackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
 
         for chip in chips {
-            let chipControl = RoomTagChipControl(chip: chip, selected: chip.id == selectedChipId)
+            let chipControl = RoomTagChipControl(chip: chip, selected: chip.id == selectedChipId, unselectedBackgroundColor: unselectedChipBackgroundColor)
             chipControl.addTarget(self, action: #selector(chipTouchedDown(_:)), for: .touchDown)
             chipControl.addTarget(self, action: #selector(chipTapped(_:)), for: .touchUpInside)
             chipControl.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(chipLongPressed(_:))))
@@ -101,10 +104,10 @@ class RoomTagsFilterView: UIView {
     }
 
     @objc private func chipLongPressed(_ recognizer: UILongPressGestureRecognizer) {
-        guard recognizer.state == .began else { return }
+        guard recognizer.state == .began, let onChipLongPressed else { return }
 
         feedbackGenerator.selectionChanged()
-        onChipLongPressed?()
+        onChipLongPressed()
     }
 
     @objc private func chipTouchedDown(_ sender: RoomTagChipControl) {
@@ -128,13 +131,12 @@ private class RoomTagChipControl: UIControl {
     private let titleLabel = UILabel()
     private let contentStackView = UIStackView()
 
-    init(chip: TagFilterChip, selected: Bool) {
+    init(chip: TagFilterChip, selected: Bool, unselectedBackgroundColor: UIColor) {
         super.init(frame: .zero)
 
         self.chip = chip
         self.layer.masksToBounds = true
-        // Same background as InfoLabelTableViewCell (e.g. pending invitations row)
-        self.backgroundColor = selected ? NCAppBranding.themeColor() : .secondarySystemBackground
+        self.backgroundColor = selected ? NCAppBranding.themeColor() : unselectedBackgroundColor
 
         // Same font as the title in the conversation cells
         titleLabel.font = .preferredFont(forTextStyle: .headline)
