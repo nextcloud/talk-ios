@@ -120,8 +120,9 @@ import Toast
     /// The files of one upload, shown as a single message, by the id of the message they are shown as
     internal var fileMessageGroups: [Int: FileMessageGroup] = [:]
 
-    /// Messages shown as part of the group of their upload instead of on their own
-    internal var messageIdsHiddenInFileGroups: Set<Int> = []
+    /// Messages shown as part of the group of their upload instead of on their own, mapped to the
+    /// message whose row shows them
+    internal var messageIdsHiddenInFileGroups: [Int: Int] = [:]
 
     private lazy var inputbarBorderView: UIView = {
         let inputbarBorderView = UIView()
@@ -2849,7 +2850,7 @@ import Toast
     internal func isHiddenInFileMessageGroup(_ message: NCChatMessage) -> Bool {
         guard message.messageId > 0 else { return false }
 
-        return self.messageIdsHiddenInFileGroups.contains(message.messageId)
+        return self.messageIdsHiddenInFileGroups[message.messageId] != nil
     }
 
     /// Runs after every change to the data source rather than while messages are added: files of
@@ -2857,7 +2858,7 @@ import Toast
     /// removing a message can join or split one.
     internal func regroupFileMessages() {
         var groups: [Int: FileMessageGroup] = [:]
-        var hiddenMessageIds: Set<Int> = []
+        var hiddenMessageIds: [Int: Int] = [:]
 
         for dateSection in self.dateSections {
             guard let messagesForDate = self.messages[dateSection] else { continue }
@@ -2866,20 +2867,20 @@ import Toast
                 groups[group.anchor.messageId] = group
 
                 for message in group.messages where message.messageId != group.anchor.messageId {
-                    hiddenMessageIds.insert(message.messageId)
+                    hiddenMessageIds[message.messageId] = group.anchor.messageId
                 }
             }
 
             // A deleted upload is shown as its first deleted file
             for (previous, message) in zip(messagesForDate, messagesForDate.dropFirst()) where message.isDeletedFileShare(ofTheSameUploadAs: previous) {
-                hiddenMessageIds.insert(message.messageId)
+                hiddenMessageIds[message.messageId] = hiddenMessageIds[previous.messageId] ?? previous.messageId
             }
         }
 
         self.invalidateHeights(previousGroups: self.fileMessageGroups,
                                groups: groups,
-                               previousHiddenMessageIds: self.messageIdsHiddenInFileGroups,
-                               hiddenMessageIds: hiddenMessageIds)
+                               previousHiddenMessageIds: Set(self.messageIdsHiddenInFileGroups.keys),
+                               hiddenMessageIds: Set(hiddenMessageIds.keys))
 
         self.fileMessageGroups = groups
         self.messageIdsHiddenInFileGroups = hiddenMessageIds
@@ -4078,6 +4079,9 @@ import Toast
     }
 
     internal func highlightMessageWithContentOffset(messageId: Int) {
+        // A message hidden in a file group is highlighted on the row that shows it
+        let messageId = self.messageIdsHiddenInFileGroups[messageId] ?? messageId
+
         guard messageId > 0,
               let tableView = self.tableView,
               let (indexPath, _) = self.indexPathAndMessage(forMessageId: messageId)
