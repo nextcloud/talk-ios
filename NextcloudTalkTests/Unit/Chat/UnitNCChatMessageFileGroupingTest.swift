@@ -116,6 +116,41 @@ final class UnitNCChatMessageFileGroupingTest: TestBaseRealm {
         XCTAssertFalse(message.isGroupableFileMessage)
     }
 
+    // MARK: - Deleted files
+
+    private func deletedMessage(_ overrides: [String: Any] = [:]) throws -> NCChatMessage {
+        let deleted: [String: Any] = ["message": "Message deleted by you", "messageType": "comment_deleted"]
+        return try self.message(deleted.merging(overrides) { _, override in override }, parameters: [:])
+    }
+
+    func testDeletedFilesOfOneUploadAreCollapsed() throws {
+        let first = try self.deletedMessage()
+        let second = try self.deletedMessage(["id": 2, "referenceId": "\(self.uploadHash)-002"])
+
+        XCTAssertTrue(second.isDeletedFileShare(ofTheSameUploadAs: first))
+    }
+
+    func testADeletedFileIsNotCollapsedIntoARemainingOne() throws {
+        let remaining = try self.message()
+        let deleted = try self.deletedMessage(["id": 2, "referenceId": "\(self.uploadHash)-002"])
+
+        XCTAssertFalse(deleted.isDeletedFileShare(ofTheSameUploadAs: remaining))
+    }
+
+    func testDeletedFilesOfDifferentUploadsAreNotCollapsed() throws {
+        let first = try self.deletedMessage()
+        let second = try self.deletedMessage(["id": 2, "referenceId": "\(String(repeating: "b", count: 60))-001"])
+
+        XCTAssertFalse(second.isDeletedFileShare(ofTheSameUploadAs: first))
+    }
+
+    func testDeletedMessagesOfNoUploadAreNotCollapsed() throws {
+        let first = try self.deletedMessage(["referenceId": ""])
+        let second = try self.deletedMessage(["id": 2, "referenceId": ""])
+
+        XCTAssertFalse(second.isDeletedFileShare(ofTheSameUploadAs: first))
+    }
+
     // MARK: - Files drawn on a card on their own
 
     /// A file the server has no preview of said no more than its name next to a generic icon the

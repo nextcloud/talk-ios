@@ -2865,6 +2865,11 @@ import Toast
                     hiddenMessageIds.insert(message.messageId)
                 }
             }
+
+            // A deleted upload is shown as its first deleted file
+            for (previous, message) in zip(messagesForDate, messagesForDate.dropFirst()) where message.isDeletedFileShare(ofTheSameUploadAs: previous) {
+                hiddenMessageIds.insert(message.messageId)
+            }
         }
 
         self.invalidateHeights(previousGroups: self.fileMessageGroups,

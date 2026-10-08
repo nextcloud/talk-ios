@@ -15,6 +15,15 @@ extension NCChatMessage {
         return self.plainFileShare != nil && self.fileUploadReference != nil
     }
 
+    /// Whether both are deleted files of one upload. The server keeps the reference id of a deleted message.
+    func isDeletedFileShare(ofTheSameUploadAs other: NCChatMessage) -> Bool {
+        guard self.isDeletedMessage, other.isDeletedMessage,
+              let upload = self.fileUploadReference, let otherUpload = other.fileUploadReference
+        else { return false }
+
+        return upload.uploadHash == otherUpload.uploadHash && self.parentId == other.parentId
+    }
+
     var isFileCardMessage: Bool {
         guard let file = self.plainFileShare else { return false }
 
