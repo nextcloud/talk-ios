@@ -4,6 +4,7 @@
 //
 
 import UIKit
+import AVFoundation
 import QuickLook
 import PassKit
 
@@ -14,6 +15,8 @@ class RoomSharedItemsViewController: UIViewController,
                                      UICollectionViewDelegate,
                                      WaterfallLayoutDelegate,
                                      MediaViewerMessageSource,
+                                     SharedAudioCellDelegate,
+                                     AVAudioPlayerDelegate,
                                      QLPreviewControllerDelegate,
                                      QLPreviewControllerDataSource,
                                      VLCKitVideoViewControllerDelegate {
@@ -54,6 +57,12 @@ class RoomSharedItemsViewController: UIViewController,
     private var generation = 0
     private var loadTask: URLSessionDataTask?
 
+    private var audioPlayer: AVAudioPlayer?
+    private var audioPlayerMessageId: Int?
+    // The last play request, so a slow download doesn't start playing over a newer one
+    private var pendingAudioMessageId: Int?
+    private var audioProgressTimer: Timer?
+
     private var previewControllerFilePath: String = ""
     private var isPreviewControllerShown: Bool = false
 
@@ -77,6 +86,10 @@ class RoomSharedItemsViewController: UIViewController,
         tableView.separatorInset = UIEdgeInsets(top: 0, left: 64, bottom: 0, right: 0)
         tableView.tableFooterView = UIView()
         tableView.register(UINib(nibName: DirectoryTableViewCell.nibName, bundle: nil), forCellReuseIdentifier: DirectoryTableViewCell.identifier)
+        tableView.register(SharedFileCell.self, forCellReuseIdentifier: SharedFileCell.identifier)
+        tableView.register(SharedAudioCell.self, forCellReuseIdentifier: SharedAudioCell.identifier)
+        tableView.register(SharedLocationCell.self, forCellReuseIdentifier: SharedLocationCell.identifier)
+        tableView.estimatedRowHeight = 80
         return tableView
     }()
 
@@ -163,6 +176,14 @@ class RoomSharedItemsViewController: UIViewController,
         })
     }
 
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+
+        if self.isMovingFromParent || self.isBeingDismissed {
+            self.stopAudio()
+        }
+    }
+
     override func viewSafeAreaInsetsDidChange() {
         super.viewSafeAreaInsetsDidChange()
 
@@ -210,6 +231,7 @@ class RoomSharedItemsViewController: UIViewController,
 
     func setupViewForItemType(itemType: String) {
         self.loadTask?.cancel()
+        self.stopAudio()
 
         self.generation += 1
         self.currentItemType = itemType
@@ -493,7 +515,7 @@ class RoomSharedItemsViewController: UIViewController,
         // Formats only VLC can play keep going through the download
         guard NCMediaViewerViewController.canShowMedia(of: message) else {
             if let file = message.file() {
-                downloadFile(file: file, for: nil)
+                downloadFile(file: file)
             }
 
             return
@@ -524,12 +546,128 @@ class RoomSharedItemsViewController: UIViewController,
         return self.currentItems[..<index].last(where: { NCMediaViewerViewController.canShowMedia(of: $0) })
     }
 
+    // MARK: - Audio
+
+    private func playAudio(of message: NCChatMessage) {
+        if let audioPlayer, self.audioPlayerMessageId == message.messageId {
+            self.startAudioPlayback(audioPlayer)
+            return
+        }
+
+        guard let file = message.file(), let account = self.room.account else { return }
+
+        self.pendingAudioMessageId = message.messageId
+
+        ChatFileDownloader.shared.downloadFile(withFileId: file.parameterId, fromAccount: account) { [weak self] result in
+            DispatchQueue.main.async {
+                guard let self, self.pendingAudioMessageId == message.messageId else { return }
+
+                self.pendingAudioMessageId = nil
+
+                switch result {
+                case .success(let fileStatus):
+                    guard let fileLocalPath = fileStatus.fileLocalPath,
+                          let data = try? Data(contentsOf: URL(fileURLWithPath: fileLocalPath)),
+                          let player = try? AVAudioPlayer(data: data)
+                    else {
+                        // Formats AVAudioPlayer can't play still open in QuickLook or VLC
+                        self.didLoadFile(with: fileStatus)
+                        return
+                    }
+
+                    self.stopAudio()
+
+                    player.delegate = self
+                    self.audioPlayer = player
+                    self.audioPlayerMessageId = message.messageId
+                    self.startAudioPlayback(player)
+                case .failure(.fileUnavailable(let errorDescription)), .failure(.downloadFailed(let errorDescription)):
+                    self.didFailLoadingFile(with: errorDescription)
+                case .failure(.cancelled):
+                    break
+                }
+            }
+        }
+    }
+
+    private func startAudioPlayback(_ player: AVAudioPlayer) {
+        let session = AVAudioSession.sharedInstance()
+        try? session.setCategory(.playback)
+        try? session.setActive(true)
+
+        player.play()
+
+        self.audioProgressTimer?.invalidate()
+        let timer = Timer(timeInterval: 0.1, repeats: true) { [weak self] _ in
+            self?.updateVisibleAudioCells()
+        }
+        // The common modes keep the progress moving while the list is scrolled
+        RunLoop.main.add(timer, forMode: .common)
+        self.audioProgressTimer = timer
+
+        self.updateVisibleAudioCells()
+    }
+
+    private func pauseAudio() {
+        self.audioPlayer?.pause()
+        self.audioProgressTimer?.invalidate()
+        self.audioProgressTimer = nil
+        self.updateVisibleAudioCells()
+    }
+
+    private func stopAudio() {
+        self.pendingAudioMessageId = nil
+        self.audioPlayer?.stop()
+        self.audioPlayer = nil
+        self.audioPlayerMessageId = nil
+        self.audioProgressTimer?.invalidate()
+        self.audioProgressTimer = nil
+        self.updateVisibleAudioCells()
+    }
+
+    private func updateVisibleAudioCells() {
+        for case let cell as SharedAudioCell in self.tableView.visibleCells {
+            self.updatePlayerView(of: cell)
+        }
+    }
+
+    private func updatePlayerView(of cell: SharedAudioCell) {
+        if let audioPlayer, cell.messageId != nil, cell.messageId == self.audioPlayerMessageId {
+            cell.playerView.setPlayerProgress(audioPlayer.currentTime, isPlaying: audioPlayer.isPlaying, maximumValue: audioPlayer.duration)
+        } else {
+            cell.playerView.resetPlayer()
+        }
+    }
+
+    func sharedAudioCellWantsToPlay(_ cell: SharedAudioCell) {
+        guard let message = self.currentItems.first(where: { $0.messageId == cell.messageId }) else { return }
+
+        self.playAudio(of: message)
+    }
+
+    func sharedAudioCellWantsToPause(_ cell: SharedAudioCell) {
+        guard cell.messageId == self.audioPlayerMessageId else { return }
+
+        self.pauseAudio()
+    }
+
+    func sharedAudioCell(_ cell: SharedAudioCell, wantsToSeekTo time: TimeInterval) {
+        guard let audioPlayer, cell.messageId == self.audioPlayerMessageId else { return }
+
+        audioPlayer.currentTime = time
+        self.updatePlayerView(of: cell)
+    }
+
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        self.audioProgressTimer?.invalidate()
+        self.audioProgressTimer = nil
+        self.updateVisibleAudioCells()
+    }
+
     // MARK: - File downloader
 
-    func downloadFile(file: NCMessageFileParameter, for cell: DirectoryTableViewCell?) {
+    func downloadFile(file: NCMessageFileParameter) {
         guard let account = self.room.account else { return }
-
-        cell?.fileParameter = file
 
         ChatFileDownloader.shared.downloadFile(withFileId: file.parameterId, fromAccount: account) { [weak self] result in
             guard let self else { return }
@@ -699,15 +837,65 @@ class RoomSharedItemsViewController: UIViewController,
         return self.isShowingMedia ? 0 : currentItems.count
     }
 
+    private enum RowKind {
+        case audio, file, location, other
+    }
+
+    private func rowKind(for message: NCChatMessage) -> RowKind {
+        switch currentItemType {
+        case kSharedItemTypeVoice, kSharedItemTypeAudio, kSharedItemTypeRecording:
+            // Video recordings are listed like files and open in the media viewer
+            return NCUtils.isAudio(fileType: message.file()?.mimetype ?? "") ? .audio : .file
+        case kSharedItemTypeFile:
+            return .file
+        case kSharedItemTypeLocation:
+            return .location
+        default:
+            return .other
+        }
+    }
+
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        guard indexPath.row < currentItems.count, self.rowKind(for: currentItems[indexPath.row]) == .other else {
+            return UITableView.automaticDimension
+        }
+
         return DirectoryTableViewCell.cellHeight
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let message = currentItems[indexPath.row]
+
+        switch self.rowKind(for: message) {
+        case .audio:
+            let cell = tableView.dequeueReusableCell(withIdentifier: SharedAudioCell.identifier, for: indexPath)
+
+            if let audioCell = cell as? SharedAudioCell {
+                audioCell.delegate = self
+                audioCell.configure(with: message)
+                self.updatePlayerView(of: audioCell)
+            }
+
+            return cell
+        case .file:
+            let cell = tableView.dequeueReusableCell(withIdentifier: SharedFileCell.identifier, for: indexPath)
+
+            if let fileCell = cell as? SharedFileCell, let account = self.room.account {
+                fileCell.configure(with: message, showsServerPreview: !self.room.isClassified, account: account)
+            }
+
+            return cell
+        case .location:
+            let cell = tableView.dequeueReusableCell(withIdentifier: SharedLocationCell.identifier, for: indexPath)
+            (cell as? SharedLocationCell)?.configure(with: message)
+
+            return cell
+        case .other:
+            break
+        }
+
         let cell = tableView.dequeueReusableCell(withIdentifier: DirectoryTableViewCell.identifier) as? DirectoryTableViewCell ??
         DirectoryTableViewCell(style: .default, reuseIdentifier: DirectoryTableViewCell.identifier)
-
-        let message = currentItems[indexPath.row]
 
         if let file = message.file() {
             cell.fileNameLabel?.text = file.name
@@ -749,20 +937,34 @@ class RoomSharedItemsViewController: UIViewController,
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let cell = tableView.cellForRow(at: indexPath) as? DirectoryTableViewCell
         let message = currentItems[indexPath.row]
 
         self.tableView.deselectRow(at: indexPath, animated: true)
 
-        switch currentItemType {
-        case kSharedItemTypeFile, kSharedItemTypeVoice, kSharedItemTypeAudio, kSharedItemTypeRecording:
-            if let file = message.file() {
-                downloadFile(file: file, for: cell)
+        switch self.rowKind(for: message) {
+        case .audio:
+            if self.audioPlayerMessageId == message.messageId, self.audioPlayer?.isPlaying == true {
+                self.pauseAudio()
+            } else {
+                self.playAudio(of: message)
             }
-        case kSharedItemTypeLocation:
+        case .file:
+            if NCMediaViewerViewController.canShowMedia(of: message) {
+                presentMedia(of: message)
+            } else if let file = message.file() {
+                downloadFile(file: file)
+            }
+        case .location:
             if let geoLocation = message.geoLocation() {
                 presentLocation(location: GeoLocationRichObject(from: geoLocation))
             }
+        case .other:
+            self.openOtherItem(message)
+        }
+    }
+
+    private func openOtherItem(_ message: NCChatMessage) {
+        switch currentItemType {
         case kSharedItemTypeDeckcard, kSharedItemTypeOther:
             if let link = message.objectShareLink() {
                 openLink(link: link)
