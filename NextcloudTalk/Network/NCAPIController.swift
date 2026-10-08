@@ -2874,7 +2874,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
                 var result: [String: [NCChatMessage]] = [:]
 
                 for (key, value) in dataDict {
-                    result[key] = value.compactMap({ NCChatMessage(dictionary: $0) })
+                    result[key] = value.compactMap({ NCChatMessage(dictionary: $0, andAccountId: account.accountId) })
                 }
 
                 completionBlock(result, nil)
@@ -2908,7 +2908,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         return apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
             if let dataDict = ocsResponse?.dataDict as? [String: [String: Any]] {
                 let headerLastKnownMessage = Int(ocsResponse?.value(forHTTPHeaderField: "x-chat-last-given")) ?? -1
-                completionBlock(dataDict.compactMap({ NCChatMessage(dictionary: $0.value) }), headerLastKnownMessage, nil)
+                completionBlock(dataDict.compactMap({ NCChatMessage(dictionary: $0.value, andAccountId: account.accountId) }), headerLastKnownMessage, nil)
             } else {
                 completionBlock(nil, -1, ocsError)
             }

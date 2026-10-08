@@ -6,6 +6,15 @@
 import Foundation
 import UIKit
 
+/// Decides which media the viewer swipes to, instead of the chat messages stored for the room
+@objc protocol MediaViewerMessageSource: AnyObject {
+    /// The closest older message to show before `message`, or nil to stop there
+    func mediaViewerMessage(before message: NCChatMessage) -> NCChatMessage?
+
+    /// The closest newer message to show after `message`, or nil to stop there
+    func mediaViewerMessage(after message: NCChatMessage) -> NCChatMessage?
+}
+
 @objcMembers class NCMediaViewerViewController: UIViewController,
                                                 UIPageViewControllerDelegate,
                                                 UIPageViewControllerDataSource,
@@ -15,6 +24,7 @@ import UIKit
     private let account: TalkAccount
     private let pageController = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
     private var initialMessage: NCChatMessage
+    private weak var messageSource: MediaViewerMessageSource?
 
     private lazy var shareButton = {
         let shareButton = UIBarButtonItem(title: nil, style: .plain, target: nil, action: nil)
@@ -72,10 +82,11 @@ import UIKit
         return showMessageButton
     }()
 
-    init(initialMessage: NCChatMessage, room: NCRoom, account: TalkAccount) {
+    init(initialMessage: NCChatMessage, room: NCRoom, account: TalkAccount, messageSource: MediaViewerMessageSource? = nil) {
         self.room = room
         self.initialMessage = initialMessage
         self.account = account
+        self.messageSource = messageSource
 
         super.init(nibName: nil, bundle: nil)
     }
@@ -163,22 +174,29 @@ import UIKit
         return messages
     }
 
+    /// Whether the viewer can show the file of `message`, formats only VLC can play excluded
+    static func canShowMedia(of message: NCChatMessage) -> Bool {
+        guard let file = message.file(), let filePath = file.path else { return false }
+
+        let fileType = file.mimetype ?? ""
+        let isSupportedMedia = NCUtils.isImage(fileType: fileType) || NCUtils.isVideo(fileType: fileType)
+        let isUnsupportedExtension = VLCKitVideoViewController.supportedFileExtensions.contains(URL(fileURLWithPath: filePath).pathExtension.lowercased())
+
+        return isSupportedMedia && !isUnsupportedExtension
+    }
+
     func getPreviousFileMessage(from message: NCChatMessage) -> NCChatMessage? {
+        if let messageSource {
+            return messageSource.mediaViewerMessage(before: message)
+        }
+
         let prevQuery = NSPredicate(format: "messageId < %ld", message.messageId)
 
         guard let queriedObjects = self.getAllFileMessages()?.objects(with: prevQuery) else { return nil }
         let messageObject = queriedObjects.lastObject()
 
         if let message = messageObject as? NCChatMessage {
-            guard let filePath = message.file().path else {
-                return self.getPreviousFileMessage(from: message)
-            }
-
-            let fileType = message.file()?.mimetype ?? ""
-            let isSupportedMedia = NCUtils.isImage(fileType: fileType) || NCUtils.isVideo(fileType: fileType)
-            let isUnsupportedExtension = VLCKitVideoViewController.supportedFileExtensions.contains(URL(fileURLWithPath: filePath).pathExtension.lowercased())
-
-            if isSupportedMedia && !isUnsupportedExtension {
+            if Self.canShowMedia(of: message) {
                 return message
             }
 
@@ -189,20 +207,16 @@ import UIKit
     }
 
     func getNextFileMessage(from message: NCChatMessage) -> NCChatMessage? {
+        if let messageSource {
+            return messageSource.mediaViewerMessage(after: message)
+        }
+
         let prevQuery = NSPredicate(format: "messageId > %ld", message.messageId)
 
         guard let messageObject = self.getAllFileMessages()?.objects(with: prevQuery).firstObject() else { return nil }
 
         if let message = messageObject as? NCChatMessage {
-            guard let filePath = message.file().path else {
-                return self.getNextFileMessage(from: message)
-            }
-
-            let fileType = message.file()?.mimetype ?? ""
-            let isSupportedMedia = NCUtils.isImage(fileType: fileType) || NCUtils.isVideo(fileType: fileType)
-            let isUnsupportedExtension = VLCKitVideoViewController.supportedFileExtensions.contains(URL(fileURLWithPath: filePath).pathExtension.lowercased())
-
-            if isSupportedMedia && !isUnsupportedExtension {
+            if Self.canShowMedia(of: message) {
                 return message
             }
 
