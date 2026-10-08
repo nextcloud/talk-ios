@@ -15,7 +15,7 @@
 			<key>one</key>
 			<string>%ld aktívny bot</string>
 			<key>few</key>
-			<string>%ld aktívnych botov</string>
+			<string>%ld aktívni boti</string>
 			<key>many</key>
 			<string>%ld aktívnych botov</string>
 			<key>other</key>
