@@ -100,6 +100,9 @@ class RoomSharedItemsViewController: UIViewController,
     private lazy var waterfallLayout: WaterfallLayout = {
         let layout = WaterfallLayout()
         layout.delegate = self
+        layout.interItemSpacing = 12
+        layout.lineSpacing = 12
+        layout.sectionInset = UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12)
         return layout
     }()
 
