@@ -81,7 +81,13 @@ class CallParticipantViewCell: UICollectionViewCell {
     var remoteVideoSize: CGSize = .zero {
         didSet {
             resizeRemoteVideoView()
-            updateVideoSizeDebugLabel()
+            updateDebugLabel()
+        }
+    }
+
+    var debugStatsText: String? {
+        didSet {
+            updateDebugLabel()
         }
     }
 
@@ -100,7 +106,7 @@ class CallParticipantViewCell: UICollectionViewCell {
 
     private var videoView: RTCMTLVideoView?
     private var disconnectedTimer: Timer?
-    private var videoSizeDebugLabel: UILabel?
+    private var debugLabel: UILabel?
 
     // A participant's video view moves between cells, so this cell may still point to a view another cell shows now
     private var attachedVideoView: RTCMTLVideoView? {
@@ -139,34 +145,42 @@ class CallParticipantViewCell: UICollectionViewCell {
         contentView.addGestureRecognizer(tapGestureRecognizer)
 
         if NCUtils.isTestEnvironment {
-            setupVideoSizeDebugLabel()
+            setupDebugLabel()
         }
     }
 
-    // Shows the received video resolution, e.g. to check which simulcast layer is relayed
-    private func setupVideoSizeDebugLabel() {
+    // Shows the connection stats when enabled, otherwise the received video resolution, e.g. to check which simulcast layer is relayed
+    private func setupDebugLabel() {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .monospacedDigitSystemFont(ofSize: UIFont.smallSystemFontSize, weight: .medium)
         label.textColor = .white
         label.backgroundColor = UIColor(white: 0, alpha: 0.5)
+        label.numberOfLines = 0
         label.isHidden = true
 
         contentView.addSubview(label)
 
         NSLayoutConstraint.activate([
             label.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
-            label.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16)
+            label.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            label.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor, constant: -16)
         ])
 
-        videoSizeDebugLabel = label
+        debugLabel = label
     }
 
-    private func updateVideoSizeDebugLabel() {
-        guard let videoSizeDebugLabel else { return }
+    private func updateDebugLabel() {
+        guard let debugLabel else { return }
 
-        videoSizeDebugLabel.text = String(format: "%.0fx%.0f", remoteVideoSize.width, remoteVideoSize.height)
-        videoSizeDebugLabel.isHidden = remoteVideoSize == .zero
+        if let debugStatsText, !debugStatsText.isEmpty {
+            debugLabel.text = debugStatsText
+            debugLabel.isHidden = false
+            return
+        }
+
+        debugLabel.text = String(format: "%.0fx%.0f", remoteVideoSize.width, remoteVideoSize.height)
+        debugLabel.isHidden = remoteVideoSize == .zero
     }
 
     override func prepareForReuse() {
@@ -180,6 +194,7 @@ class CallParticipantViewCell: UICollectionViewCell {
         attachedVideoView?.removeFromSuperview()
         videoView = nil
         showOriginalSize = false
+        debugStatsText = nil
         layer.borderWidth = 0
         hideLoadingSpinner()
         invalidateDisconnectedTimer()

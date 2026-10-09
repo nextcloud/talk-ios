@@ -212,6 +212,27 @@ public enum NCExternalSignalingSendMessageStatus {
         }
     }
 
+    // Debug only, the socket dies without a "bye", like on a network loss, so the server keeps the session for resuming
+    func simulateConnectionLoss() {
+        DispatchQueue.main.async {
+            NCLog.log("Debug: Simulating a connection loss of: \(self.serverUrl)")
+            self.webSocket?.cancel()
+        }
+    }
+
+    var debugInfoLines: [String] {
+        [
+            "Server: \(serverUrl)",
+            "Connected: \(!disconnected), hello received: \(helloResponseReceived)",
+            "Session id: \(sessionId ?? "none")",
+            "Resume id: \(resumeId != nil ? "yes" : "no")",
+            "Current room: \(currentRoom ?? "none"), joined room: \(joinedRoomToken ?? "none")",
+            "Features: mcu \(hasMCU), update-sdp \(hasUpdateSdp), simulcast \(hasSimulcast), chat-relay \(hasChatRelay)",
+            "Pending messages: \(pendingMessages.count)",
+            "Participants: \(participantsMap.count)"
+        ]
+    }
+
     func resetWebSocket() {
         // The server expires the session 30s after the first connection loss, failed reconnect attempts don't extend that
         if self.disconnectTime == nil {
