@@ -235,7 +235,7 @@
 			<key>one</key>
 			<string>%ld odpoveď</string>
 			<key>few</key>
-			<string>%ld odpovedí</string>
+			<string>%ld odpovede</string>
 			<key>many</key>
 			<string>%ld odpovedí</string>
 			<key>other</key>
