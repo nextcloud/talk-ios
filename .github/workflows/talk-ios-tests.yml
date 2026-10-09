@@ -114,12 +114,6 @@ jobs:
             phpversion: '8.0'
           },
           {
-            serverbranch: 'stable32',
-            talkbranch: 'stable32',
-            notificationsbranch: 'stable32',
-            phpversion: '8.3'
-          },
-          {
             serverbranch: 'stable33',
             talkbranch: 'stable33',
             notificationsbranch: 'stable33',
@@ -131,6 +125,12 @@ jobs:
             notificationsbranch: 'stable34',
             phpversion: '8.3'
           },
+          {
+            serverbranch: 'stable35',
+            talkbranch: 'stable35',
+            notificationsbranch: 'stable35',
+            phpversion: '8.3'
+          },          
           {
             serverbranch: 'master',
             talkbranch: 'main',
@@ -172,7 +172,7 @@ jobs:
         key: ${{ steps.extcache.outputs.key }}
 
     - name: Set up php ${{ matrix.configs.phpversion }}
-      uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
+      uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2.40.0
       with:
         php-version: ${{ matrix.configs.phpversion }}
         extensions: ${{ env.PHP_EXTENSIONS }}
@@ -209,14 +209,13 @@ jobs:
         path: server/apps/notifications
         ref: ${{ matrix.configs.notificationsbranch }}
 
-    - parallel:
-        - name: Set up production dependencies spreed
-          working-directory: server/apps/spreed
-          run: composer i --no-dev
+    - name: Set up production dependencies spreed
+      working-directory: server/apps/spreed
+      run: composer i --no-dev
 
-        - name: Set up production dependencies notifications
-          working-directory: server/apps/notifications
-          run: composer i --no-dev
+    - name: Set up production dependencies notifications
+      working-directory: server/apps/notifications
+      run: composer i --no-dev
 
     - name: Set up Nextcloud
       run: |
