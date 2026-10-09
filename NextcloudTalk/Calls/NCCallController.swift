@@ -45,6 +45,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
     private static var kNCAudioTrackId = "NCa0"
     private static var kNCVideoTrackId = "NCv0"
     private static var kNCScreenTrackId = "NCs0"
+    private static let kPublisherAnswerTimeout: TimeInterval = 10
 
     private let room: NCRoom
     private let account: TalkAccount
@@ -868,8 +869,9 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
             peerConnectionWrapper.close()
         }
 
-        for (_, pendingOfferTimer) in self.pendingOffersDict {
-            pendingOfferTimer.invalidate()
+        let pendingOfferTimers = Array(self.pendingOffersDict.values)
+        DispatchQueue.main.async {
+            pendingOfferTimers.forEach { $0.invalidate() }
         }
 
         self.connectionsDict = [:]
@@ -1347,6 +1349,31 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
         self.attachOwnKeyRing(toSendersOf: peerConnection)
 
         peerConnectionWrapper.sendPublisherOffer()
+        self.recreatePublisherPeerConnectionIfNotAnswered(peerConnectionWrapper)
+    }
+
+    // A lost answer leaves ICE in "new", so the connection never fails and we would silently not publish. Same as web
+    private func recreatePublisherPeerConnectionIfNotAnswered(_ peerConnectionWrapper: NCPeerConnection) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + NCCallController.kPublisherAnswerTimeout) { [weak self, weak peerConnectionWrapper] in
+            WebRTCCommon.shared.dispatch {
+                guard let self, let peerConnectionWrapper, !self.isLeavingCall,
+                      self.publisherPeerConnection === peerConnectionWrapper,
+                      let peerConnection = peerConnectionWrapper.getPeerConnection(),
+                      peerConnection.remoteDescription == nil
+                else { return }
+
+                NCLog.log("No answer for the publisher offer, recreating the publisher peer connection")
+
+                let peerKey = self.getPeerKey(withSessionId: peerConnectionWrapper.peerId, ofType: kRoomTypeVideo, forOwnScreenshare: false)
+                self.connectionsDict.removeValue(forKey: peerKey)
+                self.publisherPeerConnection = nil
+
+                peerConnectionWrapper.delegate = nil
+                peerConnectionWrapper.close()
+
+                self.createPublisherPeerConnection()
+            }
+        }
     }
 
     private func createScreenPublisherPeerConnection() {
@@ -1909,10 +1936,19 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
     }
 
     private func processCandidate(_ signalingMessage: NCSignalingMessage) {
-        let peerConnectionWrapper = self.getOrCreatePeerConnectionWrapper(forSessionId: signalingMessage.from, withSid: signalingMessage.sid, ofType: signalingMessage.roomType)
-        if let candidateMessage = signalingMessage as? NCICECandidateMessage {
-            peerConnectionWrapper.add(candidateMessage.candidate)
+        guard let candidateMessage = signalingMessage as? NCICECandidateMessage else { return }
+
+        var peerConnectionWrapper = self.getPeerConnectionWrapper(forSessionId: signalingMessage.from, ofType: signalingMessage.roomType)
+
+        // Candidates for our own screen peer have the same "from" and type as a received screenshare, only the "sid" tells them apart
+        if signalingMessage.roomType == kRoomTypeScreen,
+           let ownScreenPeerConnectionWrapper = self.getPeerConnectionWrapper(forSessionId: signalingMessage.from, ofType: kRoomTypeScreen, forOwnScreenshare: true),
+           ownScreenPeerConnectionWrapper.sid == signalingMessage.sid {
+            peerConnectionWrapper = ownScreenPeerConnectionWrapper
         }
+
+        // Only offers create peers, a candidate for an unknown peer is late, same as web
+        peerConnectionWrapper?.add(candidateMessage.candidate)
     }
 
     private func processUnshareScreen(_ signalingMessage: NCSignalingMessage) {
