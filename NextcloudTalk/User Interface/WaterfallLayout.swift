@@ -43,7 +43,7 @@ class WaterfallLayout: UICollectionViewLayout {
     private static let minAspectRatio: CGFloat = 0.55
     private static let maxAspectRatio: CGFloat = 2.2
 
-    static func clampedAspectRatio(_ aspectRatio: CGFloat) -> CGFloat {
+    private static func clampedAspectRatio(_ aspectRatio: CGFloat) -> CGFloat {
         return min(max(aspectRatio, Self.minAspectRatio), Self.maxAspectRatio)
     }
 

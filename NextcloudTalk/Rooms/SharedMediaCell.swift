@@ -10,9 +10,6 @@ class SharedMediaCell: UICollectionViewCell {
 
     static let identifier = "SharedMediaCell"
 
-    /// Fixed, so the preview URL and its cache entry survive rotations
-    private static let previewPixelWidth: CGFloat = 600
-
     /// Decoding a blurhash generates a bitmap synchronously on the main thread, once per file is enough
     private static let blurhashPlaceholderCache = NSCache<NSString, UIImage>()
 
@@ -158,8 +155,8 @@ class SharedMediaCell: UICollectionViewCell {
             return
         }
 
-        // Keeps the aspect ratio, sized to cover the cell even when the layout clamped it
-        let previewHeight = Int((Self.previewPixelWidth / WaterfallLayout.clampedAspectRatio(aspectRatio)).rounded())
+        // Same as the chat cells, so the media viewer finds it cached, the server rounds it up to 1024 px anyway
+        let previewHeight = Int(3 * fileMessageCellFileMaxPreviewHeight)
         let fileId = file.parameterId
 
         self.previewRequest = NCAPIController.sharedInstance().getPreviewForFile(fileId, width: -1, height: previewHeight, forAccount: account) { [weak self] image, _ in
