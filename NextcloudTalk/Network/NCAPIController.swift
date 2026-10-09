@@ -2578,13 +2578,13 @@ class NCAPIController: NSObject, NKCommonDelegate {
         }
     }
 
-    public func subscribeAccount(_ account: TalkAccount, toPushServerWithCompletionBlock completionBlock: @escaping (_ error: Error?) -> Void) {
+    public func subscribeAccount(withDeviceIdentifier deviceIdentifier: String, deviceSignature signature: String, userPublicKey publicKey: String, toPushServerWithCompletionBlock completionBlock: @escaping (_ error: Error?) -> Void) {
         let urlString = "\(pushNotificationServer)/devices"
         let parameters = [
             "pushToken": NCKeyChainController.sharedInstance().combinedPushToken(),
-            "deviceIdentifier": account.deviceIdentifier,
-            "deviceIdentifierSignature": account.deviceSignature,
-            "userPublicKey": account.userPublicKey
+            "deviceIdentifier": deviceIdentifier,
+            "deviceIdentifierSignature": signature,
+            "userPublicKey": publicKey
         ]
 
         NCPushProxySessionManager.shared.post(urlString, parameters: parameters, progress: nil) { _, _ in

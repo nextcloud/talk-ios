@@ -696,7 +696,8 @@ public class NCSettingsController: NSObject {
                 managedAccount.deviceSignature = signature
             }
 
-            NCAPIController.sharedInstance().subscribeAccount(account, toPushServerWithCompletionBlock: { error in
+            // Warning: At this point our umanaged "account" still contains the old information!
+            NCAPIController.sharedInstance().subscribeAccount(withDeviceIdentifier: deviceIdentifier, deviceSignature: signature, userPublicKey: publicKey, toPushServerWithCompletionBlock: { error in
                 guard error == nil else {
                     NCLog.log("Error while subscribing to Push Notification server. Error: \(error?.localizedDescription ?? "")")
                     NCLog.log("Push notification, public key: \(publicKey)")
