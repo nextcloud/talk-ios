@@ -617,14 +617,14 @@ class CallViewController: UIViewController,
 
     // MARK: - CallParticipantViewCell delegate
 
-    func cellWants(toPresentScreenSharing participantCell: CallParticipantViewCell!) {
-        if let peerConnection = self.peerConnection(forPeerIdentifier: participantCell.peerIdentifier) {
+    func cellWants(toPresentScreenSharing participantCell: CallParticipantViewCell) {
+        if let peerIdentifier = participantCell.peerIdentifier, let peerConnection = self.peerConnection(forPeerIdentifier: peerIdentifier) {
             self.showScreenOfPeer(peerConnection)
         }
     }
 
-    func cellWants(toChangeZoom participantCell: CallParticipantViewCell!, showOriginalSize: Bool) {
-        if let peerConnection = self.peerConnection(forPeerIdentifier: participantCell.peerIdentifier) {
+    func cellWants(toChangeZoom participantCell: CallParticipantViewCell, showOriginalSize: Bool) {
+        if let peerIdentifier = participantCell.peerIdentifier, let peerConnection = self.peerConnection(forPeerIdentifier: peerIdentifier) {
             peerConnection.showRemoteVideoInOriginalSize = showOriginalSize
         }
     }
@@ -1197,11 +1197,11 @@ class CallViewController: UIViewController,
             // It is possible that we receive a `didChangeVideoSize` call, while the participant cell was not yet shown,
             // therefore the remote video size will never be set. In case we have a videoView here, use the frame size
             let videoSize = videoView.frame.size
-            let currentSize = cell.getRemoteVideoSize()
+            let currentSize = cell.remoteVideoSize
 
             // Only set it, when there's no size set yet
             if currentSize.equalTo(.zero), !videoSize.equalTo(.zero) {
-                cell.setRemoteVideoSize(videoSize)
+                cell.remoteVideoSize = videoSize
             }
         }
 
@@ -1224,7 +1224,7 @@ class CallViewController: UIViewController,
             let connectionState: RTCIceConnectionState = peerConnection.isDummyPeer ? .connected : peerConnection.getPeerConnection()?.iceConnectionState ?? .new
 
             DispatchQueue.main.async {
-                cell.setAvatarFor(actor)
+                cell.setAvatar(for: actor)
                 cell.connectionState = connectionState
             }
         }
@@ -3095,7 +3095,7 @@ class CallViewController: UIViewController,
                 if let indexPath = self.indexPath(forPeerIdentifier: peerIdentifier),
                    let participantCell = self.collectionView.cellForItem(at: indexPath) as? CallParticipantViewCell {
 
-                    participantCell.setRemoteVideoSize(size)
+                    participantCell.remoteVideoSize = size
                 }
 
                 self.recreatePictureInPictureIfNeeded()

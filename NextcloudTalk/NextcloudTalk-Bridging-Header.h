@@ -8,7 +8,6 @@
 
 #import "ARDSettingsModel.h"
 #import "AuthenticationViewController.h"
-#import "CallParticipantViewCell.h"
 #import "ContactsTableViewCell.h"
 #import "DetailedOptionsSelectorTableViewController.h"
 #import "NCAppBranding.h"
