@@ -63,9 +63,9 @@
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Photo Library access is needed to share pictures and videos from your device</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Speech Recognition access is needed to transcribe a voice message to text using on-device recognition</string>
     <key>NSSiriUsageDescription</key>
     <string>Siri is used to start Nextcloud Talk and phone calls hands-free.</string>
-	<string>Speech Recognition access is needed to transcribe a voice message to text using on-device recognition</string>
 	<key>NSUserActivityTypes</key>
 	<array>
 		<string>INSendMessageIntent</string>
