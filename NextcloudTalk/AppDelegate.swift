@@ -94,14 +94,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
 
         // When we include VLCKit we need to manually call this because otherwise, device rotation might not work
         UIDevice.current.beginGeneratingDeviceOrientationNotifications()
-        
-        // Required for the CarPlay assistant cell / SiriKit call flow.
-        // The usage description and Siri entitlement remain configured in the
-        // app target. Requesting again is harmless once authorization is known.
-        INPreferences.requestSiriAuthorization { status in
-            NCLog.log("Siri authorization status: \(status.rawValue)")
-        }
-
         return true
     }
 
