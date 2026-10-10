@@ -60,8 +60,8 @@ class GiphyPickerViewController: UIViewController {
         return searchController
     }()
 
-    private lazy var waterfallLayout: GiphyWaterfallLayout = {
-        let layout = GiphyWaterfallLayout()
+    private lazy var waterfallLayout: WaterfallLayout = {
+        let layout = WaterfallLayout()
         layout.delegate = self
         return layout
     }()
@@ -432,13 +432,13 @@ extension GiphyPickerViewController: UICollectionViewDataSource, UICollectionVie
     }
 }
 
-// MARK: - GiphyWaterfallLayoutDelegate
+// MARK: - WaterfallLayoutDelegate
 
-extension GiphyPickerViewController: GiphyWaterfallLayoutDelegate {
+extension GiphyPickerViewController: WaterfallLayoutDelegate {
 
-    func waterfallLayout(_ layout: GiphyWaterfallLayout, aspectRatioForItemAt index: Int) -> CGFloat {
-        guard index < self.items.count else { return Self.fallbackAspectRatio }
+    func waterfallLayout(_ layout: WaterfallLayout, aspectRatioForItemAt indexPath: IndexPath) -> CGFloat {
+        guard indexPath.item < self.items.count else { return Self.fallbackAspectRatio }
 
-        return self.items[index].aspectRatio
+        return self.items[indexPath.item].aspectRatio
     }
 }

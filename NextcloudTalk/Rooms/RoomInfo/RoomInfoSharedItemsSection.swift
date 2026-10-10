@@ -18,7 +18,7 @@ struct RoomInfoSharedItemsSection: View {
 
         return Section(header: Text("Shared items")) {
             Button(action: {
-                hostingWrapper.pushViewController(RoomSharedItemsTableViewController(room: room), animated: true)
+                hostingWrapper.pushViewController(RoomSharedItemsViewController(room: room), animated: true)
             }, label: {
                 // Add disclosure chevron on button
                 NavigationLink(destination: EmptyView(), label: {
