@@ -161,6 +161,7 @@ final class CarPlayManager {
             detailText: subtitle(for: room),
             image: UIImage(systemName: "person.crop.circle")
         )
+        loadAvatar(for: room, into: item)
 
         item.handler = { [weak self] _, completion in
             self?.showConversation(room)
@@ -254,12 +255,28 @@ final class CarPlayManager {
             image: UIImage(systemName: "person.crop.circle.fill")
         )
 
+        loadAvatar(for: room, into: item)
+
         item.handler = { [weak self] _, completion in
             self?.startTalkCall(in: room)
             completion()
         }
 
         return item
+    }
+    private func loadAvatar(for room: NCRoom, into item: CPListItem) {
+        _ = AvatarManager.shared.getAvatar(
+            for: room,
+            with: UITraitCollection.current.userInterfaceStyle
+        ) { image in
+            guard let image else {
+                return
+            }
+
+            DispatchQueue.main.async {
+                item.setImage(image)
+            }
+        }
     }
 
     // MARK: - Conversation details
