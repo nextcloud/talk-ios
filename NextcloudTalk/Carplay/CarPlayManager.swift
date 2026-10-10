@@ -15,13 +15,8 @@ final class CarPlayManager {
     // MARK: - CarPlay
 
     private weak var interfaceController: CPInterfaceController?
-
-    // Keep the root and its child templates alive for the complete CarPlay
-    // connection. Room refreshes only update their sections; they never replace
-    // the root hierarchy.
-    private var rootTabBarTemplate: CPTabBarTemplate?
-    private var conversationsTemplate: CPListTemplate?
-    private var callsTemplate: CPListTemplate?
+    private var rootTemplate: CPListTemplate?
+    private var activeCallTemplate: CPContactTemplate?
 
     // MARK: - Init
 
@@ -68,9 +63,8 @@ final class CarPlayManager {
 
     func disconnect() {
         interfaceController = nil
-        rootTabBarTemplate = nil
-        conversationsTemplate = nil
-        callsTemplate = nil
+        rootTemplate = nil
+        activeCallTemplate = nil
     }
 
     // MARK: - Root
@@ -80,80 +74,43 @@ final class CarPlayManager {
             return
         }
 
-        let conversations = makeConversationsTemplate()
-        conversations.tabTitle = NSLocalizedString("Rooms", comment: "")
-        conversations.tabImage = UIImage(systemName: "message.fill")
+        let assistantConfiguration = CPAssistantCellConfiguration(
+            position: .top,
+            visibility: .always,
+            assistantAction: .startCall
+        )
 
-        let calls = makeCallsTemplate()
-        calls.tabTitle = NSLocalizedString("Calls", comment: "")
-        calls.tabImage = UIImage(systemName: "phone.fill")
+        let root = CPListTemplate(
+            title: NSLocalizedString("Talk", comment: ""),
+            sections: makeRootSections(),
+            assistantCellConfiguration: assistantConfiguration
+        )
 
-        let root = CPTabBarTemplate(templates: [conversations, calls])
-
-        conversationsTemplate = conversations
-        callsTemplate = calls
-        rootTabBarTemplate = root
-
-        NCLog.log("CarPlay installing tab root: tabs=2 [Rooms, Calls]")
+        rootTemplate = root
 
         interfaceController.setRootTemplate(
             root,
             animated: false,
             completion: { success, error in
                 if let error {
-                    NCLog.log("CarPlay failed to install tab root: \(error)")
+                    NCLog.log("CarPlay failed to install root template: \(error)")
                 } else {
-                    NCLog.log("CarPlay tab root installed: success=\(success)")
+                    NCLog.log("CarPlay root template installed: success=\(success)")
                 }
             }
         )
     }
 
     private func refreshTemplates() {
-        guard
-            rootTabBarTemplate != nil,
-            let conversationsTemplate,
-            let callsTemplate
-        else {
-            // If CarPlay connected while the app was still restoring state,
-            // rebuild the complete hierarchy rather than falling back to a
-            // single list template.
+        guard let rootTemplate else {
             installRootTemplate()
             return
         }
 
-        conversationsTemplate.updateSections(makeConversationSections())
-        callsTemplate.updateSections(makeCallSections())
+        rootTemplate.updateSections(makeRootSections())
     }
 
     // MARK: - Conversations
-
-    private func makeConversationsTemplate() -> CPListTemplate {
-        CPListTemplate(
-            title: NSLocalizedString("Rooms", comment: ""),
-            sections: makeConversationSections()
-        )
-    }
-
-    private func makeConversationSections() -> [CPListSection] {
-        let rooms = CarPlayConversationProvider.shared.conversations()
-
-        guard !rooms.isEmpty else {
-            let emptyItem = CPListItem(
-                text: NSLocalizedString("No conversations", comment: ""),
-                detailText: nil
-            )
-            emptyItem.isEnabled = false
-
-            return [CPListSection(items: [emptyItem])]
-        }
-
-        let items = rooms
-            .prefix(100)
-            .map { makeConversationItem($0) }
-
-        return [CPListSection(items: Array(items))]
-    }
 
     private func makeConversationItem(_ room: NCRoom) -> CPListItem {
         let item = CPListItem(
@@ -185,85 +142,79 @@ final class CarPlayManager {
 
         return nil
     }
+    
+    private func makeRootSections() -> [CPListSection] {
+        let rooms = CarPlayConversationProvider.shared.conversations()
 
-    // MARK: - Calls
+        let ongoingCalls = rooms.filter {
+            $0.hasCall
+        }
 
-    private func makeCallsTemplate() -> CPListTemplate {
-        let assistantConfiguration = CPAssistantCellConfiguration(
-            position: .top,
-            visibility: .always,
-            assistantAction: .startCall
-        )
+        let favorites = rooms.filter {
+            $0.isFavorite && !$0.hasCall
+        }
 
-        return CPListTemplate(
-            title: NSLocalizedString("Calls", comment: ""),
-            sections: makeCallSections(),
-            assistantCellConfiguration: assistantConfiguration
-        )
-    }
-
-    private func makeCallSections() -> [CPListSection] {
-        let speedDial = CarPlayConversationProvider.shared.speedDial()
-        let history = CarPlayConversationProvider.shared.callHistory()
+        let otherRooms = rooms.filter {
+            !$0.hasCall && !$0.isFavorite
+        }
 
         var sections: [CPListSection] = []
 
-        if !speedDial.isEmpty {
-            let items = speedDial
-                .prefix(20)
-                .map { makeCallItem($0) }
+        if !ongoingCalls.isEmpty {
+            let items = ongoingCalls
+                .prefix(10)
+                .map { makeConversationItem($0) }
 
             sections.append(
                 CPListSection(
                     items: Array(items),
-                    header: NSLocalizedString("Speed Dial", comment: ""),
+                    header: NSLocalizedString("Ongoing calls", comment: ""),
                     sectionIndexTitle: nil
                 )
             )
         }
 
-        if !history.isEmpty {
-            let items = history
-                .prefix(50)
-                .map { makeCallItem($0) }
+        if !favorites.isEmpty {
+            let items = favorites
+                .prefix(20)
+                .map { makeConversationItem($0) }
 
             sections.append(
                 CPListSection(
                     items: Array(items),
-                    header: NSLocalizedString("History", comment: ""),
+                    header: NSLocalizedString("Favorites", comment: ""),
+                    sectionIndexTitle: nil
+                )
+            )
+        }
+
+        if !otherRooms.isEmpty {
+            let items = otherRooms
+                .prefix(100)
+                .map { makeConversationItem($0) }
+
+            sections.append(
+                CPListSection(
+                    items: Array(items),
+                    header: NSLocalizedString("Conversations", comment: ""),
                     sectionIndexTitle: nil
                 )
             )
         }
 
         if sections.isEmpty {
-            let emptyItem = CPListItem(
-                text: NSLocalizedString("No recent calls", comment: ""),
+            let item = CPListItem(
+                text: NSLocalizedString("No conversations", comment: ""),
                 detailText: nil
             )
-            emptyItem.isEnabled = false
-            sections.append(CPListSection(items: [emptyItem]))
+
+            item.isEnabled = false
+            sections.append(CPListSection(items: [item]))
         }
 
         return sections
     }
-
-    private func makeCallItem(_ room: NCRoom) -> CPListItem {
-        let item = CPListItem(
-            text: room.displayName,
-            detailText: NSLocalizedString("Talk", comment: ""),
-            image: UIImage(systemName: "person.crop.circle.fill")
-        )
-
-        loadAvatar(for: room, into: item)
-
-        item.handler = { [weak self] _, completion in
-            self?.startTalkCall(in: room)
-            completion()
-        }
-
-        return item
-    }
+    
     private func loadAvatar(for room: NCRoom, into item: CPListItem) {
         _ = AvatarManager.shared.getAvatar(
             for: room,
