@@ -2008,6 +2008,9 @@
 "Recent threads" = "Recent threads";
 
 /* No comment provided by engineer. */
+"Record video message" = "Record video message";
+
+/* No comment provided by engineer. */
 "Record voice message" = "Record voice message";
 
 /* Accessibility label of the button shown while the call is being recorded */
@@ -2378,6 +2381,9 @@
 "Switch account" = "Switch account";
 
 /* No comment provided by engineer. */
+"Switch camera" = "Switch camera";
+
+/* No comment provided by engineer. */
 "Switch to voice-only call" = "Switch to voice-only call";
 
 /* No comment provided by engineer. */
@@ -2396,10 +2402,22 @@
 "Talk to %@" = "Talk to %@";
 
 /* No comment provided by engineer. */
+"Tap and hold to record a video message" = "Tap and hold to record a video message";
+
+/* No comment provided by engineer. */
+"Tap and hold to record a video, release the button to send it." = "Tap and hold to record a video, release the button to send it.";
+
+/* No comment provided by engineer. */
+"Tap and hold to record a video. Tap to switch to voice messages." = "Tap and hold to record a video. Tap to switch to voice messages.";
+
+/* No comment provided by engineer. */
 "Tap and hold to record a voice message" = "Tap and hold to record a voice message";
 
 /* No comment provided by engineer. */
 "Tap and hold to record a voice message, release the button to send it." = "Tap and hold to record a voice message, release the button to send it.";
+
+/* No comment provided by engineer. */
+"Tap and hold to record a voice message. Tap to switch to video messages." = "Tap and hold to record a voice message. Tap to switch to video messages.";
 
 /* No comment provided by engineer. */
 "Test failed" = "Test failed";
@@ -2652,6 +2670,9 @@
 
 /* Join a call in video call mode */
 "Video call" = "Video call";
+
+/* No comment provided by engineer. */
+"Video message could not be recorded" = "Video message could not be recorded";
 
 /* No comment provided by engineer. */
 "Video quality" = "Video quality";
