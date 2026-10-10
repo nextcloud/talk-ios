@@ -176,9 +176,15 @@ final class CarPlayManager {
 
         interfaceController.pushTemplate(
             template,
-            animated: true,
-            completion: nil
-        )
+            animated: true
+        ){ success, error in
+            if let error {
+                NCLog.log("CarPlay failed to show in-call view: \(error)")
+                return
+            }
+
+            NCLog.log("CarPlay in-call view displayed: success=\(success)")
+        }
     }
 
     private func subtitle(for room: NCRoom) -> String? {
