@@ -104,17 +104,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
         // spoken person even when Siri has not attached a Talk customIdentifier;
         // the containing app resolves the destination against the Talk directory.
         if let startCallIntent = intent as? INStartCallIntent {
-            NCLog.log("Siri/CarPlay INStartCallIntent received contacts=\(startCallIntent.contacts?.count ?? 0)")
-
-            guard let person = startCallIntent.contacts?.first else {
-                NCLog.log("Siri/CarPlay call rejected: no contact supplied")
-                return false
-            }
-
-            Task { @MainActor in
-                await self.routeSiriStartCall(person)
-            }
-            return true
+            return handleStartCallIntent(startCallIntent)
         }
 
         // Keep compatibility with the legacy call intents already supported by
@@ -696,5 +686,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
         keepAliveBGTask?.stopBackgroundTask()
 
         NCSettingsController.sharedInstance().connectDisconnectedExternalSignalingControllers()
+    }
+    
+    @MainActor
+    func handleStartCallIntent(_ intent: INStartCallIntent) -> Bool {
+        NCLog.log(
+            "Siri/CarPlay INStartCallIntent received contacts=\(intent.contacts?.count ?? 0)"
+        )
+
+        guard let person = intent.contacts?.first else {
+            NCLog.log("Siri/CarPlay call rejected: no contact supplied")
+            return false
+        }
+
+        Task { @MainActor in
+            await self.routeSiriStartCall(person)
+        }
+
+        return true
     }
 }
