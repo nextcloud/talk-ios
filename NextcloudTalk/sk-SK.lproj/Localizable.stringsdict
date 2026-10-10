@@ -295,9 +295,9 @@
 			<key>one</key>
 			<string>%ld konverzácia s neprečítanými správami</string>
 			<key>few</key>
-			<string>%ld konverzácií s neprečítanými správami</string>
+			<string>%ld konverzácie s neprečítanými správami</string>
 			<key>many</key>
-			<string>%ld konverzácií s neprečítanými správami</string>
+			<string>%ld konverzácie s neprečítanými správami</string>
 			<key>other</key>
 			<string>%ld konverzácií s neprečítanými správami</string>
 		</dict>
