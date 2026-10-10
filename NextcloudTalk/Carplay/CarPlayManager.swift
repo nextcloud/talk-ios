@@ -34,6 +34,19 @@ final class CarPlayManager {
             name: .NCSettingsControllerDidChangeActiveAccount,
             object: nil
         )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(callDidStart(_:)),
+            name: .CallKitManagerDidStartCall,
+            object: nil
+        )
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(callDidEnd(_:)),
+            name: .CallKitManagerDidEndCall,
+            object: nil
+        )
     }
 
     deinit {
@@ -121,11 +134,51 @@ final class CarPlayManager {
         loadAvatar(for: room, into: item)
 
         item.handler = { [weak self] _, completion in
-            self?.showConversation(room)
+            if room.hasCall {
+                self?.showInCallView(room)
+            } else {
+                self?.showConversation(room)
+            }
+
             completion()
         }
 
         return item
+    }
+
+    private func showInCallView(_ room: NCRoom) {
+        guard let interfaceController, activeCallTemplate == nil else {
+            return
+        }
+
+        let contact = CPContact(
+            name: room.displayName,
+            image: UIImage(systemName: "person.crop.circle") ?? UIImage()
+        )
+
+        contact.subtitle = NSLocalizedString("Call in progress", comment: "")
+
+        let endCallButton = CPContactCallButton { [weak self] _ in
+            CallKitManager.sharedInstance().endCall(
+                room.token,
+                withStatusCode: 0
+            )
+
+            self?.activeCallTemplate = nil
+        }
+
+        endCallButton.title = NSLocalizedString("End call", comment: "")
+
+        contact.actions = [endCallButton]
+
+        let template = CPContactTemplate(contact: contact)
+        activeCallTemplate = template
+
+        interfaceController.pushTemplate(
+            template,
+            animated: true,
+            completion: nil
+        )
     }
 
     private func subtitle(for room: NCRoom) -> String? {
@@ -288,6 +341,42 @@ final class CarPlayManager {
     private func activeAccountDidChange() {
         DispatchQueue.main.async { [weak self] in
             self?.refreshTemplates()
+        }
+    }
+    @objc
+    private func callDidStart(_ notification: Notification) {
+        guard
+            let token = notification.userInfo?["roomToken"] as? String,
+            let room = CarPlayConversationProvider.shared.room(withToken: token)
+        else {
+            return
+        }
+
+        DispatchQueue.main.async { [weak self] in
+            self?.refreshTemplates()
+            self?.showInCallView(room)
+        }
+    }
+    @objc
+    private func callDidEnd(_ notification: Notification) {
+        guard
+            notification.userInfo?["roomToken"] as? String != nil
+        else {
+            return
+        }
+
+        DispatchQueue.main.async { [weak self] in
+            guard let self else {
+                return
+            }
+
+            self.activeCallTemplate = nil
+            self.refreshTemplates()
+
+            self.interfaceController?.popToRootTemplate(
+                animated: true,
+                completion: nil
+            )
         }
     }
 }
