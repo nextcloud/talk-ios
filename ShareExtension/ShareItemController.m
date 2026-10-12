@@ -197,12 +197,18 @@ CGFloat const kShareItemControllerImageQuality = 1.0f;
     __block NSError *error;
     
     [coordinator coordinateReadingItemAtURL:fileURL options:NSFileCoordinatorReadingForUploading error:&error byAccessor:^(NSURL *newURL) {
-        if ([NSFileManager.defaultManager fileExistsAtPath:item.filePath]) {
-            [NSFileManager.defaultManager removeItemAtPath:item.filePath error:nil];
+        // Replace atomically: the original is only removed after the edited file was moved in
+        NSError *replaceError;
+        NSURL *originalURL = [NSURL fileURLWithPath:item.filePath];
+
+        if (![NSFileManager.defaultManager replaceItemAtURL:originalURL withItemAtURL:newURL backupItemName:nil options:0 resultingItemURL:nil error:&replaceError]) {
+            NSLog(@"Failed to replace shareItem with edited file: %@ %@", item.fileName, replaceError);
         }
-        
-        [NSFileManager.defaultManager moveItemAtPath:newURL.path toPath:item.filePath error:nil];
     }];
+
+    if (error) {
+        NSLog(@"Failed to coordinate reading edited file: %@ %@", item.fileName, error);
+    }
     
     NSLog(@"Updating shareItem: %@ %@", item.fileName, item.fileURL);
     
