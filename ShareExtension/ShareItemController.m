@@ -80,6 +80,7 @@ CGFloat const kShareItemControllerImageQuality = 1.0f;
 {
     NSFileCoordinator *coordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
     __block NSError *error;
+    __block NSError *transferError;
 
     // Make a local copy to prevent bug where file is removed after some time from inbox
     // See: https://stackoverflow.com/a/48007752/2512312
@@ -88,10 +89,20 @@ CGFloat const kShareItemControllerImageQuality = 1.0f;
             [NSFileManager.defaultManager removeItemAtPath:fileLocalURL.path error:nil];
         }
 
-        [NSFileManager.defaultManager moveItemAtPath:newURL.path toPath:fileLocalURL.path error:nil];
+        if (options & NSFileCoordinatorReadingForUploading) {
+            // newURL is a temporary snapshot that the coordinator unlinks after this block, so we take it over
+            [NSFileManager.defaultManager moveItemAtPath:newURL.path toPath:fileLocalURL.path error:&transferError];
+        } else {
+            // newURL is the original file, which does not belong to us and must stay in place
+            [NSFileManager.defaultManager copyItemAtPath:newURL.path toPath:fileLocalURL.path error:&transferError];
+        }
     }];
 
-    BOOL success = (error == nil);
+    if (transferError) {
+        NSLog(@"Failed to transfer file for sharing: %@", transferError);
+    }
+
+    BOOL success = (error == nil && transferError == nil);
     return success;
 }
 
