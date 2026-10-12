@@ -6,7 +6,7 @@
 import UIKit
 
 /// One file of a group that has no preview, shown as a row with its name.
-class GroupedFileRowView: UIControl {
+class GroupedFileRowView: UIView {
 
     static let cardPadding = 8.0
 
@@ -49,8 +49,6 @@ class GroupedFileRowView: UIControl {
         stackView.axis = .vertical
         stackView.alignment = .leading
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        // Otherwise hit testing stops here and the row itself never sees the tap
-        stackView.isUserInteractionEnabled = false
         return stackView
     }()
 
@@ -65,12 +63,6 @@ class GroupedFileRowView: UIControl {
     }
 
     private var maximumWidthConstraint: NSLayoutConstraint?
-
-    override var isHighlighted: Bool {
-        didSet {
-            self.alpha = self.isHighlighted ? 0.6 : 1.0
-        }
-    }
 
     private func setupRowView() {
         self.translatesAutoresizingMaskIntoConstraints = false
@@ -123,6 +115,7 @@ class GroupedFileRowView: UIControl {
         self.detailLabel.text = file.shortDescription
 
         self.accessibilityLabel = [file.name, file.shortDescription].compactMap { $0 }.joined(separator: ", ")
+        self.accessibilityTraits = .button
         self.isAccessibilityElement = true
     }
 

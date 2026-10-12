@@ -202,11 +202,7 @@ class GroupedFilePreviewView: UIView {
             let tileView = GroupedFilePreviewTileView()
 
             tileView.setup(with: file, account: account, size: GroupedFilePreviewView.tileSize, hiddenCount: isBadge ? layout.hiddenTileCount : 0)
-            tileView.addAction { [weak self] in
-                guard let self else { return }
-
-                self.delegate?.groupedFilePreviewView(self, didSelectFileAt: self.index(of: file, in: files))
-            }
+            self.addTapRecognizer(to: tileView, forFileAt: self.index(of: file, in: files))
 
             self.tileViews.append(tileView)
             self.tileRow.addArrangedSubview(tileView)
@@ -216,11 +212,7 @@ class GroupedFilePreviewView: UIView {
             let rowView = GroupedFileRowView()
 
             rowView.setup(with: file, maximumWidth: maximumContentWidth)
-            rowView.addAction { [weak self] in
-                guard let self else { return }
-
-                self.delegate?.groupedFilePreviewView(self, didSelectFileAt: self.index(of: file, in: files))
-            }
+            self.addTapRecognizer(to: rowView, forFileAt: self.index(of: file, in: files))
 
             self.fileRowViews.append(rowView)
             self.fileRows.addArrangedSubview(rowView)
@@ -235,6 +227,18 @@ class GroupedFilePreviewView: UIView {
         for rowView in self.fileRowViews {
             rowView.updateDownloadStatus(from: notification)
         }
+    }
+
+    /// A tap recognizer rather than a UIControl, which would keep a long press from opening the context menu of the cell
+    private func addTapRecognizer(to view: UIView, forFileAt index: Int) {
+        view.tag = index
+        view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(fileViewTapped(_:))))
+    }
+
+    @objc private func fileViewTapped(_ recognizer: UITapGestureRecognizer) {
+        guard let view = recognizer.view else { return }
+
+        self.delegate?.groupedFilePreviewView(self, didSelectFileAt: view.tag)
     }
 
     private func index(of file: NCMessageFileParameter, in files: [NCMessageFileParameter]) -> Int {

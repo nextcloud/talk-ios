@@ -6,7 +6,7 @@
 import UIKit
 
 /// One media file of a group, shown as a square preview.
-class GroupedFilePreviewTileView: UIControl {
+class GroupedFilePreviewTileView: UIView {
 
     private lazy var previewImageView: FilePreviewImageView = {
         let imageView = FilePreviewImageView()
@@ -112,6 +112,7 @@ class GroupedFilePreviewTileView: UIControl {
         }
 
         self.accessibilityLabel = file.name
+        self.accessibilityTraits = .button
         self.isAccessibilityElement = true
     }
 
