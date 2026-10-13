@@ -25,6 +25,9 @@ import UIKit
     private let pageController = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
     private var initialMessage: NCChatMessage
     private weak var messageSource: MediaViewerMessageSource?
+    // Resetting the data source while a swipe animates could disturb it, so that waits for the swipe to end
+    private var isTransitioning = false
+    private var needsAdjacentPagesReload = false
 
     private lazy var shareButton = {
         let shareButton = UIBarButtonItem(title: nil, style: .plain, target: nil, action: nil)
@@ -163,6 +166,20 @@ import UIKit
         return self.pageController.viewControllers?.first as? NCMediaViewerPageViewController
     }
 
+    /// For a message source that got more messages after it reported the end
+    func reloadAdjacentPages() {
+        guard !self.isTransitioning else {
+            self.needsAdjacentPagesReload = true
+            return
+        }
+
+        self.needsAdjacentPagesReload = false
+
+        // The page controller keeps a nil neighbour until its data source is set again, which leaves the current page alone
+        self.pageController.dataSource = nil
+        self.pageController.dataSource = self
+    }
+
     // MARK: - PageViewController delegate
 
     func getAllFileMessages() -> RLMResults<AnyObject>? {
@@ -246,7 +263,17 @@ import UIKit
         return mediaPageViewController
     }
 
+    func pageViewController(_ pageViewController: UIPageViewController, willTransitionTo pendingViewControllers: [UIViewController]) {
+        self.isTransitioning = true
+    }
+
     func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
+        self.isTransitioning = false
+
+        if self.needsAdjacentPagesReload {
+            self.reloadAdjacentPages()
+        }
+
         // Update the titel of the currently shown viewController
         guard let mediaPageViewController = self.getCurrentPageViewController() else { return }
         self.navigationItem.title = mediaPageViewController.navigationItem.title

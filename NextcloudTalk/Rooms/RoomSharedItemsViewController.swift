@@ -55,7 +55,8 @@ class RoomSharedItemsViewController: UIViewController,
     private var currentItems: [NCChatMessage] = []
     private var sections: [ItemSection] = []
     private var currentLastItemId: Int = -1
-    private var hasMore = true
+    // False until a type is picked, so scroll callbacks before the overview arrives don't request the "all" placeholder type
+    private var hasMore = false
     private var isLoading = false
     // Bumped on every type change, so responses for the previous type are ignored
     private var generation = 0
@@ -72,6 +73,9 @@ class RoomSharedItemsViewController: UIViewController,
 
     weak var previewChatViewController: ContextChatViewController?
     weak var previewNavigationChatViewController: NCNavigationController?
+
+    private weak var mediaViewController: NCMediaViewerViewController?
+    private var mediaViewerReachedLoadedEnd = false
 
     private var isShowingMedia: Bool {
         return self.currentItemType == kSharedItemTypeMedia
@@ -261,7 +265,8 @@ class RoomSharedItemsViewController: UIViewController,
         self.generation += 1
         self.currentItemType = itemType
         self.currentLastItemId = -1
-        self.hasMore = true
+        // Resetting the scroll position below calls scrollViewDidScroll, which must not start loading yet
+        self.hasMore = false
         self.isLoading = false
 
         self.removeAllItems()
@@ -270,6 +275,7 @@ class RoomSharedItemsViewController: UIViewController,
         self.collectionView.isHidden = !self.isShowingMedia
         self.tableView.backgroundView = nil
         self.collectionView.backgroundView = nil
+        self.hasMore = true
 
         let chips = self.availableItemTypes().map { TagFilterChip(id: $0, title: self.nameForItemType(itemType: $0)) }
         self.typeFilterView.update(chips: chips, selectedChipId: itemType)
@@ -298,7 +304,7 @@ class RoomSharedItemsViewController: UIViewController,
     }
 
     private func loadMoreItemsIfNearBottom() {
-        guard self.hasMore, !self.isLoading, !self.currentItems.isEmpty else { return }
+        guard self.hasMore, !self.isLoading else { return }
         guard self.distanceToBottom < self.activeScrollView.bounds.height else { return }
 
         self.loadMoreItems()
@@ -346,11 +352,21 @@ class RoomSharedItemsViewController: UIViewController,
                     self.hasMore = false
                 }
 
-                self.hideFetchingItemsPlaceholderView()
-                self.updateLoadingMoreIndicator()
+                // Also when nothing was appended, the viewer then asks again and requests the next page itself
+                if self.mediaViewerReachedLoadedEnd {
+                    self.mediaViewerReachedLoadedEnd = false
+                    self.mediaViewController?.reloadAdjacentPages()
+                }
 
-                // A page may not fill the screen, and nothing else would request the next one
+                // A page may not fill the screen or be filtered out entirely, and nothing else would request the next one
                 self.loadMoreItemsIfNearBottom()
+
+                // While nothing is shown yet, otherwise "No shared items" flashes up before the next page arrives
+                if !self.isLoading || !self.currentItems.isEmpty {
+                    self.hideFetchingItemsPlaceholderView()
+                }
+
+                self.updateLoadingMoreIndicator()
             }
     }
 
@@ -522,6 +538,8 @@ class RoomSharedItemsViewController: UIViewController,
         let mediaViewController = NCMediaViewerViewController(initialMessage: message, room: self.room, account: account, messageSource: self)
         let navController = CustomPresentableNavigationController(rootViewController: mediaViewController)
 
+        self.mediaViewController = mediaViewController
+        self.mediaViewerReachedLoadedEnd = false
         self.present(navController, interactiveDismissalType: .standard)
     }
 
@@ -535,7 +553,15 @@ class RoomSharedItemsViewController: UIViewController,
         }
 
         // The list is newest first, so older media come after
-        return self.currentItems[(index + 1)...].first(where: { NCMediaViewerViewController.canShowMedia(of: $0) })
+        let olderMessage = self.currentItems[(index + 1)...].first(where: { NCMediaViewerViewController.canShowMedia(of: $0) })
+
+        if olderMessage == nil, self.hasMore {
+            self.mediaViewerReachedLoadedEnd = true
+            // The prefetch above only looks at the distance, which media the viewer can't show may exceed
+            self.loadMoreItems()
+        }
+
+        return olderMessage
     }
 
     func mediaViewerMessage(after message: NCChatMessage) -> NCChatMessage? {
