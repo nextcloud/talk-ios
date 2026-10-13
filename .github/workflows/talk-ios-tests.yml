@@ -29,6 +29,9 @@ env:
   SIMULATOR_VERSION: "26.5"
   SCHEME: NextcloudTalk
   XCODE_VERSION: "26.5"
+  # https://docs.nextcloud.com/server/stable/admin_manual/installation/source_installation.html#prerequisites-for-manual-installation
+  # pgsql is not needed, the test server uses sqlite
+  PHP_EXTENSIONS: apcu, bz2, ctype, curl, dom, fileinfo, gd, iconv, intl, json, libxml, mbstring, openssl, pcntl, posix, session, simplexml, xmlreader, xmlwriter, zip, zlib
 
 jobs:
   build:
@@ -81,13 +84,17 @@ jobs:
         -scheme '${{ env.SCHEME }}' \
         -destination '${{ env.DESTINATION }}' \
         -derivedDataPath 'DerivedData' \
+        COMPILER_INDEX_STORE_ENABLE=NO \
         | xcbeautify --quieter
 
     - name: Upload test build
       uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
       with:
         name: Products
-        path: DerivedData/Build/Products
+        # Only what test-without-building needs, the test bundles are embedded in the apps
+        path: |
+          DerivedData/Build/Products/*.xctestrun
+          DerivedData/Build/Products/Debug-iphonesimulator/*.app
         retention-days: 4
 
   test:
@@ -107,12 +114,6 @@ jobs:
             phpversion: '8.0'
           },
           {
-            serverbranch: 'stable32',
-            talkbranch: 'stable32',
-            notificationsbranch: 'stable32',
-            phpversion: '8.3'
-          },
-          {
             serverbranch: 'stable33',
             talkbranch: 'stable33',
             notificationsbranch: 'stable33',
@@ -124,6 +125,12 @@ jobs:
             notificationsbranch: 'stable34',
             phpversion: '8.3'
           },
+          {
+            serverbranch: 'stable35',
+            talkbranch: 'stable35',
+            notificationsbranch: 'stable35',
+            phpversion: '8.3'
+          },          
           {
             serverbranch: 'master',
             talkbranch: 'main',
@@ -149,12 +156,26 @@ jobs:
         persist-credentials: false
         submodules: true
 
-    - name: Set up php ${{ matrix.configs.phpversion }}
-      uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
+    - name: Setup PHP extension cache environment
+      id: extcache
+      uses: shivammathur/cache-extensions@22e24453af1bf3851994136f122ce065ab828a74 # v1.15.2
       with:
         php-version: ${{ matrix.configs.phpversion }}
-        # https://docs.nextcloud.com/server/stable/admin_manual/installation/source_installation.html#prerequisites-for-manual-installation
-        extensions: apcu, bz2, ctype, curl, dom, fileinfo, gd, iconv, intl, json, libxml, mbstring, openssl, pcntl, posix, session, simplexml, xmlreader, xmlwriter, zip, zlib, pgsql, pdo_pgsql
+        extensions: ${{ env.PHP_EXTENSIONS }}
+        # The resulting key already contains the OS, PHP version and a hash of the extensions
+        key: php-extensions
+
+    - name: Cache PHP extensions
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ${{ steps.extcache.outputs.dir }}
+        key: ${{ steps.extcache.outputs.key }}
+
+    - name: Set up php ${{ matrix.configs.phpversion }}
+      uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2.40.0
+      with:
+        php-version: ${{ matrix.configs.phpversion }}
+        extensions: ${{ env.PHP_EXTENSIONS }}
         coverage: none
         ini-file: development
         # Temporary workaround for missing pcntl_* in PHP 8.3: ini-values: apc.enable_cli=on
@@ -194,7 +215,7 @@ jobs:
 
     - name: Set up production dependencies notifications
       working-directory: server/apps/notifications
-      run: composer i --no-dev 
+      run: composer i --no-dev
 
     - name: Set up Nextcloud
       run: |

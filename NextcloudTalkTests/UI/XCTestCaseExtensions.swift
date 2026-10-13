@@ -35,7 +35,7 @@ extension XCTestCase {
                 XCTFail("Timed out waiting for either element to exist.")
                 break
             }
-            usleep(500)
+            usleep(200_000)
         }
 
         if elementA.exists {
