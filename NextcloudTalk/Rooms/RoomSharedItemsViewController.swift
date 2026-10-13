@@ -341,7 +341,15 @@ class RoomSharedItemsViewController: UIViewController,
                     // Unshared files still come back, parsed into a plain comment without a file parameter
                     let isFileType = Self.fileItemTypes.contains(self.currentItemType)
                     let filteredItems = sharedItems.filter { !isFileType || $0.file() != nil }
-                    let sortedItems = filteredItems.sorted(by: { $0.messageId > $1.messageId })
+                    // The page arrives as a dictionary, which loses the server's pinnedAt order for pinned messages
+                    let sortsByPinning = self.currentItemType == kSharedItemTypePinned
+                    let sortedItems = filteredItems.sorted { lhs, rhs in
+                        if sortsByPinning, lhs.pinnedAt != rhs.pinnedAt {
+                            return lhs.pinnedAt > rhs.pinnedAt
+                        }
+
+                        return lhs.messageId > rhs.messageId
+                    }
 
                     self.currentLastItemId = lastItemId
                     // The server filters after applying the limit, so only an empty page marks the end
