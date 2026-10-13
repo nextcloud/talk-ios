@@ -1279,19 +1279,17 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
     // Same layers as web, but ordered from lowest to highest as the VP8 encoder requires
     private func simulcastSendEncodings() -> [RTCRtpEncodingParameters] {
         return [
-            // Announced but not sent, keeps web's substream indices, the MCU falls back to medium
-            self.simulcastEncoding(rid: "l", scaleResolutionDownBy: 4, maxBitrateBps: 100_000, isActive: false),
+            self.simulcastEncoding(rid: "l", scaleResolutionDownBy: 4, maxBitrateBps: 100_000),
             self.simulcastEncoding(rid: "m", scaleResolutionDownBy: 2, maxBitrateBps: 300_000),
             self.simulcastEncoding(rid: "h", scaleResolutionDownBy: 1, maxBitrateBps: 900_000)
         ]
     }
 
-    private func simulcastEncoding(rid: String, scaleResolutionDownBy: Double, maxBitrateBps: Int, isActive: Bool = true) -> RTCRtpEncodingParameters {
+    private func simulcastEncoding(rid: String, scaleResolutionDownBy: Double, maxBitrateBps: Int) -> RTCRtpEncodingParameters {
         let encoding = RTCRtpEncodingParameters()
         encoding.rid = rid
         encoding.scaleResolutionDownBy = NSNumber(value: scaleResolutionDownBy)
         encoding.maxBitrateBps = NSNumber(value: maxBitrateBps)
-        encoding.isActive = isActive
 
         return encoding
     }
