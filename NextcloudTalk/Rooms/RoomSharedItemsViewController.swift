@@ -958,8 +958,8 @@ class RoomSharedItemsViewController: UIViewController,
         let image = imageForMessage(message: message)
         cell.fileImageView?.image = image
         cell.fileImageView?.tintColor = .secondaryLabel
-        if message.file()?.previewAvailable != nil {
-            cell.fileImageView?.setPreview(forFileId: message.file().parameterId, withWidth: 40, withHeight: 40, usingAccount: .activeAccount)
+        if message.file()?.previewAvailable != nil, let account = self.room.account {
+            cell.fileImageView?.setPreview(forFileId: message.file().parameterId, withWidth: 40, withHeight: 40, usingAccount: account)
         }
         return cell
     }
