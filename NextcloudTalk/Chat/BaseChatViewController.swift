@@ -1360,6 +1360,15 @@ import Toast
         NotificationPresenter.shared().present(text: NSLocalizedString("Message unpinned", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
     }
 
+    internal func prepareVoiceMessageForResend(_ message: NCChatMessage) {
+        message.sendingFailed = false
+        message.isOfflineMessage = false
+
+        // Like a resent text message, the message is sent now: it needs to be placed at the end of the chat
+        // and must not expire (getTemporaryMessages) based on the timestamp of the failed attempt
+        message.timestamp = Int(Date().timeIntervalSince1970)
+    }
+
     func didPressResend(for message: NCChatMessage) {
         // Make sure there's no unread message separator, as the indexpath could be invalid after removing a message
         self.removeUnreadMessagesSeparator()
@@ -1372,8 +1381,7 @@ import Toast
             self.sendChatMessage(message: originalMessage, withParentMessage: message.parent, messageParameters: message.messageParametersJSONString ?? "", silently: message.isSilent)
         } else {
             // Show and store the message as sending again, so it can be marked as failed again
-            message.sendingFailed = false
-            message.isOfflineMessage = false
+            self.prepareVoiceMessageForResend(message)
 
             RLMRealm.writeTransaction { realm in
                 realm.addOrUpdate(NCChatMessage(value: message))

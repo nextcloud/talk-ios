@@ -262,4 +262,18 @@ final class UnitBaseChatViewControllerTest: TestBaseRealm {
         XCTAssertFalse(receivedMessage.sendingFailed)
     }
 
+    func testPrepareVoiceMessageForResendAssignsNewTimestamp() throws {
+        let message = NCChatMessage()
+        message.sendingFailed = true
+        message.isOfflineMessage = true
+        message.timestamp = Int(Date().timeIntervalSince1970) - (60 * 60 * 13)
+
+        let before = Int(Date().timeIntervalSince1970)
+        baseController.prepareVoiceMessageForResend(message)
+
+        XCTAssertFalse(message.sendingFailed)
+        XCTAssertFalse(message.isOfflineMessage)
+        XCTAssertGreaterThanOrEqual(message.timestamp, before)
+    }
+
 }
