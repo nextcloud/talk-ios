@@ -2203,4 +2203,97 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
         return nil
     }
 
+    // MARK: - Debug
+
+    public var usesExternalSignaling: Bool {
+        return externalSignalingController != nil
+    }
+
+    public func simulateSignalingConnectionLoss() {
+        externalSignalingController?.simulateConnectionLoss()
+    }
+
+    // Needs to be called on the main thread, the completion is called on the main thread as well
+    public func collectDebugInfo(completion: @escaping (String) -> Void) {
+        dispatchPrecondition(condition: .onQueue(.main))
+
+        var lines = ["== Signaling =="]
+
+        if let externalSignalingController {
+            lines.append("External signaling")
+            lines.append(contentsOf: externalSignalingController.debugInfoLines)
+        } else {
+            lines.append("Internal signaling, session id: \(userSessionId)")
+        }
+
+        WebRTCCommon.shared.dispatch {
+            lines.append("")
+            lines.append("== Call ==")
+            lines.append("Audio only: \(self.isAudioOnly), audio enabled: \(self.isAudioEnabled()), video enabled: \(self.isVideoEnabled())")
+            lines.append("In call flags: \(self.userInCall), joined once: \(self.joinedCallOnce), sessions in call: \(self.sessionsInCall.count)")
+            lines.append("Relay only ICE candidates: \(CallDebugSettings.relayOnlyIceCandidates)")
+
+            let peers = self.connectionsDict.sorted { $0.key < $1.key }.map { $0.value }
+
+            if let iceServers = peers.first?.getPeerConnection()?.configuration.iceServers {
+                lines.append("ICE servers: " + iceServers.flatMap { $0.urlStrings }.joined(separator: ", "))
+            }
+
+            CallDebugInfo.sampleStatistics(of: peers) { reports in
+                for peer in peers {
+                    lines.append("")
+                    lines.append(contentsOf: self.debugInfoLines(for: peer))
+
+                    if let report = reports[ObjectIdentifier(peer)] {
+                        lines.append(contentsOf: report.detailedLines.map { "  " + $0 })
+                    }
+                }
+
+                DispatchQueue.main.async {
+                    completion(lines.joined(separator: "\n"))
+                }
+            }
+        }
+    }
+
+    private func debugInfoLines(for peer: NCPeerConnection) -> [String] {
+        WebRTCCommon.shared.assertQueue()
+
+        var title = peer.isMCUPublisherPeer ? "Publisher" : (getActor(fromSessionId: peer.peerId)?.displayName ?? peer.peerName ?? "Unknown")
+
+        if peer.roomType == kRoomTypeScreen {
+            title += peer.isOwnScreensharePeer ? " (own screen)" : " (screen)"
+        }
+
+        var lines = ["== \(title) ==", "Session id: \(peer.peerId), sid: \(peer.sid ?? "none")"]
+
+        if let peerConnection = peer.getPeerConnection() {
+            lines.append("ICE: \(peer.stringForConnectionState(peerConnection.iceConnectionState)), signaling: \(peer.stringForSignalingState(peerConnection.signalingState))")
+
+            // The encodings as libwebrtc currently has them, applying a remote answer can change their activity
+            for transceiver in peerConnection.transceivers where transceiver.mediaType == .video && transceiver.sender.parameters.encodings.count > 1 {
+                let encodings = transceiver.sender.parameters.encodings.map { "\($0.rid ?? "?") \($0.isActive ? "on" : "off")" }
+                lines.append("Send encodings: " + encodings.joined(separator: ", "))
+            }
+
+            let simulcastLines = { (sdp: String?) in
+                (sdp ?? "").components(separatedBy: "\r\n").filter { $0.hasPrefix("a=simulcast:") }.joined(separator: " | ")
+            }
+
+            if peer.isMCUPublisherPeer {
+                lines.append("Local SDP: \(simulcastLines(peerConnection.localDescription?.sdp))")
+                lines.append("Remote SDP: \(simulcastLines(peerConnection.remoteDescription?.sdp))")
+            }
+        } else {
+            lines.append("Peer connection closed")
+        }
+
+        if !peer.isMCUPublisherPeer {
+            let quality = simulcastVideoQualities[peer.peerId].map { "\($0)" } ?? "default"
+            lines.append("Remote audio off: \(peer.isRemoteAudioDisabled), video off: \(peer.isRemoteVideoDisabled), video blocked: \(remoteVideoBlocked[peer.peerId] ?? false), simulcast: \(quality)")
+        }
+
+        return lines
+    }
+
 }

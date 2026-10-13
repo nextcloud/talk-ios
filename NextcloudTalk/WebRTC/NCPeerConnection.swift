@@ -84,6 +84,10 @@ public class NCPeerConnection: NSObject {
         config.iceServers = (iceServers ?? []).compactMap { $0 as? RTCIceServer }
         config.sdpSemantics = .unifiedPlan
 
+        if CallDebugSettings.relayOnlyIceCandidates {
+            config.iceTransportPolicy = .relay
+        }
+
         self.peerId = sessionId
         self.sid = sid ?? String(format: "%.0f", Date().timeIntervalSince1970 * 1000)
         self.isAudioOnly = audioOnly
@@ -495,7 +499,7 @@ public class NCPeerConnection: NSObject {
         return RTCMediaConstraints(mandatoryConstraints: mandatoryConstraints, optionalConstraints: optionalConstraints)
     }
 
-    private func stringForSignalingState(_ state: RTCSignalingState) -> String {
+    func stringForSignalingState(_ state: RTCSignalingState) -> String {
         switch state {
         case .stable:
             return "Stable"
@@ -510,7 +514,7 @@ public class NCPeerConnection: NSObject {
         }
     }
 
-    private func stringForConnectionState(_ state: RTCIceConnectionState) -> String {
+    func stringForConnectionState(_ state: RTCIceConnectionState) -> String {
         switch state {
         case .new:
             return "New"
