@@ -146,6 +146,26 @@ final class UnitFileMessageGroupTest: TestBaseRealm {
         XCTAssertEqual(groups.first?.anchor.message, "Look at these {file}", "The caption is the text of the group")
     }
 
+    func testAnEditedCaptionKeepsTheGroup() throws {
+        let messages = [try self.message(upload: self.uploadA, position: 1),
+                        try self.message(upload: self.uploadA, position: 2, text: "Edited {file}", overrides: ["lastEditTimestamp": 1_758_012_345])]
+
+        let groups = FileMessageGroup.groups(in: messages)
+
+        XCTAssertEqual(groups.count, 1)
+        XCTAssertEqual(groups.first?.messages.count, 2)
+    }
+
+    func testAnEditedCaptionStartsANewAuthorBlock() throws {
+        let first = try self.message(upload: self.uploadA, position: 1)
+        let second = try self.message(upload: self.uploadA, position: 2, text: "Edited {file}", overrides: ["lastEditTimestamp": 1_758_012_345])
+        first.isGroupMessage = true
+
+        let group = try XCTUnwrap(FileMessageGroup.groups(in: [first, second]).first)
+
+        XCTAssertFalse(group.continuesAuthorBlock, "The header shows that the caption was edited")
+    }
+
     func testRepliesToDifferentMessagesAreNotGrouped() throws {
         let first = try self.message(upload: self.uploadA, position: 1)
         let second = try self.message(upload: self.uploadA, position: 2)

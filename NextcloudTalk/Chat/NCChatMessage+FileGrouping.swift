@@ -31,9 +31,8 @@ extension NCChatMessage {
             return nil
         }
 
-        // Failed and deleting messages keep their own bubble so their state stays visible, and an
-        // edited one is shown separately, the same way message grouping treats it
-        guard !self.sendingFailed, !self.isDeleting, self.lastEditTimestamp == 0 else {
+        // Failed and deleting messages keep their own bubble so their state stays visible
+        guard !self.sendingFailed, !self.isDeleting else {
             return nil
         }
 

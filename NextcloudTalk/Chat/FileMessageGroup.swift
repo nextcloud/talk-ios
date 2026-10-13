@@ -19,8 +19,9 @@ struct FileMessageGroup {
     /// Whether the group continues a block from the same author, and so shows no avatar or name.
     ///
     /// Follows the first message: the group is shown as its last one, which is always a continuation.
+    /// An edited caption starts a new block, so its header shows the edit, like message grouping does.
     var continuesAuthorBlock: Bool {
-        return self.messages[0].isGroupMessage
+        return self.messages[0].isGroupMessage && self.anchor.lastEditTimestamp == 0
     }
 
     /// Not the order the messages arrived in: files of one upload can be posted in parallel.

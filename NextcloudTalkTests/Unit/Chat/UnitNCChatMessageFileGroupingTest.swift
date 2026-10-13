@@ -96,9 +96,9 @@ final class UnitNCChatMessageFileGroupingTest: TestBaseRealm {
         XCTAssertFalse(try self.message(["messageType": "comment_deleted"]).isGroupableFileMessage)
     }
 
-    /// Shown separately so that the edit stays visible, the same way message grouping treats it
-    func testEditedMessagesAreNotGroupable() throws {
-        XCTAssertFalse(try self.message(["lastEditTimestamp": 1_758_012_345]).isGroupableFileMessage)
+    /// Editing the caption must not take the file out of its upload
+    func testEditedMessagesAreGroupable() throws {
+        XCTAssertTrue(try self.message(["lastEditTimestamp": 1_758_012_345]).isGroupableFileMessage)
     }
 
     /// Shown separately so that the failure stays visible
