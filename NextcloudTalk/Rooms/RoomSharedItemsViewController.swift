@@ -209,12 +209,25 @@ class RoomSharedItemsViewController: UIViewController,
         })
     }
 
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
+    // Not viewWillDisappear, an interactive back swipe can still be cancelled there
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
 
-        if self.isMovingFromParent || self.isBeingDismissed {
-            self.stopAudio()
+        // Room info is often a sheet, swiping that down only marks the presented controller further up
+        var viewController: UIViewController? = self
+        while let current = viewController {
+            if current.isMovingFromParent || current.isBeingDismissed {
+                self.stopAudio()
+                return
+            }
+
+            viewController = current.parent
         }
+    }
+
+    deinit {
+        // A scheduled timer is kept alive by its run loop, not by us
+        self.audioProgressTimer?.invalidate()
     }
 
     override func viewSafeAreaInsetsDidChange() {
@@ -548,6 +561,7 @@ class RoomSharedItemsViewController: UIViewController,
 
         self.mediaViewController = mediaViewController
         self.mediaViewerReachedLoadedEnd = false
+        self.stopAudio()
         self.present(navController, interactiveDismissalType: .standard)
     }
 
@@ -582,6 +596,8 @@ class RoomSharedItemsViewController: UIViewController,
 
     private func playAudio(of message: NCChatMessage) {
         if let audioPlayer, self.audioPlayerMessageId == message.messageId {
+            // Otherwise a still running download of another file would take over once it finishes
+            self.pendingAudioMessageId = nil
             self.startAudioPlayback(audioPlayer)
             return
         }
@@ -722,6 +738,9 @@ class RoomSharedItemsViewController: UIViewController,
             }
 
             guard let fileLocalPath = fileStatus.fileLocalPath else { return }
+
+            // Whatever opens next plays or shows the file itself
+            self.stopAudio()
 
             self.previewControllerFilePath = fileLocalPath
             self.isPreviewControllerShown = true
