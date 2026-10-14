@@ -157,6 +157,10 @@ import SwiftyGif
         return videoPlayButton
     }()
 
+    private lazy var downloadObserver = ChatFileDownloadObserver { [weak self] change in
+        self?.downloadDidChange(change)
+    }
+
     init(message: NCChatMessage, account: TalkAccount) {
         self.message = message
         self.account = account
@@ -193,7 +197,7 @@ import SwiftyGif
 
         self.navigationItem.title = self.message.file()?.name
 
-        NotificationCenter.default.addObserver(self, selector: #selector(didChangeDownloadProgress(notification:)), name: NSNotification.Name.NCChatFileControllerDidChangeDownloadProgress, object: nil)
+        self.downloadObserver.fileParameter = self.message.file()
 
         self.startLoading()
 
@@ -662,17 +666,12 @@ import SwiftyGif
         }
     }
 
-    func didChangeDownloadProgress(notification: Notification) {
-        DispatchQueue.main.async {
-            guard let fileParameter = self.message.file(),
-                  let receivedStatus = NCChatFileStatus.getStatus(from: notification, for: fileParameter),
-                  receivedStatus.canReportProgress
-            else { return }
+    private func downloadDidChange(_ change: ChatFileDownloadObserver.Change) {
+        guard case .progress(let progress?) = change else { return }
 
-            self.activityIndicator.indicatorMode = .determinate
-            self.activityIndicator.setProgress(Float(receivedStatus.downloadProgress), animated: true)
-            self.downloadIndicator.setProgress(Float(receivedStatus.downloadProgress))
-        }
+        self.activityIndicator.indicatorMode = .determinate
+        self.activityIndicator.setProgress(progress, animated: true)
+        self.downloadIndicator.setProgress(progress)
     }
 
     // MARK: - NCChatFileController delegate

@@ -9,8 +9,16 @@ import SDWebImage
 
 class SharedItemTableViewCell: UITableViewCell {
 
-    var fileParameter: NCMessageFileParameter?
+    var fileParameter: NCMessageFileParameter? {
+        get { self.downloadObserver.fileParameter }
+        set { self.downloadObserver.fileParameter = newValue }
+    }
+
     private var activityIndicator: NCActivityIndicator?
+
+    private lazy var downloadObserver = ChatFileDownloadObserver { [weak self] change in
+        self?.downloadDidChange(change)
+    }
 
     let titleLabel: UILabel = {
         let label = UILabel()
@@ -32,9 +40,6 @@ class SharedItemTableViewCell: UITableViewCell {
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-
-        NotificationCenter.default.addObserver(self, selector: #selector(didChangeIsDownloading(notification:)), name: NSNotification.Name.NCChatFileControllerDidChangeIsDownloading, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(didChangeDownloadProgress(notification:)), name: NSNotification.Name.NCChatFileControllerDidChangeDownloadProgress, object: nil)
     }
 
     required init?(coder: NSCoder) {
@@ -61,35 +66,24 @@ class SharedItemTableViewCell: UITableViewCell {
         return parts.joined(separator: " ⸱ ")
     }
 
-    @objc private func didChangeIsDownloading(notification: Notification) {
-        DispatchQueue.main.async {
-            guard let fileParameter = self.fileParameter,
-                  let receivedStatus = NCChatFileStatus.getStatus(from: notification, for: fileParameter)
-            else { return }
-
-            if receivedStatus.isDownloading, self.activityIndicator == nil {
-                self.addActivityIndicator(with: 0)
-            } else if !receivedStatus.isDownloading, self.activityIndicator != nil {
-                self.accessoryView = nil
-                self.activityIndicator = nil
-            }
-        }
-    }
-
-    @objc private func didChangeDownloadProgress(notification: Notification) {
-        DispatchQueue.main.async {
-            guard let fileParameter = self.fileParameter,
-                  let receivedStatus = NCChatFileStatus.getStatus(from: notification, for: fileParameter)
-            else { return }
-
+    private func downloadDidChange(_ change: ChatFileDownloadObserver.Change) {
+        switch change {
+        case .isDownloading(true) where self.activityIndicator == nil:
+            self.addActivityIndicator(with: 0)
+        case .isDownloading(false):
+            self.accessoryView = nil
+            self.activityIndicator = nil
+        case .progress(let progress):
             if let activityIndicator = self.activityIndicator {
-                if receivedStatus.canReportProgress {
+                if let progress {
                     activityIndicator.indicatorMode = .determinate
-                    activityIndicator.setProgress(Float(receivedStatus.downloadProgress), animated: true)
+                    activityIndicator.setProgress(progress, animated: true)
                 }
             } else {
-                self.addActivityIndicator(with: Float(receivedStatus.downloadProgress))
+                self.addActivityIndicator(with: progress ?? 0)
             }
+        default:
+            break
         }
     }
 

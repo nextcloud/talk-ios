@@ -15,6 +15,17 @@ class SharedMediaCell: UICollectionViewCell {
 
     private var fileId: String?
     private var previewRequest: SDWebImageCombinedOperation?
+    private var isVideo = false
+
+    private lazy var downloadObserver = ChatFileDownloadObserver { [weak self] change in
+        self?.downloadDidChange(change)
+    }
+
+    private let downloadIndicator: MediaDownloadIndicatorView = {
+        let downloadIndicator = MediaDownloadIndicatorView(frame: .zero)
+        downloadIndicator.isHidden = true
+        return downloadIndicator
+    }()
 
     private let imageView: UIImageView = {
         let imageView = UIImageView()
@@ -68,6 +79,7 @@ class SharedMediaCell: UICollectionViewCell {
         self.contentView.addSubview(self.fileIconView)
         self.contentView.addSubview(self.playIconView)
         self.contentView.addSubview(self.captionView)
+        self.contentView.addSubview(self.downloadIndicator)
         self.captionView.addSubview(self.actorLabel)
 
         for view in [self.imageView, self.fileIconView, self.playIconView, self.captionView, self.actorLabel] {
@@ -89,6 +101,9 @@ class SharedMediaCell: UICollectionViewCell {
             self.playIconView.centerYAnchor.constraint(equalTo: self.contentView.centerYAnchor),
             self.playIconView.widthAnchor.constraint(equalToConstant: 44),
             self.playIconView.heightAnchor.constraint(equalToConstant: 44),
+
+            self.downloadIndicator.centerXAnchor.constraint(equalTo: self.contentView.centerXAnchor),
+            self.downloadIndicator.centerYAnchor.constraint(equalTo: self.contentView.centerYAnchor),
 
             self.captionView.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor),
             self.captionView.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor),
@@ -128,6 +143,8 @@ class SharedMediaCell: UICollectionViewCell {
         self.fileId = nil
         self.imageView.image = nil
         self.fileIconView.isHidden = true
+        self.downloadObserver.fileParameter = nil
+        self.showsDownload(false)
     }
 
     func configure(with message: NCChatMessage, aspectRatio: CGFloat, showsServerPreview: Bool, account: TalkAccount) {
@@ -137,7 +154,10 @@ class SharedMediaCell: UICollectionViewCell {
         self.fileId = file?.parameterId
         self.actorLabel.text = actorDisplayName
         self.captionView.isHidden = actorDisplayName.isEmpty
-        self.playIconView.isHidden = !NCUtils.isVideo(fileType: file?.mimetype ?? "")
+        self.isVideo = NCUtils.isVideo(fileType: file?.mimetype ?? "")
+        self.downloadObserver.fileParameter = file
+        // A download started before this cell showed the file only reports its next change
+        self.showsDownload(file.flatMap { ChatFileDownloader.shared.downloadStatus(forFileId: $0.parameterId)?.isDownloading } ?? false)
         self.accessibilityLabel = [file?.name ?? "", actorDisplayName].filter { !$0.isEmpty }.joined(separator: ", ")
 
         guard let file, file.previewAvailable else {
@@ -168,6 +188,30 @@ class SharedMediaCell: UICollectionViewCell {
                 self.showFileIcon(for: file)
             }
         }
+    }
+
+    private func downloadDidChange(_ change: ChatFileDownloadObserver.Change) {
+        switch change {
+        case .isDownloading(let isDownloading):
+            self.showsDownload(isDownloading)
+        case .progress(let progress):
+            self.showsDownload(true)
+
+            if let progress {
+                self.downloadIndicator.setProgress(progress)
+            }
+        }
+    }
+
+    private func showsDownload(_ showsDownload: Bool) {
+        if showsDownload, self.downloadIndicator.isHidden {
+            self.downloadIndicator.showProgress()
+        } else if !showsDownload {
+            self.downloadIndicator.stopAnimating()
+        }
+
+        self.downloadIndicator.isHidden = !showsDownload
+        self.playIconView.isHidden = showsDownload || !self.isVideo
     }
 
     private func showFileIcon(for file: NCMessageFileParameter?) {
