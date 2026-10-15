@@ -13,48 +13,6 @@ class NotificationService: UNNotificationServiceExtension {
     private var bestAttemptContent: UNMutableNotificationContent?
     private var sendMessageIntent: INSendMessageIntent?
 
-    // TODO: We should share this for all extensions
-    private func configureDatabase() -> Bool {
-        guard let containerBase = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: groupIdentifier) else {
-            return false
-        }
-
-        let databaseUrl = containerBase.appending(path: kTalkDatabaseFolder, directoryHint: .isDirectory).appending(path: kTalkDatabaseFileName, directoryHint: .notDirectory)
-
-        // kTalkDatabaseFolder contains spaces, so the path must not be percent-encoded for FileManager
-        guard FileManager.default.fileExists(atPath: databaseUrl.path(percentEncoded: false)) else {
-            print("Database does not exist -> main app needs to run before extension")
-
-            return false
-        }
-
-        var currentSchemaVersion: UInt64 = 0
-
-        // schemaVersionAtURL throws an exception when file is not readable
-        do {
-            currentSchemaVersion = try RLMRealm.schemaVersion(at: databaseUrl)
-        } catch {
-            print("Reading schemaVersion failed: \(error.localizedDescription)")
-
-            return false
-        }
-
-        if currentSchemaVersion != kTalkDatabaseSchemaVersion {
-            print("Current schemaVersion is \(currentSchemaVersion), app schemaVersion is \(kTalkDatabaseSchemaVersion)")
-            print("Database needs migration -> don't open database from extension")
-
-            return false
-        }
-
-        let configuration = RLMRealmConfiguration.default()
-        configuration.fileURL = databaseUrl
-        configuration.schemaVersion = kTalkDatabaseSchemaVersion
-        configuration.objectClasses = [TalkAccount.self, NCRoom.self, ServerCapabilities.self, FederatedCapabilities.self]
-        RLMRealmConfiguration.setDefault(configuration)
-
-        return true
-    }
-
     // swiftlint:disable:next cyclomatic_complexity
     override func didReceive(_ request: UNNotificationRequest, withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void) {
         self.contentHandler = contentHandler
@@ -63,7 +21,8 @@ class NotificationService: UNNotificationServiceExtension {
         self.bestAttemptContent?.title = ""
         self.bestAttemptContent?.body = NSLocalizedString("You received a new notification", comment: "")
 
-        guard self.configureDatabase() else {
+        // Picks up what the app published since this process handled a previous notification
+        guard NCDatabaseManager.sharedInstance().refreshExtensionDatabase() else {
             // Without a working database, nothing left to do here
             self.showBestAttemptNotification()
             return
@@ -112,16 +71,9 @@ class NotificationService: UNNotificationServiceExtension {
             return
         }
 
-        // TODO: Can we just use the managed object we already had before?
-        try? RLMRealm.default().transaction {
-            let query = NSPredicate(format: "accountId = %@", account.accountId)
-
-            // Update unread notifications counter for push notification account
-            if let managedAccount = TalkAccount.objects(with: query).firstObject() as? TalkAccount {
-                managedAccount.unreadBadgeNumber += 1
-                managedAccount.unreadNotification = (managedAccount.active) ? false : true
-            }
-        }
+        // Reloading applies the recorded event, and those of notifications handled concurrently
+        ExtensionDataStore.recordEvent(.unreadNotification, forAccountId: account.accountId)
+        _ = NCDatabaseManager.sharedInstance().refreshExtensionDatabase()
 
         // Get the total number of unread notifications
         let unreadNotifications = NCDatabaseManager.sharedInstance().numberOfUnreadNotifications()
@@ -220,7 +172,7 @@ class NotificationService: UNNotificationServiceExtension {
         self.bestAttemptContent?.title = serverNotification.subject
         self.bestAttemptContent?.body = serverNotification.message
 
-        NCDatabaseManager.sharedInstance().increasePendingFederationInvitation(forAccountId: account.accountId)
+        ExtensionDataStore.recordEvent(.federationInvitation, forAccountId: account.accountId)
         self.createAndShowConversationNotification(withPushNotification: pushNotification)
     }
 

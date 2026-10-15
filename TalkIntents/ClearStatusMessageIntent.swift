@@ -14,7 +14,7 @@ struct ClearStatusMessageIntent: AppIntent {
 
     func perform() async throws -> some IntentResult {
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) -> Void in
-            guard let talkAccount = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: account.id) else {
+            guard let talkAccount = NCDatabaseManager.refreshedInstance().talkAccount(forAccountId: account.id) else {
                 let error = TalkIntentError.message(NSLocalizedString("Account not found", comment: ""))
 
                 continuation.resume(throwing: error)

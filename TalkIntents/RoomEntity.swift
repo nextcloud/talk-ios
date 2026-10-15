@@ -33,21 +33,21 @@ struct RoomEntityQuery: EntityStringQuery {
 
     func entities(matching string: String) async throws -> [RoomEntity] {
         guard let intent else { return [] }
-        let rooms = NCDatabaseManager.sharedInstance().roomsForAccountId(intent.account.id, withRealm: nil)
+        let rooms = NCDatabaseManager.refreshedInstance().roomsForAccountId(intent.account.id, withRealm: nil)
 
         return rooms.filter({ $0.displayName.contains(string) }).map { RoomEntity(room: $0) }
     }
 
     func suggestedEntities() async throws -> [RoomEntity] {
         guard let intent else { return [] }
-        let rooms = NCDatabaseManager.sharedInstance().roomsForAccountId(intent.account.id, withRealm: nil)
+        let rooms = NCDatabaseManager.refreshedInstance().roomsForAccountId(intent.account.id, withRealm: nil)
 
         return rooms.map { RoomEntity(room: $0) }
     }
 
     func entities(for identifiers: [String]) async throws -> [RoomEntity] {
         guard let intent else { return [] }
-        let rooms = NCDatabaseManager.sharedInstance().roomsForAccountId(intent.account.id, withRealm: nil)
+        let rooms = NCDatabaseManager.refreshedInstance().roomsForAccountId(intent.account.id, withRealm: nil)
 
         return rooms.filter({ identifiers.contains($0.internalId) }).map { RoomEntity(room: $0) }
     }
