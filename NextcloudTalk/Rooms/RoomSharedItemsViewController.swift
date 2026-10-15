@@ -816,12 +816,13 @@ class RoomSharedItemsViewController: UIViewController,
     // MARK: - Polls
 
     func presentPoll(pollId: Int) {
+        guard let account = room.account else { return }
+
         let pollViewController = PollVotingView(room: room)
         let navigationViewController = NCNavigationController(rootViewController: pollViewController)
         self.present(navigationViewController, animated: true, completion: nil)
 
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        NCAPIController.sharedInstance().getPoll(withId: pollId, inRoom: room.token, forAccount: activeAccount) { poll, error in
+        NCAPIController.sharedInstance().getPoll(withId: pollId, inRoom: room.token, forAccount: account) { poll, error in
             if let poll = poll, error == nil {
                 pollViewController.updatePoll(poll: poll)
             }
