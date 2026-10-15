@@ -98,25 +98,21 @@ enum TalkDatabase {
     }
 
     /// Returns the URL to open the database at, which is the old app group location while it can't be moved.
-    ///
-    /// Once moved, a marker is written next to the database. Downgrading to a version that still uses the app
-    /// group is not supported, the database it creates there is removed again.
+    /// A marker next to the database records a completed move.
     private static func moveDatabaseOutOfAppGroupIfNeeded(to databaseURL: URL) -> URL {
         let fileManager = FileManager.default
-        let markerURL = databaseURL.deletingLastPathComponent().appendingPathComponent("MovedOutOfAppGroup")
+        let folderURL = databaseURL.deletingLastPathComponent()
+        let markerURL = folderURL.appendingPathComponent("MovedOutOfAppGroup")
 
-        guard let legacyFolderURL = fileManager.containerURL(forSecurityApplicationGroupIdentifier: groupIdentifier)?.appendingPathComponent(kTalkDatabaseFolder)
+        guard !fileManager.fileExists(atPath: markerURL.path),
+              let legacyFolderURL = fileManager.containerURL(forSecurityApplicationGroupIdentifier: groupIdentifier)?.appendingPathComponent(kTalkDatabaseFolder)
         else { return databaseURL }
 
         let legacyDatabaseURL = legacyFolderURL.appendingPathComponent(kTalkDatabaseFileName)
 
-        if !fileManager.fileExists(atPath: markerURL.path), fileManager.fileExists(atPath: legacyDatabaseURL.path) {
+        if fileManager.fileExists(atPath: legacyDatabaseURL.path) {
             // Without the marker, a database here wasn't created by a completed move, so the app group one is the real one
-            let folderURL = databaseURL.deletingLastPathComponent()
-            let fileNames = (try? fileManager.contentsOfDirectory(atPath: folderURL.path)) ?? []
-            for fileName in fileNames where fileName.hasPrefix(kTalkDatabaseFileName) {
-                try? fileManager.removeItem(at: folderURL.appendingPathComponent(fileName))
-            }
+            removeDatabaseFiles(in: folderURL)
 
             do {
                 try fileManager.moveItem(at: legacyDatabaseURL, to: databaseURL)
@@ -125,19 +121,21 @@ enum TalkDatabase {
                 NCLog.log("Moving the database out of the app group failed: \(error.localizedDescription)")
                 return legacyDatabaseURL
             }
+
+            // Realm's lock, management and note files, unused now that the database moved
+            removeDatabaseFiles(in: legacyFolderURL)
         }
 
-        if !fileManager.fileExists(atPath: markerURL.path) {
-            fileManager.createFile(atPath: markerURL.path, contents: nil)
-        }
-
-        // Lock, management and note files, plus a database a downgraded version created
-        let legacyFileNames = (try? fileManager.contentsOfDirectory(atPath: legacyFolderURL.path)) ?? []
-        for fileName in legacyFileNames where fileName.hasPrefix(kTalkDatabaseFileName) {
-            try? fileManager.removeItem(at: legacyFolderURL.appendingPathComponent(fileName))
-        }
+        fileManager.createFile(atPath: markerURL.path, contents: nil)
 
         return databaseURL
+    }
+
+    private static func removeDatabaseFiles(in folderURL: URL) {
+        let fileNames = (try? FileManager.default.contentsOfDirectory(atPath: folderURL.path)) ?? []
+        for fileName in fileNames where fileName.hasPrefix(kTalkDatabaseFileName) {
+            try? FileManager.default.removeItem(at: folderURL.appendingPathComponent(fileName))
+        }
     }
 #endif
 }
