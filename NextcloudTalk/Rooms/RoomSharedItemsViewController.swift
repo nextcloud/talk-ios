@@ -106,7 +106,8 @@ class RoomSharedItemsViewController: UIViewController,
         layout.delegate = self
         layout.interItemSpacing = 12
         layout.lineSpacing = 12
-        layout.sectionInset = UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12)
+        layout.sectionInset = UIEdgeInsets(top: 0, left: 12, bottom: 8, right: 12)
+        layout.pinsSectionHeaders = true
         return layout
     }()
 

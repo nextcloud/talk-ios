@@ -242,33 +242,67 @@ class SharedMediaSectionHeaderView: UICollectionReusableView {
 
     static let identifier = "SharedMediaSectionHeaderView"
 
+    // Same style as the date headers in the chat
     private static var titleFont: UIFont {
-        return UIFont.preferredFont(for: .title3, weight: .bold)
+        return UIFont.preferredFont(forTextStyle: .footnote)
     }
 
     /// Follows the text size, as the layout needs it before any header exists
     static var height: CGFloat {
-        return (self.titleFont.lineHeight + 16).rounded(.up)
+        return (self.titleFont.lineHeight + PaddedLabel.textInsets.top + PaddedLabel.textInsets.bottom + 16).rounded(.up)
     }
 
-    private let titleLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = .label
+    private let titleLabel: PaddedLabel = {
+        let label = PaddedLabel()
+        label.textColor = .secondaryLabel
         label.accessibilityTraits = .header
         return label
     }()
 
+    private let titleBackgroundView: UIView = {
+        let view = UIView()
+        view.clipsToBounds = true
+        return view
+    }()
+
+    private var titleGlassView: UIVisualEffectView?
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
+        if #available(iOS 26.0, *) {
+            self.titleGlassView = self.titleBackgroundView.addGlassView()
+            self.titleGlassView?.layer.masksToBounds = true
+        } else {
+            self.titleBackgroundView.backgroundColor = .secondarySystemGroupedBackground
+        }
+
+        self.addSubview(self.titleBackgroundView)
         self.addSubview(self.titleLabel)
+        self.titleBackgroundView.translatesAutoresizingMaskIntoConstraints = false
         self.titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            self.titleLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 8),
-            self.titleLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -8),
-            self.titleLabel.centerYAnchor.constraint(equalTo: self.centerYAnchor)
+            self.titleLabel.centerXAnchor.constraint(equalTo: self.centerXAnchor),
+            self.titleLabel.centerYAnchor.constraint(equalTo: self.centerYAnchor),
+            self.titleLabel.leadingAnchor.constraint(greaterThanOrEqualTo: self.leadingAnchor),
+            self.titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: self.trailingAnchor),
+
+            self.titleBackgroundView.topAnchor.constraint(equalTo: self.titleLabel.topAnchor),
+            self.titleBackgroundView.bottomAnchor.constraint(equalTo: self.titleLabel.bottomAnchor),
+            self.titleBackgroundView.leadingAnchor.constraint(equalTo: self.titleLabel.leadingAnchor),
+            self.titleBackgroundView.trailingAnchor.constraint(equalTo: self.titleLabel.trailingAnchor)
         ])
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        // The height follows the text size. Glass draws its own edges, so clipping it is not enough
+        let cornerRadius = self.titleBackgroundView.bounds.height / 2
+
+        self.titleBackgroundView.layer.cornerRadius = cornerRadius
+        self.titleGlassView?.layer.cornerRadius = cornerRadius
     }
 
     required init?(coder: NSCoder) {
