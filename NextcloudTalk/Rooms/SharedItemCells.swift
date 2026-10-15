@@ -11,7 +11,15 @@ class SharedItemTableViewCell: UITableViewCell {
 
     var fileParameter: NCMessageFileParameter? {
         get { self.downloadObserver.fileParameter }
-        set { self.downloadObserver.fileParameter = newValue }
+        set {
+            self.downloadObserver.fileParameter = newValue
+
+            // A download started before this cell showed the file only reports its next change
+            if let newValue, self.activityIndicator == nil,
+               ChatFileDownloader.shared.downloadStatus(forFileId: newValue.parameterId)?.isDownloading == true {
+                self.addActivityIndicator(with: 0)
+            }
+        }
     }
 
     private var activityIndicator: NCActivityIndicator?
