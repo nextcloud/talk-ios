@@ -14,16 +14,10 @@
 "%1$@, %2$@ and %3$@ will receive invitations" = "%1$@, %2$@ and %3$@ will receive invitations";
 
 /* Alice, Bob, Charlie and 3 others are typing… */
-"%1$@, %2$@, %3$@ and %4$@ others are typing…" = "%1$@, %2$@, %3$@ and %4$@ others are typing…";
-
-/* Alice, Bob, Charlie and 3 others are typing… */
 "%1$@, %2$@, %3$@ and %4$ld others are typing…" = "%1$@, %2$@, %3$@ and %4$ld others are typing…";
 
 /* Alice, Bob, Charlie and 3 others will receive invitations */
 "%1$@, %2$@, %3$@ and %4$ld others will receive invitations" = "%1$@, %2$@, %3$@ and %4$ld others will receive invitations";
-
-/* Alice, Bob, Charlie and 1 other is typing… */
-"%1$@, %2$@, %3$@ and 1 other is typing…" = "%1$@, %2$@, %3$@ and 1 other is typing…";
 
 /* 'Alice (bot)' - a participant that is a bot, not a person */
 "%@ (bot)" = "%@ (bot)";
@@ -33,9 +27,6 @@
 
 /* 'Alice (guest)' - a participant who is not logged in */
 "%@ (guest)" = "%@ (guest)";
-
-/* Alice and Bob will receive invitations */
-"%@ and %@ will receive invitations" = "%1$@ and %2$@ will receive invitations";
 
 /* No comment provided by engineer. */
 "%@ invitation" = "%@ invitation";
@@ -58,15 +49,6 @@
 /* Alice will receive an invitation */
 "%@ will receive an invitation" = "%@ will receive an invitation";
 
-/* Alice, Bob and Charlie will receive invitations */
-"%@, %@ and %@ will receive invitations" = "%1$@, %2$@ and %3$@ will receive invitations";
-
-/* Alice, Bob, Charlie and 3 others will receive invitations */
-"%@, %@, %@ and %ld others will receive invitations" = "%1$@, %2$@, %3$@ and %4$ld others will receive invitations";
-
-/* Alice, Bob, Charlie and 1 other will receive invitations */
-"%@, %@, %@ and 1 other will receive invitations" = "%1$@, %2$@, %3$@ and 1 other will receive invitations";
-
 /* No comment provided by engineer. */
 "%d days ago" = "%d days ago";
 
@@ -78,9 +60,6 @@
 
 /* Number of options in a poll */
 "%d options" = "%d options";
-
-/* Replies in a thread */
-"%d replies" = "%d replies";
 
 /* Votes in a poll */
 "%d votes" = "%d votes";
@@ -111,6 +90,9 @@
 
 /* Replies in a thread */
 "%ld replies" = "%ld replies";
+
+/* No comment provided by engineer. */
+"%ld unread messages" = "%ld unread messages";
 
 /* No comment provided by engineer. */
 "'Do not disturb' user status is ignored for important conversations" = "'Do not disturb' user status is ignored for important conversations";
@@ -416,9 +398,6 @@
 "An error occurred while setting %@ as phone number" = "An error occurred while setting %@ as phone number";
 
 /* No comment provided by engineer. */
-"An error occurred while setting \(formattedPhoneNumber) as phone number" = "An error occurred while setting \(formattedPhoneNumber) as phone number";
-
-/* No comment provided by engineer. */
 "An error occurred while setting absence" = "An error occurred while setting absence";
 
 /* No comment provided by engineer. */
@@ -460,9 +439,6 @@
 /* No comment provided by engineer. */
 "Anonymous poll" = "Anonymous poll";
 
-/* No comment provided by engineer. */
-"Answer" = "Answer";
-
 /* 'Answer 1', 'Answer 2', … - placeholder numbering the answers of a poll */
 "Answer %ld" = "Answer %ld";
 
@@ -483,9 +459,6 @@
 
 /* 'Archived' meaning 'Archived conversations' */
 "Archived" = "Archived";
-
-/* No comment provided by engineer. */
-"Archived conversations" = "Archived conversations";
 
 /* No comment provided by engineer. */
 "Archived conversations are hidden from the conversation list by default. They will only be shown when you open archived conversations list." = "Archived conversations are hidden from the conversation list by default. They will only be shown when you open archived conversations list.";
@@ -514,9 +487,6 @@
 /* No comment provided by engineer. */
 "Away" = "Away";
 
-/* No comment provided by engineer. */
-"Back to conversations" = "Back to conversations";
-
 /* Ban a user/guest */
 "Ban" = "Ban";
 
@@ -534,9 +504,6 @@
 
 /* Bold text */
 "Bold" = "Bold";
-
-/* No comment provided by engineer. */
-"bot" = "bot";
 
 /* No comment provided by engineer. */
 "Bots" = "Bots";
@@ -561,6 +528,12 @@
 
 /* No comment provided by engineer. */
 "Calendar" = "Calendar";
+
+/* No comment provided by engineer. */
+"Call" = "Call";
+
+/* No comment provided by engineer. */
+"Call in progress" = "Call in progress";
 
 /* No comment provided by engineer. */
 "Call notification sent" = "Call notification sent";
@@ -911,9 +884,6 @@
 "Date:" = "Date:";
 
 /* No comment provided by engineer. */
-"days" = "days";
-
-/* No comment provided by engineer. */
 "Deck cards" = "Deck cards";
 
 /* 'Default' as a notification level, following the conversation setting */
@@ -963,9 +933,6 @@
 
 /* No comment provided by engineer. */
 "Details" = "Details";
-
-/* No comment provided by engineer. */
-"detected" = "detected";
 
 /* No comment provided by engineer. */
 "Detecting language" = "Detecting language";
@@ -1156,9 +1123,6 @@
 /* A message was edited by ... */
 "edited by" = "edited by";
 
-/* A message was edited by ... */
-"Edited by" = "Edited by";
-
 /* 'Edited by Alice' - who last edited a message */
 "Edited by %@" = "Edited by %@";
 
@@ -1327,9 +1291,6 @@
 /* Show group conversations before private ones */
 "Group first" = "Group first";
 
-/* No comment provided by engineer. */
-"guest" = "guest";
-
 /* Display name used for an anonymous guest */
 "Guest" = "Guest";
 
@@ -1350,9 +1311,6 @@
 
 /* TRANSLATORS this is a video quality option (Video quality : High) */
 "High" = "High";
-
-/* No comment provided by engineer. */
-"hours" = "hours";
 
 /* No comment provided by engineer. */
 "How do you want to join the call?" = "How do you want to join the call?";
@@ -1377,9 +1335,6 @@
 
 /* No comment provided by engineer. */
 "Important conversation" = "Important conversation";
-
-/* No comment provided by engineer. */
-"in" = "in";
 
 /* No comment provided by engineer. */
 "Include calls in call history" = "Include calls in call history";
@@ -1461,9 +1416,6 @@
 
 /* Last subscription to the push notification server */
 "Last subscription" = "Last subscription";
-
-/* No comment provided by engineer. */
-"Last sync" = "Last sync";
 
 /* 'Last sync: 12 May 2026' - when the contacts were last updated */
 "Last sync: %@" = "Last sync: %@";
@@ -1661,12 +1613,6 @@
 /* No comment provided by engineer. */
 "Microphone enabled" = "Microphone enabled";
 
-/* No comment provided by engineer. */
-"minutes" = "minutes";
-
-/* No comment provided by engineer. */
-"Missed call from" = "Missed call from";
-
 /* '%@' being the display name of the caller */
 "Missed call from %@" = "Missed call from %@";
 
@@ -1675,9 +1621,6 @@
 
 /* The signaling mode used */
 "Mode" = "Mode";
-
-/* No comment provided by engineer. */
-"moderator" = "moderator";
 
 /* Conversation moderator, a participant with elevated permissions */
 "Moderator" = "Moderator";
@@ -1737,16 +1680,10 @@
 "Nextcloud server not found" = "Nextcloud server not found";
 
 /* No comment provided by engineer. */
-"Nextcloud Talk" = "Nextcloud Talk";
-
-/* No comment provided by engineer. */
 "No" = "No";
 
 /* No comment provided by engineer. */
 "No actions available" = "No actions available";
-
-/* No comment provided by engineer. */
-"No active account found" = "No active account found";
 
 /* No comment provided by engineer. */
 "No active bots" = "No active bots";
@@ -1759,6 +1696,9 @@
 
 /* No comment provided by engineer. */
 "No bots available for this conversation" = "No bots available for this conversation";
+
+/* No comment provided by engineer. */
+"No conversations" = "No conversations";
 
 /* No comment provided by engineer. */
 "No description provided" = "No description provided";
@@ -1855,6 +1795,9 @@
 
 /* No comment provided by engineer. */
 "Once a conversation is unarchived, it will be shown by default again." = "Once a conversation is unarchived, it will be shown by default again.";
+
+/* No comment provided by engineer. */
+"Ongoing calls" = "Ongoing calls";
 
 /* No comment provided by engineer. */
 "Online" = "Online";
@@ -2082,9 +2025,6 @@
 /* No comment provided by engineer. */
 "Recording consent is required" = "Recording consent is required";
 
-/* No comment provided by engineer. */
-"Recording consent required for joining the call" = "Recording consent required for joining the call";
-
 /* '%@' being the display name of the call */
 "Recording consent required for joining the call %@" = "Recording consent required for joining the call %@";
 
@@ -2139,8 +2079,7 @@
 /* Replacement in case of out of office */
 "Replacement" = "Replacement";
 
-/* Replacement in case of out of office
-   Section header: the person who takes over while the user is out of office */
+/* Section header: the person who takes over while the user is out of office */
 "Replacement (optional)" = "Replacement (optional)";
 
 /* 'Replacement: Alice' - who takes over while a user is out of office */
@@ -2176,8 +2115,7 @@
 /* Title for a section where different reset options are shown */
 "Reset" = "Reset";
 
-/* Button to clear the chosen replacement person again
-   Replacement in case of out of office */
+/* Button to clear the chosen replacement person again */
 "Reset replacement" = "Reset replacement";
 
 /* Results of a poll */
@@ -2232,8 +2170,7 @@
 /* Button to start selecting entries of a list */
 "Select" = "Select";
 
-/* Opens a user picker to choose the person who takes over during the absence
-   Replacement in case of out of office */
+/* Opens a user picker to choose the person who takes over during the absence */
 "Select a replacement" = "Select a replacement";
 
 /* No comment provided by engineer. */
@@ -2463,9 +2400,6 @@
 
 /* 'Tags' meaning 'Conversation tags' */
 "Tags" = "Tags";
-
-/* Talk to a user */
-"Talk to" = "Talk to";
 
 /* 'Talk to Alice' - start a conversation with a user */
 "Talk to %@" = "Talk to %@";
