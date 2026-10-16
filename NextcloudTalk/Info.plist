@@ -53,13 +53,13 @@
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Camera is used in video calls</string>
+	<string>Camera is used in video calls and to take photos and videos to share in chats</string>
 	<key>NSContactsUsageDescription</key>
 	<string>Contacts access is needed to match your address book contacts with contacts in your server</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>It is needed to share your location with others</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Microphone is used in voice and video calls</string>
+	<string>Microphone is used in voice and video calls and to record videos to share in chats</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Photo Library access is needed to share pictures and videos from your device</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
