@@ -1373,15 +1373,6 @@ import Toast
         NotificationPresenter.shared().present(text: NSLocalizedString("Message unpinned", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
     }
 
-    internal func prepareVoiceMessageForResend(_ message: NCChatMessage) {
-        message.sendingFailed = false
-        message.isOfflineMessage = false
-
-        // Like a resent text message, the message is sent now: it needs to be placed at the end of the chat
-        // and must not expire (getTemporaryMessages) based on the timestamp of the failed attempt
-        message.timestamp = Int(Date().timeIntervalSince1970)
-    }
-
     func didPressResend(for message: NCChatMessage) {
         // Make sure there's no unread message separator, as the indexpath could be invalid after removing a message
         self.removeUnreadMessagesSeparator()
@@ -1393,15 +1384,12 @@ import Toast
         if message.messageType != kMessageTypeVoiceMessage {
             self.sendChatMessage(message: originalMessage, withParentMessage: message.parent, messageParameters: message.messageParametersJSONString ?? "", silently: message.isSilent)
         } else {
-            // Show and store the message as sending again, so it can be marked as failed again
-            self.prepareVoiceMessageForResend(message)
+            let localPath = message.file().fileStatus!.fileLocalPath!
 
-            RLMRealm.writeTransaction { realm in
-                realm.addOrUpdate(NCChatMessage(value: message))
-            }
+            guard let temporaryMessage = self.createTemporaryMessage(message: originalMessage, replyTo: message.parent, messageParameters: localPath, silently: message.isSilent, isVoiceMessage: true) else { return }
 
             if NCDatabaseManager.sharedInstance().roomHasTalkCapability(.chatReferenceId, for: room) {
-                self.appendTemporaryMessage(temporaryMessage: message)
+                self.appendTemporaryMessage(temporaryMessage: temporaryMessage)
             }
 
             var metaData = ChatFileUploadMetadata()
@@ -1417,12 +1405,12 @@ import Toast
                 metaData.replyToToken = replyToToken
             }
 
-            var upload = ChatFileUpload(localPath: message.file().fileStatus!.fileLocalPath!,
+            var upload = ChatFileUpload(localPath: localPath,
                                         fileName: originalMessage,
                                         room: self.room,
                                         account: self.account)
             upload.metadata = metaData
-            upload.referenceId = message.referenceId
+            upload.referenceId = temporaryMessage.referenceId
 
             self.upload(upload)
         }
