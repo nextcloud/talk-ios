@@ -26,13 +26,6 @@ final class CarPlayConversationProvider {
             .sorted { $0.lastActivity > $1.lastActivity }
     }
 
-    /// Recent one-to-one Talk rooms exposed in the CarPlay Calls tab.
-    func callHistory() -> [NCRoom] {
-        callableRooms()
-            .filter(\.isOneToOne)
-            .sorted { $0.lastActivity > $1.lastActivity }
-    }
-
     func room(withToken token: String) -> NCRoom? {
         let account = NCDatabaseManager.sharedInstance().activeAccount()
 
