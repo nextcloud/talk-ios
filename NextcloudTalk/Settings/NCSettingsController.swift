@@ -662,7 +662,7 @@ public class NCSettingsController: NSObject {
             return
         }
 
-        guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId) else {
+        guard var account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId) else {
             NCLog.log("Error while subscribing: Account not available")
             block?(false)
             return
@@ -694,6 +694,9 @@ public class NCSettingsController: NSObject {
                 managedAccount.userPublicKey = publicKey
                 managedAccount.deviceIdentifier = deviceIdentifier
                 managedAccount.deviceSignature = signature
+
+                // Ensure our unmanaged copy also has all the information
+                account = TalkAccount(value: managedAccount)
             }
 
             NCAPIController.sharedInstance().subscribeAccount(account, toPushServerWithCompletionBlock: { error in
