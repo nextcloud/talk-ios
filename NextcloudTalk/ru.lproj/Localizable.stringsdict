@@ -73,13 +73,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%ld участник в этом звонке</string>
+			<string>%ld участник в этом вызове</string>
 			<key>few</key>
-			<string>%ld участника в этом звонке</string>
+			<string>%ld участника в этом вызове</string>
 			<key>many</key>
-			<string>%ld участников в этом звонке</string>
+			<string>%ld участников в этом вызове</string>
 			<key>other</key>
-			<string>%ld участников в этом звонке</string>
+			<string>%ld участника в этом вызове</string>
 		</dict>
 	</dict>
 	<key>%d minutes ago</key>
@@ -99,7 +99,7 @@
 			<key>many</key>
 			<string>%d минут назад</string>
 			<key>other</key>
-			<string>%d минут назад</string>
+			<string>%d минуты назад</string>
 		</dict>
 	</dict>
 	<key>%d hours ago</key>
@@ -195,11 +195,11 @@
 			<key>one</key>
 			<string>%d вариант</string>
 			<key>few</key>
-			<string>вариантов: %d</string>
+			<string>%d варианта</string>
 			<key>many</key>
-			<string>вариантов: %d</string>
+			<string>%d вариантов</string>
 			<key>other</key>
-			<string>вариантов: %d</string>
+			<string>%d варианта</string>
 		</dict>
 	</dict>
 	<key>This conversation will be automatically deleted for everyone in %ld days of no activity.</key>
@@ -213,13 +213,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>Данное обсуждение будет автоматически удалено для всех через %ld день отсутствия активности.</string>
+			<string>Обсуждение будет автоматически удалено у всех участников, если в нём не будет активности в течение %ld дня</string>
 			<key>few</key>
-			<string>Данное обсуждение будет автоматически удалено для всех через %ld дня отсутствия активности.</string>
+			<string>Обсуждение будет автоматически удалено у всех участников, если в нём не будет активности в течение %ld дней</string>
 			<key>many</key>
-			<string>Данное обсуждение будет автоматически удалено для всех через %ld дней отсутствия активности.</string>
+			<string>Обсуждение будет автоматически удалено у всех участников, если в нём не будет активности в течение %ld дней</string>
 			<key>other</key>
-			<string>Данное обсуждение будет автоматически удалено для всех через %ld дней отсутствия активности.</string>
+			<string>Обсуждение будет автоматически удалено у всех участников, если в нём не будет активности в течение %ld дня</string>
 		</dict>
 	</dict>
 	<key>%ld replies</key>
@@ -235,11 +235,11 @@
 			<key>one</key>
 			<string>%ld ответ</string>
 			<key>few</key>
-			<string>ответов: %ld</string>
+			<string>%ld ответа</string>
 			<key>many</key>
-			<string>ответов: %ld</string>
+			<string>%ld ответов</string>
 			<key>other</key>
-			<string>ответов: %ld</string>
+			<string>%ld ответа</string>
 		</dict>
 	</dict>
 	<key>Password needs to be at least %d characters long</key>
@@ -253,13 +253,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>Длина пароля должна быть не менее %d символов</string>
+			<string>Длина пароля должна быть не менее %d символа</string>
 			<key>few</key>
 			<string>Длина пароля должна быть не менее %d символов</string>
 			<key>many</key>
 			<string>Длина пароля должна быть не менее %d символов</string>
 			<key>other</key>
-			<string>Длина пароля должна быть не менее %d символов</string>
+			<string>Длина пароля должна быть не менее %d символа</string>
 		</dict>
 	</dict>
 	<key>Uploading %ld elements</key>
@@ -273,13 +273,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>Загрузка %ld элемент</string>
+			<string>Загрузка элементов: %ld</string>
 			<key>few</key>
-			<string>Загрузка %ld элементов</string>
+			<string>Загрузка элементов: %ld</string>
 			<key>many</key>
-			<string>Загрузка %ld элементов</string>
+			<string>Загрузка элементов: %ld</string>
 			<key>other</key>
-			<string>Загрузка %ld элементов</string>
+			<string>Загрузка элементов: %ld</string>
 		</dict>
 	</dict>
 	<key>%ld conversations with unread messages</key>
@@ -293,9 +293,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%ld conversation with unread messages</string>
+			<string>%ld обсуждение с непрочитанными сообщениями</string>
+			<key>few</key>
+			<string>%ld обсуждения с непрочитанными сообщениями</string>
+			<key>many</key>
+			<string>%ld обсуждений с непрочитанными сообщениями</string>
 			<key>other</key>
-			<string>%ld conversations with unread messages</string>
+			<string>%ld обсуждения с непрочитанными сообщениями</string>
 		</dict>
 	</dict>
 	<key>%ld days</key>
@@ -309,9 +313,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%ld day</string>
+			<string>%ld день</string>
+			<key>few</key>
+			<string>%ld дня</string>
+			<key>many</key>
+			<string>%ld дней</string>
 			<key>other</key>
-			<string>%ld days</string>
+			<string>%ld дня</string>
 		</dict>
 	</dict>
 	<key>%ld hours</key>
@@ -325,9 +333,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%ld hour</string>
+			<string>%ld час</string>
+			<key>few</key>
+			<string>%ld часа</string>
+			<key>many</key>
+			<string>%ld часов</string>
 			<key>other</key>
-			<string>%ld hours</string>
+			<string>%ld часа</string>
 		</dict>
 	</dict>
 	<key>%ld minutes</key>
@@ -341,9 +353,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%ld minute</string>
+			<string>%ld минута</string>
+			<key>few</key>
+			<string>%ld минуты</string>
+			<key>many</key>
+			<string>%ld минут</string>
 			<key>other</key>
-			<string>%ld minutes</string>
+			<string>%ld минуты</string>
 		</dict>
 	</dict>
 	<key>%1$@, %2$@, %3$@ and %4$ld others will receive invitations</key>
@@ -357,9 +373,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%4$ld other will receive invitations</string>
+			<string>ещё %4$ld участник получит приглашение</string>
+			<key>few</key>
+			<string>ещё %4$ld участника получат приглашения</string>
+			<key>many</key>
+			<string>ещё %4$ld участников получат приглашения</string>
 			<key>other</key>
-			<string>%4$ld others will receive invitations</string>
+			<string>ещё %4$ld участника получат приглашения</string>
 		</dict>
 	</dict>
 	<key>%1$@, %2$@, %3$@ and %4$ld others are typing…</key>
@@ -373,9 +393,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%4$ld other is typing…</string>
+			<string>ещё %4$ld участник печатает…</string>
+			<key>few</key>
+			<string>ещё %4$ld участника печатают…</string>
+			<key>many</key>
+			<string>ещё %4$ld участников печатают…</string>
 			<key>other</key>
-			<string>%4$ld others are typing…</string>
+			<string>ещё %4$ld участника печатают…</string>
 		</dict>
 	</dict>
 	<key>You added {user0} and %ld more participants</key>
@@ -389,9 +413,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>You added {user0} and %ld more participant</string>
+			<string>Вы добавили {user0} и ещё %ld участника</string>
+			<key>few</key>
+			<string>Вы добавили {user0} и ещё %ld участников</string>
+			<key>many</key>
+			<string>Вы добавили {user0} и ещё %ld участников</string>
 			<key>other</key>
-			<string>You added {user0} and %ld more participants</string>
+			<string>Вы добавили {user0} и ещё %ld участника</string>
 		</dict>
 	</dict>
 	<key>An administrator added you and %ld more participants</key>
@@ -405,9 +433,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator added you and %ld more participant</string>
+			<string>Администратор добавил вас и ещё %ld участника</string>
+			<key>few</key>
+			<string>Администратор добавил вас и ещё %ld участников</string>
+			<key>many</key>
+			<string>Администратор добавил вас и ещё %ld участников</string>
 			<key>other</key>
-			<string>An administrator added you and %ld more participants</string>
+			<string>Администратор добавил вас и ещё %ld участника</string>
 		</dict>
 	</dict>
 	<key>An administrator added {user0} and %ld more participants</key>
@@ -421,9 +453,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator added {user0} and %ld more participant</string>
+			<string>Администратор добавил {user0} и ещё %ld участника</string>
+			<key>few</key>
+			<string>Администратор добавил {user0} и ещё %ld участников</string>
+			<key>many</key>
+			<string>Администратор добавил {user0} и ещё %ld участников</string>
 			<key>other</key>
-			<string>An administrator added {user0} and %ld more participants</string>
+			<string>Администратор добавил {user0} и ещё %ld участника</string>
 		</dict>
 	</dict>
 	<key>{actor0} added you and %ld more participants</key>
@@ -437,9 +473,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} added you and %ld more participant</string>
+			<string>{actor0} добавил(а) вас и ещё %ld участника</string>
+			<key>few</key>
+			<string>{actor0} добавил(а) вас и ещё %ld участников</string>
+			<key>many</key>
+			<string>{actor0} добавил(а) вас и ещё %ld участников</string>
 			<key>other</key>
-			<string>{actor0} added you and %ld more participants</string>
+			<string>{actor0} добавил(а) вас и ещё %ld участника</string>
 		</dict>
 	</dict>
 	<key>{actor0} added {user0} and %ld more participants</key>
@@ -453,9 +493,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} added {user0} and %ld more participant</string>
+			<string>{actor0} добавил(а) {user0} и ещё %ld участника</string>
+			<key>few</key>
+			<string>{actor0} добавил(а) {user0} и ещё %ld участников</string>
+			<key>many</key>
+			<string>{actor0} добавил(а) {user0} и ещё %ld участников</string>
 			<key>other</key>
-			<string>{actor0} added {user0} and %ld more participants</string>
+			<string>{actor0} добавил(а) {user0} и ещё %ld участника</string>
 		</dict>
 	</dict>
 	<key>You removed {user0} and %ld more participants</key>
@@ -469,9 +513,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>You removed {user0} and %ld more participant</string>
+			<string>Вы исключили {user0} и ещё %ld участника</string>
+			<key>few</key>
+			<string>Вы исключили {user0} и ещё %ld участников</string>
+			<key>many</key>
+			<string>Вы исключили {user0} и ещё %ld участников</string>
 			<key>other</key>
-			<string>You removed {user0} and %ld more participants</string>
+			<string>Вы исключили {user0} и ещё %ld участника</string>
 		</dict>
 	</dict>
 	<key>An administrator removed you and %ld more participants</key>
@@ -485,9 +533,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator removed you and %ld more participant</string>
+			<string>Администратор исключил вас и ещё %ld участника</string>
+			<key>few</key>
+			<string>Администратор исключил вас и ещё %ld участников</string>
+			<key>many</key>
+			<string>Администратор исключил вас и ещё %ld участников</string>
 			<key>other</key>
-			<string>An administrator removed you and %ld more participants</string>
+			<string>Администратор исключил вас и ещё %ld участника</string>
 		</dict>
 	</dict>
 	<key>An administrator removed {user0} and %ld more participants</key>
@@ -501,9 +553,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator removed {user0} and %ld more participant</string>
+			<string>Администратор исключил {user0} и ещё %ld участника</string>
+			<key>few</key>
+			<string>Администратор исключил {user0} и ещё %ld участников</string>
+			<key>many</key>
+			<string>Администратор исключил {user0} и ещё %ld участников</string>
 			<key>other</key>
-			<string>An administrator removed {user0} and %ld more participants</string>
+			<string>Администратор исключил {user0} и ещё %ld участника</string>
 		</dict>
 	</dict>
 	<key>{actor0} removed you and %ld more participants</key>
@@ -517,9 +573,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} removed you and %ld more participant</string>
+			<string>{actor0} исключил(а) вас и ещё %ld участника</string>
+			<key>few</key>
+			<string>{actor0} исключил(а) вас и ещё %ld участников</string>
+			<key>many</key>
+			<string>{actor0} исключил(а) вас и ещё %ld участников</string>
 			<key>other</key>
-			<string>{actor0} removed you and %ld more participants</string>
+			<string>{actor0} исключил(а) вас и ещё %ld участника</string>
 		</dict>
 	</dict>
 	<key>{actor0} removed {user0} and %ld more participants</key>
@@ -533,9 +593,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} removed {user0} and %ld more participant</string>
+			<string>{actor0} исключил(а) {user0} и ещё %ld участника</string>
+			<key>few</key>
+			<string>{actor0} исключил(а) {user0} и ещё %ld участников</string>
+			<key>many</key>
+			<string>{actor0} исключил(а) {user0} и ещё %ld участников</string>
 			<key>other</key>
-			<string>{actor0} removed {user0} and %ld more participants</string>
+			<string>{actor0} исключил(а) {user0} и ещё %ld участника</string>
 		</dict>
 	</dict>
 	<key>You promoted {user0} and %ld more participants to moderators</key>
@@ -549,9 +613,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>You promoted {user0} and %ld more participant to moderators</string>
+			<string>Вы повысили {user0} и ещё %ld участника до модераторов</string>
+			<key>few</key>
+			<string>Вы повысили {user0} и ещё %ld участников до модераторов</string>
+			<key>many</key>
+			<string>Вы повысили {user0} и ещё %ld участников до модераторов</string>
 			<key>other</key>
-			<string>You promoted {user0} and %ld more participants to moderators</string>
+			<string>Вы повысили {user0} и ещё %ld участника до модераторов</string>
 		</dict>
 	</dict>
 	<key>An administrator promoted you and %ld more participants to moderators</key>
@@ -565,9 +633,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator promoted you and %ld more participant to moderators</string>
+			<string>Администратор повысил вас и ещё %ld участника до модераторов</string>
+			<key>few</key>
+			<string>Администратор повысил вас и ещё %ld участников до модераторов</string>
+			<key>many</key>
+			<string>Администратор повысил вас и ещё %ld участников до модераторов</string>
 			<key>other</key>
-			<string>An administrator promoted you and %ld more participants to moderators</string>
+			<string>Администратор повысил вас и ещё %ld участника до модераторов</string>
 		</dict>
 	</dict>
 	<key>An administrator promoted {user0} and %ld more participants to moderators</key>
@@ -581,9 +653,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator promoted {user0} and %ld more participant to moderators</string>
+			<string>Администратор повысил {user0} и ещё %ld участника до модераторов</string>
+			<key>few</key>
+			<string>Администратор повысил {user0} и ещё %ld участников до модераторов</string>
+			<key>many</key>
+			<string>Администратор повысил {user0} и ещё %ld участников до модераторов</string>
 			<key>other</key>
-			<string>An administrator promoted {user0} and %ld more participants to moderators</string>
+			<string>Администратор повысил {user0} и ещё %ld участника до модераторов</string>
 		</dict>
 	</dict>
 	<key>{actor0} promoted you and %ld more participants to moderators</key>
@@ -597,9 +673,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} promoted you and %ld more participant to moderators</string>
+			<string>{actor0} повысил(а) вас и ещё %ld участника до модераторов</string>
+			<key>few</key>
+			<string>{actor0} повысил(а) вас и ещё %ld участников до модераторов</string>
+			<key>many</key>
+			<string>{actor0} повысил(а) вас и ещё %ld участников до модераторов</string>
 			<key>other</key>
-			<string>{actor0} promoted you and %ld more participants to moderators</string>
+			<string>{actor0} повысил(а) вас и ещё %ld участника до модераторов</string>
 		</dict>
 	</dict>
 	<key>{actor0} promoted {user0} and %ld more participants to moderators</key>
@@ -613,9 +693,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} promoted {user0} and %ld more participant to moderators</string>
+			<string>{actor0} повысил(а) {user0} и ещё %ld участника до модераторов</string>
+			<key>few</key>
+			<string>{actor0} повысил(а) {user0} и ещё %ld участников до модераторов</string>
+			<key>many</key>
+			<string>{actor0} повысил(а) {user0} и ещё %ld участников до модераторов</string>
 			<key>other</key>
-			<string>{actor0} promoted {user0} and %ld more participants to moderators</string>
+			<string>{actor0} повысил(а) {user0} и ещё %ld участника до модераторов</string>
 		</dict>
 	</dict>
 	<key>You demoted {user0} and %ld more participants from moderators</key>
@@ -629,9 +713,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>You demoted {user0} and %ld more participant from moderators</string>
+			<string>Вы исключили {user0} и ещё %ld участника из модераторов</string>
+			<key>few</key>
+			<string>Вы исключили {user0} и ещё %ld участников из модераторов</string>
+			<key>many</key>
+			<string>Вы исключили {user0} и ещё %ld участников из модераторов</string>
 			<key>other</key>
-			<string>You demoted {user0} and %ld more participants from moderators</string>
+			<string>Вы исключили {user0} и ещё %ld участника из модераторов</string>
 		</dict>
 	</dict>
 	<key>An administrator demoted you and %ld more participants from moderators</key>
@@ -645,9 +733,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator demoted you and %ld more participant from moderators</string>
+			<string>Администратор исключил вас и ещё %ld участника из модераторов</string>
+			<key>few</key>
+			<string>Администратор исключил вас и ещё %ld участников из модераторов</string>
+			<key>many</key>
+			<string>Администратор исключил вас и ещё %ld участников из модераторов</string>
 			<key>other</key>
-			<string>An administrator demoted you and %ld more participants from moderators</string>
+			<string>Администратор исключил вас и ещё %ld участника из модераторов</string>
 		</dict>
 	</dict>
 	<key>An administrator demoted {user0} and %ld more participants from moderators</key>
@@ -661,9 +753,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>An administrator demoted {user0} and %ld more participant from moderators</string>
+			<string>Администратор исключил {user0} и ещё %ld участника из модераторов</string>
+			<key>few</key>
+			<string>Администратор исключил {user0} и ещё %ld участников из модераторов</string>
+			<key>many</key>
+			<string>Администратор исключил {user0} и ещё %ld участников из модераторов</string>
 			<key>other</key>
-			<string>An administrator demoted {user0} and %ld more participants from moderators</string>
+			<string>Администратор исключил {user0} и ещё %ld участника из модераторов</string>
 		</dict>
 	</dict>
 	<key>{actor0} demoted you and %ld more participants from moderators</key>
@@ -677,9 +773,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} demoted you and %ld more participant from moderators</string>
+			<string>{actor0} исключил(а) вас и ещё %ld участника из модераторов</string>
+			<key>few</key>
+			<string>{actor0} исключил(а) вас и ещё %ld участников из модераторов</string>
+			<key>many</key>
+			<string>{actor0} исключил(а) вас и ещё %ld участников из модераторов</string>
 			<key>other</key>
-			<string>{actor0} demoted you and %ld more participants from moderators</string>
+			<string>{actor0} исключил(а) вас и ещё %ld участника из модераторов</string>
 		</dict>
 	</dict>
 	<key>{actor0} demoted {user0} and %ld more participants from moderators</key>
@@ -693,9 +793,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} demoted {user0} and %ld more participant from moderators</string>
+			<string>{actor0} исключил(а) {user0} и ещё %ld участника из модераторов</string>
+			<key>few</key>
+			<string>{actor0} исключил(а) {user0} и ещё %ld участников из модераторов</string>
+			<key>many</key>
+			<string>{actor0} исключил(а) {user0} и ещё %ld участников из модераторов</string>
 			<key>other</key>
-			<string>{actor0} demoted {user0} and %ld more participants from moderators</string>
+			<string>{actor0} исключил(а) {user0} и ещё %ld участника из модераторов</string>
 		</dict>
 	</dict>
 	<key>You and %ld more participants joined the call</key>
@@ -709,9 +813,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>You and %ld more participant joined the call</string>
+			<string>Вы и ещё %ld участник присоединились к вызову</string>
+			<key>few</key>
+			<string>Вы и ещё %ld участника присоединились к вызову</string>
+			<key>many</key>
+			<string>Вы и ещё %ld участников присоединились к вызову</string>
 			<key>other</key>
-			<string>You and %ld more participants joined the call</string>
+			<string>Вы и ещё %ld участника присоединились к вызову</string>
 		</dict>
 	</dict>
 	<key>{actor0} and %ld more participants joined the call</key>
@@ -725,9 +833,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} and %ld more participant joined the call</string>
+			<string>{actor0} и ещё %ld участник присоединились к вызову</string>
+			<key>few</key>
+			<string>{actor0} и ещё %ld участника присоединились к вызову</string>
+			<key>many</key>
+			<string>{actor0} и ещё %ld участников присоединились к вызову</string>
 			<key>other</key>
-			<string>{actor0} and %ld more participants joined the call</string>
+			<string>{actor0} и ещё %ld участника присоединились к вызову</string>
 		</dict>
 	</dict>
 	<key>You and %ld more participants left the call</key>
@@ -741,9 +853,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>You and %ld more participant left the call</string>
+			<string>Вы и ещё %ld участник покинули вызов</string>
+			<key>few</key>
+			<string>Вы и ещё %ld участника покинули вызов</string>
+			<key>many</key>
+			<string>Вы и ещё %ld участников покинули вызов</string>
 			<key>other</key>
-			<string>You and %ld more participants left the call</string>
+			<string>Вы и ещё %ld участника покинули вызов</string>
 		</dict>
 	</dict>
 	<key>{actor0} and %ld more participants left the call</key>
@@ -757,9 +873,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} and %ld more participant left the call</string>
+			<string>{actor0} и ещё %ld участник покинули вызов</string>
+			<key>few</key>
+			<string>{actor0} и ещё %ld участника покинули вызов</string>
+			<key>many</key>
+			<string>{actor0} и ещё %ld участников покинули вызов</string>
 			<key>other</key>
-			<string>{actor0} and %ld more participants left the call</string>
+			<string>{actor0} и ещё %ld участника покинули вызов</string>
 		</dict>
 	</dict>
 </dict>
