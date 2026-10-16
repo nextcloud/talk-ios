@@ -359,7 +359,11 @@ public class NCNotificationController: NSObject, UNUserNotificationCenterDelegat
 
     public func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         // Called when a notification is delivered to a foreground app.
-        NotificationCenter.default.post(name: .NCNotificationControllerWillPresent, object: self, userInfo: nil)
+        // Merges the badge change the notification service extension recorded, for the account switcher.
+        // In the background, so the main thread doesn't wait for a concurrent room refresh to commit.
+        ExtensionDataStore.mergeExtensionEventsInBackground {
+            NotificationCenter.default.post(name: .NCNotificationControllerWillPresent, object: self, userInfo: nil)
+        }
         completionHandler([.list, .banner])
 
         // Remove the notification from Notification Center if it is from the active account

@@ -64,55 +64,15 @@
     
     _filteredRooms = [[NSMutableArray alloc] init];
     
-    // Configure database
-    NSString *path = [[[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:groupIdentifier] URLByAppendingPathComponent:TalkDatabaseObjC.folder] path];
-    NSURL *databaseURL = [[NSURL fileURLWithPath:path] URLByAppendingPathComponent:TalkDatabaseObjC.fileName];
-    
-    if ([[NSFileManager defaultManager] fileExistsAtPath:databaseURL.path]) {
-        @try {
-            NSError *error = nil;
-            
-            // schemaVersionAtURL throws an exception when file is not readable
-            uint64_t currentSchemaVersion = [RLMRealm schemaVersionAtURL:databaseURL encryptionKey:nil error:&error];
-            
-            if (error || currentSchemaVersion != TalkDatabaseObjC.schemaVersion) {
-                NSLog(@"Current schemaVersion is %llu app schemaVersion is %llu", currentSchemaVersion, TalkDatabaseObjC.schemaVersion);
-                NSLog(@"Database needs migration -> don't open database from extension");
-                
-                NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:nil];
-                [self.extensionContext cancelRequestWithError:error];
-                return;
-            } else {
-                NSLog(@"Current schemaVersion is %llu app schemaVersion is %llu", currentSchemaVersion, TalkDatabaseObjC.schemaVersion);
-            }
-        }
-        @catch (NSException *exception) {
-            NSLog(@"Reading schemaVersion failed: %@", exception.reason);
-            NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:nil];
-            [self.extensionContext cancelRequestWithError:error];
-            return;
-        }
-    } else {
-        NSLog(@"Database does not exist -> main app needs to run before extension.");
+    // In the extension this loads what the app published, the database file is never opened here
+    if (![[NCDatabaseManager sharedInstance] refreshExtensionDatabase]) {
+        NSLog(@"No data from the main app available -> main app needs to run before extension.");
         NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:nil];
         [self.extensionContext cancelRequestWithError:error];
         return;
     }
-    
-    RLMRealmConfiguration *configuration = [RLMRealmConfiguration defaultConfiguration];
-    configuration.fileURL = databaseURL;
-    configuration.schemaVersion= TalkDatabaseObjC.schemaVersion;
-    configuration.objectClasses = @[TalkAccount.class, NCRoom.class, ServerCapabilities.class, FederatedCapabilities.class];
-    configuration.migrationBlock = ^(RLMMigration *migration, uint64_t oldSchemaVersion) {
-        // At the very minimum we need to update the version with an empty block to indicate that the schema has been upgraded (automatically) by Realm
-    };
-    NSError *error = nil;
-        
-    // When running as an extension, set the default configuration to make sure we always use the correct realm-file
-    if ([[[NSBundle mainBundle] bundlePath] hasSuffix:@".appex"]) {
-        [RLMRealmConfiguration setDefaultConfiguration:configuration];
-    }
-    _realm = [RLMRealm realmWithConfiguration:configuration error:&error];
+
+    _realm = [RLMRealm defaultRealm];
     
     if (self.extensionContext && self.extensionContext.intent && [self.extensionContext.intent isKindOfClass:[INSendMessageIntent class]]) {
         INSendMessageIntent *intent = (INSendMessageIntent *)self.extensionContext.intent;

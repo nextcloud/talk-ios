@@ -9,14 +9,6 @@ public let kTalkDatabaseFolder = "Library/Application Support/Talk"
 public let kTalkDatabaseFileName = "talk.realm"
 public let kTalkDatabaseSchemaVersion: UInt64 = 94
 
-// Objective-C bridge for the Talk database constants that are still referenced from Objective-C code.
-// These reference the Swift values and can be removed once those call sites are migrated to Swift.
-@objcMembers public class TalkDatabaseObjC: NSObject {
-    public static let folder = kTalkDatabaseFolder
-    public static let fileName = kTalkDatabaseFileName
-    public static let schemaVersion = kTalkDatabaseSchemaVersion
-}
-
 public enum TalkCapability: String {
     case systemMessages = "system-messages"
     case notificationLevels = "notification-levels"
@@ -134,11 +126,6 @@ public extension Notification.Name {
     /// Derived from the server and federated capabilities, so dropped whenever either is written
     private let talkCapabilitiesCache = NSCache<NSString, TalkCapabilities>()
 
-#if !APP_EXTENSION
-    /// Keeps the database open for the lifetime of the app, see `init`
-    private var retainedRealm: RLMRealm?
-#endif
-
     public class func sharedInstance() -> NCDatabaseManager {
         return shared
     }
@@ -146,55 +133,19 @@ public extension Notification.Name {
     override private init() {
         super.init()
 
-        guard let path = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: groupIdentifier)?.appendingPathComponent(kTalkDatabaseFolder).path else {
-            return
-        }
+        TalkDatabase.open()
+    }
 
-        // Create Talk database directory
-        if !FileManager.default.fileExists(atPath: path) {
-            try? FileManager.default.createDirectory(atPath: path, withIntermediateDirectories: true)
-        }
-        try? FileManager.default.setAttributes([.protectionKey: FileProtectionType.none], ofItemAtPath: path)
+    /// In an extension, reloads the data published by the app and returns whether there is any.
+    /// In the app there's nothing to reload, so it always returns true.
+    public func refreshExtensionDatabase() -> Bool {
+        let isAvailable = TalkDatabase.reload()
 
-        // Set Realm configuration
-        let configuration = RLMRealmConfiguration.default()
-        let databaseURL = URL(fileURLWithPath: path).appendingPathComponent(kTalkDatabaseFileName)
-        configuration.fileURL = databaseURL
-        configuration.schemaVersion = kTalkDatabaseSchemaVersion
-        configuration.objectClasses = [
-            TalkAccount.self, NCRoom.self, ServerCapabilities.self, FederatedCapabilities.self,
-            NCChatMessage.self, NCChatBlock.self, NCContact.self, ABContact.self, NCThread.self,
-            NCConversationTag.self
-        ]
-        configuration.migrationBlock = { _, _ in
-            // At the very minimum we need to update the version with an empty block to indicate that the schema has been upgraded (automatically) by Realm
-        }
+        // Cleared after reloading, so a concurrent lookup can't cache the data from before
+        capabilitiesCache.removeAllObjects()
+        talkCapabilitiesCache.removeAllObjects()
 
-        // Tell Realm to use this new configuration object for the default Realm
-        RLMRealmConfiguration.setDefault(configuration)
-
-        // Now that we've told Realm how to handle the schema change, opening the file
-        // will automatically perform the migration
-        _ = RLMRealm.default()
-
-#if !APP_EXTENSION
-        // Realm caches its instances weakly, so holding one keeps the database open instead of every access
-        // reopening and closing the file, which also avoids the file lock that closing takes (0xdead10cc).
-        // It has to be a main thread realm, as only those auto refresh and therefore don't pin the version
-        // they were opened with, which would grow the file.
-        DispatchQueue.main.async {
-            self.retainedRealm = RLMRealm.default()
-        }
-#endif
-
-#if DEBUG
-        // Copy Talk DB to Documents directory
-        if let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first {
-            let dbCopyURL = URL(fileURLWithPath: documentsPath).appendingPathComponent(kTalkDatabaseFileName)
-            try? FileManager.default.removeItem(at: dbCopyURL)
-            try? FileManager.default.copyItem(at: databaseURL, to: dbCopyURL)
-        }
-#endif
+        return isAvailable
     }
 
     // MARK: - Talk accounts
@@ -319,6 +270,8 @@ public extension Notification.Name {
     }
 
     public func increaseUnreadBadgeNumber(forAccountId accountId: String) {
+        ExtensionDataStore.mergeExtensionEvents()
+
         updateTalkAccount(forAccountId: accountId) { account in
             account.unreadBadgeNumber += 1
             account.unreadNotification = true
@@ -326,6 +279,8 @@ public extension Notification.Name {
     }
 
     public func decreaseUnreadBadgeNumber(forAccountId accountId: String) {
+        ExtensionDataStore.mergeExtensionEvents()
+
         updateTalkAccount(forAccountId: accountId) { account in
             account.unreadBadgeNumber = (account.unreadBadgeNumber > 0) ? account.unreadBadgeNumber - 1 : 0
             account.unreadNotification = (account.unreadBadgeNumber > 0) ? account.unreadNotification : false
@@ -333,6 +288,8 @@ public extension Notification.Name {
     }
 
     public func resetUnreadBadgeNumber(forAccountId accountId: String) {
+        ExtensionDataStore.mergeExtensionEvents()
+
         updateTalkAccount(forAccountId: accountId) { account in
             account.unreadBadgeNumber = 0
             account.unreadNotification = false
@@ -344,6 +301,8 @@ public extension Notification.Name {
     }
 
     public func numberOfUnreadNotifications() -> Int {
+        ExtensionDataStore.mergeExtensionEvents()
+
         // Make sure that the data on this thread is up to date.
         // Failing to do so might result in inaccurate badge numbers when they were updated on a different thread
         RLMRealm.default().refresh()
@@ -737,10 +696,6 @@ public extension Notification.Name {
     }
 
     // MARK: - Federation invitations
-
-    public func increasePendingFederationInvitation(forAccountId accountId: String) {
-        updateTalkAccount(forAccountId: accountId) { $0.pendingFederationInvitations += 1 }
-    }
 
     public func decreasePendingFederationInvitation(forAccountId accountId: String) {
         updateTalkAccount(forAccountId: accountId) { account in

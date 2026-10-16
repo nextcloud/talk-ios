@@ -524,64 +524,75 @@ extension Array where Element == NCRoom {
     // MARK: - Updating
 
     public static func update(_ managedRoom: NCRoom, with room: NCRoom) {
-        managedRoom.name = room.name
-        managedRoom.displayName = room.displayName
-        managedRoom.type = room.type
-        managedRoom.roomDescription = room.roomDescription
-        managedRoom.hasPassword = room.hasPassword
-        managedRoom.participantType = room.participantType
-        managedRoom.attendeeId = room.attendeeId
-        managedRoom.attendeePin = room.attendeePin
-        managedRoom.unreadMessages = room.unreadMessages
-        managedRoom.unreadMention = room.unreadMention
-        managedRoom.unreadMentionDirect = room.unreadMentionDirect
-        managedRoom.lastActivity = room.lastActivity
-        managedRoom.lastMessageId = room.lastMessageId
-        managedRoom.lastMessageProxiedJSONString = room.lastMessageProxiedJSONString
-        managedRoom.isFavorite = room.isFavorite
-        managedRoom.notificationLevel = room.notificationLevel
-        managedRoom.notificationCalls = room.notificationCalls
-        managedRoom.objectType = room.objectType
-        managedRoom.objectId = room.objectId
-        managedRoom.readOnlyState = room.readOnlyState
-        managedRoom.listable = room.listable
-        managedRoom.messageExpiration = room.messageExpiration
-        managedRoom.lobbyState = room.lobbyState
-        managedRoom.lobbyTimer = room.lobbyTimer
-        managedRoom.sipState = room.sipState
-        managedRoom.canEnableSIP = room.canEnableSIP
-        managedRoom.lastReadMessage = room.lastReadMessage
-        managedRoom.lastCommonReadMessage = room.lastCommonReadMessage
-        managedRoom.canStartCall = room.canStartCall
-        managedRoom.hasCall = room.hasCall
-        managedRoom.lastUpdate = room.lastUpdate
-        managedRoom.canLeaveConversation = room.canLeaveConversation
-        managedRoom.canDeleteConversation = room.canDeleteConversation
-        managedRoom.status = room.status
-        managedRoom.statusIcon = room.statusIcon
-        managedRoom.statusMessage = room.statusMessage
-        managedRoom.participantFlags = room.participantFlags
-        managedRoom.permissions = room.permissions
-        managedRoom.attendeePermissions = room.attendeePermissions
-        managedRoom.defaultPermissions = room.defaultPermissions
-        managedRoom.callRecording = room.callRecording
-        managedRoom.callStartTime = room.callStartTime
-        managedRoom.avatarVersion = room.avatarVersion
-        managedRoom.isCustomAvatar = room.isCustomAvatar
-        managedRoom.recordingConsent = room.recordingConsent
-        managedRoom.remoteToken = room.remoteToken
-        managedRoom.remoteServer = room.remoteServer
-        managedRoom.mentionPermissions = room.mentionPermissions
-        managedRoom.isArchived = room.isArchived
-        managedRoom.isImportant = room.isImportant
-        managedRoom.isSensitive = room.isSensitive
-        managedRoom.lastPinnedId = room.lastPinnedId
-        managedRoom.hiddenPinnedId = room.hiddenPinnedId
-        managedRoom.hasScheduledMessages = room.hasScheduledMessages
-        managedRoom.attributes = room.attributes
+        // Realm writes an assigned property and reports it changed even for an equal value. Assigning only changes
+        // keeps commits small and key path filtered observers (the extension snapshot) quiet. Unfiltered observers
+        // still fire on every refresh, as lastUpdate always changes.
+        func assign<Value: Equatable>(_ keyPath: ReferenceWritableKeyPath<NCRoom, Value>) {
+            if managedRoom[keyPath: keyPath] != room[keyPath: keyPath] {
+                managedRoom[keyPath: keyPath] = room[keyPath: keyPath]
+            }
+        }
 
-        managedRoom.tagIds.removeAllObjects()
-        managedRoom.tagIds.addObjects(room.tagIds)
+        assign(\.name)
+        assign(\.displayName)
+        assign(\.type)
+        assign(\.roomDescription)
+        assign(\.hasPassword)
+        assign(\.participantType)
+        assign(\.attendeeId)
+        assign(\.attendeePin)
+        assign(\.unreadMessages)
+        assign(\.unreadMention)
+        assign(\.unreadMentionDirect)
+        assign(\.lastActivity)
+        assign(\.lastMessageId)
+        assign(\.lastMessageProxiedJSONString)
+        assign(\.isFavorite)
+        assign(\.notificationLevel)
+        assign(\.notificationCalls)
+        assign(\.objectType)
+        assign(\.objectId)
+        assign(\.readOnlyState)
+        assign(\.listable)
+        assign(\.messageExpiration)
+        assign(\.lobbyState)
+        assign(\.lobbyTimer)
+        assign(\.sipState)
+        assign(\.canEnableSIP)
+        assign(\.lastReadMessage)
+        assign(\.lastCommonReadMessage)
+        assign(\.canStartCall)
+        assign(\.hasCall)
+        assign(\.lastUpdate)
+        assign(\.canLeaveConversation)
+        assign(\.canDeleteConversation)
+        assign(\.status)
+        assign(\.statusIcon)
+        assign(\.statusMessage)
+        assign(\.participantFlags)
+        assign(\.permissions)
+        assign(\.attendeePermissions)
+        assign(\.defaultPermissions)
+        assign(\.callRecording)
+        assign(\.callStartTime)
+        assign(\.avatarVersion)
+        assign(\.isCustomAvatar)
+        assign(\.recordingConsent)
+        assign(\.remoteToken)
+        assign(\.remoteServer)
+        assign(\.mentionPermissions)
+        assign(\.isArchived)
+        assign(\.isImportant)
+        assign(\.isSensitive)
+        assign(\.lastPinnedId)
+        assign(\.hiddenPinnedId)
+        assign(\.hasScheduledMessages)
+        assign(\.attributes)
+
+        if managedRoom.tagIdList != room.tagIdList {
+            managedRoom.tagIds.removeAllObjects()
+            managedRoom.tagIds.addObjects(room.tagIds)
+        }
     }
 
 }

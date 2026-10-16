@@ -44,16 +44,25 @@ struct AccountEntity: AppEntity {
 @available(iOS 17, *)
 struct AccountEntityQuery: EntityStringQuery {
     func entities(matching string: String) async throws -> [AccountEntity] {
-        NCDatabaseManager.sharedInstance().allAccounts().filter({
+        NCDatabaseManager.refreshedInstance().allAccounts().filter({
             $0.accountId.contains(string) || $0.userDisplayName.contains(string)
         }).map { AccountEntity(account: $0) }
     }
 
     func suggestedEntities() async throws -> [AccountEntity] {
-        NCDatabaseManager.sharedInstance().allAccounts().map { AccountEntity(account: $0) }
+        NCDatabaseManager.refreshedInstance().allAccounts().map { AccountEntity(account: $0) }
     }
 
     func entities(for identifiers: [String]) async throws -> [AccountEntity] {
-        NCDatabaseManager.sharedInstance().allAccounts().filter({ identifiers.contains($0.accountId) }).map { AccountEntity(account: $0) }
+        NCDatabaseManager.refreshedInstance().allAccounts().filter({ identifiers.contains($0.accountId) }).map { AccountEntity(account: $0) }
+    }
+}
+
+extension NCDatabaseManager {
+    /// The intents extension process can outlive several requests, so pick up what the app published since
+    static func refreshedInstance() -> NCDatabaseManager {
+        let databaseManager = sharedInstance()
+        _ = databaseManager.refreshExtensionDatabase()
+        return databaseManager
     }
 }
