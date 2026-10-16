@@ -1373,6 +1373,15 @@ import Toast
         NotificationPresenter.shared().present(text: NSLocalizedString("Message unpinned", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
     }
 
+    internal func prepareVoiceMessageForResend(_ message: NCChatMessage) {
+        message.sendingFailed = false
+        message.isOfflineMessage = false
+
+        // Like a resent text message, the message is sent now: it needs to be placed at the end of the chat
+        // and must not expire (getTemporaryMessages) based on the timestamp of the failed attempt
+        message.timestamp = Int(Date().timeIntervalSince1970)
+    }
+
     func didPressResend(for message: NCChatMessage) {
         // Make sure there's no unread message separator, as the indexpath could be invalid after removing a message
         self.removeUnreadMessagesSeparator()
@@ -1384,6 +1393,13 @@ import Toast
         if message.messageType != kMessageTypeVoiceMessage {
             self.sendChatMessage(message: originalMessage, withParentMessage: message.parent, messageParameters: message.messageParametersJSONString ?? "", silently: message.isSilent)
         } else {
+            // Show and store the message as sending again, so it can be marked as failed again
+            self.prepareVoiceMessageForResend(message)
+
+            RLMRealm.writeTransaction { realm in
+                realm.addOrUpdate(NCChatMessage(value: message))
+            }
+
             if NCDatabaseManager.sharedInstance().roomHasTalkCapability(.chatReferenceId, for: room) {
                 self.appendTemporaryMessage(temporaryMessage: message)
             }
@@ -2305,8 +2321,30 @@ import Toast
                 try await ChatFileUploader.upload(upload)
                 NCLog.log("Successfully uploaded and shared \(upload.fileName)")
             } catch {
+                if let referenceId = upload.referenceId {
+                    self.markTemporaryMessageAsFailed(referenceId: referenceId)
+                }
+
                 self.presentUploadError(error, for: upload)
             }
+        }
+    }
+
+    internal func markTemporaryMessageAsFailed(referenceId: String) {
+        // Allow to resend or delete the message, instead of showing it as sending until it expires
+        RLMRealm.writeTransaction { _ in
+            if let managedTemporaryMessage = NCChatMessage.objects(where: "referenceId = %@ AND isTemporary = true", referenceId).firstObject() as? NCChatMessage {
+                managedTemporaryMessage.sendingFailed = true
+                managedTemporaryMessage.isOfflineMessage = false
+            }
+        }
+
+        self.modifyMessageWith(referenceId: referenceId) { message in
+            // The message might have been received from the server in the meantime
+            guard message.isTemporary else { return }
+
+            message.sendingFailed = true
+            message.isOfflineMessage = false
         }
     }
 
@@ -2330,6 +2368,9 @@ import Toast
         case ChatFileUploadError.tooManyRequests:
             NCLog.log("Too many requests while uploading")
             message = NSLocalizedString("Too many requests, please try again later", comment: "")
+        case ChatFileUploadError.uploadFailed(_, let errorDescription) where !errorDescription.isEmpty:
+            NCLog.log("Failed to upload \(upload.fileName). Error: \(errorDescription)")
+            message = errorDescription
         default:
             NCLog.log("Failed to upload \(upload.fileName). Error: \(error.localizedDescription)")
             message = NSLocalizedString("Unknown error occurred", comment: "")
