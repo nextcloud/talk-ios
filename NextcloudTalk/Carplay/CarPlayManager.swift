@@ -16,7 +16,8 @@ final class CarPlayManager {
 
     private weak var interfaceController: CPInterfaceController?
     private var rootTemplate: CPListTemplate?
-    private var activeCallTemplate: CPContactTemplate?
+    private var conversationTemplate: CPContactTemplate?
+    private var conversationRoomToken: String?
 
     // MARK: - Init
 
@@ -36,14 +37,21 @@ final class CarPlayManager {
         )
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(callDidStart(_:)),
+            selector: #selector(callStateDidChange(_:)),
             name: .CallKitManagerDidStartCall,
             object: nil
         )
 
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(callDidEnd(_:)),
+            selector: #selector(callStateDidChange(_:)),
+            name: .CallKitManagerDidAnswerCall,
+            object: nil
+        )
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(callStateDidChange(_:)),
             name: .CallKitManagerDidEndCall,
             object: nil
         )
@@ -77,7 +85,8 @@ final class CarPlayManager {
     func disconnect() {
         interfaceController = nil
         rootTemplate = nil
-        activeCallTemplate = nil
+        conversationTemplate = nil
+        conversationRoomToken = nil
     }
 
     // MARK: - Root
@@ -94,7 +103,7 @@ final class CarPlayManager {
         )
 
         let root = CPListTemplate(
-            title: NSLocalizedString("Talk", comment: ""),
+            title: talkAppName,
             sections: makeRootSections(),
             assistantCellConfiguration: assistantConfiguration
         )
@@ -121,6 +130,7 @@ final class CarPlayManager {
         }
 
         rootTemplate.updateSections(makeRootSections())
+        refreshConversationTemplate()
     }
 
     // MARK: - Conversations
@@ -134,57 +144,11 @@ final class CarPlayManager {
         loadAvatar(for: room, into: item)
 
         item.handler = { [weak self] _, completion in
-            if room.hasCall {
-                self?.showInCallView(room)
-            } else {
-                self?.showConversation(room)
-            }
-
+            self?.showConversation(room)
             completion()
         }
 
         return item
-    }
-
-    private func showInCallView(_ room: NCRoom) {
-        guard let interfaceController, activeCallTemplate == nil else {
-            return
-        }
-
-        let contact = CPContact(
-            name: room.displayName,
-            image: UIImage(systemName: "person.crop.circle") ?? UIImage()
-        )
-
-        contact.subtitle = NSLocalizedString("Call in progress", comment: "")
-
-        let endCallButton = CPContactCallButton { [weak self] _ in
-            CallKitManager.sharedInstance().endCall(
-                room.token,
-                withStatusCode: 0
-            )
-
-            self?.activeCallTemplate = nil
-        }
-
-        endCallButton.title = NSLocalizedString("End call", comment: "")
-
-        contact.actions = [endCallButton]
-
-        let template = CPContactTemplate(contact: contact)
-        activeCallTemplate = template
-
-        interfaceController.pushTemplate(
-            template,
-            animated: true
-        ){ success, error in
-            if let error {
-                NCLog.log("CarPlay failed to show in-call view: \(error)")
-                return
-            }
-
-            NCLog.log("CarPlay in-call view displayed: success=\(success)")
-        }
     }
 
     private func subtitle(for room: NCRoom) -> String? {
@@ -275,17 +239,42 @@ final class CarPlayManager {
     }
     
     private func loadAvatar(for room: NCRoom, into item: CPListItem) {
+        let traitCollection = UITraitCollection.current
+
         _ = AvatarManager.shared.getAvatar(
             for: room,
-            with: UITraitCollection.current.userInterfaceStyle
+            with: traitCollection.userInterfaceStyle
         ) { image in
             guard let image else {
                 return
             }
 
-            DispatchQueue.main.async {
-                item.setImage(image)
+            item.setImage(
+                NCUtils.roundedImage(
+                    fromImage: image,
+                    traitCollection: traitCollection
+                )
+            )
+        }
+    }
+
+    private func loadAvatar(for room: NCRoom, completion: @escaping (UIImage) -> Void) {
+        let traitCollection = UITraitCollection.current
+
+        _ = AvatarManager.shared.getAvatar(
+            for: room,
+            with: traitCollection.userInterfaceStyle
+        ) { image in
+            guard let image else {
+                return
             }
+
+            completion(
+                NCUtils.roundedImage(
+                    fromImage: image,
+                    traitCollection: traitCollection
+                )
+            )
         }
     }
 
@@ -296,25 +285,95 @@ final class CarPlayManager {
             return
         }
 
-        let contact = CPContact(
-            name: room.displayName,
-            image: UIImage(systemName: "person.crop.circle") ?? UIImage()
-        )
+        let placeholder = UIImage(systemName: "person.crop.circle") ?? UIImage()
+        let contact = makeContact(for: room, image: placeholder)
+        let template = CPContactTemplate(contact: contact)
 
-        contact.subtitle = NSLocalizedString("Nextcloud Talk", comment: "")
+        conversationTemplate = template
+        conversationRoomToken = room.token
 
-        let callButton = CPContactCallButton { [weak self] _ in
-            self?.startTalkCall(in: room)
+        loadAvatar(for: room) { [weak self, weak template] image in
+            guard let self, let template else {
+                return
+            }
+
+            template.contact = self.makeContact(for: room, image: image)
         }
 
-        callButton.title = NSLocalizedString("Call", comment: "")
-        contact.actions = [callButton]
-
         interfaceController.pushTemplate(
-            CPContactTemplate(contact: contact),
-            animated: true,
-            completion: nil
+            template,
+            animated: true
+        ) { success, error in
+            if let error {
+                NCLog.log("CarPlay failed to show conversation: \(error)")
+                return
+            }
+
+            NCLog.log("CarPlay conversation view displayed: success=\(success)")
+        }
+    }
+
+    private func makeContact(for room: NCRoom, image: UIImage) -> CPContact {
+        let contact = CPContact(
+            name: room.displayName,
+            image: image
         )
+
+        let userIsInCall = isUserInCall(room)
+
+        if room.hasCall || userIsInCall {
+            contact.subtitle = NSLocalizedString("Call in progress", comment: "")
+        }
+
+        if userIsInCall {
+            let endCallImage = UIImage(named: "carplay_end_call")?
+                .withRenderingMode(.alwaysOriginal) ?? UIImage()
+
+            let endCallButton = CPButton(image: endCallImage) { [weak self] _ in
+                CallKitManager.sharedInstance().endCall(
+                    room.token,
+                    withStatusCode: 0
+                )
+
+                self?.refreshTemplates()
+            }
+
+            endCallButton.title = NSLocalizedString("End call", comment: "")
+            contact.actions = [endCallButton]
+        } else {
+            let callButton = CPContactCallButton { [weak self] _ in
+                self?.startTalkCall(in: room)
+            }
+
+            callButton.title = room.hasCall
+                ? NSLocalizedString("Join call", comment: "")
+                : NSLocalizedString("Call", comment: "")
+
+            contact.actions = [callButton]
+        }
+
+        return contact
+    }
+
+    private func refreshConversationTemplate() {
+        guard
+            let template = conversationTemplate,
+            let token = conversationRoomToken,
+            let room = CarPlayConversationProvider.shared.room(withToken: token)
+        else {
+            return
+        }
+
+        let placeholder = UIImage(systemName: "person.crop.circle") ?? UIImage()
+        template.contact = makeContact(for: room, image: placeholder)
+
+        loadAvatar(for: room) { [weak self, weak template] image in
+            guard let self, let template else {
+                return
+            }
+
+            template.contact = self.makeContact(for: room, image: image)
+        }
     }
 
     private func startTalkCall(in room: NCRoom) {
@@ -322,6 +381,8 @@ final class CarPlayManager {
             NCLog.log("CarPlay call rejected: room has no account, room=\(room.token)")
             return
         }
+        
+        NCRoomsManager.shared.suppressNextCallUIPresentationForCarPlay()
 
         CallKitManager.sharedInstance().startCall(
             room.token,
@@ -332,6 +393,12 @@ final class CarPlayManager {
             recordingConsent: false,
             withAccountId: account.accountId
         )
+    }
+    
+    private func isUserInCall(_ room: NCRoom) -> Bool {
+        CallKitManager.sharedInstance().calls.values.contains { call in
+            call.token == room.token
+        }
     }
 
     // MARK: - Notifications
@@ -350,39 +417,9 @@ final class CarPlayManager {
         }
     }
     @objc
-    private func callDidStart(_ notification: Notification) {
-        guard
-            let token = notification.userInfo?["roomToken"] as? String,
-            let room = CarPlayConversationProvider.shared.room(withToken: token)
-        else {
-            return
-        }
-
+    private func callStateDidChange(_ notification: Notification) {
         DispatchQueue.main.async { [weak self] in
             self?.refreshTemplates()
-            self?.showInCallView(room)
-        }
-    }
-    @objc
-    private func callDidEnd(_ notification: Notification) {
-        guard
-            notification.userInfo?["roomToken"] as? String != nil
-        else {
-            return
-        }
-
-        DispatchQueue.main.async { [weak self] in
-            guard let self else {
-                return
-            }
-
-            self.activeCallTemplate = nil
-            self.refreshTemplates()
-
-            self.interfaceController?.popToRootTemplate(
-                animated: true,
-                completion: nil
-            )
         }
     }
 }
