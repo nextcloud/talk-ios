@@ -58,6 +58,19 @@
     return self;
 }
 
+- (id)initToForwardItems:(NSArray<NCForwardItem *> *)items skippedFiles:(NSInteger)skippedFiles fromChatViewController:(UIViewController *)chatViewController
+{
+    self = [super init];
+    if (self) {
+        self.chatViewController = chatViewController;
+        self.forwardItems = items;
+        self.forwardSkippedFiles = skippedFiles;
+        self.forwarding = YES;
+    }
+    
+    return self;
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -539,6 +552,10 @@
         shareConfirmationVC.delegate = (id<ShareConfirmationViewControllerDelegate>)_chatViewController;
         shareConfirmationVC.forwardingMessage = YES;
         [shareConfirmationVC shareText:_forwardMessage];
+    } else if (_forwardItems) {
+        shareConfirmationVC.delegate = (id<ShareConfirmationViewControllerDelegate>)_chatViewController;
+        shareConfirmationVC.forwardingMessage = YES;
+        [shareConfirmationVC shareForwardItems:_forwardItems skippedFiles:_forwardSkippedFiles];
     } else if (_forwardObjectShareMessage) {
         shareConfirmationVC.delegate = (id<ShareConfirmationViewControllerDelegate>)_chatViewController;
         shareConfirmationVC.forwardingMessage = YES;

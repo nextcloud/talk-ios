@@ -149,8 +149,9 @@ final class UIRoomTest: XCTestCase {
         let messageSentCell = app.cells["CellMessageSent"]
         XCTAssert(messageSentCell.waitForExistence(timeout: TestConstants.timeoutShort))
 
-        // Open context menu
-        messageSentCell.press(forDuration: 2.0)
+        // Open context menu. An own message sits at the right edge of the row, a long press on the empty
+        // part of the row (e.g. the center of the cell) starts the selection mode instead.
+        messageSentCell.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).press(forDuration: 2.0)
 
         // Add a reaction to close the context menu
         // In case we are testing against a nextcloud version that does not support reactions (<= NC 23)
@@ -247,8 +248,9 @@ final class UIRoomTest: XCTestCase {
         let messageSentCell = app.cells["CellMessageSent"]
         XCTAssert(messageSentCell.waitForExistence(timeout: TestConstants.timeoutShort))
 
-        // Open context menu
-        messageSentCell.press(forDuration: 2.0)
+        // Open context menu. An own message sits at the right edge of the row, a long press on the empty
+        // part of the row (e.g. the center of the cell) starts the selection mode instead.
+        messageSentCell.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).press(forDuration: 2.0)
 
         // Start a reply
         XCTAssert(messageSentCell.waitForExistence(timeout: TestConstants.timeoutShort))
