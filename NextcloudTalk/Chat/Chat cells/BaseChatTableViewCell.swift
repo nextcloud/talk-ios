@@ -178,6 +178,11 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
     internal var replyGestureRecognizer: DRCellSlideGestureRecognizer?
 
+    // Multi-selection mode, see BaseChatTableViewCell+Selection
+    internal var selectionOverlay: UIView?
+    internal var selectionIndicator: UIImageView?
+    internal var isSelectionModeActive = false
+
     // Message cell
     internal var messageTextView: MessageBodyTextView?
 
@@ -203,6 +208,8 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
     override func layoutSubviews() {
         super.layoutSubviews()
+
+        self.layoutSelectionIndicator()
 
         guard let fileGroup = self.fileGroup, let account = self.account,
               self.availableBodyWidth != self.fileGroupWidth
@@ -291,6 +298,8 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
         self.fileGroup = nil
         self.fileGroupWidth = 0
+
+        self.setSelectionMode(false, selected: false)
 
         self.prepareForReuseFileGroupCell()
         self.prepareForReuseFileCell()
@@ -530,6 +539,8 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
             replyGestureRecognizer.leftActionStartPosition = 80
             replyGestureRecognizer.addActions(action)
+
+            replyGestureRecognizer.isEnabled = !self.isSelectionModeActive
 
             self.addGestureRecognizer(replyGestureRecognizer)
         }

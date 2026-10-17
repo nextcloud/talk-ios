@@ -194,6 +194,38 @@
 			<string>%ld replies</string>
 		</dict>
 	</dict>
+	<key>%ld files were not forwarded</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@files@</string>
+		<key>files</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%ld file was not forwarded</string>
+			<key>other</key>
+			<string>%ld files were not forwarded</string>
+		</dict>
+	</dict>
+	<key>%ld selected</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@selected@</string>
+		<key>selected</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%ld selected</string>
+			<key>other</key>
+			<string>%ld selected</string>
+		</dict>
+	</dict>
 	<key>Password needs to be at least %d characters long</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
@@ -320,6 +352,22 @@
 			<string>%4$ld other is typing…</string>
 			<key>other</key>
 			<string>%4$ld others are typing…</string>
+		</dict>
+	</dict>
+	<key>Forwarded %1$ld of %2$ld messages</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Forwarded %1$ld of %2$#@messages@</string>
+		<key>messages</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%2$ld message</string>
+			<key>other</key>
+			<string>%2$ld messages</string>
 		</dict>
 	</dict>
 	<key>You added {user0} and %ld more participants</key>
