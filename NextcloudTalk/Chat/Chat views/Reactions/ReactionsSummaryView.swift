@@ -47,7 +47,7 @@ import UIKit
     func setupReactionsSummaryView() {
         self.tableView.dataSource = self
         self.tableView.delegate = self
-        self.tableView.register(UINib(nibName: kShareTableCellNibName, bundle: .main), forCellReuseIdentifier: kShareCellIdentifier)
+        self.tableView.register(UINib(nibName: ShareTableViewCell.nibName, bundle: .main), forCellReuseIdentifier: ShareTableViewCell.identifier)
         self.tableView.separatorInset = UIEdgeInsets(top: 0, left: 54, bottom: 0, right: 0)
     }
 
@@ -79,12 +79,12 @@ import UIKit
     }
 
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return kShareTableCellHeight
+        return ShareTableViewCell.cellHeight
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: kShareCellIdentifier) as? ShareTableViewCell ??
-        ShareTableViewCell(style: .default, reuseIdentifier: kShareCellIdentifier)
+        let cell = tableView.dequeueReusableCell(withIdentifier: ShareTableViewCell.identifier) as? ShareTableViewCell ??
+        ShareTableViewCell(style: .default, reuseIdentifier: ShareTableViewCell.identifier)
 
         let reaction = self.sortedReactions[indexPath.section]
         let actor = self.reactions[reaction]?[indexPath.row]
