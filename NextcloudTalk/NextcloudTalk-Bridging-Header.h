@@ -10,7 +10,6 @@
 #import "AuthenticationViewController.h"
 #import "NCAppBranding.h"
 #import "NCContactsManager.h"
-#import "NCPushNotification.h"
 #import "NCRoom.h"
 #import "TalkAccount.h"
 #import "TalkCapabilities.h"

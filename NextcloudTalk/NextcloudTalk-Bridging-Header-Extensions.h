@@ -28,7 +28,6 @@
 #import "NCTypes.h"
 
 #import "AFNetworking.h"
-#import "NCPushNotification.h"
 
 
 #endif /* NextcloudTalk_Bridging_Header_h */

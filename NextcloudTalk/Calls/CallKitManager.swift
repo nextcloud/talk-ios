@@ -216,7 +216,7 @@ public class CallKitManager: NSObject, CXProviderDelegate {
     }
 
     public func reportIncomingCallForNonCallKitDevices(withPushNotification pushNotification: NCPushNotification) {
-        NCLog.log("Report incoming call for non callkit device for token \(pushNotification.roomToken ?? "Unknown") for account \(pushNotification.accountId).")
+        NCLog.log("Report incoming call for non callkit device for token \(pushNotification.roomToken) for account \(pushNotification.accountId).")
 
         let update = self.defaultCallUpdate()
         let callUUID = UUID()
@@ -230,7 +230,7 @@ public class CallKitManager: NSObject, CXProviderDelegate {
             guard let self else { return }
 
             if let error {
-                NCLog.log("Report incoming call for non-callkit devices for token \(pushNotification.roomToken ?? "Unknown") for account \(pushNotification.accountId) with UUID \(callUUID) failed with \(error.localizedDescription)")
+                NCLog.log("Report incoming call for non-callkit devices for token \(pushNotification.roomToken) for account \(pushNotification.accountId) with UUID \(callUUID) failed with \(error.localizedDescription)")
                 return
             }
 
