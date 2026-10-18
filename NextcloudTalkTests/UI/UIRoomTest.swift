@@ -100,15 +100,19 @@ final class UIRoomTest: XCTestCase {
         // Open conversation settings
         chatTitleView.tap()
 
-        // Wait for admin participant to be visible (so participant list is loaded)
-        app.swipeUp()
-        XCTAssert(app.staticTexts["admin"].waitForExistence(timeout: TestConstants.timeoutShort))
-
-        // Leave open conversation
+        // The list is lazy, so the indicator is only rendered when the leave button below it is on screen
         let leaveButton = app.buttons["Leave conversation"]
         app.scrollTo(leaveButton)
+        let participantsLoadingIndicator = app.descendants(matching: .any)["ParticipantsLoadingIndicator"]
+        XCTAssert(participantsLoadingIndicator.waitForNonExistence(timeout: TestConstants.timeoutShort))
+
+        // Loaded participants push the button almost off screen, where it still counts as hittable
+        app.swipeUp()
+        app.scrollTo(leaveButton)
+
+        // Leave open conversation
         leaveButton.tap()
-        waitForReady(object: app.buttons["Leave"]).tap()
+        waitForReady(object: app.alerts.buttons["Leave"]).tap()
         waitForReady(object: app.buttons["Create or join a conversation"])
 
         // Check that the conversation is no longer in conversations list
