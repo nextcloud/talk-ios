@@ -237,12 +237,10 @@ extension UserProfileTableViewController {
         }
 
         let optionSelectorVC = DetailedOptionsSelectorTableViewController(options: options, forSenderIdentifier: field, andStyle: .insetGrouped)
-        if let optionSelectorVC = optionSelectorVC {
-            optionSelectorVC.title = title
-            optionSelectorVC.delegate = self
-            let optionSelectorNC = UINavigationController(rootViewController: optionSelectorVC)
-            self.present(optionSelectorNC, animated: true, completion: nil)
-        }
+        optionSelectorVC.title = title
+        optionSelectorVC.delegate = self
+        let optionSelectorNC = UINavigationController(rootViewController: optionSelectorVC)
+        self.present(optionSelectorNC, animated: true, completion: nil)
     }
 
     func setUserProfileField(_ field: String, scopeValue scope: String) {

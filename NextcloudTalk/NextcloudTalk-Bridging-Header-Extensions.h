@@ -17,7 +17,6 @@
 #import "NCChatBlock.h"
 #import "NCContact.h"
 #import "ABContact.h"
-#import "NCUserStatus.h"
 #import "TalkAccount.h"
 
 #import "SLKTextViewController.h"
@@ -26,11 +25,9 @@
 
 #import "ShareItemController.h"
 
-#import "NCIntentController.h"
 #import "NCTypes.h"
 
 #import "AFNetworking.h"
-#import "NCUser.h"
 #import "NCPushNotification.h"
 
 

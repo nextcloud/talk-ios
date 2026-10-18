@@ -119,7 +119,7 @@ import Foundation
 
         var participantsValue: [String: [String]] = [:]
         for participant in participants {
-            participantsValue[String(participant.source), default: []].append(participant.userId)
+            participantsValue[participant.source, default: []].append(participant.userId)
         }
 
         roomParameters["participants"] = participantsValue
