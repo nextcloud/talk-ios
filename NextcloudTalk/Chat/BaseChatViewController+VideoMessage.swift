@@ -221,12 +221,14 @@ extension BaseChatViewController {
 
         self.videoMessageStopTracker.stopBegan()
 
-        recorder.stop(keepFile: send && isLongEnough) { [weak self] fileURL in
-            self?.videoMessageStopTracker.stopEnded()
+        // A strong reference on purpose: the accepted video must still be sent when the user leaves the chat
+        // while the file is being finished. There is no cycle, the recorder drops the closure once it is called.
+        recorder.stop(keepFile: send && isLongEnough) { fileURL in
+            self.videoMessageStopTracker.stopEnded()
 
             guard let fileURL else { return }
 
-            self?.shareVideoMessage(fileURL: fileURL)
+            self.shareVideoMessage(fileURL: fileURL)
         }
     }
 
