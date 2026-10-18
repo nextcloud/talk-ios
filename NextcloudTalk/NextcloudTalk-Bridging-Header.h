@@ -7,7 +7,6 @@
 #define NextcloudTalk_Bridging_Header_h
 
 #import "ARDSettingsModel.h"
-#import "AuthenticationViewController.h"
 #import "NCAppBranding.h"
 #import "NCContactsManager.h"
 #import "NCRoom.h"

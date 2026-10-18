@@ -48,7 +48,8 @@ public typealias PresentCallControllerCompletionBlock = () -> Void
     }
 
     func presentLoginViewController(forServerURL serverURL: String?, withUser user: String?) {
-        if forceDomain.boolValue, let authViewController = AuthenticationViewController(serverUrl: domain) {
+        if forceDomain.boolValue {
+            let authViewController = AuthenticationViewController(serverUrl: domain)
             authViewController.delegate = self
             authViewController.modalPresentationStyle = NCDatabaseManager.sharedInstance().numberOfAccounts() == 0 ? .fullScreen : .automatic
             self.authViewController = authViewController

@@ -15,7 +15,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, CCCertificateD
 
     weak var delegate: LoginViewControllerDelegate?
 
-    var authenticationViewController = AuthenticationViewController()
+    var authenticationViewController: AuthenticationViewController?
     var importedNextcloudFilesAccounts: [NKShareAccounts.DataAccounts] = []
 
     @IBOutlet weak var appLogoImageView: UIImageView!
@@ -224,16 +224,12 @@ class LoginViewController: UIViewController, UITextFieldDelegate, CCCertificateD
     }
 
     func presentAuthenticationViewController(serverURL: String, user: String?) {
-        guard let authenticationVC = AuthenticationViewController(serverUrl: serverURL) else { return }
-
+        let authenticationVC = AuthenticationViewController(serverUrl: serverURL)
+        authenticationVC.delegate = self
+        authenticationVC.user = user
         authenticationViewController = authenticationVC
-        authenticationViewController.delegate = self
 
-        if user != nil {
-            authenticationViewController.user = user
-        }
-
-        let authenticationNC = UINavigationController(rootViewController: authenticationViewController)
+        let authenticationNC = UINavigationController(rootViewController: authenticationVC)
         present(authenticationNC, animated: true)
     }
 
@@ -338,7 +334,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, CCCertificateD
 
     // MARK: - AuthenticationViewController delegate
 
-    func authenticationViewControllerDidFinish(_ viewController: AuthenticationViewController!) {
+    func authenticationViewControllerDidFinish(_ viewController: AuthenticationViewController) {
         if viewController == authenticationViewController {
             delegate?.loginViewControllerDidFinish()
         }
