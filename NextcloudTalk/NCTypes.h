@@ -206,11 +206,6 @@ typedef NS_ENUM(NSInteger, NCSignalingMessageType) {
     kNCSignalingMessageTypeSelectStream
 };
 
-typedef NS_ENUM(NSInteger, DetailedOptionsSelectorType) {
-    DetailedOptionsSelectorTypeDefault = 0,
-    DetailedOptionsSelectorTypeAccounts
-};
-
 typedef NS_ENUM(NSInteger, NCRoomSortOrder) {
     NCRoomSortOrderUnsupported = -1,
     NCRoomSortOrderActivity = 0,

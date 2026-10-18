@@ -281,23 +281,22 @@ class LoginViewController: UIViewController, UITextFieldDelegate, CCCertificateD
             importedAccounts.append(option)
         }
 
-        if let accountSelectorVC = DetailedOptionsSelectorTableViewController(accounts: importedAccounts, andStyle: .insetGrouped) {
-            accountSelectorVC.title = NSLocalizedString("Import account", comment: "")
-            accountSelectorVC.delegate = self
-            let accountSelectorNC = NCNavigationController(rootViewController: accountSelectorVC)
-            self.present(accountSelectorNC, animated: true)
-        }
+        let accountSelectorVC = DetailedOptionsSelectorTableViewController(accounts: importedAccounts, andStyle: .insetGrouped)
+        accountSelectorVC.title = NSLocalizedString("Import account", comment: "")
+        accountSelectorVC.delegate = self
+        let accountSelectorNC = NCNavigationController(rootViewController: accountSelectorVC)
+        self.present(accountSelectorNC, animated: true)
     }
 
     // MARK: - DetailedOptionSelector delegate
 
-    func detailedOptionsSelector(_ viewController: DetailedOptionsSelectorTableViewController!, didSelectOptionWithIdentifier option: DetailedOption!) {
+    func detailedOptionsSelector(_ viewController: DetailedOptionsSelectorTableViewController, didSelectOptionWithIdentifier option: DetailedOption) {
         dismiss(animated: true) {
             self.presentAuthenticationViewController(serverURL: option.subtitle, user: option.identifier)
         }
     }
 
-    func detailedOptionsSelectorWasCancelled(_ viewController: DetailedOptionsSelectorTableViewController!) {
+    func detailedOptionsSelectorWasCancelled(_ viewController: DetailedOptionsSelectorTableViewController) {
         dismiss(animated: true)
     }
 
