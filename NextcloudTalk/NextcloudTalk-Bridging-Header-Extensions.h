@@ -23,7 +23,6 @@
 #import "NCKeyChainController.h"
 #import "CCCertificate.h"
 
-#import "ShareItemController.h"
 
 #import "NCTypes.h"
 
