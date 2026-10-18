@@ -83,6 +83,9 @@ extension BaseChatViewController {
 
     /// Starts recording in the current mode when the record button is pressed and held
     func startRecordingForGesture() {
+        // The audio session is still in use by a video recording that is being stopped, for both modes
+        guard !self.videoMessageStopTracker.isStopping else { return }
+
         // The mode is fixed for the whole gesture
         self.isVideoGestureActive = self.effectiveRecordMode == .video
 
@@ -155,8 +158,9 @@ extension BaseChatViewController {
     // MARK: - Recording
 
     private func startRecordingVideoMessage() {
-        // A recording that is still being stopped has its own recorder, so this only guards against a second start
-        guard self.videoMessageRecorder == nil else { return }
+        // A recorder that is still being stopped finishes its file and gives the audio session back afterwards,
+        // which would end a recording started in the meantime
+        guard self.videoMessageRecorder == nil, !self.videoMessageStopTracker.isStopping else { return }
 
         // Playing a voice message and recording do not go together
         self.pauseVoiceMessagePlayer()
@@ -215,7 +219,11 @@ extension BaseChatViewController {
         // Brings back the icon of the mode, or the clock when there are scheduled messages
         self.showVoiceMessageRecordButton()
 
+        self.videoMessageStopTracker.stopBegan()
+
         recorder.stop(keepFile: send && isLongEnough) { [weak self] fileURL in
+            self?.videoMessageStopTracker.stopEnded()
+
             guard let fileURL else { return }
 
             self?.shareVideoMessage(fileURL: fileURL)

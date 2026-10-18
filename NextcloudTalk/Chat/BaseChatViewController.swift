@@ -107,6 +107,7 @@ import Toast
     }
     internal var isVideoGestureActive = false
     internal var videoMessageRecorder: VideoMessageRecorder?
+    internal var videoMessageStopTracker = VideoMessageStopTracker()
     internal var videoMessagePreviewView: VideoMessagePreviewView?
     internal var videoMessageScrimView: UIView?
     internal var lockedVideoSendButton: UIButton?
