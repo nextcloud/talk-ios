@@ -72,12 +72,9 @@ final class UIRoomTest: XCTestCase {
             conversationStaticText.press(forDuration: 2.0)
             let leaveConversation = app.buttons["Leave conversation"]
             XCTAssert(conversationStaticText.waitForExistence(timeout: TestConstants.timeoutShort))
-
             leaveConversation.tap()
-            let alert = app.alerts.element.staticTexts["Leave conversation"]
-            XCTAssert(alert.waitForExistence(timeout: TestConstants.timeoutShort))
 
-            app.buttons["Leave"].tap()
+            waitForReady(object: app.buttons["Leave"]).tap()
         }
 
         waitForReady(object: app.buttons["Create or join a conversation"]).tap()
