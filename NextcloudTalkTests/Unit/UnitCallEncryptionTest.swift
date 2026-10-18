@@ -180,6 +180,24 @@ final class UnitCallEncryptionTest: XCTestCase {
         XCTAssertEqual(signaling.sent("encryption.error", from: higherSessionId).first?.payload["error"] as? String, "No session for setting key")
     }
 
+    func testOldStartTimeoutDoesNotClearRejoinedSession() {
+        // Nobody answers for this session, so both starts stay pending until they time out
+        let silentSessionId = "session-0"
+
+        // The first start times out after 1s, the second one after 1.5s
+        higher.usersJoined([silentSessionId])
+        Thread.sleep(forTimeInterval: 0.5)
+        higher.usersLeft([silentSessionId])
+        higher.usersJoined([silentSessionId])
+
+        // Once the first one timed out, the second one is still pending, so joining again starts nothing
+        Thread.sleep(forTimeInterval: 0.6)
+        higher.usersJoined([silentSessionId])
+        Thread.sleep(forTimeInterval: 0.2)
+
+        XCTAssertEqual(signaling.sent("encryption.start", from: higherSessionId).count, 2)
+    }
+
     func testIsReleasedAfterClose() {
         weak var weakEncryption: CallEncryption?
 
