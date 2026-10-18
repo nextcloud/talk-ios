@@ -11,7 +11,6 @@
 #import "NCAppBranding.h"
 #import "TalkAccount.h"
 #import "NCRoom.h"
-#import "NCKeyChainController.h"
 
 #import "NextcloudTalk-Swift.h"
 

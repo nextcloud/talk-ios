@@ -35,7 +35,6 @@
 #import "UIResponder+SLKAdditions.h"
 
 #import "ShareViewController.h"
-#import "NCKeyChainController.h"
 #import "CCCertificate.h"
 
 #import "ScreenCapturer.h"
