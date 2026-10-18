@@ -629,7 +629,7 @@
 			membershipExceptions = (
 				ABContact.m,
 				NCContact.m,
-				NCUser.m,
+				NCUser.swift,
 			);
 			target = 2CC0014E24A1F0E900A20167 /* NotificationServiceExtension */;
 		};
@@ -638,7 +638,7 @@
 			membershipExceptions = (
 				ABContact.m,
 				NCContact.m,
-				NCUser.m,
+				NCUser.swift,
 			);
 			target = 2C62AFA224C08845007E460A /* ShareExtension */;
 		};
@@ -647,7 +647,7 @@
 			membershipExceptions = (
 				ABContact.m,
 				NCContact.m,
-				NCUser.m,
+				NCUser.swift,
 			);
 			target = 1FF2FD5A2AB99CCB000C9905 /* BroadcastUploadExtension */;
 		};
@@ -656,7 +656,7 @@
 			membershipExceptions = (
 				ABContact.m,
 				NCContact.m,
-				NCUser.m,
+				NCUser.swift,
 			);
 			target = 1FA93D9B2D70FCC200DF6CDF /* TalkIntents */;
 		};
@@ -745,7 +745,7 @@
 				NCKeyChainController.m,
 				NCLog.swift,
 				NCUserDefaults.swift,
-				NCUserStatus.m,
+				NCUserStatus.swift,
 				NCUtils.swift,
 				UserAbsence.swift,
 			);
@@ -760,7 +760,7 @@
 				NCKeyChainController.m,
 				NCLog.swift,
 				NCUserDefaults.swift,
-				NCUserStatus.m,
+				NCUserStatus.swift,
 				NCUtils.swift,
 				UserAbsence.swift,
 			);
@@ -774,7 +774,7 @@
 				NCAppBrandingExtensions.swift,
 				NCKeyChainController.m,
 				NCLog.swift,
-				NCUserStatus.m,
+				NCUserStatus.swift,
 				NCUtils.swift,
 				UserAbsence.swift,
 			);
@@ -789,7 +789,7 @@
 				NCKeyChainController.m,
 				NCLog.swift,
 				NCUserDefaults.swift,
-				NCUserStatus.m,
+				NCUserStatus.swift,
 				NCUtils.swift,
 				UserAbsence.swift,
 			);

@@ -194,7 +194,7 @@ class RoomSearchTableViewController: UITableViewController {
         cell.titleLabel.text = user.name
         cell.titleOnly = true
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        cell.avatarView.setActorAvatar(forId: user.userId, withType: user.source as String?, withDisplayName: user.name, withRoomToken: nil, using: activeAccount)
+        cell.avatarView.setActorAvatar(forId: user.userId, withType: user.source, withDisplayName: user.name, withRoomToken: nil, using: activeAccount)
 
         return cell
     }

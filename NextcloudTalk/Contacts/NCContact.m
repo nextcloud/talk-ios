@@ -6,7 +6,7 @@
 #import "NCContact.h"
 
 #import "ABContact.h"
-#import "NCUser.h"
+#import "NextcloudTalk-Swift.h"
 
 @implementation NCContact
 
