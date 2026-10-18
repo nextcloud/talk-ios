@@ -14,7 +14,6 @@
 #import "TalkCapabilities.h"
 #import "ServerCapabilities.h"
 #import "FederatedCapabilities.h"
-#import "NCSignalingController.h"
 #import "UIBarButtonItem+LegacyBadge.h"
 #import "TOCroppedImageAttributes.h"
 #import "TOCropViewController.h"
