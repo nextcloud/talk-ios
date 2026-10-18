@@ -19,7 +19,6 @@
 #import "ABContact.h"
 #import "NCUserStatus.h"
 #import "TalkAccount.h"
-#import "NotificationCenterNotifications.h"
 
 #import "SLKTextViewController.h"
 #import "NCKeyChainController.h"

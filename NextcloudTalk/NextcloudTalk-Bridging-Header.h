@@ -20,7 +20,6 @@
 #import "FederatedCapabilities.h"
 #import "NCSignalingController.h"
 #import "NCUserStatus.h"
-#import "NotificationCenterNotifications.h"
 #import "ResultMultiSelectionTableViewController.h"
 #import "UIBarButtonItem+LegacyBadge.h"
 #import "ShareTableViewCell.h"
