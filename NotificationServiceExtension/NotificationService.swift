@@ -5,6 +5,7 @@
 
 import UIKit
 import UserNotifications
+import Intents
 import SDWebImage
 
 class NotificationService: UNNotificationServiceExtension {
