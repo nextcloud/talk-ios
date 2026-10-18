@@ -8,7 +8,6 @@
 
 #import "ARDSettingsModel.h"
 #import "NCAppBranding.h"
-#import "NCContactsManager.h"
 #import "NCRoom.h"
 #import "TalkAccount.h"
 #import "TalkCapabilities.h"
