@@ -191,7 +191,11 @@ final class CallEncryption {
 
         addRequest(messageId, onTimeout: {
             NCLog.log("CallEncryption: Starting session with \(sessionId) timed out")
-            self.sessions[sessionId]?.startMessageId = nil
+
+            // The participant may have left and rejoined since, so only clear this request's handshake
+            if self.sessions[sessionId]?.startMessageId == messageId {
+                self.sessions[sessionId]?.startMessageId = nil
+            }
         })
 
         sendMessage(sessionId, [
