@@ -98,6 +98,7 @@ struct RoomInfoParticipantsSection: View {
                 } else {
                     ProgressView()
                         .listRowInsets(nil)
+                        .accessibilityIdentifier("ParticipantsLoadingIndicator")
                 }
             }
         }
@@ -112,6 +113,7 @@ struct RoomInfoParticipantsSection: View {
             } else {
                 ProgressView()
                     .listRowInsets(nil)
+                    .accessibilityIdentifier("ParticipantsLoadingIndicator")
             }
         }
         .task {
