@@ -273,11 +273,18 @@
 {
     _shareAccount = account;
     if (!account) {
-        TalkAccount *managedActiveAccount = [TalkAccount objectsInRealm:_realm where:(@"active = true")].firstObject;
-        if (managedActiveAccount) {
-            _shareAccount = [[TalkAccount alloc] initWithValue:managedActiveAccount];
+        TalkAccount *managedAccount;
+        if (_forwardFileMessage) {
+            NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", _forwardFileMessage.accountId];
+            managedAccount = [TalkAccount objectsInRealm:_realm withPredicate:query].firstObject;
         } else {
-            // No account is configured in the app yet
+            managedAccount = [TalkAccount objectsInRealm:_realm where:(@"active = true")].firstObject;
+        }
+
+        if (managedAccount) {
+            _shareAccount = [[TalkAccount alloc] initWithValue:managedAccount];
+        } else {
+            // No account is configured, or the account of the forwarded file is gone
             return;
         }
     }
