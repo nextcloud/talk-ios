@@ -29,6 +29,7 @@ import Toast
                                                   QLPreviewControllerDelegate,
                                                   QLPreviewControllerDataSource,
                                                   ShareConfirmationViewControllerDelegate,
+                                                  NCMediaViewerViewControllerDelegate,
                                                   AVAudioRecorderDelegate,
                                                   AVAudioPlayerDelegate,
                                                   SystemMessageTableViewCellDelegate,
@@ -1509,6 +1510,45 @@ import Toast
         }
     }
 
+    /// The group of a file, also when the media viewer shows a file older than the loaded part of the chat
+    func fileGroup(of message: NCChatMessage) -> FileMessageGroup? {
+        if let fileGroup = FileMessageGroup.containing(messageId: message.messageId, in: self.fileMessageGroups) {
+            return fileGroup
+        }
+
+        guard let upload = message.fileUploadReference else { return nil }
+
+        let query = NSPredicate(format: "accountId = %@ AND token = %@ AND referenceId BEGINSWITH %@", self.account.accountId, self.room.token, upload.uploadHash)
+        let stored = NCChatMessage.objects(with: query).sortedResults(usingKeyPath: "messageId", ascending: true)
+        var messages: [NCChatMessage] = []
+
+        for case let storedMessage as NCChatMessage in stored {
+            messages.append(storedMessage)
+        }
+
+        return FileMessageGroup.groups(in: messages).first { group in
+            group.messages.contains { $0.messageId == message.messageId }
+        }
+    }
+
+    /// Whether the message can be deleted, which for a file of a group means the whole group
+    func canDelete(_ message: NCChatMessage) -> Bool {
+        if let fileGroup = self.fileGroup(of: message) {
+            return fileGroup.canDelete(for: self.account, in: self.room)
+        }
+
+        return message.canDelete(for: self.account, in: self.room)
+    }
+
+    /// The menu of the chat and the media viewer delete the same way: a file of a group takes its group along
+    func deleteMessageOrFileGroup(_ message: NCChatMessage) {
+        if let fileGroup = self.fileGroup(of: message) {
+            self.didPressDeleteAll(in: fileGroup)
+        } else {
+            self.didPressDelete(for: message)
+        }
+    }
+
     func didPressDeleteAll(in fileGroup: FileMessageGroup) {
         // One success notification for the whole group, errors are still shown per file
         for message in fileGroup.messages {
@@ -1811,6 +1851,29 @@ import Toast
         let navigationController = NCNavigationController(rootViewController: shareConfirmationVC)
 
         return (shareConfirmationVC, navigationController)
+    }
+
+    // MARK: - NCMediaViewerViewController Delegate
+
+    // Only the real chat replies and deletes, the other chats (context, scheduled messages) say no
+    func mediaViewerViewControllerCanReply(_ viewController: NCMediaViewerViewController) -> Bool {
+        return false
+    }
+
+    func mediaViewerViewController(_ viewController: NCMediaViewerViewController, canDelete message: NCChatMessage) -> Bool {
+        return false
+    }
+
+    func mediaViewerViewController(_ viewController: NCMediaViewerViewController, deletesFileGroupWith message: NCChatMessage) -> Bool {
+        return self.fileGroup(of: message) != nil
+    }
+
+    func mediaViewerViewController(_ viewController: NCMediaViewerViewController, didRequestReplyTo message: NCChatMessage) {
+        self.didPressReply(for: message)
+    }
+
+    func mediaViewerViewController(_ viewController: NCMediaViewerViewController, didRequestDelete message: NCChatMessage) {
+        self.deleteMessageOrFileGroup(message)
     }
 
     // MARK: - ShareViewController Delegate
@@ -4208,7 +4271,8 @@ import Toast
 
     public func cellWants(toDownloadFile fileParameter: NCMessageFileParameter, for message: NCChatMessage) {
         if NCUtils.isImage(fileType: fileParameter.mimetype ?? "") {
-            let mediaViewController = NCMediaViewerViewController(initialMessage: message, room: self.room, account: self.account)
+            let mediaViewController = NCMediaViewerViewController(initialMessage: message, room: self.room, account: self.account, thread: self.thread)
+            mediaViewController.delegate = self
             let navController = CustomPresentableNavigationController(rootViewController: mediaViewController)
 
             // Hiding the keyboard due to a UIKit issue where the reported keyboard height
@@ -4227,7 +4291,8 @@ import Toast
         if NCUtils.isVideo(fileType: fileParameter.mimetype ?? "") {
             // Skip unsupported formats here ("webm" and "mkv") and use VLC later
             if !fileExtension.isEmpty, !VLCKitVideoViewController.supportedFileExtensions.contains(fileExtension) {
-                let mediaViewController = NCMediaViewerViewController(initialMessage: message, room: self.room, account: self.account)
+                let mediaViewController = NCMediaViewerViewController(initialMessage: message, room: self.room, account: self.account, thread: self.thread)
+                mediaViewController.delegate = self
                 let navController = CustomPresentableNavigationController(rootViewController: mediaViewController)
 
                 // Hiding the keyboard due to a UIKit issue where the reported keyboard height

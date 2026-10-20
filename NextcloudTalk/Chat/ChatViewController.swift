@@ -2395,6 +2395,17 @@ import SwiftUI
         })
     }
 
+    // MARK: - NCMediaViewerViewController Delegate
+
+    override func mediaViewerViewControllerCanReply(_ viewController: NCMediaViewerViewController) -> Bool {
+        // Same as in the message menu, no reply while a message is edited. The message itself is checked by the viewer.
+        return !self.textInputbar.isEditing
+    }
+
+    override func mediaViewerViewController(_ viewController: NCMediaViewerViewController, canDelete message: NCChatMessage) -> Bool {
+        return self.canDelete(message)
+    }
+
     // MARK: - ContextMenu (Long press on message)
 
     func isMessageReplyable(message: NCChatMessage) -> Bool {
@@ -2797,15 +2808,9 @@ import SwiftUI
         }
 
         // Delete option. A group is deleted as a whole, so no file of it is left behind unseen.
-        if let fileGroup = self.fileMessageGroups[message.messageId] {
-            if self.room.canChat, fileGroup.messages.allSatisfy({ $0.isDeletable(for: self.account, in: self.room) }) {
-                destructiveMenuActions.append(UIAction(title: NSLocalizedString("Delete", comment: ""), image: .init(systemName: "trash"), attributes: .destructive) { _ in
-                    self.didPressDeleteAll(in: fileGroup)
-                })
-            }
-        } else if message.canDelete(for: self.account, in: self.room) {
+        if self.canDelete(message) {
             destructiveMenuActions.append(UIAction(title: NSLocalizedString("Delete", comment: ""), image: .init(systemName: "trash"), attributes: .destructive) { _ in
-                self.didPressDelete(for: message)
+                self.deleteMessageOrFileGroup(message)
             })
         }
 

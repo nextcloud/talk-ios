@@ -7,6 +7,9 @@
 /* 'Alice in Team meeting' - the author of a message and the conversation it was sent in */
 "%1$@ in %2$@" = "%1$@ in %2$@";
 
+/* Position of the shown media in the media viewer, e.g. '2 of 5'. The second value ends with '+' when older media can still be loaded */
+"%1$@ of %2$@" = "%1$@ of %2$@";
+
 /* Alice, Bob and Charlie are typing… */
 "%1$@, %2$@ and %3$@ are typing…" = "%1$@, %2$@ and %3$@ are typing…";
 
@@ -219,6 +222,9 @@
 
 /* No comment provided by engineer. */
 "All notifications are muted" = "All notifications are muted";
+
+/* Message of the error shown when saving to the photo library is not allowed */
+"Allow access to your photos in the settings of your device to save pictures and videos" = "Allow access to your photos in the settings of your device to save pictures and videos";
 
 /* No comment provided by engineer. */
 "Allow guests to join this conversation via link" = "Allow guests to join this conversation via link";
@@ -898,6 +904,12 @@
 /* No comment provided by engineer. */
 "Delete tag?" = "Delete tag?";
 
+/* Title of the confirmation shown before a group of files shared together is deleted from the media viewer */
+"Delete all files shared together?" = "Delete all files shared together?";
+
+/* Title of the confirmation shown before a picture or video message is deleted from the media viewer */
+"Delete this message?" = "Delete this message?";
+
 /* No comment provided by engineer. */
 "Deleted user" = "Deleted user";
 
@@ -1092,6 +1104,9 @@
 
 /* Accessibility label of the indicator shown while the original file is downloaded */
 "Downloading full quality media" = "Downloading full quality media";
+
+/* No comment provided by engineer. */
+"Draw" = "Draw";
 
 /* No comment provided by engineer. */
 "Duplicate session" = "Duplicate session";
@@ -2131,6 +2146,12 @@
 /* No comment provided by engineer. */
 "Save to 'Note to self'" = "Save to 'Note to self'";
 
+/* Menu entry in the media viewer to save the shown picture or video to the photo library */
+"Save to Photos" = "Save to Photos";
+
+/* Shown after a picture or video was saved to the photo library */
+"Saved to Photos" = "Saved to Photos";
+
 /* No comment provided by engineer. */
 "Say hi to your friends and colleagues!" = "Say hi to your friends and colleagues!";
 
@@ -2248,6 +2269,9 @@
 /* No comment provided by engineer. */
 "Share location" = "Share location";
 
+/* Menu entry in the media viewer to share the shown picture or video with other apps */
+"Share media" = "Share media";
+
 /* Share the location of a pin that has been dropped in a map view */
 "Share pin location" = "Share pin location";
 
@@ -2271,6 +2295,12 @@
 
 /* No comment provided by engineer. */
 "Short absence status is too long" = "Short absence status is too long";
+
+/* Menu entry in the media viewer to open all pictures and videos of the conversation */
+"Show all media" = "Show all media";
+
+/* Menu entry in the media viewer to show the message of the shown media in the chat */
+"Show in chat" = "Show in chat";
 
 /* No comment provided by engineer. */
 "Show more…" = "Show more…";
@@ -2568,6 +2598,9 @@
 
 /* No comment provided by engineer. */
 "Unable to open file" = "Unable to open file";
+
+/* Title of the error shown when a picture or video could not be saved to the photo library */
+"Unable to save to Photos" = "Unable to save to Photos";
 
 /* No comment provided by engineer. */
 "Unable to validate password right now" = "Unable to validate password right now";
