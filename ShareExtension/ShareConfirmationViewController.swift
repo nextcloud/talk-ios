@@ -64,11 +64,13 @@ private let kShareConfirmationOptionsViewHeight: CGFloat = 44
     private var imagePicker: UIImagePickerController?
     private var hud: MBProgressHUD?
     private var objectShareMessage: NCChatMessage?
+    private var fileShareMessage: NCChatMessage?
 
     private enum ShareConfirmationType {
         case text
         case item
         case objectShare
+        case fileShare
     }
 
     // MARK: - UI Controls
@@ -487,6 +489,41 @@ private let kShareConfirmationOptionsViewHeight: CGFloat = 44
         }
     }
 
+    /// Shows an already uploaded file as the thing to share. Sending shares the file of the
+    /// message into the room, there is no new upload.
+    public func shareFileMessage(_ fileMessage: NCChatMessage) {
+        self.shareType = .fileShare
+
+        DispatchQueue.main.async {
+            self.setTextInputbarHidden(true, animated: false)
+            self.showsMediaPreview = false
+            self.shareTextView.isHidden = false
+            self.shareTextView.isUserInteractionEnabled = false
+
+            // What is forwarded is what is shown: the name of the file and its caption, if there is one
+            var text = fileMessage.file()?.name ?? ""
+
+            if let caption = self.forwardedCaption(of: fileMessage) {
+                text += "\n\n" + (fileMessage.sendingMessageWithDisplayNames ?? caption)
+            }
+
+            self.shareTextView.text = text
+            self.fileShareMessage = fileMessage
+            self.updateOptionsView()
+        }
+    }
+
+    /// The caption of a file message, only when the server can send one along with a shared file
+    private func forwardedCaption(of fileMessage: NCChatMessage) -> String? {
+        guard fileMessage.message != "{file}",
+              NCDatabaseManager.sharedInstance().serverHasTalkCapability(.mediaCaption, forAccountId: self.account.accountId)
+        else { return nil }
+
+        let caption = fileMessage.sendingMessage
+
+        return caption.isEmpty ? nil : caption
+    }
+
     // MARK: - View lifecycle
 
     public override func viewDidLoad() {
@@ -686,6 +723,8 @@ private let kShareConfirmationOptionsViewHeight: CGFloat = 44
             self.sendSharedText()
         } else if self.shareType == .objectShare {
             self.sendObjectShare()
+        } else if self.shareType == .fileShare {
+            self.sendFileShare()
         } else {
             self.uploadAndShareFiles()
         }
@@ -781,6 +820,40 @@ private let kShareConfirmationOptionsViewHeight: CGFloat = 44
                 NCIntentController.sharedInstance().donateSendMessageIntent(for: self.room)
                 self.delegate?.shareConfirmationViewControllerDidFinish(self)
             }
+            self.stopAnimatingSharingIndicator()
+        }
+    }
+
+    func sendFileShare() {
+        // The path comes from the message object that was handed to us in process, never from outside.
+        // It is the path of the cached message and can be outdated, e.g. when the file was moved or
+        // deleted since. Then the server refuses the share and the error is shown.
+        // The path only means something for the account of the message, so never send it for another one.
+        guard let fileMessage = self.fileShareMessage,
+              fileMessage.accountId == self.account.accountId,
+              let path = fileMessage.file()?.path
+        else {
+            self.delegate?.shareConfirmationViewControllerDidFail(self)
+            self.stopAnimatingSharingIndicator()
+            return
+        }
+
+        var metaData = ChatFileUploadMetadata()
+        metaData.silent = self.shareSilently
+
+        // Sent only when it was shown on this screen
+        metaData.caption = self.forwardedCaption(of: fileMessage)
+
+        NCAPIController.sharedInstance().shareFileOrFolder(forAccount: self.account, atPath: path, toRoom: self.room.token, withTalkMetaData: metaData.asDictionary(), withReferenceId: nil) { error in
+            if error != nil {
+                // The text of the error is left out, it can contain the path of the file
+                NCLog.log("Failed to share file")
+                self.delegate?.shareConfirmationViewControllerDidFail(self)
+            } else {
+                NCIntentController.sharedInstance().donateSendMessageIntent(for: self.room)
+                self.delegate?.shareConfirmationViewControllerDidFinish(self)
+            }
+
             self.stopAnimatingSharingIndicator()
         }
     }

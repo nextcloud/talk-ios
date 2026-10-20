@@ -31,6 +31,7 @@ import UIKit
                                                 UIPageViewControllerDelegate,
                                                 UIPageViewControllerDataSource,
                                                 NCMediaViewerPageViewControllerDelegate,
+                                                ShareViewControllerDelegate,
                                                 ShareConfirmationViewControllerDelegate {
 
     public weak var delegate: NCMediaViewerViewControllerDelegate?
@@ -96,6 +97,16 @@ import UIKit
         moreButton.accessibilityLabel = NSLocalizedString("More", comment: "More menu elements")
 
         return moreButton
+    }()
+
+    private lazy var forwardButton = {
+        let forwardButton = UIBarButtonItem(title: nil, style: .plain, target: nil, action: nil)
+        forwardButton.primaryAction = UIAction(title: "", image: .init(systemName: "arrowshape.turn.up.right"), handler: { [unowned self] _ in
+            self.forwardCurrentMedia()
+        })
+        forwardButton.accessibilityLabel = NSLocalizedString("Forward", comment: "")
+
+        return forwardButton
     }()
 
     private lazy var drawButton = {
@@ -429,6 +440,12 @@ import UIKit
 
     // MARK: - Toolbar
 
+    func canForward(_ message: NCChatMessage) -> Bool {
+        guard let file = message.file(), file.path != nil, message.accountId == self.account.accountId else { return false }
+
+        return !message.isDeletedMessage && !self.room.isFederated && !self.room.isClassified
+    }
+
     private func canDraw(_ message: NCChatMessage) -> Bool {
         let mimetype = message.file()?.mimetype ?? ""
         let isDrawable = NCUtils.isImage(fileType: mimetype) && !NCUtils.isGif(fileType: mimetype) && !mimetype.contains("svg")
@@ -441,6 +458,10 @@ import UIKit
         let message = self.getCurrentMessage()
 
         var items: [UIBarButtonItem] = []
+
+        if let message, self.canForward(message) {
+            items.append(self.forwardButton)
+        }
 
         items.append(UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil))
 
@@ -628,6 +649,18 @@ import UIKit
         self.present(alert, animated: true)
     }
 
+    // The file of the message is shared into the chosen conversation, nothing is uploaded again.
+    // The path is read from the message object here, it is never taken from an outside source.
+    private func forwardCurrentMedia() {
+        guard let message = self.getCurrentMessage(), self.canForward(message) else { return }
+
+        // The share screen stays open for a while, the stored message may be gone by then
+        let shareViewController = ShareViewController(toForwardFile: NCChatMessage(value: message), fromChatViewController: self)
+        shareViewController.delegate = self
+
+        self.present(NCNavigationController(rootViewController: shareViewController), animated: true)
+    }
+
     // QuickLook and the share controller move and change files, so the downloaded original is never handed over, only a copy
     private func startDrawingOnCopy() {
         guard let mediaPageViewController = self.getCurrentPageViewController(),
@@ -697,6 +730,12 @@ import UIKit
         self.present(alert, animated: true)
     }
 
+    // MARK: - ShareViewController delegate
+
+    func shareViewControllerDidCancel(_ viewController: ShareViewController) {
+        self.dismissSharingFlow()
+    }
+
     // MARK: - ShareConfirmationViewController delegate
 
     func shareConfirmationViewControllerDidFail(_ viewController: ShareConfirmationViewController) {
@@ -706,8 +745,18 @@ import UIKit
     }
 
     func shareConfirmationViewControllerDidFinish(_ viewController: ShareConfirmationViewController) {
-        // Everything is done, so close the viewer together with the sharing screen
-        (self.presentingViewController ?? self).dismiss(animated: true)
+        let isForwarding = viewController.forwardingMessage
+
+        var userInfo: [String: String] = [:]
+        userInfo["token"] = viewController.room.token
+        userInfo["accountId"] = viewController.account.accountId
+
+        // Everything is done, so close the viewer together with the sharing screens
+        (self.presentingViewController ?? self).dismiss(animated: true) {
+            if isForwarding {
+                NotificationCenter.default.post(name: .NCChatViewControllerForwardNotification, object: nil, userInfo: userInfo)
+            }
+        }
     }
 
     func shareConfirmationViewControllerDidCancel(_ viewController: ShareConfirmationViewController) {
