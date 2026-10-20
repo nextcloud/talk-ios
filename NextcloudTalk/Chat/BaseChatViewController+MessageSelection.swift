@@ -168,14 +168,38 @@ extension BaseChatViewController {
     }
 
     func toggleSelection(of message: NCChatMessage) {
-        if self.messageSelection.toggle(message.messageId, isSelectable: self.canSelect(message)) {
+        // A group is picked as a whole: dropping its row drops every file of it, also one picked before the rest arrived
+        let ids = self.fileMessageGroup(of: message)?.messages.map { $0.messageId } ?? [message.messageId]
+        let idsToToggle = self.isSelected(message) ? ids.filter { self.messageSelection.contains($0) } : [message.messageId]
+        var changed = false
+
+        for id in idsToToggle {
+            changed = self.messageSelection.toggle(id, isSelectable: self.canSelect(message)) || changed
+        }
+
+        if changed {
             self.updateSelectionUI()
         }
+    }
+
+    private func fileMessageGroup(of message: NCChatMessage) -> FileMessageGroup? {
+        return FileMessageGroup.containing(messageId: message.messageId, in: self.fileMessageGroups, hiddenMessageIds: self.messageIdsHiddenInFileGroups)
+    }
+
+    /// Whether the row of the message is picked: for a group, when any file of it is
+    func isSelected(_ message: NCChatMessage) -> Bool {
+        let ids = self.fileMessageGroup(of: message)?.messages.map { $0.messageId } ?? [message.messageId]
+        return ids.contains { self.messageSelection.contains($0) }
     }
 
     func endSelectionMode() {
         self.messageSelection.clear()
         self.updateSelectionUI()
+    }
+
+    /// The selected messages with all files of the groups among them: a group is one row, picked by one message.
+    func selectedMessagesWithFileGroups() -> [NCChatMessage] {
+        return FileMessageGroup.expandingSelection(self.selectedMessages(), in: self.fileMessageGroups, hiddenMessageIds: self.messageIdsHiddenInFileGroups)
     }
 
     /// The selected messages that are still in the chat, from the oldest
@@ -195,7 +219,7 @@ extension BaseChatViewController {
         let selectedMessages = self.selectedMessages()
 
         for case let cell as BaseChatTableViewCell in self.tableView?.visibleCells ?? [] {
-            cell.setSelectionMode(self.messageSelection.isActive, selected: cell.message.map { self.messageSelection.contains($0.messageId) } ?? false)
+            cell.setSelectionMode(self.messageSelection.isActive, selected: cell.message.map { self.isSelected($0) } ?? false)
         }
 
         guard self.messageSelection.isActive else {
@@ -206,7 +230,7 @@ extension BaseChatViewController {
         self.selectionTitleLabel?.text = String.localizedStringWithFormat(NSLocalizedString("%ld selected", comment: "Number of messages selected in a chat, e.g. '3 selected'"), selectedMessages.count)
         self.selectionTitleLabel?.sizeToFit()
 
-        let canForward = self.forwardPlan(for: selectedMessages) != nil
+        let canForward = self.forwardPlan(for: FileMessageGroup.expandingSelection(selectedMessages, in: self.fileMessageGroups, hiddenMessageIds: self.messageIdsHiddenInFileGroups)) != nil
 
         for item in self.selectionToolbar?.items ?? [] {
             item.isEnabled = item.tag == selectionForwardItemTag ? canForward : true
@@ -308,7 +332,7 @@ extension BaseChatViewController {
 
     /// One message is forwarded as in its menu. Several are forwarded one by one, in the order of the chat.
     private func didPressForwardSelected() {
-        let selectedMessages = self.selectedMessages()
+        let selectedMessages = self.selectedMessagesWithFileGroups()
 
         guard let plan = self.forwardPlan(for: selectedMessages) else {
             self.updateSelectionUI()
@@ -331,7 +355,7 @@ extension BaseChatViewController {
     }
 
     private func didPressCopySelected() {
-        let selectedMessages = self.selectedMessages()
+        let selectedMessages = self.selectedMessagesWithFileGroups()
 
         guard !selectedMessages.isEmpty else {
             self.updateSelectionUI()
