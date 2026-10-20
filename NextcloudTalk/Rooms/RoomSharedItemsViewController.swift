@@ -106,7 +106,8 @@ class RoomSharedItemsViewController: UIViewController,
         layout.delegate = self
         layout.interItemSpacing = 12
         layout.lineSpacing = 12
-        layout.sectionInset = UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12)
+        layout.sectionInset = UIEdgeInsets(top: 0, left: 12, bottom: 8, right: 12)
+        layout.pinsSectionHeaders = true
         return layout
     }()
 
@@ -816,12 +817,13 @@ class RoomSharedItemsViewController: UIViewController,
     // MARK: - Polls
 
     func presentPoll(pollId: Int) {
+        guard let account = room.account else { return }
+
         let pollViewController = PollVotingView(room: room)
         let navigationViewController = NCNavigationController(rootViewController: pollViewController)
         self.present(navigationViewController, animated: true, completion: nil)
 
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        NCAPIController.sharedInstance().getPoll(withId: pollId, inRoom: room.token, forAccount: activeAccount) { poll, error in
+        NCAPIController.sharedInstance().getPoll(withId: pollId, inRoom: room.token, forAccount: account) { poll, error in
             if let poll = poll, error == nil {
                 pollViewController.updatePoll(poll: poll)
             }

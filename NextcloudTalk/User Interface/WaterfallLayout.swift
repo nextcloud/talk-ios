@@ -27,6 +27,8 @@ class WaterfallLayout: UICollectionViewLayout {
 
     weak var delegate: WaterfallLayoutDelegate?
 
+    var pinsSectionHeaders = false
+
     var interItemSpacing: CGFloat = 8
     var lineSpacing: CGFloat = 8
     var sectionSpacing: CGFloat = 16
@@ -49,7 +51,9 @@ class WaterfallLayout: UICollectionViewLayout {
 
     private var itemAttributesCache: [[UICollectionViewLayoutAttributes]] = []
     private var headerAttributesCache: [Int: UICollectionViewLayoutAttributes] = [:]
+    private var sectionBottoms: [Int: CGFloat] = [:]
     private var contentHeight: CGFloat = 0
+    private var needsItemPlacement = true
 
     private var contentWidth: CGFloat {
         return self.collectionView?.bounds.width ?? 0
@@ -69,11 +73,24 @@ class WaterfallLayout: UICollectionViewLayout {
         return CGSize(width: self.contentWidth, height: self.contentHeight)
     }
 
+    override func invalidateLayout(with context: UICollectionViewLayoutInvalidationContext) {
+        // Scrolling invalidates neither, it only moves pinned headers
+        if context.invalidateEverything || context.invalidateDataSourceCounts {
+            self.needsItemPlacement = true
+        }
+
+        super.invalidateLayout(with: context)
+    }
+
     override func prepare() {
         super.prepare()
 
+        guard self.needsItemPlacement else { return }
+
+        self.needsItemPlacement = false
         self.itemAttributesCache.removeAll(keepingCapacity: true)
         self.headerAttributesCache.removeAll(keepingCapacity: true)
+        self.sectionBottoms.removeAll(keepingCapacity: true)
         self.contentHeight = 0
 
         guard let collectionView = self.collectionView else { return }
@@ -136,6 +153,7 @@ class WaterfallLayout: UICollectionViewLayout {
             // The trailing line spacing of the tallest column is not part of the content
             let sectionBottom = itemCount > 0 ? (columnBottoms.max() ?? sectionTop) - self.lineSpacing : sectionTop
 
+            self.sectionBottoms[section] = sectionBottom
             contentBottom = sectionBottom
             sectionTop = sectionBottom + self.sectionSpacing
         }
@@ -147,9 +165,26 @@ class WaterfallLayout: UICollectionViewLayout {
 
     override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
         let items = self.itemAttributesCache.joined().filter { $0.frame.intersects(rect) }
-        let headers = self.headerAttributesCache.values.filter { $0.frame.intersects(rect) }
+        let headers = self.headerAttributesCache.keys.compactMap { self.headerAttributes(forSection: $0) }.filter { $0.frame.intersects(rect) }
 
         return items + headers
+    }
+
+    private func headerAttributes(forSection section: Int) -> UICollectionViewLayoutAttributes? {
+        guard let attributes = self.headerAttributesCache[section] else { return nil }
+        guard self.pinsSectionHeaders, let collectionView = self.collectionView else { return attributes }
+
+        // Copied, attributes handed out before must not change underneath UIKit
+        guard let pinnedAttributes = attributes.copy() as? UICollectionViewLayoutAttributes else { return attributes }
+
+        let visibleTop = collectionView.contentOffset.y + collectionView.adjustedContentInset.top
+        let sectionBottom = self.sectionBottoms[section] ?? attributes.frame.maxY
+
+        // The next section's header pushes this one out once the section's last items scroll by
+        pinnedAttributes.frame.origin.y = min(max(attributes.frame.minY, visibleTop), sectionBottom - attributes.frame.height)
+        pinnedAttributes.zIndex = 1
+
+        return pinnedAttributes
     }
 
     override func layoutAttributesForItem(at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
@@ -163,13 +198,24 @@ class WaterfallLayout: UICollectionViewLayout {
     override func layoutAttributesForSupplementaryView(ofKind elementKind: String, at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
         guard elementKind == UICollectionView.elementKindSectionHeader else { return nil }
 
-        return self.headerAttributesCache[indexPath.section]
+        return self.headerAttributes(forSection: indexPath.section)
+    }
+
+    override func initialLayoutAttributesForAppearingSupplementaryElement(ofKind elementKind: String, at elementIndexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
+        // Starts headers inserted by batch updates in their final state: a fade-in renders glass dark while its alpha is below 1
+        return self.layoutAttributesForSupplementaryView(ofKind: elementKind, at: elementIndexPath)
     }
 
     override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
         guard let collectionView = self.collectionView else { return false }
 
-        // Only the width matters (column count and item width); scrolling must not invalidate
-        return newBounds.width != collectionView.bounds.width
+        // Only the width matters for the items (column count and item width)
+        if newBounds.width != collectionView.bounds.width {
+            self.needsItemPlacement = true
+            return true
+        }
+
+        // Scrolling only moves pinned headers
+        return self.pinsSectionHeaders
     }
 }
