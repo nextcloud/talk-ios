@@ -201,6 +201,11 @@ class WaterfallLayout: UICollectionViewLayout {
         return self.headerAttributes(forSection: indexPath.section)
     }
 
+    override func initialLayoutAttributesForAppearingSupplementaryElement(ofKind elementKind: String, at elementIndexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
+        // Starts headers inserted by batch updates in their final state: a fade-in renders glass dark while its alpha is below 1
+        return self.layoutAttributesForSupplementaryView(ofKind: elementKind, at: elementIndexPath)
+    }
+
     override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
         guard let collectionView = self.collectionView else { return false }
 
