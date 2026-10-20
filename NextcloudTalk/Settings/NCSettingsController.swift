@@ -404,15 +404,17 @@ public class NCSettingsController: NSObject {
             return
         }
 
-        if removingAccount.deviceIdentifier != nil {
-            NCAPIController.sharedInstance().unsubscribeAccount(removingAccount, fromNextcloudServerWithCompletionBlock: { error in
-                if error == nil {
-                    NSLog("Unsubscribed from NC server!!!")
-                } else {
-                    NSLog("Error while unsubscribing from NC server.")
-                }
-            })
-            NCAPIController.sharedInstance().unsubscribeAccount(removingAccount, fromPushServerWithCompletionBlock: { error in
+        // Both requests have to be started synchronously, the session manager and the account are removed right after
+        NCAPIController.sharedInstance().unregisterDevice(forAccount: removingAccount, completionBlock: { error in
+            if error == nil {
+                NSLog("Unsubscribed from NC server!!!")
+            } else {
+                NSLog("Error while unsubscribing from NC server.")
+            }
+        })
+
+        if let registration = PushDeviceRegistration(account: removingAccount) {
+            NCAPIController.sharedInstance().unregisterDevice(registration, fromPushProxyWithCompletionBlock: { error in
                 if error == nil {
                     NSLog("Unsubscribed from Push Notification server!!!")
                 } else {
@@ -638,87 +640,87 @@ public class NCSettingsController: NSObject {
 
     // MARK: - Push Notifications
 
+    enum PushSubscriptionError: Error {
+        case keyPairGenerationFailed
+        case pushTokenNotAvailable
+        case accountNotAvailable
+    }
+
     public func subscribeForPushNotifications(forAccountId accountId: String, withCompletionBlock block: ((_ success: Bool) -> Void)?) {
+        Task { @MainActor in
+            do {
+                try await self.subscribeForPushNotifications(forAccountId: accountId)
+                block?(true)
+            } catch {
+                block?(false)
+            }
+        }
+    }
+
+    @nonobjc
+    @MainActor
+    public func subscribeForPushNotifications(forAccountId accountId: String) async throws {
 #if !targetEnvironment(simulator)
-        var keyPair: NCPushNotificationKeyPair?
-        let pushNotificationPublicKey = NCKeyChainController.sharedInstance().pushNotificationPublicKey(forAccountId: accountId)
-        let pushNotificationPrivateKey = NCKeyChainController.sharedInstance().pushNotificationPrivateKey(forAccountId: accountId)
+        let bgTask = BGTaskHelper.startBackgroundTask(withName: "PushProxySubscription")
+        defer { bgTask.stopBackgroundTask() }
 
-        if let pushNotificationPublicKey, let pushNotificationPrivateKey {
-            keyPair = NCPushNotificationKeyPair(privateKey: pushNotificationPrivateKey, publicKey: pushNotificationPublicKey)
-        } else {
-            keyPair = NCPushNotificationsUtils.generatePushNotificationKeyPair()
-        }
+        let keyPair = try self.pushNotificationKeyPair(forAccountId: accountId)
 
-        guard let keyPair else {
-            NCLog.log("Error while subscribing: Unable to generate push notifications key pair.")
-            block?(false)
-            return
-        }
-
-        guard NCKeyChainController.sharedInstance().combinedPushToken() != nil else {
+        guard let pushToken = NCKeyChainController.sharedInstance().combinedPushToken() else {
             NCLog.log("Error while subscribing: Push token is not available.")
-            block?(false)
-            return
+            throw PushSubscriptionError.pushTokenNotAvailable
         }
 
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: accountId) else {
             NCLog.log("Error while subscribing: Account not available")
-            block?(false)
-            return
+            throw PushSubscriptionError.accountNotAvailable
         }
 
-        let bgTask = BGTaskHelper.startBackgroundTask(withName: "PushProxySubscription")
+        let registration: PushDeviceRegistration
 
-        NCAPIController.sharedInstance().subscribeAccount(account, withPublicKey: keyPair.publicKey, toNextcloudServerWithCompletionBlock: { responseDict, error in
-            guard error == nil else {
-                NCLog.log("Error while subscribing to NC server. Error: \(error?.description ?? "")")
-                block?(false)
-                bgTask.stopBackgroundTask()
-                return
-            }
+        do {
+            registration = try await NCAPIController.sharedInstance().registerDevice(forAccount: account, withPublicKey: keyPair.publicKey)
+        } catch {
+            NCLog.log("Error while subscribing to NC server. Error: \(error)")
+            throw error
+        }
 
-            NCLog.log("Subscribed to NC server successfully.")
+        NCLog.log("Subscribed to NC server successfully.")
 
-            guard let publicKey = responseDict?["publicKey"] as? String,
-                  let deviceIdentifier = responseDict?["deviceIdentifier"] as? String,
-                  let signature = responseDict?["signature"] as? String
-            else {
-                NCLog.log("Something went wrong subscribing to NC server. Aborting subscribe to Push Notification server.")
-                block?(false)
-                bgTask.stopBackgroundTask()
-                return
-            }
+        NCDatabaseManager.sharedInstance().updateTalkAccount(forAccountId: accountId) { registration.apply(to: $0) }
 
-            NCDatabaseManager.sharedInstance().updateTalkAccount(forAccountId: accountId) { managedAccount in
-                managedAccount.userPublicKey = publicKey
-                managedAccount.deviceIdentifier = deviceIdentifier
-                managedAccount.deviceSignature = signature
-            }
+        do {
+            try await NCAPIController.sharedInstance().registerDevice(registration, atPushProxyWithPushToken: pushToken)
+        } catch {
+            NCLog.log("Error while subscribing to Push Notification server. Error: \(error.localizedDescription)")
+            NCLog.log("Push notification, public key: \(registration.userPublicKey)")
+            NCLog.log("Push notification, device signature: \(registration.signature)")
+            NCLog.log("Push notification, device identifier: \(registration.deviceIdentifier)")
+            NCKeyChainController.sharedInstance().logCombinedPushToken()
+            throw error
+        }
 
-            NCAPIController.sharedInstance().subscribeAccount(account, toPushServerWithCompletionBlock: { error in
-                guard error == nil else {
-                    NCLog.log("Error while subscribing to Push Notification server. Error: \(error?.localizedDescription ?? "")")
-                    NCLog.log("Push notification, public key: \(publicKey)")
-                    NCLog.log("Push notification, device signature: \(signature)")
-                    NCLog.log("Push notification, device identifier: \(deviceIdentifier)")
-                    NCKeyChainController.sharedInstance().logCombinedPushToken()
-                    block?(false)
-                    bgTask.stopBackgroundTask()
-                    return
-                }
-
-                NCDatabaseManager.sharedInstance().updateTalkAccount(forAccountId: accountId) { $0.lastPushSubscription = Int(Date().timeIntervalSince1970) }
-
-                NCKeyChainController.sharedInstance().setPushNotificationPublicKey(keyPair.publicKey, forAccountId: accountId)
-                NCKeyChainController.sharedInstance().setPushNotificationPrivateKey(keyPair.privateKey, forAccountId: accountId)
-                NCLog.log("Subscribed to Push Notification server successfully.")
-                block?(true)
-                bgTask.stopBackgroundTask()
-            })
-        })
-#else
-        block?(true)
+        NCDatabaseManager.sharedInstance().updateTalkAccount(forAccountId: accountId) { $0.lastPushSubscription = Int(Date().timeIntervalSince1970) }
+        NCLog.log("Subscribed to Push Notification server successfully.")
 #endif
+    }
+
+    @MainActor
+    private func pushNotificationKeyPair(forAccountId accountId: String) throws -> NCPushNotificationKeyPair {
+        if let publicKey = NCKeyChainController.sharedInstance().pushNotificationPublicKey(forAccountId: accountId),
+           let privateKey = NCKeyChainController.sharedInstance().pushNotificationPrivateKey(forAccountId: accountId) {
+            return NCPushNotificationKeyPair(privateKey: privateKey, publicKey: publicKey)
+        }
+
+        guard let keyPair = NCPushNotificationsUtils.generatePushNotificationKeyPair() else {
+            NCLog.log("Error while subscribing: Unable to generate push notifications key pair.")
+            throw PushSubscriptionError.keyPairGenerationFailed
+        }
+
+        // Stored before the NC server sees it, so concurrent subscriptions reuse this pair instead of generating their own
+        NCKeyChainController.sharedInstance().setPushNotificationPublicKey(keyPair.publicKey, forAccountId: accountId)
+        NCKeyChainController.sharedInstance().setPushNotificationPrivateKey(keyPair.privateKey, forAccountId: accountId)
+
+        return keyPair
     }
 }
