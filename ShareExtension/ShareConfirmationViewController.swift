@@ -496,7 +496,8 @@ private let kShareConfirmationOptionsViewHeight: CGFloat = 44
 
         DispatchQueue.main.async {
             self.setTextInputbarHidden(true, animated: false)
-            self.showsMediaPreview = false
+            self.shareCollectionView.isHidden = true
+            self.itemToolbar.isHidden = true
             self.shareTextView.isHidden = false
             self.shareTextView.isUserInteractionEnabled = false
 
