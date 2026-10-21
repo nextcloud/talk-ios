@@ -1373,59 +1373,60 @@ import Toast
         NotificationPresenter.shared().present(text: NSLocalizedString("Message unpinned", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
     }
 
-    internal func prepareVoiceMessageForResend(_ message: NCChatMessage) {
-        message.sendingFailed = false
-        message.isOfflineMessage = false
-
-        // Like a resent text message, the message is sent now: it needs to be placed at the end of the chat
-        // and must not expire (getTemporaryMessages) based on the timestamp of the failed attempt
-        message.timestamp = Int(Date().timeIntervalSince1970)
-    }
-
     func didPressResend(for message: NCChatMessage) {
-        // Make sure there's no unread message separator, as the indexpath could be invalid after removing a message
-        self.removeUnreadMessagesSeparator()
-
-        self.removePermanentlyTemporaryMessage(temporaryMessage: message)
-
         guard let originalMessage = message.sendingMessageWithDisplayNames else { return }
 
-        if message.messageType != kMessageTypeVoiceMessage {
-            self.sendChatMessage(message: originalMessage, withParentMessage: message.parent, messageParameters: message.messageParametersJSONString ?? "", silently: message.isSilent)
+        if message.isVoiceMessage {
+            self.resendVoiceMessage(message, fileName: originalMessage)
         } else {
-            // Show and store the message as sending again, so it can be marked as failed again
-            self.prepareVoiceMessageForResend(message)
-
-            RLMRealm.writeTransaction { realm in
-                realm.addOrUpdate(NCChatMessage(value: message))
-            }
-
-            if NCDatabaseManager.sharedInstance().roomHasTalkCapability(.chatReferenceId, for: room) {
-                self.appendTemporaryMessage(temporaryMessage: message)
-            }
-
-            var metaData = ChatFileUploadMetadata()
-            metaData.isVoiceMessage = true
-            metaData.threadId = self.thread?.threadId
-
-            if message.parentMessageId > 0 {
-                metaData.replyTo = message.parentMessageId
-            }
-
-            // A parent living in another conversation means this is a private reply
-            if let replyToToken = message.parent?.token, replyToToken != self.room.token {
-                metaData.replyToToken = replyToToken
-            }
-
-            var upload = ChatFileUpload(localPath: message.file().fileStatus!.fileLocalPath!,
-                                        fileName: originalMessage,
-                                        room: self.room,
-                                        account: self.account)
-            upload.metadata = metaData
-            upload.referenceId = message.referenceId
-
-            self.upload(upload)
+            self.removeFailedMessage(message)
+            self.sendChatMessage(message: originalMessage, withParentMessage: message.parent, messageParameters: message.messageParametersJSONString ?? "", silently: message.isSilent)
         }
+    }
+
+    private func resendVoiceMessage(_ message: NCChatMessage, fileName: String) {
+        // The recording is kept in a temporary directory, it might have been deleted in the meantime
+        guard let localPath = message.file()?.fileStatus?.fileLocalPath, FileManager.default.fileExists(atPath: localPath) else {
+            NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Failed to share recording", comment: ""),
+                                                                    withMessage: NSLocalizedString("The recording is no longer available", comment: ""))
+            return
+        }
+
+        self.removeFailedMessage(message)
+
+        guard let temporaryMessage = self.createTemporaryMessage(message: fileName, replyTo: message.parent, messageParameters: localPath, silently: message.isSilent, isVoiceMessage: true) else { return }
+
+        if NCDatabaseManager.sharedInstance().roomHasTalkCapability(.chatReferenceId, for: room) {
+            self.appendTemporaryMessage(temporaryMessage: temporaryMessage)
+        }
+
+        var metaData = ChatFileUploadMetadata()
+        metaData.isVoiceMessage = true
+        metaData.threadId = self.thread?.threadId
+
+        if message.parentMessageId > 0 {
+            metaData.replyTo = message.parentMessageId
+        }
+
+        // A parent living in another conversation means this is a private reply
+        if let replyToToken = message.parent?.token, replyToToken != self.room.token {
+            metaData.replyToToken = replyToToken
+        }
+
+        var upload = ChatFileUpload(localPath: localPath,
+                                    fileName: fileName,
+                                    room: self.room,
+                                    account: self.account)
+        upload.metadata = metaData
+        upload.referenceId = temporaryMessage.referenceId
+
+        self.upload(upload)
+    }
+
+    private func removeFailedMessage(_ message: NCChatMessage) {
+        // Make sure there's no unread message separator, as the indexpath could be invalid after removing a message
+        self.removeUnreadMessagesSeparator()
+        self.removePermanentlyTemporaryMessage(temporaryMessage: message)
     }
 
     func didPressCopy(for message: NCChatMessage) {
