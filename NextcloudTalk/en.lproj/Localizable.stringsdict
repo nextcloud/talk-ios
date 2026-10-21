@@ -242,6 +242,22 @@
 			<string>%ld conversations with unread messages</string>
 		</dict>
 	</dict>
+	<key>%ld unread messages</key>
+	<dict>
+    	<key>NSStringLocalizedFormatKey</key>
+    	<string>%#@messages@</string>
+		<key>messages</key>
+    	<dict>
+        	<key>NSStringFormatSpecTypeKey</key>
+        	<string>NSStringPluralRuleType</string>
+        	<key>NSStringFormatValueTypeKey</key>
+        	<string>ld</string>
+        	<key>one</key>
+        	<string>%ld unread message</string>
+        	<key>other</key>
+        	<string>%ld unread messages</string>
+    	</dict>
+	</dict>
 	<key>%ld days</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
