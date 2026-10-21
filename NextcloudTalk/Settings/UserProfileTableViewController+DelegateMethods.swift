@@ -10,7 +10,7 @@ extension UserProfileTableViewController: UINavigationControllerDelegate, UIText
 
     // MARK: - DetailedOptionSelector Delegate
 
-    func detailedOptionsSelector(_ viewController: DetailedOptionsSelectorTableViewController!, didSelectOptionWithIdentifier option: DetailedOption!) {
+    func detailedOptionsSelector(_ viewController: DetailedOptionsSelectorTableViewController, didSelectOptionWithIdentifier option: DetailedOption) {
         self.dismiss(animated: true) {
             if !option.selected {
                 self.setUserProfileField(viewController.senderId, scopeValue: option.identifier)
@@ -18,7 +18,7 @@ extension UserProfileTableViewController: UINavigationControllerDelegate, UIText
         }
     }
 
-    func detailedOptionsSelectorWasCancelled(_ viewController: DetailedOptionsSelectorTableViewController!) {
+    func detailedOptionsSelectorWasCancelled(_ viewController: DetailedOptionsSelectorTableViewController) {
         self.dismiss(animated: true, completion: nil)
     }
 

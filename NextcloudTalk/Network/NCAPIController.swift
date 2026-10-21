@@ -2254,7 +2254,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
             if let contactsDict = ocsResponse?.dataArrayDict {
                 let contacts = contactsDict
                     .compactMap( { NCUser(dictionary: $0) })
-                    .filter({ !($0.userId == account.userId && $0.source as String == kParticipantTypeUser) })
+                    .filter({ !($0.userId == account.userId && $0.source == kParticipantTypeUser) })
 
                 completionBlock(contacts, ocsError)
             } else {
@@ -2281,7 +2281,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
             if let contactsDict = ocsResponse?.dataArrayDict {
                 let contacts = contactsDict
                     .compactMap( { NCUser(dictionary: $0) })
-                    .filter({ !($0.userId == account.userId && $0.source as String == kParticipantTypeUser) })
+                    .filter({ !($0.userId == account.userId && $0.source == kParticipantTypeUser) })
 
                 completionBlock(contacts, ocsError)
             } else {

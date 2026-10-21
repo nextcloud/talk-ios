@@ -90,15 +90,14 @@ enum NewRoomOption: Int {
 
     func getPossibleContacts() {
         NCAPIController.sharedInstance().getContacts(forAccount: account, forRoom: "new", forGroupRoom: false, withSearchParam: "") { contactList, error in
-            if error == nil, let contactList = contactList as? [NCUser] {
+            if error == nil, let contactList {
                 let storedContacts = NCContact.contacts(forAccountId: self.account.accountId, contains: nil)
                 let combinedContactList = NCUser.combineUsersArray(storedContacts, withUsersArray: contactList)
-                if let combinedContacts = NCUser.indexedUsers(fromUsersArray: combinedContactList) {
-                    let combinedIndexes = Array(combinedContacts.keys).sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
-                    self.indexes = [""] + combinedIndexes
-                    self.contacts = combinedContacts
-                    self.tableView.reloadData()
-                }
+                let combinedContacts = NCUser.indexedUsers(fromUsersArray: combinedContactList)
+                let combinedIndexes = Array(combinedContacts.keys).sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
+                self.indexes = [""] + combinedIndexes
+                self.contacts = combinedContacts
+                self.tableView.reloadData()
             }
         }
     }
@@ -122,13 +121,12 @@ enum NewRoomOption: Int {
     func searchForContactsWithSearchParameter(_ searchParameter: String) {
         searchRequest?.cancel()
         searchRequest = NCAPIController.sharedInstance().getContacts(forAccount: account, forRoom: "new", forGroupRoom: false, withSearchParam: searchParameter) { contactList, error in
-            if error == nil, let contactList = contactList as? [NCUser] {
+            if error == nil, let contactList {
                 let storedContacts = NCContact.contacts(forAccountId: self.account.accountId, contains: searchParameter)
                 let combinedContactList = NCUser.combineUsersArray(storedContacts, withUsersArray: contactList)
-                if let combinedContacts = NCUser.indexedUsers(fromUsersArray: combinedContactList) {
-                    let combinedIndexes = Array(combinedContacts.keys).sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
-                    self.resultTableViewController.setSearchResultContacts(combinedContacts, indexes: combinedIndexes)
-                }
+                let combinedContacts = NCUser.indexedUsers(fromUsersArray: combinedContactList)
+                let combinedIndexes = Array(combinedContacts.keys).sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
+                self.resultTableViewController.setSearchResultContacts(combinedContacts, indexes: combinedIndexes)
             }
         }
     }
@@ -191,7 +189,7 @@ enum NewRoomOption: Int {
 
             contactCell.labelTitle.text = contact.name
 
-            let contactType = contact.source as String
+            let contactType = contact.source
             contactCell.avatarView.setActorAvatar(forId: contact.userId, withType: contactType, withDisplayName: contact.name, withRoomToken: nil, using: account)
 
             return contactCell

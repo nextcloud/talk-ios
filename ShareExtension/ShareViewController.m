@@ -10,10 +10,7 @@
 
 #import "NCAppBranding.h"
 #import "TalkAccount.h"
-#import "NCIntentController.h"
 #import "NCRoom.h"
-#import "ShareTableViewCell.h"
-#import "NCKeyChainController.h"
 
 #import "NextcloudTalk-Swift.h"
 
@@ -152,14 +149,14 @@
     
     // Configure table views
     NSBundle *bundle = [NSBundle bundleForClass:[ShareTableViewCell class]];
-    [self.tableView registerNib:[UINib nibWithNibName:kShareTableCellNibName bundle:bundle] forCellReuseIdentifier:kShareCellIdentifier];
+    [self.tableView registerNib:[UINib nibWithNibName:ShareTableViewCell.nibName bundle:bundle] forCellReuseIdentifier:ShareTableViewCell.identifier];
     self.tableView.separatorInset = UIEdgeInsetsMake(0, 60, 0, 0);
     self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     
     _resultTableViewController = [[UITableViewController alloc] init];
     _resultTableViewController.tableView.delegate = self;
     _resultTableViewController.tableView.dataSource = self;
-    [_resultTableViewController.tableView registerNib:[UINib nibWithNibName:kShareTableCellNibName bundle:bundle] forCellReuseIdentifier:kShareCellIdentifier];
+    [_resultTableViewController.tableView registerNib:[UINib nibWithNibName:ShareTableViewCell.nibName bundle:bundle] forCellReuseIdentifier:ShareTableViewCell.identifier];
     _resultTableViewController.tableView.separatorInset = UIEdgeInsetsMake(0, 60, 0, 0);
     _resultTableViewController.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     
@@ -489,7 +486,7 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return kShareTableCellHeight;
+    return ShareTableViewCell.cellHeight;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -499,9 +496,9 @@
         room = [_filteredRooms objectAtIndex:indexPath.row];
     }
     
-    ShareTableViewCell *cell = (ShareTableViewCell *)[tableView dequeueReusableCellWithIdentifier:kShareCellIdentifier];
+    ShareTableViewCell *cell = (ShareTableViewCell *)[tableView dequeueReusableCellWithIdentifier:ShareTableViewCell.identifier];
     if (!cell) {
-        cell = [[ShareTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kShareCellIdentifier];
+        cell = [[ShareTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:ShareTableViewCell.identifier];
     }
     
     cell.titleLabel.text = room.displayName;

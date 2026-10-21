@@ -57,7 +57,7 @@ class AddParticipantsTableViewController: UITableViewController, UISearchBarDele
         self.tableView.sectionIndexBackgroundColor = .clear
 
         resultTableViewController = ResultMultiSelectionTableViewController()
-        resultTableViewController.selectedParticipants = NSMutableArray(array: selectedParticipants)
+        resultTableViewController.selectedParticipants = selectedParticipants
         resultTableViewController.room = room
 
         searchController = UISearchController(searchResultsController: resultTableViewController)
@@ -163,7 +163,7 @@ class AddParticipantsTableViewController: UITableViewController, UISearchBarDele
     @MainActor
     private func addParticipant(_ participant: NCUser, toRoom room: NCRoom) async -> Bool {
         do {
-            _ = try await NCAPIController.sharedInstance().addParticipant(participant.userId, ofType: participant.source as String?, toRoom: room.token, forAccount: NCDatabaseManager.sharedInstance().activeAccount())
+            _ = try await NCAPIController.sharedInstance().addParticipant(participant.userId, ofType: participant.source, toRoom: room.token, forAccount: NCDatabaseManager.sharedInstance().activeAccount())
             return true
         } catch {
             let alert = UIAlertController(title: NSLocalizedString("Could not add participant", comment: ""),
@@ -189,7 +189,7 @@ class AddParticipantsTableViewController: UITableViewController, UISearchBarDele
         let user = NCUser()
         user.userId = room.name
         user.name = room.displayName
-        user.source = kParticipantTypeUser as NSString
+        user.source = kParticipantTypeUser
 
         // Add the other participant of the 1:1 room at the beginning of the selected participants array
         let participants = [user] + selectedParticipants
@@ -258,17 +258,16 @@ class AddParticipantsTableViewController: UITableViewController, UISearchBarDele
         NCAPIController.sharedInstance().getContacts(forAccount: activeAccount, forRoom: room?.token, forGroupRoom: true, withSearchParam: nil) { [weak self] contactList, error in
             guard let self else { return }
 
-            if error == nil, let contactList = contactList as? [NCUser] {
+            if error == nil, let contactList {
                 let storedContacts = NCContact.contacts(forAccountId: activeAccount.accountId, contains: nil)
                 let combinedContactList = NCUser.combineUsersArray(storedContacts, withUsersArray: contactList)
-                if let participants = NCUser.indexedUsers(fromUsersArray: combinedContactList) {
-                    self.participants = participants
-                    self.indexes = participants.keys.sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
-                    self.participantsBackgroundView.loadingView.stopAnimating()
-                    self.participantsBackgroundView.loadingView.isHidden = true
-                    self.participantsBackgroundView.placeholderView.isHidden = !participants.isEmpty
-                    self.tableView.reloadData()
-                }
+                let participants = NCUser.indexedUsers(fromUsersArray: combinedContactList)
+                self.participants = participants
+                self.indexes = participants.keys.sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
+                self.participantsBackgroundView.loadingView.stopAnimating()
+                self.participantsBackgroundView.loadingView.isHidden = true
+                self.participantsBackgroundView.placeholderView.isHidden = !participants.isEmpty
+                self.tableView.reloadData()
             } else if let error {
                 NCLog.log("Error while trying to get participants: \(error)")
             }
@@ -281,13 +280,12 @@ class AddParticipantsTableViewController: UITableViewController, UISearchBarDele
         searchParticipantsTask = NCAPIController.sharedInstance().getContacts(forAccount: activeAccount, forRoom: room?.token, forGroupRoom: true, withSearchParam: searchString) { [weak self] contactList, error in
             guard let self else { return }
 
-            if error == nil, let contactList = contactList as? [NCUser] {
+            if error == nil, let contactList {
                 let storedContacts = NCContact.contacts(forAccountId: activeAccount.accountId, contains: searchString)
                 let combinedContactList = NCUser.combineUsersArray(storedContacts, withUsersArray: contactList)
-                if let participants = NCUser.indexedUsers(fromUsersArray: combinedContactList) {
-                    let sortedIndexes = participants.keys.sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
-                    self.resultTableViewController.setSearchResultContacts(NSMutableDictionary(dictionary: participants), withIndexes: sortedIndexes)
-                }
+                let participants = NCUser.indexedUsers(fromUsersArray: combinedContactList)
+                let sortedIndexes = participants.keys.sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
+                self.resultTableViewController.setSearchResultContacts(participants, withIndexes: sortedIndexes)
             } else if let error, error.underlyingError.code != NSURLErrorCancelled {
                 NCLog.log("Error while searching for participants: \(error)")
             }
@@ -367,7 +365,7 @@ class AddParticipantsTableViewController: UITableViewController, UISearchBarDele
 
         let account = room?.account ?? NCDatabaseManager.sharedInstance().activeAccount()
 
-        cell.avatarView.setActorAvatar(forId: participant.userId, withType: participant.source as String?, withDisplayName: participant.name, withRoomToken: room?.token, using: account)
+        cell.avatarView.setActorAvatar(forId: participant.userId, withType: participant.source, withDisplayName: participant.name, withRoomToken: room?.token, using: account)
 
         var selectionImage = UIImage(systemName: "circle")
         var selectionImageColor = UIColor.tertiaryLabel
@@ -385,11 +383,9 @@ class AddParticipantsTableViewController: UITableViewController, UISearchBarDele
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let participantsForIndex: [NCUser]
 
-        if searchController.isActive,
-           let resultContacts = resultTableViewController.contacts as? [String: [NCUser]], !resultContacts.isEmpty,
-           let resultIndexes = resultTableViewController.indexes as? [String] {
-            let index = resultIndexes[indexPath.section]
-            participantsForIndex = resultContacts[index] ?? []
+        if searchController.isActive, !resultTableViewController.contacts.isEmpty {
+            let index = resultTableViewController.indexes[indexPath.section]
+            participantsForIndex = resultTableViewController.contacts[index] ?? []
         } else {
             let index = indexes[indexPath.section]
             participantsForIndex = participants[index] ?? []
@@ -402,7 +398,7 @@ class AddParticipantsTableViewController: UITableViewController, UISearchBarDele
             removeSelectedParticipant(participant)
         }
 
-        resultTableViewController.selectedParticipants = NSMutableArray(array: selectedParticipants)
+        resultTableViewController.selectedParticipants = selectedParticipants
 
         tableView.beginUpdates()
         tableView.reloadRows(at: [indexPath], with: .none)
