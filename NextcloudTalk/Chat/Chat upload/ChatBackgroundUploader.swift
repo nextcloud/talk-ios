@@ -26,7 +26,7 @@ struct ChatBackgroundUploadJob: Codable {
     var uploaded = false
     var postStarted = false
     var uploadAttempts = 0
-    var announceAttempts = 0
+    var shareAttempts = 0
 }
 
 /// Uploads files through background URL sessions, so the share extension can close right after send.
@@ -45,7 +45,7 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
     // Gives a reconnected session time to deliver its completion events before tasks are taken as lost
     private static let lostTaskCheckDelay: TimeInterval = 5
 
-    private static let maxAnnounceAttempts = 3
+    private static let maxShareAttempts = 3
     private static let maxJobAge: TimeInterval = 24 * 60 * 60
 
     // Delays before the next upload attempt, the last one repeats until the job is too old
@@ -58,7 +58,7 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
     private var sessions: [String: URLSession] = [:]
     private var backgroundEventsCompletionHandlers: [String: () -> Void] = [:]
     private var sessionsWithFinishedEvents: Set<String> = []
-    private var announcingSessions: Set<String> = []
+    private var sharingSessions: Set<String> = []
     private var checkedSessions: Set<String> = []
 
     // MARK: - Enqueue
@@ -179,7 +179,7 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
 
         let now = Date()
         var sessionsToCheck: Set<String> = []
-        var sessionsToAnnounce: Set<String> = []
+        var sessionsToShare: Set<String> = []
 
         for jobDirectory in jobDirectories {
             let creationDate = (try? jobDirectory.resourceValues(forKeys: [.creationDateKey]))?.creationDate ?? now
@@ -195,20 +195,20 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
             if now.timeIntervalSince(job.createdAt) > Self.maxJobAge {
                 self.drop(job, reason: "it is too old")
             } else if job.uploaded {
-                sessionsToAnnounce.insert(job.sessionIdentifier)
+                sessionsToShare.insert(job.sessionIdentifier)
             } else if !self.checkedSessions.contains(job.sessionIdentifier) {
                 sessionsToCheck.insert(job.sessionIdentifier)
             }
         }
 
-        let announceGroup = DispatchGroup()
+        let shareGroup = DispatchGroup()
 
-        for identifier in sessionsToAnnounce {
-            announceGroup.enter()
-            self.announceFiles(of: identifier) { announceGroup.leave() }
+        for identifier in sessionsToShare {
+            shareGroup.enter()
+            self.shareFiles(of: identifier) { shareGroup.leave() }
         }
 
-        announceGroup.notify(queue: .main) { completion?() }
+        shareGroup.notify(queue: .main) { completion?() }
 
         for identifier in sessionsToCheck {
             self.checkedSessions.insert(identifier)
@@ -241,12 +241,12 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
     }
 #endif
 
-    // MARK: - Announce
+    // MARK: - Share
 
     /// Posts the files of one share in their original order once all of them are uploaded, like the web
     /// does, so the caption on the last one ends the group in the chat.
-    private func announceFiles(of sessionIdentifier: String, completion: (() -> Void)? = nil) {
-        guard !self.announcingSessions.contains(sessionIdentifier) else {
+    private func shareFiles(of sessionIdentifier: String, completion: (() -> Void)? = nil) {
+        guard !self.sharingSessions.contains(sessionIdentifier) else {
             completion?()
             return
         }
@@ -258,9 +258,9 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
             return
         }
 
-        self.announcingSessions.insert(sessionIdentifier)
+        self.sharingSessions.insert(sessionIdentifier)
 
-        let bgTask = BGTaskHelper.startExpiringActivity(withName: "ChatBackgroundUploader.announce")
+        let bgTask = BGTaskHelper.startExpiringActivity(withName: "ChatBackgroundUploader.share")
 
         Task { @MainActor in
             // A file that stays behind for a retry stops the rest, otherwise they would overtake it
@@ -268,7 +268,7 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
                 guard await self.post(job) else { break }
             }
 
-            self.announcingSessions.remove(sessionIdentifier)
+            self.sharingSessions.remove(sessionIdentifier)
             self.finishSessionIfDone(sessionIdentifier)
 
             bgTask.stopBackgroundTask()
@@ -318,10 +318,10 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
                 return true
             }
 
-            job.announceAttempts += 1
+            job.shareAttempts += 1
 
-            if job.announceAttempts >= Self.maxAnnounceAttempts {
-                self.drop(job, reason: "posting it failed \(job.announceAttempts) times")
+            if job.shareAttempts >= Self.maxShareAttempts {
+                self.drop(job, reason: "posting it failed \(job.shareAttempts) times")
                 return true
             }
 
@@ -333,7 +333,7 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
 
     private func finishSessionIfDone(_ identifier: String) {
         guard self.sessionsWithFinishedEvents.contains(identifier),
-              !self.announcingSessions.contains(identifier)
+              !self.sharingSessions.contains(identifier)
         else { return }
 
         self.sessionsWithFinishedEvents.remove(identifier)
@@ -374,7 +374,7 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
             job.uploaded = true
             try? self.save(job)
 
-            self.announceFiles(of: job.sessionIdentifier)
+            self.shareFiles(of: job.sessionIdentifier)
             return
         }
 
@@ -403,7 +403,7 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
 
         self.drop(job, reason: dropReason)
         // The other files of the share were waiting for this one
-        self.announceFiles(of: job.sessionIdentifier)
+        self.shareFiles(of: job.sessionIdentifier)
     }
 
     func urlSession(_ session: URLSession, task: URLSessionTask, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
