@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import ImageIO
 import UIKit
 import UserNotifications
 
@@ -427,15 +428,55 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
 
     private func drop(_ job: ChatBackgroundUploadJob, reason: String) {
         NCLog.log("Dropping background upload of \(job.fileName), \(reason)")
-        self.removeJob(job)
 
         let content = UNMutableNotificationContent()
         content.title = NSLocalizedString("Upload failed", comment: "")
         content.body = String.localizedStringWithFormat(NSLocalizedString("%1$@ could not be sent to %2$@", comment: "'photo.jpg' could not be sent to 'Conversation name'"), job.fileName, job.roomName)
         content.threadIdentifier = job.roomToken
         content.sound = .default
+        content.attachments = self.notificationAttachment(for: job).map { [$0] } ?? []
 
-        UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: "BackgroundUpload-\(job.id)", content: content, trigger: nil))
+        self.removeJob(job)
+
+        let identifier = "BackgroundUpload-\(job.id)"
+
+        guard let room = NCDatabaseManager.sharedInstance().room(withToken: job.roomToken, forAccountId: job.accountId) else {
+            UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: identifier, content: content, trigger: nil))
+            return
+        }
+
+        // Keeps the extension running while the avatar loads
+        let bgTask = BGTaskHelper.startExpiringActivity(withName: "ChatBackgroundUploader.drop")
+
+        // Shown as a communication notification of the conversation, so it carries the conversation avatar
+        NCIntentController.sharedInstance().getInteractionFor(room, withTitle: job.roomName) { sendMessageIntent in
+            let updatedContent = sendMessageIntent.flatMap { try? content.updating(from: $0) } ?? content
+
+            UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: identifier, content: updatedContent, trigger: nil)) { _ in
+                bgTask.stopBackgroundTask()
+            }
+        }
+    }
+
+    /// A downscaled JPEG of an image file, as the system takes over attached files and limits their size.
+    private func notificationAttachment(for job: ChatBackgroundUploadJob) -> UNNotificationAttachment? {
+        let options = [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceThumbnailMaxPixelSize: 1024
+        ] as CFDictionary
+
+        guard let dataFileURL = self.jobDirectory(forJobId: job.id)?.appendingPathComponent(Self.dataFileName),
+              let imageSource = CGImageSourceCreateWithURL(dataFileURL as CFURL, nil),
+              let thumbnail = CGImageSourceCreateThumbnailAtIndex(imageSource, 0, options),
+              let jpegData = UIImage(cgImage: thumbnail).jpegData(compressionQuality: 0.8)
+        else { return nil }
+
+        let thumbnailURL = FileManager.default.temporaryDirectory.appendingPathComponent("BackgroundUpload-\(job.id).jpg")
+
+        guard (try? jpegData.write(to: thumbnailURL, options: .atomic)) != nil else { return nil }
+
+        return try? UNNotificationAttachment(identifier: job.id, url: thumbnailURL)
     }
 
     // MARK: - Storage
