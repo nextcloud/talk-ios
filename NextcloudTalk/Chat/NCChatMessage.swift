@@ -99,6 +99,22 @@ import SwiftyAttributes
         return serverCanDeleteMessage && userCanDeleteMessage && deletionAllowedByTime
     }
 
+    /// Whether a reply can be started for the message, regardless of the room it is in.
+    public var canBeRepliedTo: Bool {
+        return self.isReplyable && !self.isDeleting
+    }
+
+    /// Condition for the "Reply" entry of the message menu, shared with the media viewer.
+    public func canReply(in room: NCRoom) -> Bool {
+        return self.canBeRepliedTo && room.canChat
+    }
+
+    /// Condition for the "Delete" entry of the message menu, shared with the media viewer.
+    /// A message that failed to send or was never sent can always be discarded.
+    public func canDelete(for account: TalkAccount, in room: NCRoom) -> Bool {
+        return self.sendingFailed || self.isOfflineMessage || (self.isDeletable(for: account, in: room) && room.canChat)
+    }
+
     public func isEditable(for account: TalkAccount, in room: NCRoom) -> Bool {
         guard !self.isDeleting else { return false }
 

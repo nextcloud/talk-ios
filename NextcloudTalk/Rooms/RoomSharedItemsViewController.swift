@@ -557,13 +557,29 @@ class RoomSharedItemsViewController: UIViewController,
             return
         }
 
-        let mediaViewController = NCMediaViewerViewController(initialMessage: message, room: self.room, account: account, messageSource: self)
+        let mediaViewController = NCMediaViewerViewController(initialMessage: self.accountMessage(for: message, account: account), room: self.room, account: account, messageSource: self)
+        mediaViewController.isOpenedFromSharedItems = true
         let navController = CustomPresentableNavigationController(rootViewController: mediaViewController)
 
         self.mediaViewController = mediaViewController
         self.mediaViewerReachedLoadedEnd = false
         self.stopAudio()
         self.present(navController, interactiveDismissalType: .standard)
+    }
+
+    /// Shared items are parsed without an account, but "Show in chat" in the viewer needs the account of the message
+    private func accountMessage(for message: NCChatMessage, account: TalkAccount) -> NCChatMessage {
+        let accountMessage = NCChatMessage(value: message)
+        accountMessage.accountId = account.accountId
+        accountMessage.internalId = "\(account.accountId)@\(self.room.token)@\(message.messageId)"
+
+        return accountMessage
+    }
+
+    private func accountMessage(forNeighbour message: NCChatMessage?) -> NCChatMessage? {
+        guard let message, let account = self.room.account else { return message }
+
+        return self.accountMessage(for: message, account: account)
     }
 
     // MARK: - MediaViewerMessageSource
@@ -584,13 +600,13 @@ class RoomSharedItemsViewController: UIViewController,
             self.loadMoreItems()
         }
 
-        return olderMessage
+        return self.accountMessage(forNeighbour: olderMessage)
     }
 
     func mediaViewerMessage(after message: NCChatMessage) -> NCChatMessage? {
         guard let index = self.currentItems.firstIndex(where: { $0.messageId == message.messageId }) else { return nil }
 
-        return self.currentItems[..<index].last(where: { NCMediaViewerViewController.canShowMedia(of: $0) })
+        return self.accountMessage(forNeighbour: self.currentItems[..<index].last(where: { NCMediaViewerViewController.canShowMedia(of: $0) }))
     }
 
     // MARK: - Audio
