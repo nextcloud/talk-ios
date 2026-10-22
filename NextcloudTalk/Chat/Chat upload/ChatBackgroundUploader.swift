@@ -238,7 +238,7 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
 
         self.announcingSessions.insert(sessionIdentifier)
 
-        let bgTask = BGTaskHelper.startBackgroundTask(withName: "ChatBackgroundUploader.announce")
+        let bgTask = BGTaskHelper.startExpiringActivity(withName: "ChatBackgroundUploader.announce")
 
         Task { @MainActor in
             // A file that stays behind for a retry stops the rest, otherwise they would overtake it
