@@ -273,6 +273,8 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
         let jobs = self.loadAllJobs().filter { $0.sessionIdentifier == sessionIdentifier }.sorted { $0.index < $1.index }
 
         guard !jobs.isEmpty, jobs.allSatisfy({ $0.uploaded }) else {
+            // The last job of the session may just have been dropped
+            self.finishSessionIfDone(sessionIdentifier)
             completion?()
             return
         }
@@ -351,17 +353,20 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
     }
 
     private func finishSessionIfDone(_ identifier: String) {
-        guard self.sessionsWithFinishedEvents.contains(identifier),
-              !self.sharingSessions.contains(identifier)
-        else { return }
+        guard !self.sharingSessions.contains(identifier) else { return }
 
-        self.sessionsWithFinishedEvents.remove(identifier)
+        let eventsFinished = self.sessionsWithFinishedEvents.remove(identifier) != nil
+        // Invalidating the session would stop the events the system is still delivering
+        let waitingForEvents = !eventsFinished && self.backgroundEventsCompletionHandlers[identifier] != nil
 
-        if !self.loadAllJobs().contains(where: { $0.sessionIdentifier == identifier }) {
+        if !waitingForEvents, !self.loadAllJobs().contains(where: { $0.sessionIdentifier == identifier }) {
             self.sessions.removeValue(forKey: identifier)?.finishTasksAndInvalidate()
+            self.checkedSessions.remove(identifier)
         }
 
-        self.backgroundEventsCompletionHandlers.removeValue(forKey: identifier)?()
+        if eventsFinished {
+            self.backgroundEventsCompletionHandlers.removeValue(forKey: identifier)?()
+        }
     }
 
     // MARK: - URLSession
