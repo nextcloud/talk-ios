@@ -391,8 +391,7 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
             self.announceFiles(of: job.sessionIdentifier)
         } else if let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: job.accountId),
                   let authHeader = NCAPIController.sharedInstance().authHeader(forAccount: account) {
-            let retryAfter = (task.response as? HTTPURLResponse)?.value(forHTTPHeaderField: "Retry-After").flatMap { TimeInterval($0) }
-            let delay = min(retryAfter ?? Self.uploadRetryDelays[min(job.uploadAttempts, Self.uploadRetryDelays.count - 1)], Self.uploadRetryDelays.last ?? 0)
+            let delay = Self.uploadRetryDelays[min(job.uploadAttempts, Self.uploadRetryDelays.count - 1)]
 
             job.uploadAttempts += 1
             try? self.save(job)
