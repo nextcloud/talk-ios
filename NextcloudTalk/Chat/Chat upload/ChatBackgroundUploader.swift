@@ -380,15 +380,12 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
 
         NCLog.log("Background upload of \(job.fileName) failed with status \(statusCode). Error: \(error?.localizedDescription ?? "none")")
 
-        let isPermanent = statusCode == 507 || ((400..<500).contains(statusCode) && statusCode != 408 && statusCode != 429)
+        let dropReason: String
 
-        if isPermanent {
-            self.drop(job, reason: "the server rejected it")
-            // The other files of the share were waiting for this one
-            self.announceFiles(of: job.sessionIdentifier)
+        if statusCode == 507 || ((400..<500).contains(statusCode) && statusCode != 408 && statusCode != 429) {
+            dropReason = "the server rejected it"
         } else if Date().timeIntervalSince(job.createdAt) > Self.maxJobAge {
-            self.drop(job, reason: "it is too old")
-            self.announceFiles(of: job.sessionIdentifier)
+            dropReason = "it is too old"
         } else if let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: job.accountId),
                   let authHeader = NCAPIController.sharedInstance().authHeader(forAccount: account) {
             let delay = Self.uploadRetryDelays[min(job.uploadAttempts, Self.uploadRetryDelays.count - 1)]
@@ -399,10 +396,14 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
             // The system starts it after the delay, even when neither the app nor the extension is running
             NCLog.log("Retrying background upload of \(job.fileName) in \(Int(delay))s")
             self.startUploadTask(for: job, in: session, authHeader: authHeader, earliestBeginDate: Date(timeIntervalSinceNow: delay))
+            return
         } else {
-            self.drop(job, reason: "its account is gone")
-            self.announceFiles(of: job.sessionIdentifier)
+            dropReason = "its account is gone"
         }
+
+        self.drop(job, reason: dropReason)
+        // The other files of the share were waiting for this one
+        self.announceFiles(of: job.sessionIdentifier)
     }
 
     func urlSession(_ session: URLSession, task: URLSessionTask, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
