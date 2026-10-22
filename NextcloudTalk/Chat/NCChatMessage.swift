@@ -49,6 +49,11 @@ import SwiftyAttributes
         return self.messageType == kMessageTypeVoiceMessage
     }
 
+    /// True if at least one message parameter is a file. `file()` can't be used for this, it returns nil if there is more than one.
+    public var hasFileParameter: Bool {
+        return self.messageParameters.values.contains { ($0 as? [String: Any])?["type"] as? String == "file" }
+    }
+
     public var isCommandMessage: Bool {
         return self.messageType == kMessageTypeCommand
     }
