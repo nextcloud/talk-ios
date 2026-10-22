@@ -9,7 +9,7 @@ import Foundation
 /// either through the attachment endpoint or through the files sharing API.
 ///
 /// This is the single place where the wire format of those keys is defined.
-struct ChatFileUploadMetadata {
+struct ChatFileUploadMetadata: Codable {
 
     /// Message text sent together with the file. Requires the `media-caption` capability.
     var caption: String?

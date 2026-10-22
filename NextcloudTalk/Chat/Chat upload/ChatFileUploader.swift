@@ -134,7 +134,7 @@ enum ChatFileUploader {
     }
 
     /// Makes sure the conversation subfolder exists and returns the draft folder to upload into.
-    private static func probeDraftFolder(for room: NCRoom, account: TalkAccount, fileNames: [String], allowUpdate: Bool) async throws -> String {
+    static func probeDraftFolder(for room: NCRoom, account: TalkAccount, fileNames: [String], allowUpdate: Bool) async throws -> String {
         do {
             return try await NCAPIController.sharedInstance().probeConversationAttachmentFolder(inRoom: room.token, withFileNames: fileNames, allowUpdate: allowUpdate, forAccount: account).folder
         } catch {
@@ -142,7 +142,7 @@ enum ChatFileUploader {
         }
     }
 
-    private static func draftFolderDestination(in draftFolder: String, for upload: ChatFileUpload) async throws -> ChatFileUploadDestination {
+    static func draftFolderDestination(in draftFolder: String, for upload: ChatFileUpload) async throws -> ChatFileUploadDestination {
         // The file is uploaded under a temporary name, it only gets its final name when the
         // attachment endpoint moves it out of the draft folder.
         let fileExtension = URL(fileURLWithPath: upload.fileName).pathExtension
