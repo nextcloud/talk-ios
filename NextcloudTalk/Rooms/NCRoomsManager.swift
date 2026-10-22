@@ -1221,22 +1221,20 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
             self.joinRoomTask?.cancel()
         }
 
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-
         // Remove room controller and exit room
         if let roomController = self.activeRooms[token], !roomController.inCall, !roomController.inChat {
 
             self.activeRooms.removeValue(forKey: token)
 
             self.leavingRoomToken = token
-            self.leaveRoomTask = NCAPIController.sharedInstance().exitRoom(token, forAccount: activeAccount, completionBlock: { error in
+            self.leaveRoomTask = NCAPIController.sharedInstance().exitRoom(token, forAccount: account, completionBlock: { error in
                 var userInfo = [:]
                 userInfo["token"] = token
 
                 self.leaveRoomTask = nil
                 self.leavingRoomToken = nil
 
-                if let extSignalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: activeAccount.accountId) {
+                if let extSignalingController = NCSettingsController.sharedInstance().externalSignalingController(forAccountId: account.accountId) {
                     extSignalingController.leaveRoom(withRoomId: token)
                 }
 
