@@ -156,6 +156,8 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
         NCLog.log("Handling events of the background upload session \(identifier)")
 
         self.backgroundEventsCompletionHandlers[identifier] = completionHandler
+
+        // Recreating the session with this identifier is what makes the system deliver its events
         _ = self.session(withIdentifier: identifier)
 
         return true
