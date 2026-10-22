@@ -55,6 +55,7 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
     private var highlightMessageDict: [AnyHashable: Any]?
     private var showThreadPushNotification: NCPushNotification?
     private var pendingPrivateReplyInternalId: String?
+    private var pendingFailedShareJobId: String?
 
     override init() {
         super.init()
@@ -497,6 +498,9 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
             }
             self.pendingPrivateReplyInternalId = nil
 
+            self.chatViewController?.presentFailedShareOnAppear = pendingFailedShareJobId
+            self.pendingFailedShareJobId = nil
+
             if let chatViewController = self.chatViewController {
                 NCUserInterfaceController.sharedInstance().present(chatViewController)
             }
@@ -517,6 +521,11 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
                 self.chatViewController?.presentPrivateReply(withInternalId: pendingPrivateReplyInternalId)
             }
             self.pendingPrivateReplyInternalId = nil
+
+            if let pendingFailedShareJobId {
+                self.chatViewController?.presentFailedShare(ofJobId: pendingFailedShareJobId)
+            }
+            self.pendingFailedShareJobId = nil
         }
     }
 
@@ -891,6 +900,9 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
         guard let accountId = notification.userInfo?[stringForKey: "accountId"],
               let roomToken = notification.userInfo?[stringForKey: "roomToken"]
         else { return }
+
+        // Files that could not be shared in the background are offered again in the chat
+        self.pendingFailedShareJobId = notification.userInfo?[stringForKey: "failedUploadJobId"]
 
         self.checkForAccountChange(accountId)
         self.startChat(withRoomToken: roomToken)

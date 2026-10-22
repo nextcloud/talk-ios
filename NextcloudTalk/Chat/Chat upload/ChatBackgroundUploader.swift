@@ -170,6 +170,8 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
     /// Finishes what the system did not launch the app for, for example after a failed post or a force quit.
     /// The completion is called once the posts it started are done. Must be called on the main queue.
     func resumePendingJobs(completion: (() -> Void)? = nil) {
+        self.removeOldFailedJobs()
+
         guard let jobsDirectory = Self.jobsDirectory,
               let jobDirectories = try? FileManager.default.contentsOfDirectory(at: jobsDirectory, includingPropertiesForKeys: [.creationDateKey])
         else {
@@ -455,8 +457,14 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
         content.threadIdentifier = job.roomToken
         content.sound = .default
         content.attachments = self.notificationAttachment(for: job).map { [$0] } ?? []
+        content.userInfo = [
+            "localNotificationType": NCLocalNotificationType.failedBackgroundUpload.rawValue,
+            "accountId": job.accountId,
+            "roomToken": job.roomToken,
+            "failedUploadJobId": job.id
+        ]
 
-        self.removeJob(job)
+        self.keepFailedJob(job)
 
         let identifier = "BackgroundUpload-\(job.id)"
 
@@ -477,6 +485,64 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
             }
         }
     }
+
+    /// Kept so the user can share the file again by tapping the notification.
+    private func keepFailedJob(_ job: ChatBackgroundUploadJob) {
+        guard let jobDirectory = self.jobDirectory(forJobId: job.id),
+              let failedJobsDirectory = Self.failedJobsDirectory
+        else { return }
+
+        do {
+            try FileManager.default.createDirectory(at: failedJobsDirectory, withIntermediateDirectories: true)
+            try FileManager.default.moveItem(at: jobDirectory, to: failedJobsDirectory.appendingPathComponent(job.id, isDirectory: true))
+        } catch {
+            NCLog.log("Could not keep the failed background upload of \(job.fileName). Error: \(error.localizedDescription)")
+            self.removeJob(job)
+        }
+    }
+
+#if !APP_EXTENSION
+    /// The failed files of the share the given job belongs to, in their original order.
+    func failedJobs(sharedWith jobId: String) -> [(job: ChatBackgroundUploadJob, fileURL: URL)] {
+        guard let failedJobsDirectory = Self.failedJobsDirectory,
+              let sharedJob = self.loadJob(in: failedJobsDirectory.appendingPathComponent(jobId, isDirectory: true)),
+              let jobIds = try? FileManager.default.contentsOfDirectory(atPath: failedJobsDirectory.path)
+        else { return [] }
+
+        return jobIds
+            .compactMap { self.loadJob(in: failedJobsDirectory.appendingPathComponent($0, isDirectory: true)) }
+            .filter { $0.sessionIdentifier == sharedJob.sessionIdentifier }
+            .sorted { $0.index < $1.index }
+            .map { ($0, failedJobsDirectory.appendingPathComponent($0.id, isDirectory: true).appendingPathComponent(Self.dataFileName)) }
+    }
+
+    func removeFailedJobs(_ jobs: [ChatBackgroundUploadJob]) {
+        guard let failedJobsDirectory = Self.failedJobsDirectory else { return }
+
+        for job in jobs {
+            try? FileManager.default.removeItem(at: failedJobsDirectory.appendingPathComponent(job.id, isDirectory: true))
+        }
+
+        UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: jobs.map { "BackgroundUpload-\($0.id)" })
+    }
+
+    // The notification may never be tapped
+    private func removeOldFailedJobs() {
+        guard let failedJobsDirectory = Self.failedJobsDirectory,
+              let jobIds = try? FileManager.default.contentsOfDirectory(atPath: failedJobsDirectory.path)
+        else { return }
+
+        for jobId in jobIds {
+            let jobDirectory = failedJobsDirectory.appendingPathComponent(jobId, isDirectory: true)
+
+            if let job = self.loadJob(in: jobDirectory), Date().timeIntervalSince(job.createdAt) <= Self.maxJobAge {
+                continue
+            }
+
+            try? FileManager.default.removeItem(at: jobDirectory)
+        }
+    }
+#endif
 
     /// A downscaled JPEG of an image file, as the system takes over attached files and limits their size.
     private func notificationAttachment(for job: ChatBackgroundUploadJob) -> UNNotificationAttachment? {
@@ -506,6 +572,12 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
             .appendingPathComponent("BackgroundUploads", isDirectory: true)
     }
 
+    // Outside of the jobs directory, as everything in there is taken as a pending job
+    private static var failedJobsDirectory: URL? {
+        return FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: groupIdentifier)?
+            .appendingPathComponent("FailedBackgroundUploads", isDirectory: true)
+    }
+
     private func jobDirectory(forJobId jobId: String) -> URL? {
         return Self.jobsDirectory?.appendingPathComponent(jobId, isDirectory: true)
     }
@@ -518,8 +590,11 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
     }
 
     private func loadJob(withId jobId: String) -> ChatBackgroundUploadJob? {
-        guard let jobFileURL = self.jobDirectory(forJobId: jobId)?.appendingPathComponent(Self.jobFileName),
-              let data = try? Data(contentsOf: jobFileURL)
+        return self.jobDirectory(forJobId: jobId).flatMap { self.loadJob(in: $0) }
+    }
+
+    private func loadJob(in jobDirectory: URL) -> ChatBackgroundUploadJob? {
+        guard let data = try? Data(contentsOf: jobDirectory.appendingPathComponent(Self.jobFileName))
         else { return nil }
 
         return try? JSONDecoder().decode(ChatBackgroundUploadJob.self, from: data)
