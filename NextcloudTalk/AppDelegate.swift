@@ -482,6 +482,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
             backgroundRefreshGroup.leave()
         }
 
+        // Post shared files whose posting failed, without waiting until the app is opened
+        backgroundRefreshGroup.enter()
+        DispatchQueue.main.async {
+            ChatBackgroundUploader.shared.resumePendingJobs {
+                NCLog.log("CompletionHandler resumePendingJobs")
+
+                backgroundRefreshGroup.leave()
+            }
+        }
+
         backgroundRefreshGroup.enter()
         NCRoomsManager.shared.updateRoomsAndChats(updatingUserStatus: false, onlyLastModified: true) { error in
             NCLog.log("CompletionHandler updateRoomsAndChatsUpdatingUserStatus")
