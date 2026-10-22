@@ -26,8 +26,8 @@ struct ChatBackgroundUploadJob: Codable {
     let createdAt: Date
     var uploaded = false
     var postStarted = false
-    var uploadAttempts = 0
-    var shareAttempts = 0
+    var uploadRetryDate: Date?
+    var shareRetried = false
 }
 
 /// Uploads files through background URL sessions, so the share extension can close right after send.
@@ -46,11 +46,10 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
     // Gives a reconnected session time to deliver its completion events before tasks are taken as lost
     private static let lostTaskCheckDelay: TimeInterval = 5
 
-    private static let maxShareAttempts = 3
     private static let maxJobAge: TimeInterval = 24 * 60 * 60
 
-    // Delays before the next upload attempt, the last one repeats until the job is too old
-    private static let uploadRetryDelays: [TimeInterval] = [60, 5 * 60, 15 * 60, 60 * 60]
+    // A failed upload is retried once after this delay, so a struggling server is not kept busy
+    private static let uploadRetryDelay: TimeInterval = 60 * 60
 
     private static let jobFileName = "job.json"
     private static let dataFileName = "data"
@@ -197,35 +196,50 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
                 self.drop(job, reason: "it is too old")
             } else if job.uploaded {
                 sessionsToShare.insert(job.sessionIdentifier)
-            } else if !self.checkedSessions.contains(job.sessionIdentifier) {
+            } else if !self.checkedSessions.contains(job.sessionIdentifier) || job.uploadRetryDate ?? .distantFuture <= now {
                 sessionsToCheck.insert(job.sessionIdentifier)
             }
         }
 
-        let shareGroup = DispatchGroup()
+        let group = DispatchGroup()
 
         for identifier in sessionsToShare {
-            shareGroup.enter()
-            self.shareFiles(of: identifier) { shareGroup.leave() }
+            group.enter()
+            self.shareFiles(of: identifier) { group.leave() }
         }
-
-        shareGroup.notify(queue: .main) { completion?() }
 
         for identifier in sessionsToCheck {
             self.checkedSessions.insert(identifier)
-            self.restartLostTasks(in: self.session(withIdentifier: identifier))
+
+            group.enter()
+            self.restartTasks(in: self.session(withIdentifier: identifier)) { group.leave() }
         }
+
+        group.notify(queue: .main) { completion?() }
     }
 
-    private func restartLostTasks(in session: URLSession) {
-        guard let identifier = session.configuration.identifier else { return }
+    /// Restarts lost uploads, and retries the system still holds back after their time.
+    private func restartTasks(in session: URLSession, completion: @escaping () -> Void) {
+        guard let identifier = session.configuration.identifier else {
+            completion()
+            return
+        }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + Self.lostTaskCheckDelay) {
             session.getAllTasks { tasks in
-                let runningJobIds = Set(tasks.compactMap { $0.taskDescription })
-
                 DispatchQueue.main.async {
-                    for job in self.loadAllJobs() where job.sessionIdentifier == identifier && !job.uploaded && !runningJobIds.contains(job.id) {
+                    let now = Date()
+
+                    for job in self.loadAllJobs() where job.sessionIdentifier == identifier && !job.uploaded {
+                        if let task = tasks.first(where: { $0.taskDescription == job.id }) {
+                            guard task.state == .running,
+                                  task.countOfBytesSent == 0,
+                                  task.earliestBeginDate ?? .distantFuture <= now
+                            else { continue }
+
+                            task.cancel()
+                        }
+
                         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: job.accountId),
                               let authHeader = NCAPIController.sharedInstance().authHeader(forAccount: account)
                         else {
@@ -236,6 +250,8 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
                         NCLog.log("Restarting background upload of \(job.fileName)")
                         self.startUploadTask(for: job, in: session, authHeader: authHeader)
                     }
+
+                    completion()
                 }
             }
         }
@@ -319,13 +335,13 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
                 return true
             }
 
-            job.shareAttempts += 1
-
-            if job.shareAttempts >= Self.maxShareAttempts {
-                self.drop(job, reason: "posting it failed \(job.shareAttempts) times")
+            if job.shareRetried {
+                self.drop(job, reason: "its retry failed as well")
                 return true
             }
 
+            // Retried on the next app start or background refresh
+            job.shareRetried = true
             try? self.save(job)
 
             return false
@@ -355,8 +371,9 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
 
         let configuration = URLSessionConfiguration.background(withIdentifier: identifier)
         configuration.sharedContainerIdentifier = groupIdentifier
-        // Without it, an upload waiting for a network keeps the job alive for 7 days
-        configuration.timeoutIntervalForResource = Self.maxJobAge
+        // Without it, an upload waiting for a network keeps the job alive for 7 days. Twice the retry
+        // delay, in case a retry counts the time it was held back as well
+        configuration.timeoutIntervalForResource = 2 * Self.uploadRetryDelay
 
         let session = URLSession(configuration: configuration, delegate: self, delegateQueue: .main)
         self.sessions[identifier] = session
@@ -381,22 +398,25 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
 
         NCLog.log("Background upload of \(job.fileName) failed with status \(statusCode). Error: \(error?.localizedDescription ?? "none")")
 
+        // Cancelled for an overdue retry or by a force quit, a new task takes over
+        guard (error as? URLError)?.code != .cancelled else { return }
+
         let dropReason: String
 
         if statusCode == 507 || ((400..<500).contains(statusCode) && statusCode != 408 && statusCode != 429) {
             dropReason = "the server rejected it"
-        } else if Date().timeIntervalSince(job.createdAt) > Self.maxJobAge {
-            dropReason = "it is too old"
+        } else if job.uploadRetryDate != nil {
+            dropReason = "its retry failed as well"
         } else if let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: job.accountId),
                   let authHeader = NCAPIController.sharedInstance().authHeader(forAccount: account) {
-            let delay = Self.uploadRetryDelays[min(job.uploadAttempts, Self.uploadRetryDelays.count - 1)]
+            let retryDate = Date(timeIntervalSinceNow: Self.uploadRetryDelay)
 
-            job.uploadAttempts += 1
+            job.uploadRetryDate = retryDate
             try? self.save(job)
 
-            // The system starts it after the delay, even when neither the app nor the extension is running
-            NCLog.log("Retrying background upload of \(job.fileName) in \(Int(delay))s")
-            self.startUploadTask(for: job, in: session, authHeader: authHeader, earliestBeginDate: Date(timeIntervalSinceNow: delay))
+            // The system starts it then, even when neither the app nor the extension is running
+            NCLog.log("Retrying background upload of \(job.fileName) in \(Int(Self.uploadRetryDelay))s")
+            self.startUploadTask(for: job, in: session, authHeader: authHeader, earliestBeginDate: retryDate)
             return
         } else {
             dropReason = "its account is gone"

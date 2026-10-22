@@ -482,7 +482,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
             backgroundRefreshGroup.leave()
         }
 
-        // Post shared files whose posting failed, without waiting until the app is opened
+        // Post shared files whose posting failed and start overdue upload retries, without waiting until the app is opened
         backgroundRefreshGroup.enter()
         DispatchQueue.main.async {
             ChatBackgroundUploader.shared.resumePendingJobs {
