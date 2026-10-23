@@ -907,6 +907,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				NCConnectionController.swift,
+				NCNetworkReachability.swift,
 			);
 			target = 2CC0014E24A1F0E900A20167 /* NotificationServiceExtension */;
 		};
@@ -914,6 +915,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				NCConnectionController.swift,
+				NCNetworkReachability.swift,
 			);
 			target = 2C62AFA224C08845007E460A /* ShareExtension */;
 		};
@@ -921,6 +923,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				NCConnectionController.swift,
+				NCNetworkReachability.swift,
 			);
 			target = 1FF2FD5A2AB99CCB000C9905 /* BroadcastUploadExtension */;
 		};
@@ -928,6 +931,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				NCConnectionController.swift,
+				NCNetworkReachability.swift,
 			);
 			target = 1FA93D9B2D70FCC200DF6CDF /* TalkIntents */;
 		};
