@@ -2007,6 +2007,9 @@
 /* No comment provided by engineer. */
 "Recent threads" = "Recent threads";
 
+/* The connection to a call was lost and is being restored */
+"Reconnecting …" = "Reconnecting …";
+
 /* No comment provided by engineer. */
 "Record voice message" = "Record voice message";
 
@@ -2664,6 +2667,9 @@
 
 /* Conversation visibility settings */
 "Visibility" = "Visibility";
+
+/* A call without video */
+"Voice call" = "Voice call";
 
 /* No comment provided by engineer. */
 "Voice messages" = "Voice messages";
