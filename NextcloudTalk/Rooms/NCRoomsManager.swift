@@ -1242,7 +1242,7 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
 
                 if let error {
                     userInfo["error"] = error
-                    NCLog.log("Could not exit room. Error: \(error.localizedDescription)")
+                    NCLog.log("Could not exit room. Status: \(error.responseStatusCode) Error: \(error.localizedDescription)")
                 } else {
                     self.checkForPendingToStartCalls()
                 }
