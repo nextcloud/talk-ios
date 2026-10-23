@@ -57,6 +57,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
 
         CallLiveActivityManager.shared.endStaleActivities()
         CallLiveActivityManager.shared.registerActionHandler()
+        ConversationsWidgetController.shared.startObserving()
 
         // Perform cleanup only once in app lifecycle
         DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + 10) {

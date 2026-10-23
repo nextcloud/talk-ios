@@ -1477,6 +1477,9 @@
 /* No comment provided by engineer. */
 "Log in" = "Log in";
 
+/* Shown in the conversations widget before the first login */
+"Log in to see your conversations" = "Log in to see your conversations";
+
 /* No comment provided by engineer. */
 "Log out" = "Log out";
 
@@ -2826,6 +2829,9 @@
 
 /* No comment provided by engineer. */
 "Your postal address" = "Your postal address";
+
+/* Description of the conversations widget */
+"Your recent conversations and unread messages" = "Your recent conversations and unread messages";
 
 /* 'Zammad' is a product name */
 "Zammad API error" = "Zammad API error";
