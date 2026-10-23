@@ -111,6 +111,18 @@ final class UnitNCHTTPSerializationTest: XCTestCase {
         XCTAssertEqual(ocsError.underlyingError.code, NSURLErrorBadServerResponse)
     }
 
+    func testErrorDescription() throws {
+        let response = try XCTUnwrap(HTTPURLResponse(url: URL(string: "https://x.test/room/abc/password")!, statusCode: 400, httpVersion: nil, headerFields: ["Content-Type": "application/json"]))
+        let body = Data(#"{"ocs":{"data":{"message":"Password is too short"}}}"#.utf8)
+
+        let error = try XCTUnwrap(NCHTTPSerialization.responseObject(for: response, data: body, type: .json).error)
+        let description = String(describing: error)
+
+        XCTAssertTrue(description.hasPrefix("Request failed: "))
+        XCTAssertTrue(description.contains("(400), https://x.test/room/abc/password"))
+        XCTAssertTrue(description.contains("Password is too short"))
+    }
+
     func testMultipartFormData() {
         let formData = NCMultipartFormData()
         formData.appendPart(withFileData: Data("IMG".utf8), name: "files[]", fileName: "avatar.jpg", mimeType: "image/jpeg")
