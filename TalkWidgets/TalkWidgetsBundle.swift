@@ -10,6 +10,7 @@ import WidgetKit
 struct TalkWidgetsBundle: WidgetBundle {
 
     var body: some Widget {
+        ConversationsWidget()
         CallLiveActivityWidget()
     }
 }

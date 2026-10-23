@@ -992,6 +992,7 @@
 			membershipExceptions = (
 				CallActivityAttributes.swift,
 				CallLiveActivityIntents.swift,
+				ConversationsSnapshot.swift,
 			);
 			target = 2C05747C1EDD9E8E00D9E7F2 /* NextcloudTalk */;
 		};
