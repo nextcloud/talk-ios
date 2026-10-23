@@ -11,7 +11,7 @@ import Foundation
     let task: URLSessionDataTask?
 
     lazy var responseDict: [String: AnyObject]? = {
-        guard let errorData = underlyingError.userInfo[AFNetworkingOperationFailingURLResponseDataErrorKey] as? Data,
+        guard let errorData = underlyingError.userInfo[NCHTTPSerialization.responseDataErrorKey] as? Data,
               let errorDict = try? JSONSerialization.jsonObject(with: errorData) as? [AnyHashable: Any]
         else { return nil }
 
