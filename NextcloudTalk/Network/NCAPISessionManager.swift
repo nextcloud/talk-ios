@@ -68,7 +68,7 @@ import Foundation
                 self.checkStatusCode(for: task, for: account)
             }
 
-            completion?(nil, OcsError(withError: error as NSError, withTask: task))
+            completion?(nil, OcsError(withError: error, withTask: task))
         }
     }
 
@@ -82,7 +82,7 @@ import Foundation
                 self.checkStatusCode(for: task, for: account)
             }
 
-            completion?(nil, OcsError(withError: error as NSError, withTask: task))
+            completion?(nil, OcsError(withError: error, withTask: task))
         }
     }
 
@@ -96,7 +96,7 @@ import Foundation
                 self.checkStatusCode(for: task, for: account)
             }
 
-            completion?(nil, OcsError(withError: error as NSError, withTask: task))
+            completion?(nil, OcsError(withError: error, withTask: task))
         }
     }
 
@@ -110,7 +110,7 @@ import Foundation
                 self.checkStatusCode(for: task, for: account)
             }
 
-            completion?(nil, OcsError(withError: error as NSError, withTask: task))
+            completion?(nil, OcsError(withError: error, withTask: task))
         }
     }
 

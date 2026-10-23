@@ -59,17 +59,32 @@ final class UnitNCHTTPSerializationTest: XCTestCase {
 
         // Error responses fail, but keep the body for OcsError
         result = NCHTTPSerialization.responseObject(for: response(404, "application/json"), data: json, type: .json)
-        let notFoundError = try XCTUnwrap(result.error as NSError?)
-        XCTAssertEqual(notFoundError.code, NSURLErrorBadServerResponse)
-        XCTAssertEqual(notFoundError.userInfo[NCHTTPSerialization.responseDataErrorKey] as? Data, json)
+        let notFoundError = try XCTUnwrap(result.error as? NCHTTPResponseError)
+        XCTAssertEqual(notFoundError.reason, .unacceptableStatusCode)
+        XCTAssertEqual(notFoundError.data, json)
+        XCTAssertEqual(notFoundError.response.statusCode, 404)
+        XCTAssertEqual((notFoundError as NSError).code, NSURLErrorBadServerResponse)
 
         // Long polling relies on 304 failing
         result = NCHTTPSerialization.responseObject(for: response(304, nil), data: Data(), type: .json)
-        XCTAssertEqual((result.error as NSError?)?.code, NSURLErrorBadServerResponse)
+        XCTAssertEqual((result.error as? NCHTTPResponseError)?.reason, .unacceptableStatusCode)
 
         result = NCHTTPSerialization.responseObject(for: response(200, "text/html"), data: Data("<html>".utf8), type: .json)
+        XCTAssertEqual((result.error as? NCHTTPResponseError)?.reason, .unacceptableContentType)
         XCTAssertEqual((result.error as NSError?)?.code, NSURLErrorCannotDecodeContentData)
         XCTAssertNil(result.responseObject)
+
+        result = NCHTTPSerialization.responseObject(for: response(500, "text/html"), data: Data("<html>".utf8), type: .json)
+        let htmlServerError = try XCTUnwrap(result.error as? NCHTTPResponseError)
+        XCTAssertEqual(htmlServerError.reason, .unacceptableStatusCode)
+        XCTAssertEqual(htmlServerError.response.mimeType, "text/html")
+        XCTAssertNil(result.responseObject)
+
+        // A broken body on an error status keeps the status error and its body on top
+        result = NCHTTPSerialization.responseObject(for: response(500, "application/json"), data: Data("{bad".utf8), type: .json)
+        let brokenJSONError = try XCTUnwrap(result.error as? NCHTTPResponseError)
+        XCTAssertEqual(brokenJSONError.reason, .unacceptableStatusCode)
+        XCTAssertEqual(brokenJSONError.data, Data("{bad".utf8))
 
         result = NCHTTPSerialization.responseObject(for: response(200, "application/json"), data: Data("{bad".utf8), type: .json)
         XCTAssertNotNil(result.error)
@@ -81,6 +96,19 @@ final class UnitNCHTTPSerializationTest: XCTestCase {
         result = NCHTTPSerialization.responseObject(for: response(207, "application/xml"), data: Data("<x/>".utf8), type: .data)
         XCTAssertNil(result.error)
         XCTAssertEqual(result.responseObject as? Data, Data("<x/>".utf8))
+    }
+
+    func testOcsErrorReadsResponseBody() throws {
+        let response = try XCTUnwrap(HTTPURLResponse(url: URL(string: "https://x.test")!, statusCode: 403, httpVersion: nil, headerFields: ["Content-Type": "application/json"]))
+        let body = Data(#"{"ocs":{"meta":{"statuscode":403},"data":{"error":"permissions"}}}"#.utf8)
+
+        let result = NCHTTPSerialization.responseObject(for: response, data: body, type: .json)
+        let error = try XCTUnwrap(result.error)
+
+        // OcsError keeps the typed error, the body must not depend on NSError bridging
+        let ocsError = OcsError(withError: error, withTask: nil)
+        XCTAssertEqual(ocsError.errorKey, "permissions")
+        XCTAssertEqual(ocsError.underlyingError.code, NSURLErrorBadServerResponse)
     }
 
     func testMultipartFormData() {

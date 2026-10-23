@@ -9,10 +9,6 @@ import Foundation
 // The server parses the PHP style parameters and callers rely on non 2xx responses failing (e.g. 304 when long polling).
 public enum NCHTTPSerialization {
 
-    public static let errorDomain = "com.nextcloud.talk.serialization.response"
-    public static let responseErrorKey = "NCHTTPSerializationResponseErrorKey"
-    public static let responseDataErrorKey = "NCHTTPSerializationResponseDataErrorKey"
-
     public enum ResponseType {
         case json
         case data
@@ -141,22 +137,17 @@ public enum NCHTTPSerialization {
     public static func responseObject(for response: URLResponse?, data: Data?, type: ResponseType) -> (responseObject: Any?, error: Error?) {
         switch type {
         case .data:
-            let (_, validationError) = validate(response: response, data: data, acceptableContentTypes: nil)
-            return (data, validationError)
+            return (data, validate(response: response, data: data, acceptableContentTypes: nil).error)
         case .json:
             return jsonResponseObject(for: response, data: data)
         }
     }
 
     private static func jsonResponseObject(for response: URLResponse?, data: Data?) -> (responseObject: Any?, error: Error?) {
-        let (isValid, validationError) = validate(response: response, data: data, acceptableContentTypes: jsonContentTypes)
-
-        if !isValid, let validationError, hasCode(NSURLErrorCannotDecodeContentData, inDomain: errorDomain, error: validationError) {
-            return (nil, validationError)
-        }
+        let (validationError, hasAcceptableContentType) = validate(response: response, data: data, acceptableContentTypes: jsonContentTypes)
 
         // A single space is what some servers send for an empty response
-        guard let data, !data.isEmpty, data != Data(" ".utf8) else {
+        guard hasAcceptableContentType, let data, !data.isEmpty, data != Data(" ".utf8) else {
             return (nil, validationError)
         }
 
@@ -164,71 +155,75 @@ public enum NCHTTPSerialization {
             let responseObject = try JSONSerialization.jsonObject(with: data)
             return (responseObject, validationError)
         } catch {
-            return (nil, self.error(error as NSError, withUnderlyingError: validationError))
+            // On an error status the status error wins, it carries the body for OcsError
+            return (nil, validationError ?? error)
         }
     }
 
-    // A response can be invalid without an error, e.g. an unexpected content type with an empty body
-    private static func validate(response: URLResponse?, data: Data?, acceptableContentTypes: Set<String>?) -> (isValid: Bool, error: NSError?) {
-        guard let response = response as? HTTPURLResponse else { return (true, nil) }
+    // An unexpected content type with an empty body is not an error, but must not be parsed either
+    private static func validate(response: URLResponse?, data: Data?, acceptableContentTypes: Set<String>?) -> (error: NCHTTPResponseError?, hasAcceptableContentType: Bool) {
+        guard let response = response as? HTTPURLResponse else { return (nil, true) }
 
-        var isValid = true
-        var validationError: NSError?
+        var validationError: NCHTTPResponseError?
+        var hasAcceptableContentType = true
         let dataLength = data?.count ?? 0
 
         if let acceptableContentTypes, !acceptableContentTypes.contains(response.mimeType ?? ""), !(response.mimeType == nil && dataLength == 0) {
-            if dataLength > 0, let url = response.url {
-                var userInfo: [String: Any] = [
-                    NSLocalizedDescriptionKey: "Request failed: unacceptable content-type: \(response.mimeType ?? "(null)")",
-                    NSURLErrorFailingURLErrorKey: url,
-                    responseErrorKey: response
-                ]
-
-                userInfo[responseDataErrorKey] = data
-
-                validationError = NSError(domain: errorDomain, code: NSURLErrorCannotDecodeContentData, userInfo: userInfo)
+            if dataLength > 0 {
+                validationError = NCHTTPResponseError(reason: .unacceptableContentType, response: response, data: data)
             }
 
-            isValid = false
+            hasAcceptableContentType = false
         }
 
-        if !acceptableStatusCodes.contains(response.statusCode), let url = response.url {
-            var userInfo: [String: Any] = [
-                NSLocalizedDescriptionKey: "Request failed: \(HTTPURLResponse.localizedString(forStatusCode: response.statusCode)) (\(response.statusCode))",
-                NSURLErrorFailingURLErrorKey: url,
-                responseErrorKey: response
-            ]
-
-            userInfo[responseDataErrorKey] = data
-
-            let statusCodeError = NSError(domain: errorDomain, code: NSURLErrorBadServerResponse, userInfo: userInfo)
-            validationError = error(statusCodeError, withUnderlyingError: validationError)
-
-            isValid = false
+        if !acceptableStatusCodes.contains(response.statusCode) {
+            validationError = NCHTTPResponseError(reason: .unacceptableStatusCode, response: response, data: data)
         }
 
-        return (isValid, isValid ? nil : validationError)
+        return (validationError, hasAcceptableContentType)
+    }
+}
+
+public struct NCHTTPResponseError: CustomNSError {
+
+    public enum Reason {
+        case unacceptableStatusCode
+        case unacceptableContentType
     }
 
-    private static func error(_ error: NSError, withUnderlyingError underlyingError: NSError?) -> NSError {
-        guard let underlyingError, error.userInfo[NSUnderlyingErrorKey] == nil else { return error }
+    public let reason: Reason
+    public let response: HTTPURLResponse
+    public let data: Data?
 
-        var userInfo = error.userInfo
-        userInfo[NSUnderlyingErrorKey] = underlyingError
+    // MARK: - CustomNSError
 
-        return NSError(domain: error.domain, code: error.code, userInfo: userInfo)
+    // Standard URL error codes, so the error reads like any other networking error when bridged to NSError
+    public static var errorDomain: String {
+        return NSURLErrorDomain
     }
 
-    private static func hasCode(_ code: Int, inDomain domain: String, error: NSError) -> Bool {
-        if error.domain == domain, error.code == code {
-            return true
+    public var errorCode: Int {
+        switch reason {
+        case .unacceptableStatusCode:
+            return NSURLErrorBadServerResponse
+        case .unacceptableContentType:
+            return NSURLErrorCannotDecodeContentData
+        }
+    }
+
+    public var errorUserInfo: [String: Any] {
+        var userInfo: [String: Any] = [:]
+
+        switch reason {
+        case .unacceptableStatusCode:
+            userInfo[NSLocalizedDescriptionKey] = "Request failed: \(HTTPURLResponse.localizedString(forStatusCode: response.statusCode)) (\(response.statusCode))"
+        case .unacceptableContentType:
+            userInfo[NSLocalizedDescriptionKey] = "Request failed: unacceptable content-type: \(response.mimeType ?? "(null)")"
         }
 
-        if let underlyingError = error.userInfo[NSUnderlyingErrorKey] as? NSError {
-            return hasCode(code, inDomain: domain, error: underlyingError)
-        }
+        userInfo[NSURLErrorFailingURLErrorKey] = response.url
 
-        return false
+        return userInfo
     }
 }
 
