@@ -184,7 +184,7 @@ public enum NCHTTPSerialization {
     }
 }
 
-public struct NCHTTPResponseError: CustomNSError {
+public struct NCHTTPResponseError: CustomNSError, CustomStringConvertible {
 
     public enum Reason {
         case unacceptableStatusCode
@@ -194,6 +194,26 @@ public struct NCHTTPResponseError: CustomNSError {
     public let reason: Reason
     public let response: HTTPURLResponse
     public let data: Data?
+
+    private var message: String {
+        switch reason {
+        case .unacceptableStatusCode:
+            return "Request failed: \(HTTPURLResponse.localizedString(forStatusCode: response.statusCode)) (\(response.statusCode))"
+        case .unacceptableContentType:
+            return "Request failed: unacceptable content-type: \(response.mimeType ?? "(null)")"
+        }
+    }
+
+    // Includes the start of the body, which usually holds the server's reason
+    public var description: String {
+        var description = "\(message), \(response.url?.absoluteString ?? "(no URL)")"
+
+        if let data, let body = String(data: data.prefix(500), encoding: .utf8), !body.isEmpty {
+            description += ", body: \(body)"
+        }
+
+        return description
+    }
 
     // MARK: - CustomNSError
 
@@ -212,15 +232,7 @@ public struct NCHTTPResponseError: CustomNSError {
     }
 
     public var errorUserInfo: [String: Any] {
-        var userInfo: [String: Any] = [:]
-
-        switch reason {
-        case .unacceptableStatusCode:
-            userInfo[NSLocalizedDescriptionKey] = "Request failed: \(HTTPURLResponse.localizedString(forStatusCode: response.statusCode)) (\(response.statusCode))"
-        case .unacceptableContentType:
-            userInfo[NSLocalizedDescriptionKey] = "Request failed: unacceptable content-type: \(response.mimeType ?? "(null)")"
-        }
-
+        var userInfo: [String: Any] = [NSLocalizedDescriptionKey: message]
         userInfo[NSURLErrorFailingURLErrorKey] = response.url
 
         return userInfo
