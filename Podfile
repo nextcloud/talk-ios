@@ -1,16 +1,7 @@
 source 'https://cdn.cocoapods.org/'
 platform :ios, '16.0'
 
-def common_dependencies
-  pod 'AFNetworking', '3.2.0'
-end
-
-def common_dependencies_ext
-  common_dependencies
-end
-
 def main_dependencies
-  common_dependencies_ext
   pod 'MaterialComponents/ActivityIndicator'
   pod 'MobileVLCKit', '~> 3.5.0'
 end
@@ -23,20 +14,17 @@ target "NextcloudTalk" do
   end
 end
 
+# The extensions have no pods, they stay listed so CocoaPods keeps managing their configurations
 target "NotificationServiceExtension" do
-  common_dependencies
 end
 
 target "ShareExtension" do
-  common_dependencies_ext
 end
 
 target "BroadcastUploadExtension" do
-  common_dependencies
 end
 
 target "TalkIntents" do
-  common_dependencies_ext
 end
 
 pre_install do |installer|
@@ -44,21 +32,6 @@ pre_install do |installer|
 
     puts 'Update submodules...'
     system('git submodule update --init')
-
-    dir_af = File.join(installer.sandbox.pod_dir('AFNetworking'), 'UIKit+AFNetworking')
-    Dir.foreach(dir_af) {|x|
-      real_path = File.join(dir_af, x)
-      if (!File.directory?(real_path) && File.exist?(real_path))
-        if((x.start_with?('UIWebView') || x == 'UIKit+AFNetworking.h'))
-          File.delete(real_path)
-          puts 'delete:'+ x
-        end
-      end
-    }
-
-    puts 'Patching AFNetworking for Xcode 26.4'
-    %x(cd Pods/AFNetworking/ && patch -N -p1 < ../../patches/xcode26.4-in6.patch)
-    puts 'Patching AFNetworking done'
 
     puts 'end pre_install.'
 end
