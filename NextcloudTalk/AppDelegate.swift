@@ -55,6 +55,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
         NSLog("Configure App Settings")
         _ = NCSettingsController.sharedInstance()
 
+        CallLiveActivityManager.shared.endStaleActivities()
+        CallLiveActivityManager.shared.registerActionHandler()
+
         // Perform cleanup only once in app lifecycle
         DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + 10) {
             autoreleasepool {
