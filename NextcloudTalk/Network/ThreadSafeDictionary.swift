@@ -43,6 +43,14 @@ class ThreadSafeDictionary<Key: Hashable, Value> {
         return value
     }
 
+    /// A consistent copy of all entries
+    var dictionary: [Key: Value] {
+        self.lock.lock()
+        defer { self.lock.unlock() }
+
+        return self.storage
+    }
+
     func removeValue(forKey key: Key) {
         self.lock.lock()
         defer { self.lock.unlock() }
