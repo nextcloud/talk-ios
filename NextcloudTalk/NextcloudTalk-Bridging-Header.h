@@ -18,7 +18,6 @@
 #import "TOCropViewController.h"
 #import "TOCropViewControllerTransitioning.h"
 #import "TOActivityCroppedImageProvider.h"
-#import "UIImageView+AFNetworking.h"
 #import "UIImage+CropRotate.h"
 #import "MaterialActivityIndicator.h"
 #import "SLKTextViewController.h"
@@ -38,9 +37,6 @@
 
 #import "ScreenCapturer.h"
 #import "ScreenCaptureController.h"
-
-#import "AFNetworking.h"
-
 
 #import "DRCellSlideGestureRecognizer.h"
 #import "NCTypes.h"

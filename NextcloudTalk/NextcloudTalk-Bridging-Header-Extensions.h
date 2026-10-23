@@ -22,10 +22,6 @@
 #import "SLKTextViewController.h"
 #import "CCCertificate.h"
 
-
 #import "NCTypes.h"
-
-#import "AFNetworking.h"
-
 
 #endif /* NextcloudTalk_Bridging_Header_h */
