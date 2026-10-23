@@ -101,6 +101,33 @@ final class UnitNCMessageParameterTest: XCTestCase {
         XCTAssertEqual(messageFile.width, 4032)
         XCTAssertEqual(messageFile.height, 3024)
         XCTAssertEqual(messageFile.blurhash, "LBC;@m%$%itT?d?J-=-;Q3-=%Np0")
+        XCTAssertEqual(messageFile.permissions, 27)
+        XCTAssertTrue(messageFile.canBeShared)
+    }
+
+    func testFileMessageParameterRightToShare() throws {
+        func fileParameter(permissions: String?) throws -> NCMessageFileParameter {
+            let permissionsEntry = permissions.map { "\"permissions\": \"\($0)\"," } ?? ""
+            let message = NCChatMessage()
+            message.messageParametersJSONString = """
+            { "file": { "type": "file", "id": "6160", "name": "a.jpg", \(permissionsEntry) "path": "a.jpg" } }
+            """
+            return try XCTUnwrap(message.file())
+        }
+
+        // Read, update, delete and share
+        XCTAssertTrue(try fileParameter(permissions: "27").canBeShared)
+        // Read, update and share
+        XCTAssertTrue(try fileParameter(permissions: "19").canBeShared)
+        // Read and update only, e.g. a file shared without reshare
+        XCTAssertFalse(try fileParameter(permissions: "3").canBeShared)
+        // Read and share, but no update: the server refuses the share with 403 "more permission"
+        XCTAssertFalse(try fileParameter(permissions: "17").canBeShared)
+        // Read only
+        XCTAssertFalse(try fileParameter(permissions: "1").canBeShared)
+        // The server did not tell: do not take away the action
+        XCTAssertNil(try fileParameter(permissions: nil).permissions)
+        XCTAssertTrue(try fileParameter(permissions: nil).canBeShared)
     }
 
     func testLegacyFileMessageParameter() throws {
