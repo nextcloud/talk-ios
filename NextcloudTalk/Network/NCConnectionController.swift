@@ -43,8 +43,8 @@ class NCConnectionController: NSObject {
 
         self.checkAppState()
 
-        AFNetworkReachabilityManager.shared().setReachabilityStatusChange { status in
-            print("Reachability: \(AFStringFromNetworkReachabilityStatus(status))")
+        NCNetworkReachability.shared.statusChangeHandler = { status in
+            print("Reachability: \(status)")
             self.checkConnectionState()
         }
     }
@@ -62,7 +62,7 @@ class NCConnectionController: NSObject {
     }
 
     public func checkConnectionState() {
-        if !AFNetworkReachabilityManager.shared().isReachable {
+        if !NCNetworkReachability.shared.isReachable {
             self.connectionState = .disconnected
             self.notifyConnectionState()
         } else {

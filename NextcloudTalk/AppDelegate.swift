@@ -33,10 +33,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
     private var fileDescriptorTimer: Timer?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        #if DEBUG
-        AFNetworkActivityIndicatorManager.shared().isEnabled = true
-        #endif
-        AFNetworkReachabilityManager.shared().startMonitoring()
+        NCNetworkReachability.shared.startMonitoring()
 
         NCNotificationController.sharedInstance().requestAuthorization()
 
