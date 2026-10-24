@@ -73,6 +73,9 @@
 /* Time until the user status is cleared */
 "%ld days" = "%ld days";
 
+/* Files among the selected messages that were left out of a forward */
+"%ld files were not forwarded" = "%ld files were not forwarded";
+
 /* Time until the user status is cleared */
 "%ld hours" = "%ld hours";
 
@@ -90,6 +93,9 @@
 
 /* Replies in a thread */
 "%ld replies" = "%ld replies";
+
+/* Number of messages selected in a chat, e.g. '3 selected' */
+"%ld selected" = "%ld selected";
 
 /* No comment provided by engineer. */
 "'Do not disturb' user status is ignored for important conversations" = "'Do not disturb' user status is ignored for important conversations";
@@ -1251,6 +1257,9 @@
 
 /* No comment provided by engineer. */
 "Forward to" = "Forward to";
+
+/* A forward of several messages stopped by an error, e.g. 'Forwarded 2 of 5 messages' */
+"Forwarded %1$ld of %2$ld messages" = "Forwarded %1$ld of %2$ld messages";
 
 /* 'From' which language user wants to translate text */
 "From" = "From";

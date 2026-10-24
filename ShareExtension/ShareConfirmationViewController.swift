@@ -35,6 +35,13 @@ private let kShareConfirmationOptionsViewHeight: CGFloat = 44
     public var isModal: Bool = false
     public var forwardingMessage: Bool = false
 
+    /// Files of a forward of several messages that are not forwarded, to tell the user when it is done
+    public private(set) var forwardSkippedFiles: Int = 0
+
+    /// How many of the messages of a forward of several messages are sent, and how many there are
+    public private(set) var forwardSentCount: Int = 0
+    public private(set) var forwardTotalCount: Int = 0
+
     public weak var delegate: ShareConfirmationViewControllerDelegate?
 
     public lazy var shareItemController: ShareItemController = {
@@ -64,11 +71,14 @@ private let kShareConfirmationOptionsViewHeight: CGFloat = 44
     private var imagePicker: UIImagePickerController?
     private var hud: MBProgressHUD?
     private var objectShareMessage: NCChatMessage?
+    private var forwardItems: [ForwardItem] = []
+    private var isSendingForwardItems = false
 
     private enum ShareConfirmationType {
         case text
         case item
         case objectShare
+        case forwardItems
     }
 
     // MARK: - UI Controls
@@ -487,6 +497,23 @@ private let kShareConfirmationOptionsViewHeight: CGFloat = 44
         }
     }
 
+    /// Several messages are forwarded, each one as a message of its own, in the order of the list
+    @objc public func shareForwardItems(_ items: [ForwardItem], skippedFiles: Int) {
+        self.shareType = .forwardItems
+
+        DispatchQueue.main.async {
+            self.setTextInputbarHidden(true, animated: false)
+            self.shareCollectionView.isHidden = true
+            self.itemToolbar.isHidden = true
+            self.shareTextView.isHidden = false
+            self.shareTextView.isUserInteractionEnabled = false
+            self.shareTextView.text = items.map { $0.text }.joined(separator: "\n\n")
+            self.forwardItems = items
+            self.forwardSkippedFiles = skippedFiles
+            self.updateOptionsView()
+        }
+    }
+
     // MARK: - View lifecycle
 
     public override func viewDidLoad() {
@@ -682,15 +709,18 @@ private let kShareConfirmationOptionsViewHeight: CGFloat = 44
     func sendCurrent(silently: Bool) {
         self.shareSilently = silently
 
+        // Before the send: a send that ends at once stops the indicator, which must not be started after that
+        self.startAnimatingSharingIndicator()
+
         if self.shareType == .text {
             self.sendSharedText()
         } else if self.shareType == .objectShare {
             self.sendObjectShare()
+        } else if self.shareType == .forwardItems {
+            self.sendForwardItems()
         } else {
             self.uploadAndShareFiles()
         }
-
-        self.startAnimatingSharingIndicator()
     }
 
     // MARK: - Add additional items
@@ -768,6 +798,41 @@ private let kShareConfirmationOptionsViewHeight: CGFloat = 44
 
             self.stopAnimatingSharingIndicator()
         }
+    }
+
+    func sendForwardItems() {
+        // The button is replaced only a moment later, a second tap must not send everything twice
+        guard !self.isSendingForwardItems else { return }
+        self.isSendingForwardItems = true
+        self.forwardTotalCount = self.forwardItems.count
+
+        SequentialSender.send(self.forwardItems, one: { item, done in
+            let task: URLSessionDataTask?
+
+            if let richObject = item.richObject {
+                task = NCAPIController.sharedInstance().shareRichObject(richObject, inRoom: self.room.token, forAccount: self.account) { error in done(error) }
+            } else {
+                task = NCAPIController.sharedInstance().sendChatMessage(item.text, toRoom: self.room.token, threadTitle: nil, replyTo: -1, referenceId: nil, silently: false, forAccount: self.account) { error in done(error) }
+            }
+
+            // Without a request there is no answer, and the run would wait for ever
+            if task == nil {
+                done(NSError(domain: NSURLErrorDomain, code: NSURLErrorCancelled))
+            }
+        }, completion: { sent, error in
+            self.forwardSentCount = sent
+            self.isSendingForwardItems = false
+
+            if let error {
+                NCLog.log(String(format: "Failed to forward messages. Sent: %ld of %ld. Error: %@", sent, self.forwardItems.count, error.localizedDescription))
+                self.delegate?.shareConfirmationViewControllerDidFail(self)
+            } else {
+                NCIntentController.sharedInstance().donateSendMessageIntent(for: self.room)
+                self.delegate?.shareConfirmationViewControllerDidFinish(self)
+            }
+
+            self.stopAnimatingSharingIndicator()
+        })
     }
 
     func sendObjectShare() {

@@ -2584,34 +2584,7 @@ import SwiftUI
     }
 
     // swiftlint:disable:next cyclomatic_complexity
-    public override func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
-        if tableView == self.autoCompletionView {
-            return nil
-        }
-
-        let cell = tableView.cellForRow(at: indexPath)
-
-        if let cell = cell as? BaseChatTableViewCell {
-            let pointInCell = tableView.convert(point, to: cell)
-            let pointInBubbleView = cell.convert(pointInCell, to: cell.bubbleView)
-
-            if let reactionPart = cell.reactionPart, reactionPart.frame.contains(pointInBubbleView), let message = cell.message, !message.reactionsArray().isEmpty {
-                self.showReactionsSummary(of: message)
-                return nil
-            }
-        }
-
-        guard let message = self.message(for: indexPath)
-        else { return nil }
-
-        if message.isSystemMessage || message.isDeletedMessage ||
-            message.messageId == MessageSeparatorTableViewCell.unreadMessagesSeparatorId ||
-            message.messageId == MessageSeparatorTableViewCell.unreadMessagesWithSummarySeparatorId ||
-            message.messageId == MessageSeparatorTableViewCell.chatBlockSeparatorId {
-
-            return nil
-        }
-
+    override func messageMenu(for message: NCChatMessage, at indexPath: IndexPath) -> UIMenu {
         var actions: [UIMenuElement] = []
         var informationalActions: [UIMenuElement] = []
 
@@ -2820,13 +2793,11 @@ import SwiftUI
             menu = UIMenu(children: [reactionShortcutMenu, UIMenu(options: [.displayInline], children: actions)])
         }
 
-        let configuration = UIContextMenuConfiguration(identifier: indexPath as NSIndexPath) { [weak self] in
-            return self?.getContextMenuPreviewController(forRowAt: indexPath)
-        } actionProvider: { _ in
-            return menu
-        }
+        return menu
+    }
 
-        return configuration
+    override var supportsMessageSelection: Bool {
+        return true
     }
 
     // MARK: - NCChatTitleViewDelegate
