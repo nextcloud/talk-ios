@@ -25,6 +25,7 @@ import SwiftUI
     private var hasPresentedLobby = false
     private var hasRequestedInitialHistory = false
     private var hasReceiveInitialHistory = false
+    private var isWaitingForOfflineHistory = false
     private var retrievingHistory = false
     private var isBackgroundUploadSyncScheduled = false
     // Shares that had files shown as pending while the chat is open. Kept after they are posted, as their
@@ -753,7 +754,7 @@ import SwiftUI
     /// - Parameter removingPostedUploads: Also removes pending files without a job, the next server messages bring them in.
     /// - Parameter removingReferenceIds: Pending files that were cancelled.
     func syncBackgroundUploads(removingPostedUploads: Bool = false, removingReferenceIds: Set<String> = []) {
-        guard self.hasReceiveInitialHistory, self.isViewLoaded, let tableView = self.tableView else { return }
+        guard self.hasReceiveInitialHistory, !self.isWaitingForOfflineHistory, self.isViewLoaded, let tableView = self.tableView else { return }
 
         defer {
             self.shownBackgroundUploadHashes.formUnion(self.messages.values.joined().compactMap { $0.backgroundUploadJobId != nil ? $0.fileUploadReference?.uploadHash : nil })
@@ -765,7 +766,7 @@ import SwiftUI
 
         let shownMessages = Array(self.messages.values.joined())
 
-        // A server message landing in another day does not replace its temporary message
+        // A posted file on another day than its pending one leaves that one behind, see landsOutOfPlace
         var postedReferenceIds: Set<String> = []
 
         for message in shownMessages where !message.isTemporary {
@@ -802,7 +803,6 @@ import SwiftUI
 
             return isPosted || isCancelled || isGone
         }
-
 
         // A new share scrolls into view like a sent message, while the share sheet may still cover the chat
         let justSharedDate = Date().addingTimeInterval(-Self.newShareScrollPeriod)
@@ -845,6 +845,20 @@ import SwiftUI
         self.updateToolbar(animated: false)
     }
 
+    /// Whether a received file of a share shown as pending does not replace its pending message, because there is none
+    /// or it is on another day. It then lands out of place, which the sync corrects. Call it before adding the file.
+    private func landsOutOfPlace(_ message: NCChatMessage) -> Bool {
+        guard let uploadHash = message.fileUploadReference?.uploadHash, self.shownBackgroundUploadHashes.contains(uploadHash),
+              let referenceId = message.referenceId
+        else { return false }
+
+        guard let pendingMessage = self.indexPathAndMessage(forReferenceId: referenceId)?.message, pendingMessage.isTemporary else { return true }
+
+        let pendingDate = Date(timeIntervalSince1970: TimeInterval(pendingMessage.timestamp))
+
+        return !Calendar.current.isDate(pendingDate, inSameDayAs: Date(timeIntervalSince1970: TimeInterval(message.timestamp)))
+    }
+
     /// A file posted before its share showed up as pending arrives after the pending files, which puts it at the
     /// wrong end of the share's group. Files of a share are posted in order, so it goes before the later ones.
     private func moveLatePostedFiles(ofShares uploadHashes: Set<String>) -> Bool {
@@ -870,6 +884,12 @@ import SwiftUI
                     messages.remove(at: index)
                     messages.insert(message, at: laterFileIndex)
                     movedFilesOfDate = true
+
+                    // The moved file and the messages after its new and its old place have other neighbours now
+                    for position in [laterFileIndex, laterFileIndex + 1, index + 1] where position < messages.count {
+                        let previousMessage = position > 0 ? messages[position - 1] : nil
+                        messages[position].isGroupMessage = previousMessage.map { self.shouldGroupMessage(newMessage: messages[position], withMessage: $0) } ?? false
+                    }
                 }
 
                 index += 1
@@ -1478,6 +1498,9 @@ import SwiftUI
                     let filteredMessages = messages.filter { !deleteMessages.contains($0) }
                     self.messages[section] = filteredMessages
 
+                    // The section is reloaded as a whole, so the rows whose group changed are covered
+                    self.regroupFileMessages()
+
                     if !filteredMessages.isEmpty {
                         self.tableView?.reloadSections(IndexSet(integer: sectionIndex), with: .top)
                     } else {
@@ -1861,6 +1884,9 @@ import SwiftUI
                     }
 
                     self.lastReadMessage = lastMessage.messageId
+
+                    // The separator ends a group of files, the table view is reloaded below
+                    self.regroupFileMessages()
                 }
 
                 let storedTemporaryMessages = self.chatController.getTemporaryMessages()
@@ -1891,18 +1917,20 @@ import SwiftUI
 
             self.hasReceiveInitialHistory = true
 
+            if notification.userInfo?["error"] == nil {
+                self.chatController.startReceivingNewChatMessages()
+            } else {
+                self.offlineMode = true
+                // The stored history is appended at the end of its days, it has to be in before the pending files
+                self.isWaitingForOfflineHistory = true
+                self.chatController.getInitialChatHistoryForOfflineMode()
+            }
+
             // Not stored like other temporary messages, they are built from their jobs
             self.syncBackgroundUploads()
 
             // Waiting retries start when the chat is opened
             self.retryWaitingBackgroundUploads()
-
-            if notification.userInfo?["error"] == nil {
-                self.chatController.startReceivingNewChatMessages()
-            } else {
-                self.offlineMode = true
-                self.chatController.getInitialChatHistoryForOfflineMode()
-            }
         }
     }
 
@@ -1931,6 +1959,9 @@ import SwiftUI
                 self.scrollChatToBottom(animated: false)
                 self.updateToolbar(animated: false)
             }
+
+            self.isWaitingForOfflineHistory = false
+            self.syncBackgroundUploads()
         }
     }
 
@@ -1982,15 +2013,9 @@ import SwiftUI
 
             let firstNewMessagesAfterHistory = notification.userInfo?["firstNewMessagesAfterHistory"] as? Bool ?? false
 
-            // A file of a share shown as pending may land out of place, see syncBackgroundUploads
             let receivedMessages = notification.userInfo?["messages"] as? [NCChatMessage] ?? []
-            let postsShownUpload = receivedMessages.contains { message in
-                guard let uploadHash = message.fileUploadReference?.uploadHash else { return false }
 
-                return self.shownBackgroundUploadHashes.contains(uploadHash)
-            }
-
-            if postsShownUpload {
+            if receivedMessages.contains(where: { self.landsOutOfPlace($0) }) {
                 self.scheduleBackgroundUploadSync()
             }
 
@@ -2157,8 +2182,6 @@ import SwiftUI
         // not change the layout of the tableView, so those cells are updated in place
         // instead of reloaded, which would interrupt a running insert/scroll animation.
         var temporaryReplacementHeights: [String: CGFloat] = [:]
-        // A row showing a different number of grouped files is a different cell, even at the same height
-        var temporaryReplacementGroupSizes: [String: Int] = [:]
 
         for message in messages {
             if let referenceId = message.referenceId, !referenceId.isEmpty,
@@ -2166,7 +2189,6 @@ import SwiftUI
                existingMessage.isTemporary {
 
                 temporaryReplacementHeights[referenceId] = self.getCellHeight(for: existingMessage)
-                temporaryReplacementGroupSizes[referenceId] = self.fileMessageGroup(showing: existingMessage)?.messages.count ?? 0
             }
         }
 
@@ -2177,11 +2199,9 @@ import SwiftUI
         // of the data source instead.
         let sectionsBeforeUpdate = self.dateSections
 
-
-        // Rows whose group of files changes need a reload, see below
-        let fileGroupsBeforeUpdate = self.fileGroupsByAnchor()
-
-        self.appendMessages(messages: messages)
+        // Files joining or leaving a group change what other rows show
+        let changedFileRows = self.appendMessages(messages: messages)
+        let changedFileRowIndexPaths = Set(changedFileRows.compactMap { self.indexPath(for: $0) })
 
         // Reloads and in-place updates address rows the tableView already knows, so their
         // index paths need to be in pre-update coordinates. Returns nil for rows that were
@@ -2227,9 +2247,9 @@ import SwiftUI
             } else if let reloadPath = preUpdateIndexPath(for: indexPath) {
                 if let referenceId = newMessage.referenceId, let previousHeight = temporaryReplacementHeights[referenceId],
                    self.getCellHeight(for: newMessage) == previousHeight,
-                   temporaryReplacementGroupSizes[referenceId] == (self.fileMessageGroup(showing: newMessage)?.messages.count ?? 0) {
-                    // The message replaced its temporary counterpart without a height change,
-                    // so a visible cell can be updated in place
+                   !changedFileRowIndexPaths.contains(indexPath) {
+                    // The message replaced its temporary counterpart without a height change and its
+                    // group of files is unchanged, so a visible cell can be updated in place
                     update.inPlaceUpdates.append((reloadPath, newMessage))
                 } else {
                     // This is a already known indexPath, so we want to reload the cell
@@ -2247,25 +2267,11 @@ import SwiftUI
             }
         }
 
-        // A row shows another group of files now, without its own message changing. For example a pending
-        // group losing the files that were posted, or a group gaining a file that arrived earlier. In-place
-        // updates set their group themselves.
-        let inPlacePaths = Set(update.inPlaceUpdates.map { $0.indexPath })
-
-        // A row that stops showing a group is reloaded as well, its cell would keep drawing the files.
-        let fileGroupsAfterUpdate = self.fileGroupsByAnchor()
-        let anchorKeys = Set(fileGroupsBeforeUpdate.keys).union(fileGroupsAfterUpdate.keys)
-
-        for anchorKey in anchorKeys where fileGroupsBeforeUpdate[anchorKey]?.memberKeys != fileGroupsAfterUpdate[anchorKey]?.memberKeys {
-            guard let anchor = fileGroupsAfterUpdate[anchorKey]?.anchor ?? fileGroupsBeforeUpdate[anchorKey]?.anchor,
-                  let indexPath = self.indexPath(for: anchor),
-                  let reloadPath = preUpdateIndexPath(for: indexPath),
-                  !inPlacePaths.contains(reloadPath)
-            else { continue }
-
-            update.reloadIndexPaths.insert(reloadPath)
+        for indexPath in changedFileRowIndexPaths {
+            if let reloadPath = preUpdateIndexPath(for: indexPath) {
+                update.reloadIndexPaths.insert(reloadPath)
+            }
         }
-
 
         return update
     }
@@ -3167,7 +3173,7 @@ import SwiftUI
         }
 
         // Delete option. A group is deleted as a whole, so no file of it is left behind unseen.
-        if let fileGroup = self.fileMessageGroups[message.messageId] {
+        if let fileGroup = self.uploadFileGroup(shownBy: message) {
             // Files still being posted can't be deleted on the server yet
             if self.room.canChat, fileGroup.messages.allSatisfy({ !$0.isTemporary && $0.isDeletable(for: self.account, in: self.room) }) {
                 destructiveMenuActions.append(UIAction(title: NSLocalizedString("Delete", comment: ""), image: .init(systemName: "trash"), attributes: .destructive) { _ in
