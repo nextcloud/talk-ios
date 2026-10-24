@@ -825,12 +825,14 @@ import Toast
 
                 try await NCAPIController.sharedInstance().scheduleMessage(temporaryMessage.sendingMessage, inRoom: self.room.token, sendAt: timestamp, replyTo: replyToMessage?.messageId, silent: silently, threadId: self.thread?.threadId, forAccount: self.account)
                 NotificationPresenter.shared().present(text: NSLocalizedString("Message successfully scheduled", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
+                HapticFeedback.success()
 
                 self.clearInputAfterSend()
                 NCRoomsManager.shared.updateRoom(self.room.token, forAccount: self.account)
             } catch {
                 print(error)
                 NotificationPresenter.shared().present(text: NSLocalizedString("Message scheduling failed", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
+                HapticFeedback.error()
             }
         }
     }
@@ -862,6 +864,7 @@ import Toast
 
         switch button.tag {
         case sendButtonTagMessage:
+            HapticFeedback.light()
             self.sendCurrentMessage(silently: false)
             super.didPressRightButton(sender)
         case sendButtonTagVoice:
@@ -1433,6 +1436,7 @@ import Toast
         let pasteboard = UIPasteboard.general
         pasteboard.string = message.parsedMessage().string
         NotificationPresenter.shared().present(text: NSLocalizedString("Message copied", comment: ""), dismissAfterDelay: 5.0, includedStyle: .dark)
+        HapticFeedback.success()
     }
 
     func didPressCopyLink(for message: NCChatMessage) {
@@ -1445,6 +1449,7 @@ import Toast
         pasteboard.string = url
 
         NotificationPresenter.shared().present(text: NSLocalizedString("Message link copied", comment: ""), dismissAfterDelay: 5.0, includedStyle: .dark)
+        HapticFeedback.success()
     }
 
     func didPressCopySelection(for message: NCChatMessage) {
@@ -1634,6 +1639,7 @@ import Toast
 
     public func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         if textField == self.emojiTextField, string.isSingleEmoji, let interactingMessage = self.interactingMessage {
+            HapticFeedback.light()
             self.addReaction(reaction: string, to: interactingMessage)
             textField.resignFirstResponder()
         }
@@ -2612,6 +2618,7 @@ import Toast
                         let intOffset = Int(offset!.magnitude)
                         showExpandedVoiceMessageRecordingView(offset: intOffset)
                         print("LOCKED")
+                        HapticFeedback.rigid()
                         isVoiceRecordingLocked = true
                     }
                 }

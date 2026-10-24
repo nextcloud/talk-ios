@@ -1485,6 +1485,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
     }
 
     private func addRoomToFavorites(_ room: NCRoom) {
+        HapticFeedback.selection()
         NCAPIController.sharedInstance().addRoomToFavorites(room.token, forAccount: NCDatabaseManager.sharedInstance().activeAccount()) { error in
             if let error {
                 NSLog("Error adding room to favorites: %@", error.description)
@@ -1494,6 +1495,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
     }
 
     private func removeRoomFromFavorites(_ room: NCRoom) {
+        HapticFeedback.selection()
         NCAPIController.sharedInstance().removeRoomFromFavorites(room.token, forAccount: NCDatabaseManager.sharedInstance().activeAccount()) { error in
             if let error {
                 NSLog("Error removing room from favorites: %@", error.description)

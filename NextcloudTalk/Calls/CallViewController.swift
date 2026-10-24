@@ -2141,6 +2141,7 @@ class CallViewController: UIViewController,
 
             for reaction in callReactions {
                 reactionItems.append(UIAction(title: String(reaction), handler: { [unowned self] _ in
+                    HapticFeedback.light()
                     self.callController?.sendReaction(reaction)
 
                     if let account = room.account {
@@ -2264,6 +2265,7 @@ class CallViewController: UIViewController,
             }
 
             items.append(UIAction(title: raiseHandTitle, image: .init(systemName: "hand.raised.fill"), handler: { [unowned self] _ in
+                HapticFeedback.light()
                 callController.raiseHand(!self.isHandRaised)
                 self.isHandRaised = !self.isHandRaised
                 self.adjustBars()
@@ -2496,6 +2498,8 @@ class CallViewController: UIViewController,
     @IBAction func audioButtonPressed(_ sender: Any) {
         guard let callController else { return }
 
+        HapticFeedback.light()
+
         callController.getAudioEnabledState { isEnabled in
             if CallKitManager.isCallKitAvailable() {
                 DispatchQueue.main.async {
@@ -2582,6 +2586,8 @@ class CallViewController: UIViewController,
 
     @IBAction func videoButtonPressed(_ sender: Any) {
         guard let callController else { return }
+
+        HapticFeedback.light()
 
         callController.getVideoEnabledState { isEnabled in
             self.setLocalVideoEnabled(!isEnabled)
@@ -2682,6 +2688,7 @@ class CallViewController: UIViewController,
     }
 
     @IBAction func hangupButtonPressed(_ sender: Any) {
+        HapticFeedback.medium()
         self.hangup(forAll: (room.type == .oneToOne))
     }
 
