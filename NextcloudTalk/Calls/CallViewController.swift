@@ -157,6 +157,8 @@ class CallViewController: UIViewController,
     private var showChatAfterRoomSwitch = false
     private var connectingSoundAlreadyPlayed = false
     private var buttonFeedbackGenerator = UIImpactFeedbackGenerator(style: .light)
+    private let performanceMonitor = CallPerformanceMonitor()
+    private var hasShownReducedVideoQualityNotice = false
     private var localVideoDragStartingPoint: CGPoint?
     private var airplayView = AVRoutePickerView(frame: .init(x: 0, y: 0, width: 48, height: 32))
     private var pendingPeerInserts: [NCPeerConnection] = []
@@ -206,6 +208,8 @@ class CallViewController: UIViewController,
         let callController = NCCallController(delegate: self, room: self.room, account: self.account, isAudioOnly: self.isAudioOnly, userSessionId: sessionId, voiceChatMode: self.voiceChatModeAtStart)
         self.callController = callController
 
+        callController.setMaxSendVideoQuality(self.performanceMonitor.maxVideoQuality)
+
         callController.disableAudioAtStart = self.audioDisabledAtStart
         callController.disableVideoAtStart = self.videoDisabledAtStart
         callController.silentCall = self.silentCall
@@ -226,6 +230,10 @@ class CallViewController: UIViewController,
         super.viewDidLoad()
 
         self.setCallState(.joining)
+
+        self.performanceMonitor.onChange = { [weak self] maxVideoQuality, reason in
+            self?.performanceLimitsDidChange(maxVideoQuality: maxVideoQuality, reason: reason)
+        }
 
         self.tapGestureForDetailedView = UITapGestureRecognizer(target: self, action: #selector(showDetailedViewWithTimer))
         self.tapGestureForDetailedView?.numberOfTapsRequired = 1
@@ -870,12 +878,38 @@ class CallViewController: UIViewController,
             return .low
         }
 
+        var quality: SimulcastVideoQuality
+
         if callViewMode == .speaker {
-            return peer.peerIdentifier == promotedPeerIdentifier ? .high : .low
+            quality = peer.peerIdentifier == promotedPeerIdentifier ? .high : .low
+        } else {
+            // Unlike web, a single participant is shown fullscreen in the grid
+            quality = peersInCall.count == 1 ? .high : .medium
         }
 
-        // Unlike web, a single participant is shown fullscreen in the grid
-        return peersInCall.count == 1 ? .high : .medium
+        // Decoding less video keeps the device cooler
+        let maxVideoQuality = performanceMonitor.maxVideoQuality
+
+        return quality.rawValue > maxVideoQuality.rawValue ? maxVideoQuality : quality
+    }
+
+    private func performanceLimitsDidChange(maxVideoQuality: SimulcastVideoQuality, reason: CallPerformanceMonitor.Reason) {
+        self.callController?.setMaxSendVideoQuality(maxVideoQuality)
+        self.updateSimulcastVideoQualities()
+
+        // Let the user know once per call, why the video looks worse than before
+        guard maxVideoQuality != .high, !self.isAudioOnly, !self.hasShownReducedVideoQualityNotice else { return }
+
+        self.hasShownReducedVideoQualityNotice = true
+
+        let notificationText = switch reason {
+        case .lowPowerMode:
+            NSLocalizedString("Video quality was reduced to save battery", comment: "Shown in a call when Low Power Mode is enabled")
+        default:
+            NSLocalizedString("Video quality was reduced to cool down your device", comment: "Shown in a call when the device gets hot")
+        }
+
+        NotificationPresenter.shared().present(text: notificationText, dismissAfterDelay: 5.0, includedStyle: .dark)
     }
 
     private func updateSimulcastVideoQualities() {
@@ -2315,11 +2349,30 @@ class CallViewController: UIViewController,
             }))
         }
 
+        // The microphone mode (Standard, Voice Isolation, Wide Spectrum) can only be changed in the system UI
+        let microphoneModeTitle = String(format: NSLocalizedString("Microphone mode: %@", comment: "Microphone mode: Voice Isolation"),
+                                         self.microphoneModeName(AVCaptureDevice.activeMicrophoneMode))
+
+        items.append(UIAction(title: microphoneModeTitle, image: .init(systemName: "waveform.and.mic"), handler: { _ in
+            AVCaptureDevice.showSystemUserInterface(.microphoneModes)
+        }))
+
         if NCUtils.isTestEnvironment {
             items.append(self.getDebugMenu())
         }
 
         return items
+    }
+
+    private func microphoneModeName(_ microphoneMode: AVCaptureDevice.MicrophoneMode) -> String {
+        switch microphoneMode {
+        case .voiceIsolation:
+            return NSLocalizedString("Voice Isolation", comment: "Microphone mode that filters out background noise")
+        case .wideSpectrum:
+            return NSLocalizedString("Wide Spectrum", comment: "Microphone mode that picks up all sounds around")
+        default:
+            return NSLocalizedString("Standard", comment: "Default microphone mode")
+        }
     }
 
     func adjustSpeakerButton() {

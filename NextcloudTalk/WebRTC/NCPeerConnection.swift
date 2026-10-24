@@ -52,6 +52,9 @@ public class NCPeerConnection: NSObject {
     var showRemoteVideoInOriginalSize = false
     var addedTime: Int = 0
     var selectedSimulcastVideoQuality: SimulcastVideoQuality?
+    // The highest video quality we send, lowered while the device is hot or in Low Power Mode
+    var maxSendVideoQuality: SimulcastVideoQuality = .high
+    private var appliedMaxSendVideoQuality: SimulcastVideoQuality = .high
     var isRemoteVideoBlockedInMCU = false
 
     // Keys of the remote participant, set for end-to-end encrypted calls before any media is received
@@ -422,9 +425,63 @@ public class NCPeerConnection: NSObject {
             disableSimulcastIfUnsupported()
         }
 
+        // The codec is only known now, so a limit that was set before can be applied now
+        applyMaxSendVideoQuality()
+
         if peerConnection?.remoteDescription != nil {
             drainRemoteCandidates()
         }
+    }
+
+    func applyMaxSendVideoQuality() {
+        WebRTCCommon.shared.assertQueue()
+
+        // Screen shares need to stay readable, they are not limited
+        guard roomType == kRoomTypeVideo,
+              maxSendVideoQuality != .high || appliedMaxSendVideoQuality != .high
+        else { return }
+
+        for transceiver in peerConnection?.transceivers ?? [] where transceiver.mediaType == .video {
+            let parameters = transceiver.sender.parameters
+
+            if NCPeerConnection.limitSendEncodings(parameters.encodings, withCodec: parameters.codecs.first?.name, to: maxSendVideoQuality) {
+                transceiver.sender.parameters = parameters
+            }
+        }
+
+        appliedMaxSendVideoQuality = maxSendVideoQuality
+    }
+
+    // Returns false, when the encodings could not be limited (yet)
+    static func limitSendEncodings(_ encodings: [RTCRtpEncodingParameters], withCodec codecName: String?, to quality: SimulcastVideoQuality) -> Bool {
+        guard !encodings.isEmpty else { return false }
+
+        if encodings.count > 1 {
+            // Before the negotiation finished it's unknown whether simulcast is used
+            guard let codecName else { return false }
+
+            if codecName.caseInsensitiveCompare(kRTCVideoCodecVp8Name) == .orderedSame {
+                // The layers are ordered from lowest to highest, so their index matches the quality
+                for (index, encoding) in encodings.enumerated() {
+                    encoding.isActive = index <= quality.rawValue
+                }
+
+                return true
+            }
+        }
+
+        // A single stream (no simulcast, or only the highest layer active) can only be scaled down
+        let scaleResolutionDownBy: Double = switch quality {
+        case .low: 4
+        case .medium: 2
+        case .high: 1
+        }
+
+        for encoding in encodings where encoding.isActive {
+            encoding.scaleResolutionDownBy = NSNumber(value: scaleResolutionDownBy)
+        }
+
+        return true
     }
 
     // Only the VP8 encoder supports simulcast, others encode a single stream
