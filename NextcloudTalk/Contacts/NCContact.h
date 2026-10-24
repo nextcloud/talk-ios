@@ -18,7 +18,7 @@
 
 + (instancetype)contactWithIdentifier:(NSString *)identifier cloudId:(NSString *)cloudId lastUpdate:(NSInteger)lastUpdate andAccountId:(NSString *)accountId;
 + (void)updateContact:(NCContact *)managedContact withContact:(NCContact *)contact;
-+ (NSArray<NCUser *> *)contactsForAccountId:(NSString *)accountId contains:(NSString * _Nullable)searchString;
++ (NSArray<NCUser *> * _Nonnull)contactsForAccountId:(NSString * _Nonnull)accountId contains:(NSString * _Nullable)searchString;
 - (NSString *)userId;
 - (NSString *)name;
 

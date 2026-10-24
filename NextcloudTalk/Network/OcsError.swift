@@ -5,7 +5,7 @@
 
 import Foundation
 
-@objcMembers public class OcsError: NSObject, CustomNSError {
+@objcMembers public class OcsError: NSObject, CustomNSError, LocalizedError {
 
     let underlyingError: NSError
     let task: URLSessionDataTask?
@@ -45,6 +45,11 @@ import Foundation
     // Implement CustomNSError to acces this class from ObjC as well
     public var errorUserInfo: [String: Any] {
         return [ "ocsError": self ]
+    }
+
+    // Without this, localizedDescription is the generic "(NextcloudTalk.OcsError error 1.)"
+    public var errorDescription: String? {
+        return underlyingError.localizedDescription
     }
 
     public override var description: String {

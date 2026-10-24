@@ -277,7 +277,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
             var room: NCRoom?
 
             // Room object is returned only since Talk 11
-            if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.listableRooms) {
+            if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.listableRooms, forAccountId: account.accountId) {
                 room = NCRoom(dictionary: ocsResponse?.dataDict, andAccountId: account.accountId)
 
                 // In case there's no token, or a non-matching token, don't return
@@ -2254,7 +2254,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
             if let contactsDict = ocsResponse?.dataArrayDict {
                 let contacts = contactsDict
                     .compactMap( { NCUser(dictionary: $0) })
-                    .filter({ !($0.userId == account.userId && $0.source as String == kParticipantTypeUser) })
+                    .filter({ !($0.userId == account.userId && $0.source == kParticipantTypeUser) })
 
                 completionBlock(contacts, ocsError)
             } else {
@@ -2281,7 +2281,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
             if let contactsDict = ocsResponse?.dataArrayDict {
                 let contacts = contactsDict
                     .compactMap( { NCUser(dictionary: $0) })
-                    .filter({ !($0.userId == account.userId && $0.source as String == kParticipantTypeUser) })
+                    .filter({ !($0.userId == account.userId && $0.source == kParticipantTypeUser) })
 
                 completionBlock(contacts, ocsError)
             } else {
@@ -2550,10 +2550,11 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
     // MARK: - Push Notifications
 
-    public func subscribeAccount(_ account: TalkAccount, withPublicKey publicKey: Data, toNextcloudServerWithCompletionBlock completionBlock: @escaping (_ responseDict: [String: Any]?, _ error: OcsError?) -> Void) {
+    @nonobjc
+    public func registerDevice(forAccount account: TalkAccount, withPublicKey publicKey: Data) async throws -> PushDeviceRegistration {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId),
               let devicePublicKey = String(data: publicKey, encoding: .utf8)
-        else { return }
+        else { throw ApiControllerError.preconditionError }
 
         let urlString = "\(account.server)/ocs/v2.php/apps/notifications/api/v2/push"
         let parameters = [
@@ -2562,14 +2563,21 @@ class NCAPIController: NSObject, NKCommonDelegate {
             "proxyServer": pushNotificationServer
         ]
 
-        apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
-            completionBlock(ocsResponse?.dataDict, ocsError)
-        }
+        let ocsResponse = try await apiSessionManager.postOcs(urlString, account: account, parameters: parameters)
+
+        guard let registration = PushDeviceRegistration(dataDict: ocsResponse.dataDict)
+        else { throw ApiControllerError.unexpectedOcsResponse }
+
+        return registration
     }
 
-    public func unsubscribeAccount(_ account: TalkAccount, fromNextcloudServerWithCompletionBlock completionBlock: @escaping (_ error: OcsError?) -> Void) {
+    @nonobjc
+    public func unregisterDevice(forAccount account: TalkAccount, completionBlock: @escaping (_ error: OcsError?) -> Void) {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
-        else { return }
+        else {
+            completionBlock(OcsError.genericError())
+            return
+        }
 
         let urlString = "\(account.server)/ocs/v2.php/apps/notifications/api/v2/push"
 
@@ -2578,28 +2586,32 @@ class NCAPIController: NSObject, NKCommonDelegate {
         }
     }
 
-    public func subscribeAccount(_ account: TalkAccount, toPushServerWithCompletionBlock completionBlock: @escaping (_ error: Error?) -> Void) {
+    @nonobjc
+    public func registerDevice(_ registration: PushDeviceRegistration, atPushProxyWithPushToken pushToken: String) async throws {
         let urlString = "\(pushNotificationServer)/devices"
         let parameters = [
-            "pushToken": NCKeyChainController.sharedInstance().combinedPushToken(),
-            "deviceIdentifier": account.deviceIdentifier,
-            "deviceIdentifierSignature": account.deviceSignature,
-            "userPublicKey": account.userPublicKey
+            "pushToken": pushToken,
+            "deviceIdentifier": registration.deviceIdentifier,
+            "deviceIdentifierSignature": registration.signature,
+            "userPublicKey": registration.userPublicKey
         ]
 
-        NCPushProxySessionManager.shared.post(urlString, parameters: parameters, progress: nil) { _, _ in
-            completionBlock(nil)
-        } failure: { _, error in
-            completionBlock(error)
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            NCPushProxySessionManager.shared.post(urlString, parameters: parameters, progress: nil) { _, _ in
+                continuation.resume()
+            } failure: { _, error in
+                continuation.resume(throwing: error)
+            }
         }
     }
 
-    public func unsubscribeAccount(_ account: TalkAccount, fromPushServerWithCompletionBlock completionBlock: @escaping (_ error: Error?) -> Void) {
+    @nonobjc
+    public func unregisterDevice(_ registration: PushDeviceRegistration, fromPushProxyWithCompletionBlock completionBlock: @escaping (_ error: Error?) -> Void) {
         let urlString = "\(pushNotificationServer)/devices"
         let parameters = [
-            "deviceIdentifier": account.deviceIdentifier,
-            "deviceIdentifierSignature": account.deviceSignature,
-            "userPublicKey": account.userPublicKey
+            "deviceIdentifier": registration.deviceIdentifier,
+            "deviceIdentifierSignature": registration.signature,
+            "userPublicKey": registration.userPublicKey
         ]
 
         NCPushProxySessionManager.shared.delete(urlString, parameters: parameters) { _, _ in
@@ -2874,7 +2886,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
                 var result: [String: [NCChatMessage]] = [:]
 
                 for (key, value) in dataDict {
-                    result[key] = value.compactMap({ NCChatMessage(dictionary: $0) })
+                    result[key] = value.compactMap({ NCChatMessage(dictionary: $0, andAccountId: account.accountId) })
                 }
 
                 completionBlock(result, nil)
@@ -2908,7 +2920,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         return apiSessionManager.getOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
             if let dataDict = ocsResponse?.dataDict as? [String: [String: Any]] {
                 let headerLastKnownMessage = Int(ocsResponse?.value(forHTTPHeaderField: "x-chat-last-given")) ?? -1
-                completionBlock(dataDict.compactMap({ NCChatMessage(dictionary: $0.value) }), headerLastKnownMessage, nil)
+                completionBlock(dataDict.compactMap({ NCChatMessage(dictionary: $0.value, andAccountId: account.accountId) }), headerLastKnownMessage, nil)
             } else {
                 completionBlock(nil, -1, ocsError)
             }

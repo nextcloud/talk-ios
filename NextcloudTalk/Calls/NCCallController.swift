@@ -45,6 +45,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
     private static var kNCAudioTrackId = "NCa0"
     private static var kNCVideoTrackId = "NCv0"
     private static var kNCScreenTrackId = "NCs0"
+    private static let kPublisherAnswerTimeout: TimeInterval = 10
 
     private let room: NCRoom
     private let account: TalkAccount
@@ -136,6 +137,20 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
         return self.userSessionId
     }
 
+    private var isCallEncryptionEnabled: Bool {
+        NCSettingsController.sharedInstance().isEndToEndEncryptedCallingEnabled(forAccount: account.accountId)
+    }
+
+    // Only set with the high-performance backend, the web client only encrypts what goes through the MCU
+    private var callEncryption: CallEncryption? {
+        guard let externalSignalingController, externalSignalingController.hasMCU else { return nil }
+        return externalSignalingController.callEncryption
+    }
+
+    private var preferredVideoCodec: String {
+        isCallEncryptionEnabled ? "VP8" : "H264"
+    }
+
     private var joinCallFlags: CallFlag {
         var flags: CallFlag = [.inCall]
 
@@ -207,6 +222,13 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
 
         // Make sure the signaling controller has retrieved the settings before joining a call
         self.signalingController.updateSignalingSettings { _ in
+            if self.isCallEncryptionEnabled, self.callEncryption == nil {
+                NCLog.log("End-to-end encrypted call without the high-performance backend for token \(self.room.token)")
+                let errorReason = NSLocalizedString("End-to-end encrypted calls require the high-performance backend", comment: "")
+                self.delegate?.callControllerDidFailedJoiningCall(self, statusCode: 0, errorReason: errorReason)
+                return
+            }
+
             // The permissions must be answered before creating the local media, otherwise the tracks
             // are skipped because the authorization status is still undetermined
             self.requestAccessIfNeeded(for: .audio, onlyWhen: self.room.canPublishAudio) {
@@ -815,6 +837,8 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
                                                          roomType: peer.roomType,
                                                          payload: [:])
 
+                    guard let message else { continue }
+
                     self.signalingController.send(message)
                 }
             }
@@ -847,8 +871,9 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
             peerConnectionWrapper.close()
         }
 
-        for (_, pendingOfferTimer) in self.pendingOffersDict {
-            pendingOfferTimer.invalidate()
+        let pendingOfferTimers = Array(self.pendingOffersDict.values)
+        DispatchQueue.main.async {
+            pendingOfferTimers.forEach { $0.invalidate() }
         }
 
         self.connectionsDict = [:]
@@ -1101,6 +1126,8 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
         peerConnectionWrapper?.roomType = roomType
         peerConnectionWrapper?.delegate = self
         peerConnectionWrapper?.isOwnScreensharePeer = ownScreenshare
+        peerConnectionWrapper?.preferredVideoCodec = self.preferredVideoCodec
+        peerConnectionWrapper?.receiverKeyRing = self.callEncryption?.keyRing(forSessionId: sessionId)
 
         // Try to get displayName early
         if let actor = self.getActor(fromSessionId: sessionId), !actor.rawDisplayName.isEmpty {
@@ -1231,6 +1258,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
 
         externalSignalingController.sendCallMessage(message)
         peerConnectionWrapper.isRemoteVideoBlockedInMCU = blocked
+        NCLog.log("Remote video \(blocked ? "blocked" : "unblocked") in MCU for \(peerConnectionWrapper.peerId)")
     }
 
     private func selectSimulcastVideoQualityIfNeeded(for peerConnectionWrapper: NCPeerConnection) {
@@ -1253,19 +1281,17 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
     // Same layers as web, but ordered from lowest to highest as the VP8 encoder requires
     private func simulcastSendEncodings() -> [RTCRtpEncodingParameters] {
         return [
-            // Announced but not sent, keeps web's substream indices, the MCU falls back to medium
-            self.simulcastEncoding(rid: "l", scaleResolutionDownBy: 4, maxBitrateBps: 100_000, isActive: false),
+            self.simulcastEncoding(rid: "l", scaleResolutionDownBy: 4, maxBitrateBps: 100_000),
             self.simulcastEncoding(rid: "m", scaleResolutionDownBy: 2, maxBitrateBps: 300_000),
             self.simulcastEncoding(rid: "h", scaleResolutionDownBy: 1, maxBitrateBps: 900_000)
         ]
     }
 
-    private func simulcastEncoding(rid: String, scaleResolutionDownBy: Double, maxBitrateBps: Int, isActive: Bool = true) -> RTCRtpEncodingParameters {
+    private func simulcastEncoding(rid: String, scaleResolutionDownBy: Double, maxBitrateBps: Int) -> RTCRtpEncodingParameters {
         let encoding = RTCRtpEncodingParameters()
         encoding.rid = rid
         encoding.scaleResolutionDownBy = NSNumber(value: scaleResolutionDownBy)
         encoding.maxBitrateBps = NSNumber(value: maxBitrateBps)
-        encoding.isActive = isActive
 
         return encoding
     }
@@ -1280,6 +1306,8 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
             return
         }
 
+        guard self.canPublish() else { return }
+
         NCLog.log("Creating publisher peer connection with sessionId: \(self.signalingSessionId)")
 
         let iceServers = self.signalingController.getIceServers()
@@ -1290,6 +1318,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
 
         peerConnectionWrapper.roomType = kRoomTypeVideo
         peerConnectionWrapper.delegate = self
+        peerConnectionWrapper.preferredVideoCodec = self.preferredVideoCodec
 
         self.publisherPeerConnection = peerConnectionWrapper
 
@@ -1318,7 +1347,34 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
             peerConnection.addTransceiver(of: .video, init: transceiverInit)
         }
 
+        self.attachOwnKeyRing(toSendersOf: peerConnection)
+
         peerConnectionWrapper.sendPublisherOffer()
+        self.recreatePublisherPeerConnectionIfNotAnswered(peerConnectionWrapper)
+    }
+
+    // A lost answer leaves ICE in "new", so the connection never fails and we would silently not publish. Same as web
+    private func recreatePublisherPeerConnectionIfNotAnswered(_ peerConnectionWrapper: NCPeerConnection) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + NCCallController.kPublisherAnswerTimeout) { [weak self, weak peerConnectionWrapper] in
+            WebRTCCommon.shared.dispatch {
+                guard let self, let peerConnectionWrapper, !self.isLeavingCall,
+                      self.publisherPeerConnection === peerConnectionWrapper,
+                      let peerConnection = peerConnectionWrapper.getPeerConnection(),
+                      peerConnection.remoteDescription == nil
+                else { return }
+
+                NCLog.log("No answer for the publisher offer, recreating the publisher peer connection")
+
+                let peerKey = self.getPeerKey(withSessionId: peerConnectionWrapper.peerId, ofType: kRoomTypeVideo, forOwnScreenshare: false)
+                self.connectionsDict.removeValue(forKey: peerKey)
+                self.publisherPeerConnection = nil
+
+                peerConnectionWrapper.delegate = nil
+                peerConnectionWrapper.close()
+
+                self.createPublisherPeerConnection()
+            }
+        }
     }
 
     private func createScreenPublisherPeerConnection() {
@@ -1329,6 +1385,8 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
             return
         }
 
+        guard self.canPublish() else { return }
+
         print("Creating publisher peer connection with sessionId: \(self.signalingSessionId)")
 
         let iceServers = self.signalingController.getIceServers()
@@ -1338,6 +1396,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
         peerConnectionWrapper.roomType = kRoomTypeScreen
         peerConnectionWrapper.isOwnScreensharePeer = true
         peerConnectionWrapper.delegate = self
+        peerConnectionWrapper.preferredVideoCodec = self.preferredVideoCodec
 
         self.screenPublisherPeerConnection = peerConnectionWrapper
 
@@ -1346,9 +1405,29 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
 
         if let localScreenTrack, let peerConnection = peerConnectionWrapper.getPeerConnection() {
             peerConnection.add(localScreenTrack, streamIds: [NCCallController.kNCMediaStreamId])
+            self.attachOwnKeyRing(toSendersOf: peerConnection)
         }
 
         peerConnectionWrapper.sendPublisherOffer()
+    }
+
+    // Nothing must be sent unencrypted in an encrypted call. Ends the call instead of leaving it silently receive only
+    private func canPublish() -> Bool {
+        guard self.isCallEncryptionEnabled, self.callEncryption == nil else { return true }
+
+        NCLog.log("Not publishing, the call is end-to-end encrypted but there is no key exchange")
+        let errorReason = NSLocalizedString("End-to-end encryption could not be set up for this call", comment: "")
+        self.delegate?.callControllerDidFailedJoiningCall(self, statusCode: 0, errorReason: errorReason)
+        return false
+    }
+
+    private func attachOwnKeyRing(toSendersOf peerConnection: RTCPeerConnection) {
+        guard self.isCallEncryptionEnabled, let keyRing = self.callEncryption?.ownKeyRing else { return }
+
+        // Including senders without a track yet, which get one when upgrading to a video call
+        for sender in peerConnection.senders {
+            sender.setTalkKeyRing(keyRing)
+        }
     }
 
     public func requestOfferWithRepetition(forSessionId sessionId: String, withRoomType roomType: String, withSid sid: String? = nil) {
@@ -1605,7 +1684,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
 
     // MARK: - Signaling controller delegate
 
-    func signalingController(_ signalingController: NCSignalingController!, didReceiveSignalingMessage message: [AnyHashable: Any]!) {
+    func signalingController(_ signalingController: NCSignalingController, didReceiveSignalingMessage message: [String: Any]) {
         WebRTCCommon.shared.dispatch {
             guard !self.isLeavingCall, let messageType = message["type"] as? String else { return }
 
@@ -1625,7 +1704,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
         }
     }
 
-    func signalingControllerSessionExpired(_ signalingController: NCSignalingController!) {
+    func signalingControllerSessionExpired(_ signalingController: NCSignalingController) {
         NCLog.log("Internal signaling session expired for \(self.room.token), ending call")
 
         // The join failure path already shows the reason in the foreground and ends via CallKit in the background
@@ -1827,6 +1906,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
     }
 
     private func processOfferAnswer(_ signalingMessage: NCSignalingMessage) {
+
         // If we receive an answer to a "screen" type, it can only be our own publishing peer
         let isAnswerToOwnScreenshare = signalingMessage.messageType() == .answer && signalingMessage.roomType == kRoomTypeScreen
 
@@ -1857,10 +1937,19 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
     }
 
     private func processCandidate(_ signalingMessage: NCSignalingMessage) {
-        let peerConnectionWrapper = self.getOrCreatePeerConnectionWrapper(forSessionId: signalingMessage.from, withSid: signalingMessage.sid, ofType: signalingMessage.roomType)
-        if let candidateMessage = signalingMessage as? NCICECandidateMessage {
-            peerConnectionWrapper.add(candidateMessage.candidate)
+        guard let candidateMessage = signalingMessage as? NCICECandidateMessage else { return }
+
+        var peerConnectionWrapper = self.getPeerConnectionWrapper(forSessionId: signalingMessage.from, ofType: signalingMessage.roomType)
+
+        // Candidates for our own screen peer have the same "from" and type as a received screenshare, only the "sid" tells them apart
+        if signalingMessage.roomType == kRoomTypeScreen,
+           let ownScreenPeerConnectionWrapper = self.getPeerConnectionWrapper(forSessionId: signalingMessage.from, ofType: kRoomTypeScreen, forOwnScreenshare: true),
+           ownScreenPeerConnectionWrapper.sid == signalingMessage.sid {
+            peerConnectionWrapper = ownScreenPeerConnectionWrapper
         }
+
+        // Only offers create peers, a candidate for an unknown peer is late, same as web
+        peerConnectionWrapper?.add(candidateMessage.candidate)
     }
 
     private func processUnshareScreen(_ signalingMessage: NCSignalingMessage) {
@@ -2112,6 +2201,99 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
         }
 
         return nil
+    }
+
+    // MARK: - Debug
+
+    public var usesExternalSignaling: Bool {
+        return externalSignalingController != nil
+    }
+
+    public func simulateSignalingConnectionLoss() {
+        externalSignalingController?.simulateConnectionLoss()
+    }
+
+    // Needs to be called on the main thread, the completion is called on the main thread as well
+    public func collectDebugInfo(completion: @escaping (String) -> Void) {
+        dispatchPrecondition(condition: .onQueue(.main))
+
+        var lines = ["== Signaling =="]
+
+        if let externalSignalingController {
+            lines.append("External signaling")
+            lines.append(contentsOf: externalSignalingController.debugInfoLines)
+        } else {
+            lines.append("Internal signaling, session id: \(userSessionId)")
+        }
+
+        WebRTCCommon.shared.dispatch {
+            lines.append("")
+            lines.append("== Call ==")
+            lines.append("Audio only: \(self.isAudioOnly), audio enabled: \(self.isAudioEnabled()), video enabled: \(self.isVideoEnabled())")
+            lines.append("In call flags: \(self.userInCall), joined once: \(self.joinedCallOnce), sessions in call: \(self.sessionsInCall.count)")
+            lines.append("Relay only ICE candidates: \(CallDebugSettings.relayOnlyIceCandidates)")
+
+            let peers = self.connectionsDict.sorted { $0.key < $1.key }.map { $0.value }
+
+            if let iceServers = peers.first?.getPeerConnection()?.configuration.iceServers {
+                lines.append("ICE servers: " + iceServers.flatMap { $0.urlStrings }.joined(separator: ", "))
+            }
+
+            CallDebugInfo.sampleStatistics(of: peers) { reports in
+                for peer in peers {
+                    lines.append("")
+                    lines.append(contentsOf: self.debugInfoLines(for: peer))
+
+                    if let report = reports[ObjectIdentifier(peer)] {
+                        lines.append(contentsOf: report.detailedLines.map { "  " + $0 })
+                    }
+                }
+
+                DispatchQueue.main.async {
+                    completion(lines.joined(separator: "\n"))
+                }
+            }
+        }
+    }
+
+    private func debugInfoLines(for peer: NCPeerConnection) -> [String] {
+        WebRTCCommon.shared.assertQueue()
+
+        var title = peer.isMCUPublisherPeer ? "Publisher" : (getActor(fromSessionId: peer.peerId)?.displayName ?? peer.peerName ?? "Unknown")
+
+        if peer.roomType == kRoomTypeScreen {
+            title += peer.isOwnScreensharePeer ? " (own screen)" : " (screen)"
+        }
+
+        var lines = ["== \(title) ==", "Session id: \(peer.peerId), sid: \(peer.sid ?? "none")"]
+
+        if let peerConnection = peer.getPeerConnection() {
+            lines.append("ICE: \(peer.stringForConnectionState(peerConnection.iceConnectionState)), signaling: \(peer.stringForSignalingState(peerConnection.signalingState))")
+
+            // The encodings as libwebrtc currently has them, applying a remote answer can change their activity
+            for transceiver in peerConnection.transceivers where transceiver.mediaType == .video && transceiver.sender.parameters.encodings.count > 1 {
+                let encodings = transceiver.sender.parameters.encodings.map { "\($0.rid ?? "?") \($0.isActive ? "on" : "off")" }
+                lines.append("Send encodings: " + encodings.joined(separator: ", "))
+            }
+
+            let simulcastLines = { (sdp: String?) in
+                (sdp ?? "").components(separatedBy: "\r\n").filter { $0.hasPrefix("a=simulcast:") }.joined(separator: " | ")
+            }
+
+            if peer.isMCUPublisherPeer {
+                lines.append("Local SDP: \(simulcastLines(peerConnection.localDescription?.sdp))")
+                lines.append("Remote SDP: \(simulcastLines(peerConnection.remoteDescription?.sdp))")
+            }
+        } else {
+            lines.append("Peer connection closed")
+        }
+
+        if !peer.isMCUPublisherPeer {
+            let quality = simulcastVideoQualities[peer.peerId].map { "\($0)" } ?? "default"
+            lines.append("Remote audio off: \(peer.isRemoteAudioDisabled), video off: \(peer.isRemoteVideoDisabled), video blocked: \(remoteVideoBlocked[peer.peerId] ?? false), simulcast: \(quality)")
+        }
+
+        return lines
     }
 
 }

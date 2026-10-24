@@ -222,4 +222,44 @@ final class UnitBaseChatViewControllerTest: TestBaseRealm {
         XCTAssertEqual(baseController.getCellHeight(for: testMessage, with: 300), 171.0)
     }
 
+    func testMarkTemporaryMessageAsFailed() throws {
+        let temporaryMessage = NCChatMessage()
+        temporaryMessage.internalId = "temp-1"
+        temporaryMessage.referenceId = "reference-1"
+        temporaryMessage.messageType = "voice-message"
+        temporaryMessage.isTemporary = true
+
+        // A message received from the server with the same reference id
+        let receivedMessage = NCChatMessage()
+        receivedMessage.messageId = 1
+        receivedMessage.internalId = "internal-1"
+        receivedMessage.referenceId = "reference-1"
+
+        try? realm.transaction {
+            realm.add(temporaryMessage)
+            realm.add(receivedMessage)
+        }
+
+        baseController.markTemporaryMessageAsFailed(referenceId: "reference-1")
+
+        XCTAssertTrue(temporaryMessage.sendingFailed)
+        XCTAssertFalse(temporaryMessage.isOfflineMessage)
+        XCTAssertFalse(receivedMessage.sendingFailed)
+    }
+
+    func testMarkTemporaryMessageAsFailedIgnoresReceivedMessage() throws {
+        let receivedMessage = NCChatMessage()
+        receivedMessage.messageId = 1
+        receivedMessage.internalId = "internal-1"
+        receivedMessage.referenceId = "reference-1"
+
+        try? realm.transaction {
+            realm.add(receivedMessage)
+        }
+
+        baseController.markTemporaryMessageAsFailed(referenceId: "reference-1")
+
+        XCTAssertFalse(receivedMessage.sendingFailed)
+    }
+
 }

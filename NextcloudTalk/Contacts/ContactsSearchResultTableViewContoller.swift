@@ -85,7 +85,7 @@ import UIKit
 
         contactCell.labelTitle.text = contact.name
 
-        let contactType = contact.source as String
+        let contactType = contact.source
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         contactCell.avatarView.setActorAvatar(forId: contact.userId, withType: contactType, withDisplayName: contact.name, withRoomToken: nil, using: activeAccount)
 

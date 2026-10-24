@@ -36,7 +36,8 @@ import Toast
                                                   UITableViewDataSourcePrefetching,
                                                   MessageSeparatorTableViewCellDelegate,
                                                   DateHeaderViewDelegate,
-                                                  PinnedMessageViewDelegate {
+                                                  PinnedMessageViewDelegate,
+                                                  UITextDropDelegate {
 
     // MARK: - Internal var
     internal var messages: [Date: [NCChatMessage]] = [:]
@@ -116,6 +117,13 @@ import Toast
     private var leftButtonLongPressGesture: UILongPressGestureRecognizer?
 
     private var messageHeightCache = NCChatMessageHeightCache()
+
+    /// The files of one upload, shown as a single message, by the id of the message they are shown as
+    internal var fileMessageGroups: [Int: FileMessageGroup] = [:]
+
+    /// Messages shown as part of the group of their upload instead of on their own, mapped to the
+    /// message whose row shows them
+    internal var messageIdsHiddenInFileGroups: [Int: Int] = [:]
 
     private lazy var inputbarBorderView: UIView = {
         let inputbarBorderView = UIView()
@@ -280,6 +288,9 @@ import Toast
         self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: chatGroupedMessageCellIdentifier)
         self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: chatReplyMessageCellIdentifier)
 
+        self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: fileGroupMessageCellIdentifier)
+        self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: fileGroupGroupedMessageCellIdentifier)
+
         self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: fileMessageCellIdentifier)
         self.tableView?.register(UINib(nibName: "BaseChatTableViewCell", bundle: nil), forCellReuseIdentifier: fileGroupedMessageCellIdentifier)
 
@@ -335,6 +346,7 @@ import Toast
         self.replyMessageView?.addObserver(self, forKeyPath: "visible", options: .new, context: nil)
 
         self.textView.pastableMediaTypes = .images
+        self.textView.textDropDelegate = self
 
         // Allow pasting Memojis and Genmojis
         self.textView.allowsEditingTextAttributes = true
@@ -688,6 +700,7 @@ import Toast
             updatedMessage.isGroupMessage = message.isGroupMessage && message.actorType != "bots" && updatedMessage.lastEditTimestamp == 0
             updatedMessage.copyPendingReactions(from: message)
             self.messages[keyDate]?[indexPath.row] = updatedMessage
+            self.regroupFileMessages()
 
             // Check if there are any messages that reference our message as a parent -> these need to be reloaded as well
             if let visibleIndexPaths = self.tableView?.indexPathsForVisibleRows {
@@ -1361,42 +1374,59 @@ import Toast
     }
 
     func didPressResend(for message: NCChatMessage) {
-        // Make sure there's no unread message separator, as the indexpath could be invalid after removing a message
-        self.removeUnreadMessagesSeparator()
-
-        self.removePermanentlyTemporaryMessage(temporaryMessage: message)
-
         guard let originalMessage = message.sendingMessageWithDisplayNames else { return }
 
-        if message.messageType != kMessageTypeVoiceMessage {
-            self.sendChatMessage(message: originalMessage, withParentMessage: message.parent, messageParameters: message.messageParametersJSONString ?? "", silently: message.isSilent)
+        if message.isVoiceMessage {
+            self.resendVoiceMessage(message, fileName: originalMessage)
         } else {
-            if NCDatabaseManager.sharedInstance().roomHasTalkCapability(.chatReferenceId, for: room) {
-                self.appendTemporaryMessage(temporaryMessage: message)
-            }
-
-            var metaData = ChatFileUploadMetadata()
-            metaData.isVoiceMessage = true
-            metaData.threadId = self.thread?.threadId
-
-            if message.parentMessageId > 0 {
-                metaData.replyTo = message.parentMessageId
-            }
-
-            // A parent living in another conversation means this is a private reply
-            if let replyToToken = message.parent?.token, replyToToken != self.room.token {
-                metaData.replyToToken = replyToToken
-            }
-
-            var upload = ChatFileUpload(localPath: message.file().fileStatus!.fileLocalPath!,
-                                        fileName: originalMessage,
-                                        room: self.room,
-                                        account: self.account)
-            upload.metadata = metaData
-            upload.referenceId = message.referenceId
-
-            self.upload(upload)
+            self.removeFailedMessage(message)
+            self.sendChatMessage(message: originalMessage, withParentMessage: message.parent, messageParameters: message.messageParametersJSONString ?? "", silently: message.isSilent)
         }
+    }
+
+    private func resendVoiceMessage(_ message: NCChatMessage, fileName: String) {
+        // The recording is kept in a temporary directory, it might have been deleted in the meantime
+        guard let localPath = message.file()?.fileStatus?.fileLocalPath, FileManager.default.fileExists(atPath: localPath) else {
+            NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Failed to share recording", comment: ""),
+                                                                    withMessage: NSLocalizedString("The recording is no longer available", comment: ""))
+            return
+        }
+
+        self.removeFailedMessage(message)
+
+        guard let temporaryMessage = self.createTemporaryMessage(message: fileName, replyTo: message.parent, messageParameters: localPath, silently: message.isSilent, isVoiceMessage: true) else { return }
+
+        if NCDatabaseManager.sharedInstance().roomHasTalkCapability(.chatReferenceId, for: room) {
+            self.appendTemporaryMessage(temporaryMessage: temporaryMessage)
+        }
+
+        var metaData = ChatFileUploadMetadata()
+        metaData.isVoiceMessage = true
+        metaData.threadId = self.thread?.threadId
+
+        if message.parentMessageId > 0 {
+            metaData.replyTo = message.parentMessageId
+        }
+
+        // A parent living in another conversation means this is a private reply
+        if let replyToToken = message.parent?.token, replyToToken != self.room.token {
+            metaData.replyToToken = replyToToken
+        }
+
+        var upload = ChatFileUpload(localPath: localPath,
+                                    fileName: fileName,
+                                    room: self.room,
+                                    account: self.account)
+        upload.metadata = metaData
+        upload.referenceId = temporaryMessage.referenceId
+
+        self.upload(upload)
+    }
+
+    private func removeFailedMessage(_ message: NCChatMessage) {
+        // Make sure there's no unread message separator, as the indexpath could be invalid after removing a message
+        self.removeUnreadMessagesSeparator()
+        self.removePermanentlyTemporaryMessage(temporaryMessage: message)
     }
 
     func didPressCopy(for message: NCChatMessage) {
@@ -1480,7 +1510,14 @@ import Toast
         }
     }
 
-    func didPressDelete(for message: NCChatMessage) {
+    func didPressDeleteAll(in fileGroup: FileMessageGroup) {
+        // One success notification for the whole group, errors are still shown per file
+        for message in fileGroup.messages {
+            self.didPressDelete(for: message, showSuccess: message.messageId == fileGroup.anchor.messageId)
+        }
+    }
+
+    func didPressDelete(for message: NCChatMessage, showSuccess: Bool = true) {
         if message.sendingFailed || message.isOfflineMessage {
             self.removePermanentlyTemporaryMessage(temporaryMessage: message)
             return
@@ -1497,9 +1534,9 @@ import Toast
                let messageDict,
                let parent = messageDict["parent"] as? [AnyHashable: Any] {
 
-                if statusCode == 202 {
+                if statusCode == 202, showSuccess {
                     self.view.makeToast(NSLocalizedString("Message deleted successfully, but Matterbridge is configured and the message might already be distributed to other services", comment: ""), duration: 5, position: .center)
-                } else if statusCode == 200 {
+                } else if statusCode == 200, showSuccess {
                     NotificationPresenter.shared().present(text: NSLocalizedString("Message deleted successfully", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
                 }
 
@@ -1804,6 +1841,46 @@ import Toast
                 shareConfirmationVC.shareItemController.addItem(with: image)
             }
         }
+    }
+
+    // MARK: - TextView drop support
+
+    private func isPlainTextDrop(_ drop: UITextDropRequest) -> Bool {
+        // Text files also conform to plain text, but unlike dragged text they have a name
+        return drop.dropSession.items.allSatisfy {
+            $0.itemProvider.hasItemConformingToTypeIdentifier("public.plain-text") && $0.itemProvider.suggestedName == nil
+        }
+    }
+
+    public func textDroppableView(_ textDroppableView: UIView & UITextDroppable, proposalForDrop drop: UITextDropRequest) -> UITextDropProposal {
+        if self.isPlainTextDrop(drop) {
+            return drop.suggestedProposal
+        }
+
+        let proposal = UITextDropProposal(operation: .copy)
+        proposal.dropPerformer = .delegate
+
+        return proposal
+    }
+
+    public func textDroppableView(_ textDroppableView: UIView & UITextDroppable, willPerformDrop drop: UITextDropRequest) {
+        guard !self.isPlainTextDrop(drop),
+              let (shareConfirmationVC, navigationController) = self.createShareConfirmationViewController()
+        else { return }
+
+        shareConfirmationVC.setChatMessage(self.textView.text)
+        self.setChatMessage("")
+
+        // Start loading before presenting, dropped items are only accessible during the drop
+        for dragItem in drop.dropSession.items {
+            dragItem.itemProvider.loadFileRepresentation(forTypeIdentifier: "public.item") { url, error in
+                guard error == nil, let url else { return }
+
+                shareConfirmationVC.shareItemController.addItem(with: url)
+            }
+        }
+
+        self.present(navigationController, animated: true)
     }
 
     // MARK: - PHPhotoPicker Delegate
@@ -2245,8 +2322,30 @@ import Toast
                 try await ChatFileUploader.upload(upload)
                 NCLog.log("Successfully uploaded and shared \(upload.fileName)")
             } catch {
+                if let referenceId = upload.referenceId {
+                    self.markTemporaryMessageAsFailed(referenceId: referenceId)
+                }
+
                 self.presentUploadError(error, for: upload)
             }
+        }
+    }
+
+    internal func markTemporaryMessageAsFailed(referenceId: String) {
+        // Allow to resend or delete the message, instead of showing it as sending until it expires
+        RLMRealm.writeTransaction { _ in
+            if let managedTemporaryMessage = NCChatMessage.objects(where: "referenceId = %@ AND isTemporary = true", referenceId).firstObject() as? NCChatMessage {
+                managedTemporaryMessage.sendingFailed = true
+                managedTemporaryMessage.isOfflineMessage = false
+            }
+        }
+
+        self.modifyMessageWith(referenceId: referenceId) { message in
+            // The message might have been received from the server in the meantime
+            guard message.isTemporary else { return }
+
+            message.sendingFailed = true
+            message.isOfflineMessage = false
         }
     }
 
@@ -2270,6 +2369,9 @@ import Toast
         case ChatFileUploadError.tooManyRequests:
             NCLog.log("Too many requests while uploading")
             message = NSLocalizedString("Too many requests, please try again later", comment: "")
+        case ChatFileUploadError.uploadFailed(_, let errorDescription) where !errorDescription.isEmpty:
+            NCLog.log("Failed to upload \(upload.fileName). Error: \(errorDescription)")
+            message = errorDescription
         default:
             NCLog.log("Failed to upload \(upload.fileName). Error: \(error.localizedDescription)")
             message = NSLocalizedString("Unknown error occurred", comment: "")
@@ -2637,8 +2739,12 @@ import Toast
                 }
             }
 
+            self.regroupFileMessages()
+
             return lastHistoryMessageIP
         }
+
+        self.regroupFileMessages()
 
         return nil
     }
@@ -2685,6 +2791,7 @@ import Toast
         }
 
         self.sortDateSections()
+        self.regroupFileMessages()
     }
 
     func appendMessages(messages: [NCChatMessage]) {
@@ -2692,6 +2799,7 @@ import Toast
         // Therefore we wrap it in this append function
         self.internalAppendMessages(messages: messages, inDictionary: &self.messages)
         self.sortDateSections()
+        self.regroupFileMessages()
     }
 
     private func internalAppendMessages(messages: [NCChatMessage], inDictionary dictionary: inout [Date: [NCChatMessage]]) {
@@ -2781,11 +2889,110 @@ import Toast
                     self.tableView?.endUpdates()
                 }
             }
+
+            self.regroupFileMessages()
         }
     }
 
     func sortDateSections() {
         self.dateSections = self.messages.keys.sorted()
+    }
+
+    // MARK: - Grouping of files shared as one upload
+
+    /// Takes the row width rather than asking the table view, which has already changed during a
+    /// rotation while rows are still measured against the old one.
+    internal func availableBodyWidth(forRowWidth rowWidth: CGFloat, isOwnMessage: Bool) -> CGFloat {
+        let bubbleWidth = BaseChatTableViewCell.bubbleWidth(forRowWidth: rowWidth, isOwnMessage: isOwnMessage)
+
+        return max(0, bubbleWidth - BaseChatTableViewCell.bodyHorizontalInset)
+    }
+
+    /// The same, for the width the rows of the chat currently have.
+    internal func availableBodyWidth(forOwnMessage isOwnMessage: Bool) -> CGFloat {
+        guard let tableView = self.tableView else { return 0 }
+
+        var rowWidth = tableView.frame.width - chatMessageCellAvatarHeight
+        rowWidth -= tableView.safeAreaInsets.left + tableView.safeAreaInsets.right
+
+        return self.availableBodyWidth(forRowWidth: rowWidth, isOwnMessage: isOwnMessage)
+    }
+
+    internal func fileMessageGroup(showing message: NCChatMessage) -> FileMessageGroup? {
+        if message.messageId > 0, let group = self.fileMessageGroups[message.messageId] {
+            return group
+        }
+
+        // A file the server has no preview of is drawn on a card, like the files of a group
+        if let file = message.plainFileShare, !file.previewAvailable {
+            return FileMessageGroup(messages: [message])
+        }
+
+        return nil
+    }
+
+    internal func isHiddenInFileMessageGroup(_ message: NCChatMessage) -> Bool {
+        guard message.messageId > 0 else { return false }
+
+        return self.messageIdsHiddenInFileGroups[message.messageId] != nil
+    }
+
+    /// Runs after every change to the data source rather than while messages are added: files of
+    /// one upload can arrive in separate batches, history can be prepended in front of a group, and
+    /// removing a message can join or split one.
+    internal func regroupFileMessages() {
+        var groups: [Int: FileMessageGroup] = [:]
+        var hiddenMessageIds: [Int: Int] = [:]
+
+        for dateSection in self.dateSections {
+            guard let messagesForDate = self.messages[dateSection] else { continue }
+
+            for group in FileMessageGroup.groups(in: messagesForDate) {
+                groups[group.anchor.messageId] = group
+
+                for message in group.messages where message.messageId != group.anchor.messageId {
+                    hiddenMessageIds[message.messageId] = group.anchor.messageId
+                }
+            }
+
+            // A deleted upload is shown as its first deleted file
+            for (previous, message) in zip(messagesForDate, messagesForDate.dropFirst()) where message.isDeletedFileShare(ofTheSameUploadAs: previous) {
+                hiddenMessageIds[message.messageId] = hiddenMessageIds[previous.messageId] ?? previous.messageId
+            }
+        }
+
+        self.invalidateHeights(previousGroups: self.fileMessageGroups,
+                               groups: groups,
+                               previousHiddenMessageIds: Set(self.messageIdsHiddenInFileGroups.keys),
+                               hiddenMessageIds: Set(hiddenMessageIds.keys))
+
+        self.fileMessageGroups = groups
+        self.messageIdsHiddenInFileGroups = hiddenMessageIds
+    }
+
+    /// A message that joined or left a group is a different height than it was measured at.
+    private func invalidateHeights(previousGroups: [Int: FileMessageGroup],
+                                   groups: [Int: FileMessageGroup],
+                                   previousHiddenMessageIds: Set<Int>,
+                                   hiddenMessageIds: Set<Int>) {
+        var changedMessages: [NCChatMessage] = []
+
+        for anchorId in Set(previousGroups.keys).union(groups.keys)
+        where previousGroups[anchorId]?.messages.count != groups[anchorId]?.messages.count {
+            if let message = groups[anchorId]?.anchor ?? previousGroups[anchorId]?.anchor {
+                changedMessages.append(message)
+            }
+        }
+
+        for messageId in previousHiddenMessageIds.symmetricDifference(hiddenMessageIds) {
+            if let message = self.indexPathAndMessage(forMessageId: messageId)?.message {
+                changedMessages.append(message)
+            }
+        }
+
+        for message in changedMessages {
+            self.messageHeightCache.removeHeight(forMessage: message)
+        }
     }
 
     // MARK: - Message grouping
@@ -3360,6 +3567,18 @@ import Toast
             }
         }
 
+        if let fileGroup = self.fileMessageGroup(showing: message) {
+            let cellIdentifier = fileGroup.continuesAuthorBlock ? fileGroupGroupedMessageCellIdentifier : fileGroupMessageCellIdentifier
+
+            if let cell = self.tableView?.dequeueReusableCell(withIdentifier: cellIdentifier) as? BaseChatTableViewCell {
+                cell.delegate = self
+                cell.fileGroup = fileGroup
+                cell.setup(for: message, inRoom: self.room, forThread: self.thread, withAccount: self.account)
+
+                return cell
+            }
+        }
+
         if message.file() != nil {
             let cellIdentifier = message.isGroupMessage ? fileGroupedMessageCellIdentifier : fileMessageCellIdentifier
 
@@ -3457,6 +3676,11 @@ import Toast
             return 0.0
         }
 
+        // Shown as part of the group of its upload, not on its own
+        if self.isHiddenInFileMessageGroup(message) {
+            return 0.0
+        }
+
         // Chat messages
         let isOwnMessage = message.isMessage(from: self.account.userId)
         let messageString = message.parsedMarkdownForChat() ?? NSMutableAttributedString()
@@ -3466,19 +3690,8 @@ import Toast
             // 4 * right(10) + dateLabel(40)
             width -= 80.0
         } else {
-            // Avatar is already subtracted, but we need to take padding of left(10) into account
-            width -= 10.0
-
-            // MessageTextView has padding of 2*10
-            width -= 20.0
-
-            if isOwnMessage {
-                // For own messages we have a padding of 40 to the avatar view and 10 to the right superview
-                width -= 50.0
-            } else {
-                // For others messages, we have a padding of 10 to the avatar view und 64 to the right superview
-                width -= 74.0
-            }
+            width = BaseChatTableViewCell.bubbleWidth(forRowWidth: width, isOwnMessage: isOwnMessage)
+            width -= BaseChatTableViewCell.bodyHorizontalInset
         }
 
         self.textViewForSizing.attributedText = messageString
@@ -3492,7 +3705,9 @@ import Toast
 
         height += 15.0 // MessageTextTop(10) + MessageTextBottom(5)
 
-        if (message.isGroupMessage && !message.willShowParentMessageInThread(self.thread)) || message.isSystemMessage || isOwnMessage {
+        let continuesAuthorBlock = self.fileMessageGroup(showing: message)?.continuesAuthorBlock ?? message.isGroupMessage
+
+        if (continuesAuthorBlock && !message.willShowParentMessageInThread(self.thread)) || message.isSystemMessage || isOwnMessage {
             if height < chatGroupedMessageCellMinimumHeight {
                 height = chatGroupedMessageCellMinimumHeight
             }
@@ -3527,8 +3742,23 @@ import Toast
             height += 70 // quoteView(70)
         }
 
+        if let fileGroup = self.fileMessageGroup(showing: message) {
+            let files = fileGroup.messagesInUploadOrder.compactMap { $0.file() }
+
+            height += GroupedFilePreviewView.Layout(files: files, availableWidth: self.availableBodyWidth(forRowWidth: originalWidth, isOwnMessage: isOwnMessage)).height
+
+            if message.sharesFileWithoutCaption {
+                // A group shows its caption, never a file name. An empty text was subtracted above.
+                if !messageString.string.isEmpty {
+                    height -= ceil(bodyBounds.height)
+                }
+            } else {
+                // Only a caption is separated from the previews; without one there is no text view
+                height += 10
+            }
+
         // Voice message should be before message.file check since it contains a file
-        if message.isVoiceMessage {
+        } else if message.isVoiceMessage {
             height -= ceil(bodyBounds.height)
             height += voiceMessageCellPlayerHeight
 
@@ -3660,6 +3890,7 @@ import Toast
         else { return nil }
 
         previewCell.frame = .init(origin: .zero, size: tableView.rectForRow(at: indexPath).size)
+        previewCell.fileGroup = self.fileMessageGroup(showing: message)
         previewCell.setup(for: message, inRoom: self.room, forThread: self.thread, withAccount: self.account)
         previewCell.layoutIfNeeded()
 
@@ -3932,6 +4163,9 @@ import Toast
     }
 
     internal func highlightMessageWithContentOffset(messageId: Int) {
+        // A message hidden in a file group is highlighted on the row that shows it
+        let messageId = self.messageIdsHiddenInFileGroups[messageId] ?? messageId
+
         guard messageId > 0,
               let tableView = self.tableView,
               let (indexPath, _) = self.indexPathAndMessage(forMessageId: messageId)

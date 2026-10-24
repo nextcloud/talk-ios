@@ -15,7 +15,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, CCCertificateD
 
     weak var delegate: LoginViewControllerDelegate?
 
-    var authenticationViewController = AuthenticationViewController()
+    var authenticationViewController: AuthenticationViewController?
     var importedNextcloudFilesAccounts: [NKShareAccounts.DataAccounts] = []
 
     @IBOutlet weak var appLogoImageView: UIImageView!
@@ -224,16 +224,12 @@ class LoginViewController: UIViewController, UITextFieldDelegate, CCCertificateD
     }
 
     func presentAuthenticationViewController(serverURL: String, user: String?) {
-        guard let authenticationVC = AuthenticationViewController(serverUrl: serverURL) else { return }
-
+        let authenticationVC = AuthenticationViewController(serverUrl: serverURL)
+        authenticationVC.delegate = self
+        authenticationVC.user = user
         authenticationViewController = authenticationVC
-        authenticationViewController.delegate = self
 
-        if user != nil {
-            authenticationViewController.user = user
-        }
-
-        let authenticationNC = UINavigationController(rootViewController: authenticationViewController)
+        let authenticationNC = UINavigationController(rootViewController: authenticationVC)
         present(authenticationNC, animated: true)
     }
 
@@ -281,23 +277,22 @@ class LoginViewController: UIViewController, UITextFieldDelegate, CCCertificateD
             importedAccounts.append(option)
         }
 
-        if let accountSelectorVC = DetailedOptionsSelectorTableViewController(accounts: importedAccounts, andStyle: .insetGrouped) {
-            accountSelectorVC.title = NSLocalizedString("Import account", comment: "")
-            accountSelectorVC.delegate = self
-            let accountSelectorNC = NCNavigationController(rootViewController: accountSelectorVC)
-            self.present(accountSelectorNC, animated: true)
-        }
+        let accountSelectorVC = DetailedOptionsSelectorTableViewController(accounts: importedAccounts, andStyle: .insetGrouped)
+        accountSelectorVC.title = NSLocalizedString("Import account", comment: "")
+        accountSelectorVC.delegate = self
+        let accountSelectorNC = NCNavigationController(rootViewController: accountSelectorVC)
+        self.present(accountSelectorNC, animated: true)
     }
 
     // MARK: - DetailedOptionSelector delegate
 
-    func detailedOptionsSelector(_ viewController: DetailedOptionsSelectorTableViewController!, didSelectOptionWithIdentifier option: DetailedOption!) {
+    func detailedOptionsSelector(_ viewController: DetailedOptionsSelectorTableViewController, didSelectOptionWithIdentifier option: DetailedOption) {
         dismiss(animated: true) {
             self.presentAuthenticationViewController(serverURL: option.subtitle, user: option.identifier)
         }
     }
 
-    func detailedOptionsSelectorWasCancelled(_ viewController: DetailedOptionsSelectorTableViewController!) {
+    func detailedOptionsSelectorWasCancelled(_ viewController: DetailedOptionsSelectorTableViewController) {
         dismiss(animated: true)
     }
 
@@ -339,7 +334,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, CCCertificateD
 
     // MARK: - AuthenticationViewController delegate
 
-    func authenticationViewControllerDidFinish(_ viewController: AuthenticationViewController!) {
+    func authenticationViewControllerDidFinish(_ viewController: AuthenticationViewController) {
         if viewController == authenticationViewController {
             delegate?.loginViewControllerDidFinish()
         }

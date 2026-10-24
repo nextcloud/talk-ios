@@ -21,7 +21,7 @@ struct ChatFileUpload {
 
     var metadata = ChatFileUploadMetadata()
 
-    /// Reference id of the temporary message this upload belongs to, if there is one.
+    /// Files shared together carry the same upload hash here. See `FileUploadReference`.
     var referenceId: String?
 
     /// Whether the other participants may modify the file, instead of only viewing it.
@@ -29,4 +29,13 @@ struct ChatFileUpload {
     /// Only honoured with conversation subfolders enabled: the server keeps updatable files in a
     /// separate subfolder, so this is a choice per upload and does not affect earlier ones.
     var allowUpdate = false
+}
+
+extension ChatFileUpload {
+
+    /// - Parameter uploadId: The same value for every file shared together, a new one per upload.
+    /// - Parameter index: Zero-based.
+    static func referenceId(uploadId: String, index: Int) -> String? {
+        return FileUploadReference(uploadId: uploadId, index: index)?.referenceId
+    }
 }

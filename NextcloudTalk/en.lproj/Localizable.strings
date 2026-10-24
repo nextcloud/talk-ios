@@ -1169,6 +1169,12 @@
 "End poll" = "End poll";
 
 /* No comment provided by engineer. */
+"End-to-end encrypted calls require the high-performance backend" = "End-to-end encrypted calls require the high-performance backend";
+
+/* No comment provided by engineer. */
+"End-to-end encryption could not be set up for this call" = "End-to-end encryption could not be set up for this call";
+
+/* No comment provided by engineer. */
 "Enter a new password" = "Enter a new password";
 
 /* No comment provided by engineer. */
@@ -2439,6 +2445,9 @@
 
 /* No comment provided by engineer. */
 "The password is wrong" = "The password is wrong";
+
+/* No comment provided by engineer. */
+"The recording is no longer available" = "The recording is no longer available";
 
 /* No comment provided by engineer. */
 "The recording might include your voice, video from camera, and screen share. Your consent is required before joining the call." = "The recording might include your voice, video from camera, and screen share. Your consent is required before joining the call.";

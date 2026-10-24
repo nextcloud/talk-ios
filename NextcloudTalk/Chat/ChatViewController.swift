@@ -194,17 +194,6 @@ import SwiftUI
     }
 
     func startCall(withVideo video: Bool, silently: Bool, button: BarButtonItemWithActivity) {
-        if NCSettingsController.sharedInstance().isEndToEndEncryptedCallingEnabled(forAccount: self.account.accountId) {
-            let alert = UIAlertController(title: NSLocalizedString("Unsupported", comment: "Calling is not supported"),
-                                          message: NSLocalizedString("Calling is currently not supported because end-to-end-encryption is enabled on the server", comment: ""),
-                                          preferredStyle: .alert)
-
-            alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default))
-            self.present(alert, animated: true)
-
-            return
-        }
-
         button.showIndicator()
         if self.room.recordingConsent {
             NCUserInterfaceController.sharedInstance().presentRecordingConsentAlert(for: self.room) { confirmed in
@@ -2807,8 +2796,14 @@ import SwiftUI
             })
         }
 
-        // Delete option
-        if message.sendingFailed || message.isOfflineMessage || (message.isDeletable(for: self.account, in: self.room) && self.room.canChat) {
+        // Delete option. A group is deleted as a whole, so no file of it is left behind unseen.
+        if let fileGroup = self.fileMessageGroups[message.messageId] {
+            if self.room.canChat, fileGroup.messages.allSatisfy({ $0.isDeletable(for: self.account, in: self.room) }) {
+                destructiveMenuActions.append(UIAction(title: NSLocalizedString("Delete", comment: ""), image: .init(systemName: "trash"), attributes: .destructive) { _ in
+                    self.didPressDeleteAll(in: fileGroup)
+                })
+            }
+        } else if message.sendingFailed || message.isOfflineMessage || (message.isDeletable(for: self.account, in: self.room) && self.room.canChat) {
             destructiveMenuActions.append(UIAction(title: NSLocalizedString("Delete", comment: ""), image: .init(systemName: "trash"), attributes: .destructive) { _ in
                 self.didPressDelete(for: message)
             })

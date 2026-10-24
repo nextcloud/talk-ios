@@ -54,6 +54,12 @@ public class NCPeerConnection: NSObject {
     var selectedSimulcastVideoQuality: SimulcastVideoQuality?
     var isRemoteVideoBlockedInMCU = false
 
+    // Keys of the remote participant, set for end-to-end encrypted calls before any media is received
+    var receiverKeyRing: RTCTalkKeyRing?
+
+    // The encrypted frame format only works with VP8
+    var preferredVideoCodec = "H264"
+
     /// "peerId-sid"
     var peerIdentifier: String {
         if let sid {
@@ -77,6 +83,10 @@ public class NCPeerConnection: NSObject {
         let config = RTCConfiguration()
         config.iceServers = (iceServers ?? []).compactMap { $0 as? RTCIceServer }
         config.sdpSemantics = .unifiedPlan
+
+        if CallDebugSettings.relayOnlyIceCandidates {
+            config.iceTransportPolicy = .relay
+        }
 
         self.peerId = sessionId
         self.sid = sid ?? String(format: "%.0f", Date().timeIntervalSince1970 * 1000)
@@ -159,7 +169,7 @@ public class NCPeerConnection: NSObject {
     func setRemoteDescription(_ sessionDescription: RTCSessionDescription?) {
         WebRTCCommon.shared.assertQueue()
 
-        guard let sessionDescription, let sdpPreferringCodec = ARDSDPUtils.description(for: sessionDescription, preferredVideoCodec: "H264") else {
+        guard let sessionDescription, let sdpPreferringCodec = ARDSDPUtils.description(for: sessionDescription, preferredVideoCodec: preferredVideoCodec) else {
             return
         }
         peerConnection?.setRemoteDescription(sdpPreferringCodec) { [weak self] error in
@@ -340,8 +350,7 @@ public class NCPeerConnection: NSObject {
             return
         }
 
-        // Set H264 as preferred codec.
-        guard let sdpPreferringCodec = ARDSDPUtils.description(for: sdp, preferredVideoCodec: "H264") else {
+        guard let sdpPreferringCodec = ARDSDPUtils.description(for: sdp, preferredVideoCodec: preferredVideoCodec) else {
             return
         }
 
@@ -490,7 +499,7 @@ public class NCPeerConnection: NSObject {
         return RTCMediaConstraints(mandatoryConstraints: mandatoryConstraints, optionalConstraints: optionalConstraints)
     }
 
-    private func stringForSignalingState(_ state: RTCSignalingState) -> String {
+    func stringForSignalingState(_ state: RTCSignalingState) -> String {
         switch state {
         case .stable:
             return "Stable"
@@ -505,7 +514,7 @@ public class NCPeerConnection: NSObject {
         }
     }
 
-    private func stringForConnectionState(_ state: RTCIceConnectionState) -> String {
+    func stringForConnectionState(_ state: RTCIceConnectionState) -> String {
         switch state {
         case .new:
             return "New"
@@ -572,6 +581,11 @@ extension NCPeerConnection: RTCPeerConnectionDelegate {
     }
 
     public func peerConnection(_ peerConnection: RTCPeerConnection, didAdd rtpReceiver: RTCRtpReceiver, streams mediaStreams: [RTCMediaStream]) {
+        // Attached right away on the signaling thread, frames arriving before would reach the decoder encrypted
+        if let receiverKeyRing {
+            rtpReceiver.setTalkKeyRing(receiverKeyRing)
+        }
+
         WebRTCCommon.shared.dispatch {
             guard let stream = mediaStreams.first else {
                 return

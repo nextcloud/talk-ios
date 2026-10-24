@@ -67,7 +67,7 @@ public class NCNotificationController: NSObject, UNUserNotificationCenterDelegat
         case .deleteAll:
             self.removeAllNotifications(forAccountId: pushNotification.accountId)
         case .deleteMultiple:
-            self.removeNotification(withNotificationIds: pushNotification.notificationIds as? [NSNumber], forAccountId: pushNotification.accountId, withCompletionBlock: nil)
+            self.removeNotification(withNotificationIds: pushNotification.notificationIds, forAccountId: pushNotification.accountId, withCompletionBlock: nil)
         default:
             NSLog("Push Notification of an unknown type received")
         }

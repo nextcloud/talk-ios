@@ -121,12 +121,6 @@ public class CallKitManager: NSObject, CXProviderDelegate {
         let ongoingCalls = !self.calls.isEmpty
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
-        if NCSettingsController.sharedInstance().isEndToEndEncryptedCallingEnabled(forAccount: activeAccount.accountId) {
-            NCLog.log("End-to-end encryption for calling enabled -> cancelling call")
-            self.reportAndCancelIncomingCall(token, forAccountId: accountId, withLocalNotificationType: .endToEndEncryptionUnsupported)
-            return
-        }
-
         // If the app is not active (e.g. in background) and there is an open chat
         let isAppActive = UIApplication.shared.applicationState == .active
         if !isAppActive, let chatViewController = NCRoomsManager.shared.chatViewController {
@@ -222,7 +216,7 @@ public class CallKitManager: NSObject, CXProviderDelegate {
     }
 
     public func reportIncomingCallForNonCallKitDevices(withPushNotification pushNotification: NCPushNotification) {
-        NCLog.log("Report incoming call for non callkit device for token \(pushNotification.roomToken ?? "Unknown") for account \(pushNotification.accountId).")
+        NCLog.log("Report incoming call for non callkit device for token \(pushNotification.roomToken) for account \(pushNotification.accountId).")
 
         let update = self.defaultCallUpdate()
         let callUUID = UUID()
@@ -236,7 +230,7 @@ public class CallKitManager: NSObject, CXProviderDelegate {
             guard let self else { return }
 
             if let error {
-                NCLog.log("Report incoming call for non-callkit devices for token \(pushNotification.roomToken ?? "Unknown") for account \(pushNotification.accountId) with UUID \(callUUID) failed with \(error.localizedDescription)")
+                NCLog.log("Report incoming call for non-callkit devices for token \(pushNotification.roomToken) for account \(pushNotification.accountId) with UUID \(callUUID) failed with \(error.localizedDescription)")
                 return
             }
 
@@ -461,17 +455,6 @@ public class CallKitManager: NSObject, CXProviderDelegate {
     }
 
     public func startCall(_ token: String, withVideoEnabled videoEnabled: Bool, andDisplayName displayName: String, asInitiator initiator: Bool, silently: Bool, recordingConsent: Bool, withAccountId accountId: String) {
-        if NCSettingsController.sharedInstance().isEndToEndEncryptedCallingEnabled(forAccount: accountId) {
-            let userInfo: [String: Any] = [
-                "roomToken": token,
-                "localNotificationType": NCLocalNotificationType.endToEndEncryptionUnsupported.rawValue,
-                "accountId": accountId
-            ]
-
-            NCNotificationController.sharedInstance().show(.endToEndEncryptionUnsupported, withUserInfo: userInfo)
-            return
-        }
-
         if !CallKitManager.isCallKitAvailable() {
             let userInfo: [String: Any] = [
                 "roomToken": token,

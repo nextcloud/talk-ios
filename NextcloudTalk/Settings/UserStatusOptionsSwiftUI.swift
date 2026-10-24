@@ -27,7 +27,7 @@ struct UserStatusOptionsSwiftUI: View {
                             VStack(alignment: .leading) {
                                 Text(option.title)
                                     .foregroundColor(.primary)
-                                if option.subtitle != nil && !option.subtitle.isEmpty {
+                                if !option.subtitle.isEmpty {
                                     Text(option.subtitle)
                                         .foregroundColor(.secondary)
                                 }

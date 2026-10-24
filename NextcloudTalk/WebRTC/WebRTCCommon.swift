@@ -14,7 +14,9 @@ import Foundation
         // Ref https://issues.webrtc.org/issues/502461765
         RTCInitFieldTrialDictionary([
             kRTCFieldTrialUseNWPathMonitor: kRTCFieldTrialEnabledValue,
-            // Otherwise the highest simulcast layer is dropped for resolutions up to 640x480
+            // Otherwise upper simulcast layers are dropped below 960x540. A legacy cap (webrtc:8785), only kept on by
+            // default for hardware encoders (webrtc:10849), our simulcast only runs on the libvpx software encoder
+            // and sets all layers explicitly.
             "WebRTC-LegacySimulcastLayerLimit": "Disabled"
         ])
 

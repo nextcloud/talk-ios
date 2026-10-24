@@ -15,7 +15,7 @@
 			<key>one</key>
 			<string>%ld aktívny bot</string>
 			<key>few</key>
-			<string>%ld aktívnych botov</string>
+			<string>%ld aktívni boti</string>
 			<key>many</key>
 			<string>%ld aktívnych botov</string>
 			<key>other</key>
@@ -235,7 +235,7 @@
 			<key>one</key>
 			<string>%ld odpoveď</string>
 			<key>few</key>
-			<string>%ld odpovedí</string>
+			<string>%ld odpovede</string>
 			<key>many</key>
 			<string>%ld odpovedí</string>
 			<key>other</key>
@@ -295,9 +295,9 @@
 			<key>one</key>
 			<string>%ld konverzácia s neprečítanými správami</string>
 			<key>few</key>
-			<string>%ld konverzácií s neprečítanými správami</string>
+			<string>%ld konverzácie s neprečítanými správami</string>
 			<key>many</key>
-			<string>%ld konverzácií s neprečítanými správami</string>
+			<string>%ld konverzácie s neprečítanými správami</string>
 			<key>other</key>
 			<string>%ld konverzácií s neprečítanými správami</string>
 		</dict>
@@ -475,7 +475,7 @@
 			<key>one</key>
 			<string>{actor0} vás pridal(a) a %ld ďalšieho účastníka</string>
 			<key>few</key>
-			<string>{actor0} vás pridal(a) a %ld ďalší účastníci</string>
+			<string>{actor0} vás pridal(a) a %ld ďalších účastníkov</string>
 			<key>many</key>
 			<string>{actor0} vás pridal(a) a %ld ďalších účastníkov</string>
 			<key>other</key>
