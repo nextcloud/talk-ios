@@ -63,6 +63,8 @@ final class UnitMessageSelectionChromeTest: TestBaseRealm {
 
         chat.beginSelectionMode(with: message)
         XCTAssertTrue(chat.textInputbar.isHidden)
+        // The glass field of the bar stays on the screen on iOS 26 with the bar hidden, if the text view is not hidden itself
+        XCTAssertEqual(chat.textView.alpha, 0)
 
         // Runs on every update of the room
         chat.checkRoomControlsAvailability()
@@ -72,6 +74,22 @@ final class UnitMessageSelectionChromeTest: TestBaseRealm {
         chat.endSelectionMode()
 
         XCTAssertFalse(chat.textInputbar.isHidden)
+        XCTAssertEqual(chat.textView.alpha, 1)
+    }
+
+    func testSelectionTitleIsVisibleOnTheNavigationBar() throws {
+        let (chat, message) = try makeChat(token: "selColor")
+
+        chat.beginSelectionMode(with: message)
+
+        let selectionTitle = try XCTUnwrap(chat.selectionTitleLabel)
+
+        if #available(iOS 26.0, *) {
+            // The navigation bar is not colored in the theme color anymore, the theme text color (white) can't be read on it
+            XCTAssertEqual(selectionTitle.textColor, .label)
+        } else {
+            XCTAssertEqual(selectionTitle.textColor, NCAppBranding.themeTextColor())
+        }
     }
 
     func testDraftIsSavedWhenTheChatDisappearsInTheSelectionMode() throws {

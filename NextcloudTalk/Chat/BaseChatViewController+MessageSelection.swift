@@ -253,7 +253,14 @@ extension BaseChatViewController {
 
         let titleLabel = UILabel()
         titleLabel.font = .preferredFont(forTextStyle: .headline)
-        titleLabel.textColor = NCAppBranding.themeTextColor()
+
+        // Since iOS 26 the navigation bar is not colored in the theme color, a text in the theme color (white) is not visible
+        if #available(iOS 26.0, *) {
+            titleLabel.textColor = .label
+        } else {
+            titleLabel.textColor = NCAppBranding.themeTextColor()
+        }
+
         self.selectionTitleLabel = titleLabel
 
         let closeButton = UIBarButtonItem(systemItem: .close, primaryAction: UIAction { [weak self] _ in
@@ -271,7 +278,11 @@ extension BaseChatViewController {
         navigationItem.leftBarButtonItems = [closeButton]
         navigationItem.rightBarButtonItems = nil
 
+        // The glass field of the input bar stays on the screen on iOS 26 with the bar hidden, so it is hidden, too.
+        // The bar keeps its height, so the chat does not move under the action bar.
         self.textInputbar.isHidden = true
+        self.textView.alpha = 0
+        self.textViewBackgroundView?.alpha = 0
 
         let forwardItem = UIBarButtonItem(title: NSLocalizedString("Forward", comment: ""), primaryAction: UIAction { [weak self] _ in
             self?.didPressForwardSelected()
@@ -310,6 +321,8 @@ extension BaseChatViewController {
         navigationItem.rightBarButtonItems = savedChrome.rightBarButtonItems
 
         self.textInputbar.isHidden = savedChrome.isInputbarHidden
+        self.textView.alpha = 1
+        self.textViewBackgroundView?.alpha = 1
 
         self.selectionToolbar?.removeFromSuperview()
         self.selectionToolbar = nil
