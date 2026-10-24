@@ -138,7 +138,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         self.cookieStorages.removeValue(forKey: account.accountId)
     }
 
-    private func authHeader(forAccount account: TalkAccount) -> String? {
+    internal func authHeader(forAccount account: TalkAccount) -> String? {
         if let cachedHeader = self.authTokenCache[account.accountId] {
             return cachedHeader
         }

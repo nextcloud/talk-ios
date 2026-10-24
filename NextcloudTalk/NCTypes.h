@@ -166,7 +166,8 @@ typedef NS_ENUM(NSInteger, NCLocalNotificationType) {
     kNCLocalNotificationTypeFailedToShareRecording,
     kNCLocalNotificationTypeFailedToAcceptInvitation,
     kNCLocalNotificationTypeRecordingConsentRequired,
-    kNCLocalNotificationTypeEndToEndEncryptionUnsupported
+    kNCLocalNotificationTypeEndToEndEncryptionUnsupported,
+    kNCLocalNotificationTypeFailedBackgroundUpload
 };
 
 typedef NS_ENUM(NSInteger, NCPreferredFileSorting) {

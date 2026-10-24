@@ -19,6 +19,7 @@ import SwiftUI
     public var highlightMessageId = 0
     public var presentThreadOnAppear = 0
     public var presentPrivateReplyOnAppear: String?
+    public var presentFailedShareOnAppear: String?
 
     // MARK: - Private var
     private var hasPresentedLobby = false
@@ -682,6 +683,35 @@ import SwiftUI
             self.presentPrivateReply(withInternalId: presentPrivateReplyOnAppear)
             self.presentPrivateReplyOnAppear = nil
         }
+
+        if let presentFailedShareOnAppear {
+            self.presentFailedShare(ofJobId: presentFailedShareOnAppear)
+            self.presentFailedShareOnAppear = nil
+        }
+    }
+
+    // Offer the files of a share that could not be sent in the background again
+    public func presentFailedShare(ofJobId jobId: String) {
+        let failedJobs = ChatBackgroundUploader.shared.failedJobs(sharedWith: jobId)
+            .filter { $0.job.roomToken == self.room.token && $0.job.accountId == self.account.accountId }
+
+        guard !failedJobs.isEmpty,
+              let (shareConfirmationVC, navigationController) = self.createShareConfirmationViewController()
+        else { return }
+
+        for failedJob in failedJobs {
+            shareConfirmationVC.shareItemController.addItem(withURLAndName: failedJob.fileURL, withName: failedJob.job.fileName)
+        }
+
+        // Only the file that carried the caption has one
+        if let caption = failedJobs.compactMap({ $0.job.metadata.caption }).last {
+            shareConfirmationVC.setChatMessage(caption)
+        }
+
+        // The share confirmation works on its own copies
+        ChatBackgroundUploader.shared.removeFailedJobs(failedJobs.map { $0.job })
+
+        self.present(navigationController, animated: true)
     }
 
     // Quote the message with the given internalId (which may live in another conversation) as a private reply

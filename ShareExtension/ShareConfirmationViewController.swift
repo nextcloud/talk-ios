@@ -834,6 +834,18 @@ private let kShareConfirmationOptionsViewHeight: CGFloat = 44
 
             let uploads = await self.uploads(for: shareItems, quality: self.imageQuality)
 
+#if APP_EXTENSION
+            if self.room.supportsConversationSubfolders {
+                do {
+                    try await ChatBackgroundUploader.shared.enqueue(uploads)
+                    self.finishUploads(withErrors: [], succeededItems: shareItems)
+                    return
+                } catch {
+                    NCLog.log("Could not start the background upload, uploading right away. Error: \(error.localizedDescription)")
+                }
+            }
+#endif
+
             self.hud?.mode = .annularDeterminate
 
             let results: [Result<Void, Error>]

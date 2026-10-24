@@ -78,6 +78,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
         self.registerBackgroundFetchTask()
         self.registerBackgroundProcessingTask()
 
+        ChatBackgroundUploader.shared.startResumingPendingJobs()
+
         // The root view controller wiring and the -TestEnvironment debug label live in
         // SceneDelegate.scene(_:willConnectTo:options:) - they are per-scene UI setup
 
@@ -123,6 +125,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
 
     // The active/inactive/background/foreground transitions are dispatched per-scene, so they live on SceneDelegate as
     // sceneWillResignActive/sceneDidEnterBackground/sceneWillEnterForeground/sceneDidBecomeActive
+
+    func application(_ application: UIApplication, handleEventsForBackgroundURLSession identifier: String, completionHandler: @escaping () -> Void) {
+        if !ChatBackgroundUploader.shared.handleEventsForBackgroundURLSession(identifier: identifier, completionHandler: completionHandler) {
+            completionHandler()
+        }
+    }
 
     func applicationProtectedDataDidBecomeAvailable(_ application: UIApplication) {
         if CallKitManager.sharedInstance().calls.count > 0 {
@@ -472,6 +480,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
             }
 
             backgroundRefreshGroup.leave()
+        }
+
+        // Post shared files whose posting failed and start overdue upload retries, without waiting until the app is opened
+        backgroundRefreshGroup.enter()
+        DispatchQueue.main.async {
+            ChatBackgroundUploader.shared.resumePendingJobs {
+                NCLog.log("CompletionHandler resumePendingJobs")
+
+                backgroundRefreshGroup.leave()
+            }
         }
 
         backgroundRefreshGroup.enter()
