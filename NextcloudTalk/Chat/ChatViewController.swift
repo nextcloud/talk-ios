@@ -2009,6 +2009,8 @@ import SwiftUI
 
                 for inPlaceUpdate in update.inPlaceUpdates {
                     if let cell = tableView.cellForRow(at: inPlaceUpdate.indexPath) as? BaseChatTableViewCell {
+                        // The group of files the row shows changed with the message, as cellForRowAt would set it
+                        cell.fileGroup = self.fileMessageGroup(showing: inPlaceUpdate.message)
                         cell.setup(for: inPlaceUpdate.message, inRoom: self.room, forThread: self.thread, withAccount: self.account)
                     }
                 }
@@ -2113,6 +2115,8 @@ import SwiftUI
         // not change the layout of the tableView, so those cells are updated in place
         // instead of reloaded, which would interrupt a running insert/scroll animation.
         var temporaryReplacementHeights: [String: CGFloat] = [:]
+        // A row showing a different number of grouped files is a different cell, even at the same height
+        var temporaryReplacementGroupSizes: [String: Int] = [:]
 
         for message in messages {
             if let referenceId = message.referenceId, !referenceId.isEmpty,
@@ -2120,6 +2124,7 @@ import SwiftUI
                existingMessage.isTemporary {
 
                 temporaryReplacementHeights[referenceId] = self.getCellHeight(for: existingMessage)
+                temporaryReplacementGroupSizes[referenceId] = self.fileMessageGroup(showing: existingMessage)?.messages.count ?? 0
             }
         }
 
@@ -2178,7 +2183,8 @@ import SwiftUI
                 update.insertIndexPaths.insert(indexPath)
             } else if let reloadPath = preUpdateIndexPath(for: indexPath) {
                 if let referenceId = newMessage.referenceId, let previousHeight = temporaryReplacementHeights[referenceId],
-                   self.getCellHeight(for: newMessage) == previousHeight {
+                   self.getCellHeight(for: newMessage) == previousHeight,
+                   temporaryReplacementGroupSizes[referenceId] == (self.fileMessageGroup(showing: newMessage)?.messages.count ?? 0) {
                     // The message replaced its temporary counterpart without a height change,
                     // so a visible cell can be updated in place
                     update.inPlaceUpdates.append((reloadPath, newMessage))
