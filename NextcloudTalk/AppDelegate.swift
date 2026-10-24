@@ -75,6 +75,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
         // Init rooms manager to start receiving NSNotificationCenter notifications
         _ = NCRoomsManager.shared
 
+        // Keep the widgets and the system search up to date with the conversations
+        ConversationsWidgetController.shared.start()
+        ConversationsSpotlightIndexer.shared.start()
+
         self.registerBackgroundFetchTask()
         self.registerBackgroundProcessingTask()
 
@@ -95,6 +99,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
     }
 
     func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
+        // A conversation was selected in the system search (Spotlight)
+        if let conversationURL = ConversationsSpotlightIndexer.conversationURL(for: userActivity) {
+            NCUserInterfaceController.sharedInstance().presentChatForURL(conversationURL)
+            return true
+        }
+
         let intent = userActivity.interaction?.intent
         let audioCallIntent = intent is INStartAudioCallIntent
         let videoCallIntent = intent is INStartVideoCallIntent
