@@ -72,10 +72,9 @@ struct FileMessageGroup {
     /// Position within the upload is deliberately not compared: a file that failed to upload leaves
     /// a gap, and the files around it still belong together.
     ///
-    /// Pending background uploads only group among themselves, as their groups are keyed by reference id.
+    /// Posted and pending files of a share shared in the background are one group, so it keeps its size while posting.
     private static func belongToTheSameUpload(_ message: NCChatMessage, _ other: NCChatMessage) -> Bool {
         return message.fileUploadReference?.uploadHash == other.fileUploadReference?.uploadHash
             && message.parentId == other.parentId
-            && message.isTemporary == other.isTemporary
     }
 }

@@ -2976,20 +2976,24 @@ import Toast
             guard let messagesForDate = self.messages[dateSection] else { continue }
 
             for group in FileMessageGroup.groups(in: messagesForDate) {
-                // Heights of temporary messages are never cached
+                // A share being posted mixes posted and pending files, each is looked up by what it has
                 if group.anchor.isTemporary {
                     if let referenceId = group.anchor.referenceId {
                         temporaryGroups[referenceId] = group
-                        hiddenReferenceIds.formUnion(group.messages.dropLast().compactMap { $0.referenceId })
                     }
-
-                    continue
+                } else {
+                    groups[group.anchor.messageId] = group
                 }
 
-                groups[group.anchor.messageId] = group
-
-                for message in group.messages where message.messageId != group.anchor.messageId {
-                    hiddenMessageIds[message.messageId] = group.anchor.messageId
+                for message in group.messages.dropLast() {
+                    if message.isTemporary {
+                        if let referenceId = message.referenceId {
+                            hiddenReferenceIds.insert(referenceId)
+                        }
+                    } else {
+                        // Scrolling to a hidden file goes to the row of its group, unless that one has no message id yet
+                        hiddenMessageIds[message.messageId] = group.anchor.messageId > 0 ? group.anchor.messageId : message.messageId
+                    }
                 }
             }
 
@@ -3550,8 +3554,20 @@ import Toast
         return super.tableView(tableView, cellForRowAt: indexPath)
     }
 
+    private static let hiddenFileGroupMemberCellIdentifier = "HiddenFileGroupMemberCell"
+
     // swiftlint:disable:next cyclomatic_complexity
     func getCell(for message: NCChatMessage) -> UITableViewCell {
+        // Shown as part of its group. Its row has no height, but a cell with content would still draw over its neighbours.
+        if self.isHiddenInFileMessageGroup(message) {
+            let cell = self.tableView?.dequeueReusableCell(withIdentifier: Self.hiddenFileGroupMemberCellIdentifier)
+                ?? UITableViewCell(style: .default, reuseIdentifier: Self.hiddenFileGroupMemberCellIdentifier)
+            cell.backgroundColor = .clear
+            cell.selectionStyle = .none
+
+            return cell
+        }
+
         if message.messageId == MessageSeparatorTableViewCell.unreadMessagesSeparatorId || message.messageId == MessageSeparatorTableViewCell.unreadMessagesWithSummarySeparatorId,
            let cell = self.tableView?.dequeueReusableCell(withIdentifier: MessageSeparatorTableViewCell.identifier) as? MessageSeparatorTableViewCell {
 
@@ -4407,6 +4423,29 @@ import Toast
     }
 
     // MARK: - Thread messages
+    /// The files each group row shows, by the message the row is shown as.
+    internal func fileGroupsByAnchor() -> [String: (anchor: NCChatMessage, memberKeys: [String])] {
+        var groups: [String: (anchor: NCChatMessage, memberKeys: [String])] = [:]
+
+        for group in Array(self.fileMessageGroups.values) + Array(self.temporaryFileMessageGroups.values) {
+            groups[Self.fileGroupKey(for: group.anchor)] = (group.anchor, group.messages.map { Self.fileGroupKey(for: $0) })
+        }
+
+        return groups
+    }
+
+    // Temporary messages have no message id yet
+    private static func fileGroupKey(for message: NCChatMessage) -> String {
+        return message.messageId > 0 ? "id\(message.messageId)" : "ref\(message.referenceId ?? "")"
+    }
+
+    /// Sets up a visible cell for a changed message without reloading its row. The row may show another
+    /// group of files by now, which a reload would get from cellForRowAt.
+    internal func setUpInPlace(_ cell: BaseChatTableViewCell, for message: NCChatMessage) {
+        cell.fileGroup = self.fileMessageGroup(showing: message)
+        cell.setup(for: message, inRoom: self.room, forThread: self.thread, withAccount: self.account)
+    }
+
     // Only the conversation shows files shared in the background
     public func cellWants(toOpenBackgroundUpload message: NCChatMessage) {}
 
