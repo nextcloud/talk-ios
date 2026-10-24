@@ -125,6 +125,10 @@ import Toast
     /// message whose row shows them
     internal var messageIdsHiddenInFileGroups: [Int: Int] = [:]
 
+    /// Pending background uploads have no message id, so their groups are keyed by reference id
+    internal var temporaryFileMessageGroups: [String: FileMessageGroup] = [:]
+    internal var referenceIdsHiddenInFileGroups: Set<String> = []
+
     private lazy var inputbarBorderView: UIView = {
         let inputbarBorderView = UIView()
         inputbarBorderView.autoresizingMask = [.flexibleWidth, .flexibleBottomMargin]
@@ -2853,45 +2857,59 @@ import Toast
     }
 
     func removeMessage(at indexPath: IndexPath) {
-        guard indexPath.section < self.dateSections.count else { return }
+        guard indexPath.section < self.dateSections.count,
+              let messageCount = self.messages[self.dateSections[indexPath.section]]?.count, indexPath.row < messageCount
+        else { return }
 
-        let sectionKey = self.dateSections[indexPath.section]
-        if var messages = self.messages[sectionKey], indexPath.row < messages.count {
-            if messages.count == 1 {
-                // Remove section
-                self.messages.removeValue(forKey: sectionKey)
-                self.sortDateSections()
+        let isLastMessage = indexPath.row == messageCount - 1
+
+        if self.removeMessageFromDataSource(at: indexPath) {
+            self.tableView?.beginUpdates()
+            self.tableView?.deleteSections([indexPath.section], with: .none)
+            self.tableView?.endUpdates()
+        } else {
+            self.tableView?.beginUpdates()
+            self.tableView?.deleteRows(at: [indexPath], with: .none)
+            self.tableView?.endUpdates()
+
+            if !isLastMessage {
+                // The message next to the removed one may have changed its grouping
                 self.tableView?.beginUpdates()
-                self.tableView?.deleteSections([indexPath.section], with: .none)
+                self.tableView?.reloadRows(at: [indexPath], with: .none)
                 self.tableView?.endUpdates()
-            } else {
-                // Remove message
-                let isLastMessage = indexPath.row == (messages.count - 1)
-                messages.remove(at: indexPath.row)
-                self.messages[sectionKey] = messages
-
-                self.tableView?.beginUpdates()
-                self.tableView?.deleteRows(at: [indexPath], with: .none)
-                self.tableView?.endUpdates()
-
-                if !isLastMessage {
-                    // Update the message next to removed message
-                    let nextMessage = messages[indexPath.row]
-                    nextMessage.isGroupMessage = false
-
-                    if indexPath.row > 0 {
-                        let previousMessage = messages[indexPath.row - 1]
-                        nextMessage.isGroupMessage = self.shouldGroupMessage(newMessage: nextMessage, withMessage: previousMessage)
-                    }
-
-                    self.tableView?.beginUpdates()
-                    self.tableView?.reloadRows(at: [indexPath], with: .none)
-                    self.tableView?.endUpdates()
-                }
             }
-
-            self.regroupFileMessages()
         }
+
+        self.regroupFileMessages()
+    }
+
+    /// Leaves the table view and the file groups to the caller. Returns whether the section was removed as well.
+    @discardableResult
+    internal func removeMessageFromDataSource(at indexPath: IndexPath) -> Bool {
+        let sectionKey = self.dateSections[indexPath.section]
+
+        guard var messages = self.messages[sectionKey], indexPath.row < messages.count else { return false }
+
+        messages.remove(at: indexPath.row)
+
+        if messages.isEmpty {
+            self.messages.removeValue(forKey: sectionKey)
+            self.sortDateSections()
+            return true
+        }
+
+        if indexPath.row < messages.count {
+            let nextMessage = messages[indexPath.row]
+            nextMessage.isGroupMessage = false
+
+            if indexPath.row > 0 {
+                nextMessage.isGroupMessage = self.shouldGroupMessage(newMessage: nextMessage, withMessage: messages[indexPath.row - 1])
+            }
+        }
+
+        self.messages[sectionKey] = messages
+
+        return false
     }
 
     func sortDateSections() {
@@ -2923,6 +2941,10 @@ import Toast
             return group
         }
 
+        if message.isTemporary, let referenceId = message.referenceId, let group = self.temporaryFileMessageGroups[referenceId] {
+            return group
+        }
+
         // A file the server has no preview of is drawn on a card, like the files of a group
         if let file = message.plainFileShare, !file.previewAvailable {
             return FileMessageGroup(messages: [message])
@@ -2932,6 +2954,10 @@ import Toast
     }
 
     internal func isHiddenInFileMessageGroup(_ message: NCChatMessage) -> Bool {
+        if message.isTemporary, let referenceId = message.referenceId {
+            return self.referenceIdsHiddenInFileGroups.contains(referenceId)
+        }
+
         guard message.messageId > 0 else { return false }
 
         return self.messageIdsHiddenInFileGroups[message.messageId] != nil
@@ -2943,11 +2969,23 @@ import Toast
     internal func regroupFileMessages() {
         var groups: [Int: FileMessageGroup] = [:]
         var hiddenMessageIds: [Int: Int] = [:]
+        var temporaryGroups: [String: FileMessageGroup] = [:]
+        var hiddenReferenceIds: Set<String> = []
 
         for dateSection in self.dateSections {
             guard let messagesForDate = self.messages[dateSection] else { continue }
 
             for group in FileMessageGroup.groups(in: messagesForDate) {
+                // Heights of temporary messages are never cached
+                if group.anchor.isTemporary {
+                    if let referenceId = group.anchor.referenceId {
+                        temporaryGroups[referenceId] = group
+                        hiddenReferenceIds.formUnion(group.messages.dropLast().compactMap { $0.referenceId })
+                    }
+
+                    continue
+                }
+
                 groups[group.anchor.messageId] = group
 
                 for message in group.messages where message.messageId != group.anchor.messageId {
@@ -2968,6 +3006,8 @@ import Toast
 
         self.fileMessageGroups = groups
         self.messageIdsHiddenInFileGroups = hiddenMessageIds
+        self.temporaryFileMessageGroups = temporaryGroups
+        self.referenceIdsHiddenInFileGroups = hiddenReferenceIds
     }
 
     /// A message that joined or left a group is a different height than it was measured at.
@@ -4367,6 +4407,9 @@ import Toast
     }
 
     // MARK: - Thread messages
+    // Only the conversation shows files shared in the background
+    public func cellWants(toOpenBackgroundUpload message: NCChatMessage) {}
+
     public func cellWants(toShowThread message: NCChatMessage) {
         // Hiding the keyboard due to a UIKit issue where the reported keyboard height
         // may be incorrect after dismissing a modal/context menu on iOS 26.
@@ -4502,7 +4545,7 @@ import Toast
         NCUserInterfaceController.sharedInstance().presentAlertViewController(alert)
     }
 
-    private func previewFile(with fileStatus: NCChatFileStatus) {
+    internal func previewFile(with fileStatus: NCChatFileStatus) {
         if self.isPreviewControllerShown {
             // We are showing a file already, no need to open another one
             return

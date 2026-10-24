@@ -188,6 +188,16 @@ class GroupedFilePreviewView: UIView {
 
     func setup(with group: FileMessageGroup, account: TalkAccount, availableWidth: CGFloat) {
         let files = group.messagesInUploadOrder.compactMap { $0.file() }
+
+        // The layout works on files, tiles and rows need their message
+        var messagesByFileId: [String: NCChatMessage] = [:]
+
+        for message in group.messages {
+            if let file = message.file() {
+                messagesByFileId[file.parameterId] = message
+            }
+        }
+
         let layout = Layout(files: files, availableWidth: availableWidth)
 
         let maximumContentWidth = layout.maximumContentWidth(forAvailableWidth: availableWidth)
@@ -198,20 +208,40 @@ class GroupedFilePreviewView: UIView {
         self.contentWidthConstraint?.isActive = maximumContentWidth > 0
 
         for (index, file) in layout.tiles.enumerated() {
+            guard let message = messagesByFileId[file.parameterId] else { continue }
+
             let isBadge = layout.hiddenTileCount > 0 && index == layout.tiles.count - 1
             let tileView = GroupedFilePreviewTileView()
+            var tappedFile = file
 
-            tileView.setup(with: file, account: account, size: GroupedFilePreviewView.tileSize, hiddenCount: isBadge ? layout.hiddenTileCount : 0)
-            self.addTapRecognizer(to: tileView, forFileAt: self.index(of: file, in: files))
+            if isBadge {
+                // The badge stands for itself and all media after it
+                let badgeFiles = files.filter { $0.isPreviewableMedia }.suffix(layout.hiddenTileCount)
+                let badgeMessages = badgeFiles.compactMap { messagesByFileId[$0.parameterId] }
+
+                tileView.setup(with: message, account: account, size: GroupedFilePreviewView.tileSize, badgeMessages: badgeMessages)
+
+                // A tap on its clock retries, like on any other tile
+                if let waitingMessage = badgeMessages.first(where: { $0.backgroundUploadState?.isWaitingForRetry == true }),
+                   let waitingFile = waitingMessage.file() {
+                    tappedFile = waitingFile
+                }
+            } else {
+                tileView.setup(with: message, account: account, size: GroupedFilePreviewView.tileSize)
+            }
+
+            self.addTapRecognizer(to: tileView, forFileAt: self.index(of: tappedFile, in: files))
 
             self.tileViews.append(tileView)
             self.tileRow.addArrangedSubview(tileView)
         }
 
         for file in layout.files {
+            guard let message = messagesByFileId[file.parameterId] else { continue }
+
             let rowView = GroupedFileRowView()
 
-            rowView.setup(with: file, maximumWidth: maximumContentWidth)
+            rowView.setup(with: message, maximumWidth: maximumContentWidth)
             self.addTapRecognizer(to: rowView, forFileAt: self.index(of: file, in: files))
 
             self.fileRowViews.append(rowView)
@@ -226,6 +256,17 @@ class GroupedFilePreviewView: UIView {
     func updateDownloadStatus(from notification: Notification) {
         for rowView in self.fileRowViews {
             rowView.updateDownloadStatus(from: notification)
+        }
+    }
+
+    /// Passes the progress of a pending upload on to its tile or row.
+    func updateUploadProgress(_ progress: Float, forJobId jobId: String) {
+        for tileView in self.tileViews where tileView.uploadJobIds.contains(jobId) {
+            tileView.updateUploadProgress(progress)
+        }
+
+        for rowView in self.fileRowViews {
+            rowView.updateUploadProgress(progress, forJobId: jobId)
         }
     }
 

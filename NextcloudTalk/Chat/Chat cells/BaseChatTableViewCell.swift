@@ -25,6 +25,8 @@ protocol BaseChatTableViewCellDelegate: AnyObject {
     func cellWants(toOpenPoll poll: NCMessageParameter)
 
     func cellWants(toShowThread message: NCChatMessage)
+
+    func cellWants(toOpenBackgroundUpload message: NCChatMessage)
 }
 
 // Common elements
@@ -216,7 +218,8 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     internal var fileGroupWithoutCaptionConstraint: NSLayoutConstraint?
 
     // File cell
-    internal var filePreviewImageView: UIImageView?
+    internal var filePreviewImageView: FilePreviewImageView?
+    internal var fileUploadOverlayView: FileUploadOverlayView?
     internal var filePreviewImageViewHeightConstraint: NSLayoutConstraint?
     internal var filePreviewImageViewWidthConstraint: NSLayoutConstraint?
     internal var fileActivityIndicator: MDCActivityIndicator?
@@ -261,6 +264,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
 
         NotificationCenter.default.addObserver(self, selector: #selector(didChangeIsDownloading(notification:)), name: NSNotification.Name.NCChatFileControllerDidChangeIsDownloading, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didChangeDownloadProgress(notification:)), name: NSNotification.Name.NCChatFileControllerDidChangeDownloadProgress, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didChangeBackgroundUploadProgress(notification:)), name: .ChatBackgroundUploaderDidChangeUploadProgress, object: nil)
     }
 
     override func prepareForReuse() {
@@ -405,7 +409,12 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         } else if message.sendingFailed {
             self.setDeliveryState(to: .failed)
         } else if message.isTemporary {
-            self.setDeliveryState(to: .sending)
+            if message.backgroundUploadJobId != nil {
+                // The upload state is shown on the file itself, UI tests still find the sending message
+                self.accessibilityIdentifier = "CellMessageSending"
+            } else {
+                self.setDeliveryState(to: .sending)
+            }
         } else if message.isMessage(from: account.userId), shouldShowDeliveryStatus {
             if room.lastCommonReadMessage >= message.messageId, shouldShowReadStatus {
                 self.setDeliveryState(to: .read)
@@ -897,5 +906,21 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
                 self.addActivityIndicator(with: Float(receivedStatus.downloadProgress))
             }
         }
+    }
+
+    // Posted on the main queue
+    @objc func didChangeBackgroundUploadProgress(notification: Notification) {
+        guard let jobId = notification.userInfo?["jobId"] as? String,
+              let progress = notification.userInfo?["progress"] as? Float
+        else { return }
+
+        if let groupedFilePreviewView = self.groupedFilePreviewView, self.fileGroup != nil {
+            groupedFilePreviewView.updateUploadProgress(progress, forJobId: jobId)
+            return
+        }
+
+        guard let message = self.message, message.backgroundUploadJobId == jobId, message.backgroundUploadState == .uploading else { return }
+
+        self.fileUploadOverlayView?.showUpload(withProgress: progress)
     }
 }

@@ -29,6 +29,10 @@ struct ChatFileUpload {
     /// Only honoured with conversation subfolders enabled: the server keeps updatable files in a
     /// separate subfolder, so this is a choice per upload and does not affect earlier ones.
     var allowUpdate = false
+
+    /// The caption with mention placeholders and their parameters, only for showing it before it is posted.
+    var captionMessage: String?
+    var captionMessageParameters: String?
 }
 
 extension ChatFileUpload {

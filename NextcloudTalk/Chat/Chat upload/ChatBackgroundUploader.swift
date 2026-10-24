@@ -28,6 +28,69 @@ struct ChatBackgroundUploadJob: Codable {
     var postStarted = false
     var uploadRetryDate: Date?
     var shareRetried = false
+    // Caption with mention placeholders, only for showing it before it is posted
+    var captionMessage: String?
+    var captionMessageParameters: String?
+    // Not started yet while nil
+    var taskStart: TaskStart?
+
+    enum TaskStart: String, Codable {
+        case foreground
+        // The system may hold such a task back for hours, so the app starts it again from the foreground
+        case background
+    }
+
+    var isWaitingForUploadRetry: Bool {
+        guard !self.uploaded, let uploadRetryDate = self.uploadRetryDate else { return false }
+
+        return uploadRetryDate > Date()
+    }
+
+    /// Named like the file, so it can be previewed as it is
+    var localFileName: String {
+        let fileName = (self.fileName as NSString).lastPathComponent
+
+        return fileName.isEmpty ? "data" : fileName
+    }
+}
+
+/// What the chat shows of a file shared in the background.
+enum ChatBackgroundUploadState: Equatable {
+    case uploading
+    case waitingForRetry(until: Date)
+    case uploaded
+    case failed
+}
+
+/// A file of a share that is not in the conversation yet.
+struct ChatBackgroundUpload {
+    let job: ChatBackgroundUploadJob
+    let fileURL: URL
+    let isFailed: Bool
+
+    var state: ChatBackgroundUploadState {
+        if self.isFailed {
+            return .failed
+        }
+
+        if self.job.uploaded {
+            return .uploaded
+        }
+
+        if self.job.isWaitingForUploadRetry, let uploadRetryDate = self.job.uploadRetryDate {
+            return .waitingForRetry(until: uploadRetryDate)
+        }
+
+        return .uploading
+    }
+}
+
+extension Notification.Name {
+    /// Posted on the main queue whenever this process added, changed or removed a job.
+    static let ChatBackgroundUploaderDidChangeUploads = Notification.Name("ChatBackgroundUploaderDidChangeUploads")
+
+    /// Posted on the main queue with "jobId" and "progress" (Float) in the user info.
+    static let ChatBackgroundUploaderDidChangeUploadProgress = Notification.Name("ChatBackgroundUploaderDidChangeUploadProgress")
 }
 
 /// Uploads files through background URL sessions, so the share extension can close right after send.
@@ -48,11 +111,16 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
 
     private static let maxJobAge: TimeInterval = 24 * 60 * 60
 
-    // A failed upload is retried once after this delay, so a struggling server is not kept busy
-    private static let uploadRetryDelay: TimeInterval = 60 * 60
+    // A failed upload is retried once after this delay, which covers a dropped connection or a server hiccup
+    private static let uploadRetryDelay: TimeInterval = 30
+
+    // The server asked to slow down
+    private static let rateLimitedUploadRetryDelay: TimeInterval = 10 * 60
+
+    // Also bounds the transfer, a background session does not tell it apart from waiting for a network
+    private static let uploadResourceTimeout: TimeInterval = 60 * 60
 
     private static let jobFileName = "job.json"
-    private static let dataFileName = "data"
 
     // Only touched on the main queue, which is the delegate queue of the sessions as well
     private var sessions: [String: URLSession] = [:]
@@ -60,6 +128,14 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
     private var sessionsWithFinishedEvents: Set<String> = []
     private var sharingSessions: Set<String> = []
     private var checkedSessions: Set<String> = []
+    private var uploadProgress: [String: Float] = [:]
+
+#if !APP_EXTENSION
+    private var scheduledResumeDate: Date?
+#endif
+
+    // Only while the app is in the foreground
+    private static let shareRetryDelay: TimeInterval = 30
 
     // MARK: - Enqueue
 
@@ -101,7 +177,9 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
                                                   referenceId: upload.referenceId,
                                                   metadata: upload.metadata,
                                                   allowUpdate: upload.allowUpdate,
-                                                  createdAt: Date())
+                                                  createdAt: Date(),
+                                                  captionMessage: upload.captionMessage,
+                                                  captionMessageParameters: upload.captionMessageParameters)
 
                 preparedJobs.append(job)
 
@@ -126,13 +204,13 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
         else { throw ChatFileUploadError.destinationUnavailable(underlyingError: nil) }
 
         try FileManager.default.createDirectory(at: jobDirectory, withIntermediateDirectories: true)
-        try FileManager.default.copyItem(at: fileURL, to: jobDirectory.appendingPathComponent(Self.dataFileName))
+        try FileManager.default.copyItem(at: fileURL, to: jobDirectory.appendingPathComponent(job.localFileName))
         try self.save(job)
     }
 
     private func startUploadTask(for job: ChatBackgroundUploadJob, in session: URLSession, authHeader: String, earliestBeginDate: Date? = nil) {
         guard let url = URL(string: job.serverURL),
-              let dataFileURL = self.jobDirectory(forJobId: job.id)?.appendingPathComponent(Self.dataFileName)
+              let dataFileURL = self.jobDirectory(forJobId: job.id)?.appendingPathComponent(job.localFileName)
         else { return }
 
         var request = URLRequest(url: url)
@@ -144,6 +222,17 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
         task.taskDescription = job.id
         task.earliestBeginDate = earliestBeginDate
         task.resume()
+
+#if APP_EXTENSION
+        let taskStart = ChatBackgroundUploadJob.TaskStart.foreground
+#else
+        let taskStart: ChatBackgroundUploadJob.TaskStart = UIApplication.shared.applicationState == .active ? .foreground : .background
+#endif
+
+        // Saving notifies the chat, so only when it changes
+        if job.taskStart != taskStart {
+            self.updateJob(withId: job.id) { $0.taskStart = taskStart }
+        }
     }
 
     // MARK: - App
@@ -169,6 +258,29 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
         }
     }
 
+    /// Otherwise held back jobs wait until the app becomes active again. The earliest scheduled resume wins.
+    private func scheduleResume(after delay: TimeInterval) {
+        let resumeDate = Date(timeIntervalSinceNow: delay)
+
+        // An earlier scheduled resume covers this one
+        if let scheduledResumeDate = self.scheduledResumeDate, scheduledResumeDate <= resumeDate {
+            return
+        }
+
+        self.scheduledResumeDate = resumeDate
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+            guard self.scheduledResumeDate == resumeDate else { return }
+
+            self.scheduledResumeDate = nil
+
+            // Otherwise the next activation or background refresh does it
+            guard UIApplication.shared.applicationState == .active else { return }
+
+            self.resumePendingJobs()
+        }
+    }
+
     /// Finishes what the system did not launch the app for, for example after a failed post or a force quit.
     /// The completion is called once the posts it started are done. Must be called on the main queue.
     func resumePendingJobs(completion: (() -> Void)? = nil) {
@@ -184,25 +296,49 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
         let now = Date()
         var sessionsToCheck: Set<String> = []
         var sessionsToShare: Set<String> = []
+        var sessionsToConnect: Set<String> = []
 
         for jobDirectory in jobDirectories {
             let creationDate = (try? jobDirectory.resourceValues(forKeys: [.creationDateKey]))?.creationDate ?? now
+            let isPastGracePeriod = now.timeIntervalSince(creationDate) > Self.reconnectGracePeriod
 
-            guard now.timeIntervalSince(creationDate) > Self.reconnectGracePeriod else { continue }
+            if !isPastGracePeriod {
+                // Look again once the grace period is over
+                self.scheduleResume(after: Self.reconnectGracePeriod - now.timeIntervalSince(creationDate) + 1)
+            }
 
-            // Left behind by an extension that was killed while preparing it
             guard let job = self.loadJob(withId: jobDirectory.lastPathComponent) else {
-                try? FileManager.default.removeItem(at: jobDirectory)
+                // Left behind by an extension that was killed while preparing it
+                if isPastGracePeriod {
+                    try? FileManager.default.removeItem(at: jobDirectory)
+                }
+
                 continue
             }
 
             if now.timeIntervalSince(job.createdAt) > Self.maxJobAge {
                 self.drop(job, reason: "it is too old")
             } else if job.uploaded {
-                sessionsToShare.insert(job.sessionIdentifier)
-            } else if !self.checkedSessions.contains(job.sessionIdentifier) || job.uploadRetryDate ?? .distantFuture <= now {
-                sessionsToCheck.insert(job.sessionIdentifier)
+                // The extension may still be posting it
+                if isPastGracePeriod {
+                    sessionsToShare.insert(job.sessionIdentifier)
+                }
+            } else if !isPastGracePeriod {
+                // Connect for the progress only, the extension may still own the session
+                if job.taskStart != nil {
+                    sessionsToConnect.insert(job.sessionIdentifier)
+                }
+            } else {
+                let isUnchecked = !self.checkedSessions.contains(job.sessionIdentifier)
+                let isRetryDue = (job.uploadRetryDate ?? .distantFuture) <= now
+                if isUnchecked || isRetryDue || self.mayBeHeldBack(job) {
+                    sessionsToCheck.insert(job.sessionIdentifier)
+                }
             }
+        }
+
+        for identifier in sessionsToConnect.subtracting(sessionsToCheck) {
+            _ = self.session(withIdentifier: identifier)
         }
 
         let group = DispatchGroup()
@@ -222,25 +358,55 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
         group.notify(queue: .main) { completion?() }
     }
 
-    /// Restarts lost uploads, and retries the system still holds back after their time.
-    private func restartTasks(in session: URLSession, completion: @escaping () -> Void) {
+    // A task the app started while in the background, which it can now start again from the foreground
+    private func mayBeHeldBack(_ job: ChatBackgroundUploadJob) -> Bool {
+        return job.taskStart == .background && UIApplication.shared.applicationState == .active
+    }
+
+    /// Restarts lost uploads, retries the system still holds back after their time, and from the foreground the
+    /// uploads started in the background.
+    ///
+    /// - Parameter retryingJobIds: Uploads waiting for their retry that start right away. It still is their one retry.
+    private func restartTasks(in session: URLSession, retryingJobIds: Set<String> = [], completion: (() -> Void)? = nil) {
         guard let identifier = session.configuration.identifier else {
-            completion()
+            completion?()
             return
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + Self.lostTaskCheckDelay) {
+        // Nothing is lost when the user asks for a retry
+        let delay = retryingJobIds.isEmpty ? Self.lostTaskCheckDelay : 0
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
             session.getAllTasks { tasks in
                 DispatchQueue.main.async {
+                    // Invalidated in the meantime, as another process is connected to it
+                    guard self.sessions[identifier] === session else {
+                        completion?()
+                        return
+                    }
+
                     let now = Date()
 
-                    for job in self.loadAllJobs() where job.sessionIdentifier == identifier && !job.uploaded {
-                        if let task = tasks.first(where: { $0.taskDescription == job.id }) {
-                            guard task.state == .running,
-                                  task.countOfBytesSent == 0,
-                                  task.earliestBeginDate ?? .distantFuture <= now
-                            else { continue }
+                    for var job in self.loadAllJobs() where job.sessionIdentifier == identifier && !job.uploaded {
+                        let isRetriedNow = retryingJobIds.contains(job.id) && job.isWaitingForUploadRetry
+                        var earliestBeginDate: Date?
 
+                        if let task = tasks.first(where: { $0.taskDescription == job.id }) {
+                            // Already sending, nothing to restart
+                            guard task.state == .running, task.countOfBytesSent == 0 else { continue }
+
+                            let isRetryDue = (task.earliestBeginDate ?? .distantFuture) <= now
+
+                            if self.mayBeHeldBack(job), !isRetriedNow {
+                                // Started again from the foreground, a retry that is not due yet keeps its time
+                                if let beginDate = task.earliestBeginDate, beginDate > now {
+                                    earliestBeginDate = beginDate
+                                }
+                            } else if !isRetryDue, !isRetriedNow {
+                                continue
+                            }
+
+                            // Its cancellation is reported and ignored
                             task.cancel()
                         }
 
@@ -251,11 +417,15 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
                             continue
                         }
 
+                        if isRetriedNow, let retriedJob = self.updateJob(withId: job.id, { $0.uploadRetryDate = now }) {
+                            job = retriedJob
+                        }
+
                         NCLog.log("Restarting background upload of \(job.fileName)")
-                        self.startUploadTask(for: job, in: session, authHeader: authHeader)
+                        self.startUploadTask(for: job, in: session, authHeader: authHeader, earliestBeginDate: earliestBeginDate)
                     }
 
-                    completion()
+                    completion?()
                 }
             }
         }
@@ -288,7 +458,12 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
         Task { @MainActor in
             // A file that stays behind for a retry stops the rest, otherwise they would overtake it
             for job in jobs {
-                guard await self.post(job) else { break }
+                guard await self.post(job) else {
+#if !APP_EXTENSION
+                    self.scheduleResume(after: Self.shareRetryDelay)
+#endif
+                    break
+                }
             }
 
             self.sharingSessions.remove(sessionIdentifier)
@@ -309,10 +484,8 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
 
         // Saved before sending, as the process can be suspended before the answer arrives,
         // for example the extension right after it was closed
-        var job = job
         let earlierPostStarted = job.postStarted
-        job.postStarted = true
-        try? self.save(job)
+        let job = self.updateJob(withId: job.id) { $0.postStarted = true } ?? job
 
         do {
             try await NCAPIController.sharedInstance().postConversationAttachment(inRoom: job.roomToken,
@@ -330,9 +503,6 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
         } catch {
             NCLog.log("Failed to post background upload \(job.fileName). Error: \(error.localizedDescription)")
 
-            // Being offline should not use up the attempts, only answers of the server do
-            guard (error as NSError).domain != NSURLErrorDomain else { return false }
-
             // An earlier post whose answer got lost already moved the file out of the draft folder
             let response = (error as NSError).userInfo[AFNetworkingOperationFailingURLResponseErrorKey] as? HTTPURLResponse
             if earlierPostStarted, response?.statusCode == 404 {
@@ -346,9 +516,8 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
                 return true
             }
 
-            // Retried on the next app start or background refresh
-            job.shareRetried = true
-            try? self.save(job)
+            // Retried shortly while the app is active, otherwise on its next start or background refresh
+            self.updateJob(withId: job.id) { $0.shareRetried = true }
 
             return false
         }
@@ -380,9 +549,8 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
 
         let configuration = URLSessionConfiguration.background(withIdentifier: identifier)
         configuration.sharedContainerIdentifier = groupIdentifier
-        // Without it, an upload waiting for a network keeps the job alive for 7 days. Twice the retry
-        // delay, in case a retry counts the time it was held back as well
-        configuration.timeoutIntervalForResource = 2 * Self.uploadRetryDelay
+        // Without it, an upload waiting for a network keeps the job alive for 7 days
+        configuration.timeoutIntervalForResource = Self.uploadResourceTimeout
 
         let session = URLSession(configuration: configuration, delegate: self, delegateQueue: .main)
         self.sessions[identifier] = session
@@ -390,10 +558,27 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
         return session
     }
 
+    func urlSession(_ session: URLSession, task: URLSessionTask, didSendBodyData bytesSent: Int64, totalBytesSent: Int64, totalBytesExpectedToSend: Int64) {
+        guard let jobId = task.taskDescription, totalBytesExpectedToSend > 0 else { return }
+
+        let progress = Float(totalBytesSent) / Float(totalBytesExpectedToSend)
+
+        // Whole percents are enough for an indicator
+        if let previousProgress = self.uploadProgress[jobId], Int(previousProgress * 100) == Int(progress * 100) {
+            return
+        }
+
+        self.uploadProgress[jobId] = progress
+
+        NotificationCenter.default.post(name: .ChatBackgroundUploaderDidChangeUploadProgress, object: self, userInfo: ["jobId": jobId, "progress": progress])
+    }
+
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
-        guard let jobId = task.taskDescription,
-              var job = self.loadJob(withId: jobId)
-        else { return }
+        guard let jobId = task.taskDescription else { return }
+
+        self.uploadProgress.removeValue(forKey: jobId)
+
+        guard var job = self.loadJob(withId: jobId) else { return }
 
         let statusCode = (task.response as? HTTPURLResponse)?.statusCode ?? 0
 
@@ -407,8 +592,10 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
 
         NCLog.log("Background upload of \(job.fileName) failed with status \(statusCode). Error: \(error?.localizedDescription ?? "none")")
 
-        // Cancelled for an overdue retry or by a force quit, a new task takes over
-        guard (error as? URLError)?.code != .cancelled else { return }
+        // A new task takes over a cancelled one, and another process connected to the session handles the job
+        if let code = (error as? URLError)?.code, code == .cancelled || code == .backgroundSessionInUseByAnotherProcess {
+            return
+        }
 
         let dropReason: String
 
@@ -418,13 +605,14 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
             dropReason = "its retry failed as well"
         } else if let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: job.accountId),
                   let authHeader = NCAPIController.sharedInstance().authHeader(forAccount: account) {
-            let retryDate = Date(timeIntervalSinceNow: Self.uploadRetryDelay)
+            let retryDelay = statusCode == 429 ? Self.rateLimitedUploadRetryDelay : Self.uploadRetryDelay
+            let retryDate = Date(timeIntervalSinceNow: retryDelay)
 
             job.uploadRetryDate = retryDate
             try? self.save(job)
 
             // The system starts it then, even when neither the app nor the extension is running
-            NCLog.log("Retrying background upload of \(job.fileName) in \(Int(Self.uploadRetryDelay))s")
+            NCLog.log("Retrying background upload of \(job.fileName) in \(Int(retryDelay))s")
             self.startUploadTask(for: job, in: session, authHeader: authHeader, earliestBeginDate: retryDate)
             return
         } else {
@@ -444,6 +632,22 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
         } else {
             completionHandler(.performDefaultHandling, nil)
         }
+    }
+
+    func urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?) {
+        // Sessions invalidated on purpose are no longer cached
+        guard let identifier = session.configuration.identifier,
+              self.sessions[identifier] === session
+        else { return }
+
+        // Another process is connected to the session
+        NCLog.log("Background upload session \(identifier) became invalid. Error: \(error?.localizedDescription ?? "none")")
+        self.sessions.removeValue(forKey: identifier)
+        self.checkedSessions.remove(identifier)
+        self.sessionsWithFinishedEvents.remove(identifier)
+
+        // No events come anymore, the other process got them
+        self.backgroundEventsCompletionHandlers.removeValue(forKey: identifier)?()
     }
 
     func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
@@ -472,6 +676,15 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
         ]
 
         self.keepFailedJob(job)
+
+#if !APP_EXTENSION
+        // The open chat shows the failed file already
+        if UIApplication.shared.applicationState == .active,
+           let chatViewController = NCRoomsManager.shared.chatViewController, chatViewController.isVisible,
+           chatViewController.room.token == job.roomToken, chatViewController.account.accountId == job.accountId {
+            return
+        }
+#endif
 
         let identifier = "BackgroundUpload-\(job.id)"
 
@@ -502,6 +715,7 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
         do {
             try FileManager.default.createDirectory(at: failedJobsDirectory, withIntermediateDirectories: true)
             try FileManager.default.moveItem(at: jobDirectory, to: failedJobsDirectory.appendingPathComponent(job.id, isDirectory: true))
+            self.notifyUploadsChanged()
         } catch {
             NCLog.log("Could not keep the failed background upload of \(job.fileName). Error: \(error.localizedDescription)")
             self.removeJob(job)
@@ -511,16 +725,14 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
 #if !APP_EXTENSION
     /// The failed files of the share the given job belongs to, in their original order.
     func failedJobs(sharedWith jobId: String) -> [(job: ChatBackgroundUploadJob, fileURL: URL)] {
-        guard let failedJobsDirectory = Self.failedJobsDirectory,
-              let sharedJob = self.loadJob(in: failedJobsDirectory.appendingPathComponent(jobId, isDirectory: true)),
-              let jobIds = try? FileManager.default.contentsOfDirectory(atPath: failedJobsDirectory.path)
-        else { return [] }
+        let failedUploads = self.loadFailedUploads()
 
-        return jobIds
-            .compactMap { self.loadJob(in: failedJobsDirectory.appendingPathComponent($0, isDirectory: true)) }
-            .filter { $0.sessionIdentifier == sharedJob.sessionIdentifier }
-            .sorted { $0.index < $1.index }
-            .map { ($0, failedJobsDirectory.appendingPathComponent($0.id, isDirectory: true).appendingPathComponent(Self.dataFileName)) }
+        guard let sharedJob = failedUploads.first(where: { $0.job.id == jobId })?.job else { return [] }
+
+        return failedUploads
+            .filter { $0.job.sessionIdentifier == sharedJob.sessionIdentifier }
+            .sorted { $0.job.index < $1.job.index }
+            .map { ($0.job, $0.fileURL) }
     }
 
     func removeFailedJobs(_ jobs: [ChatBackgroundUploadJob]) {
@@ -531,6 +743,86 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
         }
 
         UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: jobs.map { "BackgroundUpload-\($0.id)" })
+
+        self.notifyUploadsChanged()
+    }
+
+    /// Pending and failed files, except those without a reference id to match their message.
+    func uploads(forAccountId accountId: String, roomToken: String, threadId: Int?) -> [ChatBackgroundUpload] {
+        let now = Date()
+
+        // Before its tasks start, a share may still fall back to uploading in the foreground
+        let startedJobs = self.loadAllJobs().filter {
+            $0.taskStart != nil || now.timeIntervalSince($0.createdAt) > Self.reconnectGracePeriod
+        }
+
+        let pendingUploads = startedJobs.compactMap { job in
+            self.jobDirectory(forJobId: job.id).map {
+                ChatBackgroundUpload(job: job, fileURL: $0.appendingPathComponent(job.localFileName), isFailed: false)
+            }
+        }
+
+        return (pendingUploads + self.loadFailedUploads())
+            .filter { $0.job.accountId == accountId && $0.job.roomToken == roomToken }
+            .filter { $0.job.metadata.threadId == threadId && $0.job.referenceId != nil }
+            .sorted { ($0.job.createdAt, $0.job.index) < ($1.job.createdAt, $1.job.index) }
+    }
+
+    /// Only known while this process is connected to the session of the job.
+    func uploadProgress(forJobId jobId: String) -> Float? {
+        return self.uploadProgress[jobId]
+    }
+
+    /// Stops the given files and forgets them. Returns the ids of the cancelled ones, as files that are being
+    /// posted can't be stopped anymore.
+    @discardableResult
+    func cancelUploads(withJobIds jobIds: Set<String>) -> Set<String> {
+        let jobs = self.loadAllJobs().filter { jobIds.contains($0.id) && !self.sharingSessions.contains($0.sessionIdentifier) }
+
+        for job in jobs {
+            NCLog.log("Cancelling background upload of \(job.fileName)")
+            self.removeJob(job)
+        }
+
+        // Without a connection to the session, the upload still finishes and is ignored then
+        for identifier in Set(jobs.map { $0.sessionIdentifier }) {
+            self.sessions[identifier]?.getAllTasks { tasks in
+                tasks.filter { jobIds.contains($0.taskDescription ?? "") }.forEach { $0.cancel() }
+            }
+        }
+
+        // The rest of a share may have waited for the cancelled files
+        self.resumePendingJobs()
+
+        return Set(jobs.map { $0.id })
+    }
+
+    /// Starts uploads waiting for their retry now. It is still their one retry.
+    func retryWaitingUploads(withJobIds jobIds: Set<String>) {
+        let now = Date()
+
+        // Within the grace period the extension may still be connected to the session
+        let waitingJobs = self.loadAllJobs().filter {
+            jobIds.contains($0.id) && $0.isWaitingForUploadRetry && now.timeIntervalSince($0.createdAt) > Self.reconnectGracePeriod
+        }
+
+        for (identifier, jobs) in Dictionary(grouping: waitingJobs, by: { $0.sessionIdentifier }) {
+            self.restartTasks(in: self.session(withIdentifier: identifier), retryingJobIds: Set(jobs.map { $0.id }))
+        }
+    }
+
+    private func loadFailedUploads() -> [ChatBackgroundUpload] {
+        guard let failedJobsDirectory = Self.failedJobsDirectory,
+              let jobIds = try? FileManager.default.contentsOfDirectory(atPath: failedJobsDirectory.path)
+        else { return [] }
+
+        return jobIds.compactMap { jobId in
+            let jobDirectory = failedJobsDirectory.appendingPathComponent(jobId, isDirectory: true)
+
+            return self.loadJob(in: jobDirectory).map {
+                ChatBackgroundUpload(job: $0, fileURL: jobDirectory.appendingPathComponent($0.localFileName), isFailed: true)
+            }
+        }
     }
 
     // The notification may never be tapped
@@ -538,6 +830,8 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
         guard let failedJobsDirectory = Self.failedJobsDirectory,
               let jobIds = try? FileManager.default.contentsOfDirectory(atPath: failedJobsDirectory.path)
         else { return }
+
+        var removedJob = false
 
         for jobId in jobIds {
             let jobDirectory = failedJobsDirectory.appendingPathComponent(jobId, isDirectory: true)
@@ -547,6 +841,11 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
             }
 
             try? FileManager.default.removeItem(at: jobDirectory)
+            removedJob = true
+        }
+
+        if removedJob {
+            self.notifyUploadsChanged()
         }
     }
 #endif
@@ -559,7 +858,7 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
             kCGImageSourceThumbnailMaxPixelSize: 1024
         ] as CFDictionary
 
-        guard let dataFileURL = self.jobDirectory(forJobId: job.id)?.appendingPathComponent(Self.dataFileName),
+        guard let dataFileURL = self.jobDirectory(forJobId: job.id)?.appendingPathComponent(job.localFileName),
               let imageSource = CGImageSourceCreateWithURL(dataFileURL as CFURL, nil),
               let thumbnail = CGImageSourceCreateThumbnailAtIndex(imageSource, 0, options),
               let jpegData = UIImage(cgImage: thumbnail).jpegData(compressionQuality: 0.8)
@@ -594,6 +893,18 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
         else { throw ChatFileUploadError.destinationUnavailable(underlyingError: nil) }
 
         try JSONEncoder().encode(job).write(to: jobFileURL, options: .atomic)
+        self.notifyUploadsChanged()
+    }
+
+    /// Changes what is stored rather than a copy, which may be older by now.
+    @discardableResult
+    private func updateJob(withId jobId: String, _ change: (inout ChatBackgroundUploadJob) -> Void) -> ChatBackgroundUploadJob? {
+        guard var job = self.loadJob(withId: jobId) else { return nil }
+
+        change(&job)
+        try? self.save(job)
+
+        return job
     }
 
     private func loadJob(withId jobId: String) -> ChatBackgroundUploadJob? {
@@ -619,5 +930,16 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
         guard let jobDirectory = self.jobDirectory(forJobId: job.id) else { return }
 
         try? FileManager.default.removeItem(at: jobDirectory)
+        self.notifyUploadsChanged()
+    }
+
+    private func notifyUploadsChanged() {
+        let post = { NotificationCenter.default.post(name: .ChatBackgroundUploaderDidChangeUploads, object: self) }
+
+        if Thread.isMainThread {
+            post()
+        } else {
+            DispatchQueue.main.async(execute: post)
+        }
     }
 }

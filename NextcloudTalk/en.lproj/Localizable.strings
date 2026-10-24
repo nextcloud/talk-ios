@@ -595,6 +595,9 @@
 /* No comment provided by engineer. */
 "Cancel" = "Cancel";
 
+/* Stop uploading a file that is shared in the background */
+"Cancel upload" = "Cancel upload";
+
 /* No comment provided by engineer. */
 "Cancelled call from another account" = "Cancelled call from another account";
 
@@ -1962,6 +1965,9 @@
 /* No comment provided by engineer. */
 "Polls" = "Polls";
 
+/* Files are prepared for being uploaded in the background */
+"Preparing upload" = "Preparing upload";
+
 /* No comment provided by engineer. */
 "Preview" = "Preview";
 
@@ -2118,6 +2124,9 @@
 /* Button to retry a failed operation
    Retry downloading the original file */
 "Retry" = "Retry";
+
+/* Upload a file again that failed to upload */
+"Retry now" = "Retry now";
 
 /* Save conversation description */
 "Save" = "Save";

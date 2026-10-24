@@ -56,6 +56,10 @@ extension BaseChatTableViewCell {
                 filePreviewActivityIndicator.centerXAnchor.constraint(equalTo: filePreviewImageView.centerXAnchor)
             ])
 
+            let fileUploadOverlayView = FileUploadOverlayView(style: .covering)
+            self.fileUploadOverlayView = fileUploadOverlayView
+            fileUploadOverlayView.pin(to: filePreviewImageView)
+
             // Add everything to messageBodyView
             let heightConstraint = filePreviewImageView.heightAnchor.constraint(equalToConstant: fileMessageCellFileMaxPreviewHeight)
             let widthConstraint = filePreviewImageView.widthAnchor.constraint(equalToConstant: fileMessageCellFileMaxPreviewWidth)
@@ -97,8 +101,13 @@ extension BaseChatTableViewCell {
 
         self.requestPreview(for: message, with: account)
 
+        self.fileUploadOverlayView?.update(for: message)
+
         if !message.sendingFailed, message.isTemporary {
-            self.addActivityIndicator(with: 0)
+            // A pending background upload shows its state on the overlay instead
+            if message.backgroundUploadJobId == nil {
+                self.addActivityIndicator(with: 0)
+            }
         } else if let fileParameter = message.file() {
             self.restoreDownloadState(for: fileParameter)
         }
@@ -110,6 +119,8 @@ extension BaseChatTableViewCell {
 
     func prepareForReuseFileCell() {
         self.fileCurrentRequest?.cancel()
+        self.filePreviewImageView?.cancelPreview()
+        self.fileUploadOverlayView?.hide()
         self.filePreviewImageView?.image = nil
         self.filePreviewPlayIconImageView?.isHidden = true
 
@@ -164,6 +175,19 @@ extension BaseChatTableViewCell {
             }
         }
 
+        // Not on the server yet
+        if let upload = message.backgroundUpload, let referenceId = message.referenceId {
+            self.requestLocalPreview(for: message, referenceId: referenceId, fileURL: upload.fileURL)
+            return
+        }
+
+        // Shared from this device, so the posted message keeps the preview it had while uploading
+        if !message.isAnimatableGif, let referenceId = message.referenceId, !referenceId.isEmpty,
+           FilePreviewImageView.hasLocalPreview(forReferenceId: referenceId, maximumPixelSize: Self.localPreviewPixelSize) {
+            self.requestLocalPreview(for: message, referenceId: referenceId, fileURL: nil)
+            return
+        }
+
         // In classified conversations we never fetch the server-side preview. We only show the
         // blurhash placeholder (or a generic file icon when no blurhash is available). Tapping the
         // message still opens the full preview viewer, which is a separate gesture.
@@ -187,6 +211,22 @@ extension BaseChatTableViewCell {
             self.requestGifPreview(for: message, with: account)
         } else {
             self.requestDefaultPreview(for: message, withPlaceholderImage: placeholderImage, with: account)
+        }
+    }
+
+    private static let localPreviewPixelSize = Int(3 * fileMessageCellFileMaxPreviewHeight)
+
+    private func requestLocalPreview(for message: NCChatMessage, referenceId: String, fileURL: URL?) {
+        let parameterId = message.file()?.parameterId
+
+        self.filePreviewImageView?.setLocalPreview(forReferenceId: referenceId, fileURL: fileURL, maximumPixelSize: Self.localPreviewPixelSize) { [weak self] image in
+            guard let self, self.message?.file()?.parameterId == parameterId else { return }
+
+            if let image {
+                self.adjustImageView(toImageSize: image, ofMessage: message)
+            } else {
+                self.showFallbackIcon(for: message)
+            }
         }
     }
 
@@ -342,6 +382,11 @@ extension BaseChatTableViewCell {
 
     @objc
     func filePreviewTapped() {
+        if let message = self.message, message.backgroundUploadJobId != nil {
+            self.delegate?.cellWants(toOpenBackgroundUpload: message)
+            return
+        }
+
         guard let message = self.message,
               let fileParameter = message.file(),
               fileParameter.path != nil, fileParameter.link != nil

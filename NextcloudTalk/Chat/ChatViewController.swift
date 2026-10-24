@@ -26,6 +26,12 @@ import SwiftUI
     private var hasRequestedInitialHistory = false
     private var hasReceiveInitialHistory = false
     private var retrievingHistory = false
+    private var isBackgroundUploadSyncScheduled = false
+    private var shownBackgroundUploadReferenceIds: Set<String> = []
+    private var backgroundUploadRetryTimer: Timer?
+
+    // Within it, an added share counts as just shared and scrolls into view
+    private static let newShareScrollPeriod: TimeInterval = 60
 
     private var hasJoinedRoom = false
     private var startReceivingMessagesAfterJoin = false
@@ -582,6 +588,7 @@ import SwiftUI
 
         NotificationCenter.default.addObserver(self, selector: #selector(appDidBecomeActive(notification:)), name: UIApplication.didBecomeActiveNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(appWillResignActive(notification:)), name: UIApplication.willResignActiveNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didChangeBackgroundUploads(notification:)), name: .ChatBackgroundUploaderDidChangeUploads, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(connectionStateHasChanged(notification:)), name: NSNotification.Name.NCConnectionStateHasChangedNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(maintenanceModeActive(notification:)), name: NSNotification.Name.NCServerMaintenanceMode, object: nil)
 
@@ -703,8 +710,16 @@ import SwiftUI
             shareConfirmationVC.shareItemController.addItem(withURLAndName: failedJob.fileURL, withName: failedJob.job.fileName)
         }
 
-        // Only the file that carried the caption has one
-        if let caption = failedJobs.compactMap({ $0.job.metadata.caption }).last {
+        // Only the last file has the caption, its mentions are restored like when editing
+        if let captionJob = failedJobs.last(where: { $0.job.captionMessage?.isEmpty == false })?.job,
+           let captionMessage = captionJob.captionMessage {
+            let message = NCChatMessage()
+            message.message = captionMessage
+            message.messageParametersJSONString = captionJob.captionMessageParameters
+
+            shareConfirmationVC.mentionsDict = message.mentionMessageParameters
+            shareConfirmationVC.setChatMessage(message.parsedMessage().string)
+        } else if let caption = failedJobs.compactMap({ $0.job.metadata.caption }).last {
             shareConfirmationVC.setChatMessage(caption)
         }
 
@@ -712,6 +727,228 @@ import SwiftUI
         ChatBackgroundUploader.shared.removeFailedJobs(failedJobs.map { $0.job })
 
         self.present(navigationController, animated: true)
+    }
+
+    // MARK: - Files shared in the background
+
+    func didChangeBackgroundUploads(notification: Notification) {
+        self.scheduleBackgroundUploadSync()
+    }
+
+    /// A share saves its jobs several times in a row.
+    private func scheduleBackgroundUploadSync() {
+        guard !self.isBackgroundUploadSyncScheduled else { return }
+
+        self.isBackgroundUploadSyncScheduled = true
+
+        DispatchQueue.main.async {
+            self.isBackgroundUploadSyncScheduled = false
+            self.syncBackgroundUploads()
+        }
+    }
+
+    /// Shows pending background uploads as temporary messages, which the server messages replace by reference id.
+    /// - Parameter removingPostedUploads: Also removes pending files without a job, the next server messages bring them in.
+    /// - Parameter removingReferenceIds: Pending files that were cancelled.
+    func syncBackgroundUploads(removingPostedUploads: Bool = false, removingReferenceIds: Set<String> = []) {
+        guard self.hasReceiveInitialHistory, self.isViewLoaded, let tableView = self.tableView else { return }
+
+        defer {
+            self.shownBackgroundUploadReferenceIds = Set(self.messages.values.joined().compactMap { $0.backgroundUploadJobId != nil ? $0.referenceId : nil })
+            self.scheduleBackgroundUploadRetryRefresh()
+        }
+
+        let uploadMessages = ChatBackgroundUploader.shared.uploads(forAccountId: self.account.accountId, roomToken: self.room.token, threadId: self.thread?.threadId)
+            .map { $0.temporaryMessage(in: self.room, for: self.account) }
+
+        let shownMessages = Array(self.messages.values.joined())
+
+        // A server message landing in another day does not replace its temporary message
+        var postedReferenceIds: Set<String> = []
+
+        for message in shownMessages where !message.isTemporary {
+            if let referenceId = message.referenceId, !referenceId.isEmpty {
+                postedReferenceIds.insert(referenceId)
+            }
+        }
+
+        var addedMessages: [NCChatMessage] = []
+        var changedMessages: [NCChatMessage] = []
+
+        for uploadMessage in uploadMessages {
+            guard let referenceId = uploadMessage.referenceId, !postedReferenceIds.contains(referenceId) else { continue }
+
+            guard let (_, shownMessage) = self.indexPathAndMessage(forReferenceId: referenceId) else {
+                addedMessages.append(uploadMessage)
+                continue
+            }
+
+            guard shownMessage.backgroundUploadState != uploadMessage.backgroundUploadState else { continue }
+
+            uploadMessage.isGroupMessage = shownMessage.isGroupMessage
+            changedMessages.append(uploadMessage)
+        }
+
+        let uploadReferenceIds = Set(uploadMessages.compactMap { $0.referenceId })
+        let removedMessages = shownMessages.filter { message in
+            guard message.backgroundUploadJobId != nil, let referenceId = message.referenceId else { return false }
+
+            let isPosted = postedReferenceIds.contains(referenceId)
+            let isCancelled = removingReferenceIds.contains(referenceId)
+            // A failed file without a job was resent or deleted, a pending one usually waits for its message
+            let isGone = !uploadReferenceIds.contains(referenceId) && (message.sendingFailed || removingPostedUploads)
+
+            return isPosted || isCancelled || isGone
+        }
+
+        guard !addedMessages.isEmpty || !changedMessages.isEmpty || !removedMessages.isEmpty else { return }
+
+        // A new share scrolls into view like a sent message, while the share sheet may still cover the chat
+        let justSharedDate = Date().addingTimeInterval(-Self.newShareScrollPeriod)
+        let addsNewShare = addedMessages.contains { Date(timeIntervalSince1970: TimeInterval($0.timestamp)) > justSharedDate }
+        let scrollsToBottom = addsNewShare || self.shouldScrollOnNewMessages()
+
+        for message in changedMessages {
+            if let indexPath = self.indexPath(for: message) {
+                self.messages[self.dateSections[indexPath.section]]?[indexPath.row] = message
+            }
+        }
+
+        for message in removedMessages {
+            if let indexPath = self.indexPath(for: message) {
+                self.removeMessageFromDataSource(at: indexPath)
+            }
+        }
+
+        if !addedMessages.isEmpty {
+            self.chatBackgroundView.placeholderView.isHidden = true
+            // Regroups as well
+            self.insertMessages(messages: addedMessages)
+        } else {
+            self.regroupFileMessages()
+        }
+
+        // Rare, so a reload is enough
+        tableView.reloadData()
+
+        if scrollsToBottom {
+            // The content size is only known after the reload was laid out
+            tableView.layoutIfNeeded()
+            self.scrollChatToBottom(animated: false)
+        }
+
+        self.updateToolbar(animated: false)
+    }
+
+    /// The clock of a file waiting for its retry turns back into its progress once the retry starts.
+    private func scheduleBackgroundUploadRetryRefresh() {
+        self.backgroundUploadRetryTimer?.invalidate()
+        self.backgroundUploadRetryTimer = nil
+
+        let retryDates = self.messages.values.joined().compactMap { message -> Date? in
+            guard case .waitingForRetry(let retryDate) = message.backgroundUploadState else { return nil }
+
+            return retryDate
+        }
+
+        guard let nextRetryDate = retryDates.min() else { return }
+
+        self.backgroundUploadRetryTimer = Timer.scheduledTimer(withTimeInterval: nextRetryDate.timeIntervalSinceNow + 1, repeats: false) { [weak self] _ in
+            guard let self else { return }
+
+            self.tableView?.reloadData()
+            self.scheduleBackgroundUploadRetryRefresh()
+        }
+    }
+
+    /// Defaults to all shown messages.
+    private func retryWaitingBackgroundUploads(of messages: [NCChatMessage]? = nil) {
+        let jobIds = (messages ?? Array(self.messages.values.joined()))
+            .filter { $0.backgroundUploadState?.isWaitingForRetry == true }
+            .compactMap { $0.backgroundUploadJobId }
+
+        guard !jobIds.isEmpty else { return }
+
+        ChatBackgroundUploader.shared.retryWaitingUploads(withJobIds: Set(jobIds))
+    }
+
+    private func backgroundUploadContextMenuConfiguration(for message: NCChatMessage, withJobId jobId: String, at indexPath: IndexPath) -> UIContextMenuConfiguration? {
+        guard self.room.canChat else { return nil }
+
+        var actions: [UIMenuElement] = []
+        var destructiveActions: [UIMenuElement] = []
+
+        if message.sendingFailed {
+            actions.append(UIAction(title: NSLocalizedString("Resend", comment: ""), image: .init(systemName: "arrow.clockwise")) { _ in
+                self.presentFailedShare(ofJobId: jobId)
+            })
+
+            destructiveActions.append(UIAction(title: NSLocalizedString("Delete", comment: ""), image: .init(systemName: "trash"), attributes: .destructive) { _ in
+                let failedJobs = ChatBackgroundUploader.shared.failedJobs(sharedWith: jobId).filter { $0.job.id == jobId }
+                ChatBackgroundUploader.shared.removeFailedJobs(failedJobs.map { $0.job })
+            })
+        } else {
+            // The menu of a group covers all its files
+            let messages = self.fileMessageGroup(showing: message)?.messages ?? [message]
+
+            if messages.contains(where: { $0.backgroundUploadState?.isWaitingForRetry == true }) {
+                actions.append(UIAction(title: NSLocalizedString("Retry now", comment: "Upload a file again that failed to upload"), image: .init(systemName: "arrow.clockwise")) { _ in
+                    self.retryWaitingBackgroundUploads(of: messages)
+                })
+            }
+
+            destructiveActions.append(UIAction(title: NSLocalizedString("Cancel upload", comment: "Stop uploading a file that is shared in the background"), image: .init(systemName: "xmark"), attributes: .destructive) { _ in
+                self.cancelBackgroundUploads(of: messages)
+            })
+        }
+
+        let menu = UIMenu(children: actions + [UIMenu(options: [.displayInline], children: destructiveActions)])
+
+        return UIContextMenuConfiguration(identifier: indexPath as NSIndexPath) { [weak self] in
+            return self?.getContextMenuPreviewController(forRowAt: indexPath)
+        } actionProvider: { _ in
+            return menu
+        }
+    }
+
+    private func cancelBackgroundUploads(of messages: [NCChatMessage]) {
+        let jobIds = Set(messages.compactMap { $0.backgroundUploadJobId })
+        let cancelledJobIds = ChatBackgroundUploader.shared.cancelUploads(withJobIds: jobIds)
+        var cancelledReferenceIds: Set<String> = []
+
+        for message in messages {
+            if let jobId = message.backgroundUploadJobId, cancelledJobIds.contains(jobId), let referenceId = message.referenceId {
+                cancelledReferenceIds.insert(referenceId)
+            }
+        }
+
+        self.syncBackgroundUploads(removingReferenceIds: cancelledReferenceIds)
+    }
+
+    /// The pending files shared together with the given one, itself included.
+    private func backgroundUploadMessages(sharedWith message: NCChatMessage) -> [NCChatMessage] {
+        guard let uploadHash = message.fileUploadReference?.uploadHash else { return [message] }
+
+        return self.messages.values.joined().filter {
+            $0.backgroundUploadJobId != nil && $0.fileUploadReference?.uploadHash == uploadHash
+        }
+    }
+
+    public override func cellWants(toOpenBackgroundUpload message: NCChatMessage) {
+        guard let jobId = message.backgroundUploadJobId, let uploadState = message.backgroundUploadState else { return }
+
+        switch uploadState {
+        case .failed:
+            self.presentFailedShare(ofJobId: jobId)
+        case .waitingForRetry:
+            // Posting waits for every file of the share anyway
+            self.retryWaitingBackgroundUploads(of: self.backgroundUploadMessages(sharedWith: message))
+        case .uploading, .uploaded:
+            // The local copy opens like a downloaded file
+            if let fileStatus = message.file()?.fileStatus {
+                self.previewFile(with: fileStatus)
+            }
+        }
     }
 
     // Quote the message with the given internalId (which may live in another conversation) as a private reply
@@ -789,6 +1026,10 @@ import SwiftUI
         // Check if new messages were added while the app was inactive (eg. via background-refresh)
         self.checkForNewStoredMessages()
 
+        // The share extension may have changed background uploads
+        self.syncBackgroundUploads(removingPostedUploads: true)
+        self.retryWaitingBackgroundUploads()
+
         if !self.offlineMode {
             NCRoomsManager.shared.joinRoom(self.room.token, forAccountId: self.account.accountId, forCall: false)
         }
@@ -814,6 +1055,11 @@ import SwiftUI
     func connectionStateHasChanged(notification: Notification) {
         guard let rawConnectionState = notification.userInfo?["connectionState"] as? Int, let connectionState = ConnectionState(rawValue: rawConnectionState) else {
             return
+        }
+
+        // Pending uploads show when a network is missing
+        if !self.shownBackgroundUploadReferenceIds.isEmpty {
+            self.tableView?.reloadData()
         }
 
         switch connectionState {
@@ -1601,6 +1847,12 @@ import SwiftUI
 
             self.hasReceiveInitialHistory = true
 
+            // Not stored like other temporary messages, they are built from their jobs
+            self.syncBackgroundUploads()
+
+            // Waiting retries start when the chat is opened
+            self.retryWaitingBackgroundUploads()
+
             if notification.userInfo?["error"] == nil {
                 self.chatController.startReceivingNewChatMessages()
             } else {
@@ -1685,6 +1937,18 @@ import SwiftUI
             }
 
             let firstNewMessagesAfterHistory = notification.userInfo?["firstNewMessagesAfterHistory"] as? Bool ?? false
+
+            // The message may not have replaced its temporary message, see syncBackgroundUploads
+            let receivedMessages = notification.userInfo?["messages"] as? [NCChatMessage] ?? []
+            let postsShownUpload = receivedMessages.contains { message in
+                guard let referenceId = message.referenceId else { return false }
+
+                return self.shownBackgroundUploadReferenceIds.contains(referenceId)
+            }
+
+            if postsShownUpload {
+                self.scheduleBackgroundUploadSync()
+            }
 
             if let messages = notification.userInfo?["messages"] as? [NCChatMessage], let tableView = self.tableView, !messages.isEmpty {
                 // A pending trait change drops the tableView's cached row counts when applied, so apply it before the data
@@ -1866,6 +2130,9 @@ import SwiftUI
         // of the data source instead.
         let sectionsBeforeUpdate = self.dateSections
 
+        // Pending upload groups shrink as their files are replaced one by one
+        let temporaryGroupSizesBeforeUpdate = self.temporaryFileMessageGroups.mapValues { $0.messages.count }
+
         self.appendMessages(messages: messages)
 
         // Reloads and in-place updates address rows the tableView already knows, so their
@@ -1927,6 +2194,15 @@ import SwiftUI
             if let collapsedByMessage = newMessage.collapsedBy, let collapsedPath = self.indexPath(for: collapsedByMessage),
                let reloadPath = preUpdateIndexPath(for: collapsedPath) {
                 // The current message is collapsed, so we need to make sure that the collapsedBy message is reloaded
+                update.reloadIndexPaths.insert(reloadPath)
+            }
+        }
+
+        // Their rows still show the files that left
+        for (referenceId, sizeBeforeUpdate) in temporaryGroupSizesBeforeUpdate
+        where self.temporaryFileMessageGroups[referenceId]?.messages.count != sizeBeforeUpdate {
+            if let (indexPath, anchor) = self.indexPathAndMessage(forReferenceId: referenceId), anchor.isTemporary,
+               let reloadPath = preUpdateIndexPath(for: indexPath) {
                 update.reloadIndexPaths.insert(reloadPath)
             }
         }
@@ -2640,6 +2916,10 @@ import SwiftUI
             message.messageId == MessageSeparatorTableViewCell.chatBlockSeparatorId {
 
             return nil
+        }
+
+        if let jobId = message.backgroundUploadJobId {
+            return self.backgroundUploadContextMenuConfiguration(for: message, withJobId: jobId, at: indexPath)
         }
 
         var actions: [UIMenuElement] = []
