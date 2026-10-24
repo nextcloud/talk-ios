@@ -483,7 +483,8 @@ import Toast
 
         self.isVisible = false
 
-        if !self.textInputbar.isHidden {
+        // The selection mode hides the input bar, but the text of the user is still in it
+        if !self.textInputbar.isHidden || self.messageSelection.isActive {
             self.savePendingMessage()
         }
 

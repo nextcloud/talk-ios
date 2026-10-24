@@ -264,6 +264,7 @@ extension BaseChatViewController {
             closeButton.tintColor = NCAppBranding.themeTextColor()
         }
 
+        self.replacementTitleView = titleLabel
         navigationItem.titleView = titleLabel
         navigationItem.hidesBackButton = true
         navigationItem.leftItemsSupplementBackButton = false
@@ -300,7 +301,9 @@ extension BaseChatViewController {
 
         let navigationItem = self.navigationItem
 
-        navigationItem.titleView = savedChrome.titleView
+        // The title view may have been renewed while the mode was active (room update, size class change)
+        self.replacementTitleView = nil
+        navigationItem.titleView = self.titleView ?? savedChrome.titleView
         navigationItem.hidesBackButton = savedChrome.hidesBackButton
         navigationItem.leftItemsSupplementBackButton = savedChrome.leftItemsSupplementBackButton
         navigationItem.leftBarButtonItems = savedChrome.leftBarButtonItems

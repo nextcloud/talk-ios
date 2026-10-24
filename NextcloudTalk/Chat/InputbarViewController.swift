@@ -17,6 +17,9 @@ import UIKit
     // MARK: - Internal var
     internal var thread: NCThread?
     internal var titleView: NCChatTitleView?
+
+    /// Shown instead of the title view for a while (the selection mode). The title view is still refreshed, but not shown.
+    internal var replacementTitleView: UIView?
     internal var autocompletionUsers: [MentionSuggestion] = []
     internal var mentionsDict: [String: NCMessageParameter] = [:]
     internal var contentView: UIView?
@@ -393,7 +396,10 @@ import UIKit
         }
 
         self.titleView = titleView
-        self.navigationItem.titleView = titleView
+
+        if self.replacementTitleView == nil {
+            self.navigationItem.titleView = titleView
+        }
     }
 
     // MARK: - Autocompletion

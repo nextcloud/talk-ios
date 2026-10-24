@@ -864,8 +864,8 @@ import SwiftUI
         } else if !room.canChat {
             // Hide text input
             self.setTextInputbarHidden(true, animated: isVisible)
-        } else if self.isTextInputbarHidden {
-            // Show text input if it was hidden in a previous state
+        } else if self.isTextInputbarHidden, !self.messageSelection.isActive {
+            // Show text input if it was hidden in a previous state (the selection mode hides it and shows it again itself)
             self.setTextInputbarHidden(false, animated: isVisible)
 
             if self.tableView?.slk_isAtBottom ?? false {
