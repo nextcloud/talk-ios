@@ -126,10 +126,11 @@ public enum NCHTTPSerialization {
     private static func unwrapped(_ value: Any?) -> Any? {
         guard let value, !(value is NSNull) else { return nil }
 
-        let mirror = Mirror(reflecting: value)
-        guard mirror.displayStyle == .optional else { return value }
+        if let optional = value as? AnyOptional {
+            return unwrapped(optional.wrappedValue)
+        }
 
-        return unwrapped(mirror.children.first?.value)
+        return value
     }
 
     // MARK: - Response
@@ -181,6 +182,17 @@ public enum NCHTTPSerialization {
         }
 
         return (validationError, hasAcceptableContentType)
+    }
+}
+
+// Lets an Optional inside an Any be recognized and unwrapped
+private protocol AnyOptional {
+    var wrappedValue: Any? { get }
+}
+
+extension Optional: AnyOptional {
+    fileprivate var wrappedValue: Any? {
+        return self.map { $0 as Any }
     }
 }
 
