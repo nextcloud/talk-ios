@@ -35,6 +35,9 @@ import SwiftUI
     private var isLeavingChat = false
 
     private var chatViewPresentedTimestamp = Date().timeIntervalSince1970
+
+    private var doubleTapReactionGesture: UITapGestureRecognizer?
+    private var lastCelebrationTimestamp: TimeInterval = 0
     private var generateSummaryFromMessageId: Int?
     private var generateSummaryTimer: Timer?
 
@@ -631,6 +634,8 @@ import SwiftUI
 
         // Disable room info, input bar and call buttons until joining room
         self.disableRoomControls()
+
+        self.addDoubleTapReactionGesture()
     }
 
     public override func viewWillAppear(_ animated: Bool) {
@@ -1782,6 +1787,8 @@ import SwiftUI
                 if firstNewMessagesAfterHistory {
                     self.chatBackgroundView.loadingView.stopAnimating()
                     self.chatBackgroundView.loadingView.isHidden = true
+                } else {
+                    self.celebrateIfNeeded(forReceivedMessages: messages)
                 }
 
                 if self.highlightMessageId > 0, let indexPath = self.indexPathAndMessage(forMessageId: self.highlightMessageId)?.indexPath {
@@ -1923,6 +1930,11 @@ import SwiftUI
                 self.modifyMessageWith(referenceId: referenceId) { message in
                     message.sendingFailed = !isOfflineMessage
                     message.isOfflineMessage = isOfflineMessage
+                }
+
+                // Offline messages are sent later automatically, only a real failure needs the user's attention
+                if !isOfflineMessage {
+                    HapticFeedback.error()
                 }
 
             } else {
@@ -2293,6 +2305,99 @@ import SwiftUI
         super.didCommitTextEditing(sender)
     }
 
+    // MARK: - Double tap to react
+
+    private func addDoubleTapReactionGesture() {
+        guard let tableView = self.tableView else { return }
+
+        let doubleTapGesture = UITapGestureRecognizer(target: self, action: #selector(handleDoubleTapReaction(_:)))
+        doubleTapGesture.numberOfTapsRequired = 2
+        doubleTapGesture.delegate = self
+        tableView.addGestureRecognizer(doubleTapGesture)
+
+        self.doubleTapReactionGesture = doubleTapGesture
+    }
+
+    // The reaction a double tap adds: the one used most, which is 👍 until the user reacted a few times
+    private var doubleTapReaction: String {
+        return self.account.frequentlyUsedEmojis.first ?? "👍"
+    }
+
+    func handleDoubleTapReaction(_ gestureRecognizer: UITapGestureRecognizer) {
+        guard gestureRecognizer.state == .ended, let tableView = self.tableView else { return }
+
+        let location = gestureRecognizer.location(in: tableView)
+
+        guard let indexPath = tableView.indexPathForRow(at: location),
+              let message = self.message(for: indexPath),
+              !message.isSystemMessage, !message.isDeleting,
+              self.room.canReact, self.isMessageReactable(message: message)
+        else { return }
+
+        let emoji = self.doubleTapReaction
+        let reaction = message.reactionsArray().first(where: { $0.reaction == emoji }) ?? NCChatReaction(reaction: emoji)
+
+        // Like the reactions below a message, a double tap toggles the reaction
+        if !reaction.userReacted {
+            ChatEffects.showReactionBurst(emoji, at: gestureRecognizer.location(in: self.view), in: self.view)
+        }
+
+        HapticFeedback.light()
+        self.addOrRemoveReaction(reaction: reaction, in: message)
+    }
+
+    private func isInteractiveMessageContent(_ view: UIView?) -> Bool {
+        var currentView = view
+
+        // Images, files, polls, players and so on have their own taps, a double tap there should not add a reaction
+        while let checkedView = currentView, !(checkedView is UITableViewCell) {
+            if checkedView is UIControl || checkedView is UIImageView || checkedView is ReactionsView ||
+                checkedView is AudioPlayerView || checkedView is PollMessageView || checkedView is ReferenceView ||
+                checkedView is GroupedFilePreviewView || checkedView is QuotedMessageView {
+                return true
+            }
+
+            currentView = checkedView.superview
+        }
+
+        return false
+    }
+
+    public override func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        if gestureRecognizer == self.doubleTapReactionGesture {
+            return !self.isInteractiveMessageContent(touch.view)
+        }
+
+        return true
+    }
+
+    public override func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldBeRequiredToFailBy otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        // A double tap on the message text would otherwise select a word instead of adding the reaction
+        if gestureRecognizer == self.doubleTapReactionGesture, otherGestureRecognizer.view is UITextView,
+           let otherTapGesture = otherGestureRecognizer as? UITapGestureRecognizer, otherTapGesture.numberOfTapsRequired >= 2 {
+            return true
+        }
+
+        return false
+    }
+
+    // MARK: - Celebration
+
+    private func celebrateIfNeeded(forReceivedMessages messages: [NCChatMessage]) {
+        // Only for messages that were written while the chat is open, not for the history
+        let hasNewCelebration = messages.contains { message in
+            !message.isSystemMessage && message.timestamp >= Int(self.chatViewPresentedTimestamp) &&
+            ChatEffects.isCelebration(message.message)
+        }
+
+        // Several celebrating messages right after each other only need one round of confetti
+        let now = Date().timeIntervalSince1970
+        guard hasNewCelebration, now - self.lastCelebrationTimestamp > 10 else { return }
+
+        self.lastCelebrationTimestamp = now
+        ChatEffects.showConfetti(in: self.view)
+    }
+
     // MARK: - ChatMessageTableViewCellDelegate delegate
 
     override public func cellDidSelectedReaction(_ reaction: NCChatReaction!, for message: NCChatMessage) {
@@ -2549,6 +2654,8 @@ import SwiftUI
 
             let emojiAction = UIAction(title: emoji, image: self.getEmojiImage(for: emoji)) { [weak self] _ in
                 guard let self else { return }
+
+                HapticFeedback.light()
 
                 // Wait for the menu to be dismissed, otherwise the message is reloaded while the menu animates
                 self.contextMenuActionBlock = {
