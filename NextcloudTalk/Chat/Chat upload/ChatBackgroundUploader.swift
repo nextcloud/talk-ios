@@ -884,9 +884,11 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
     func retryWaitingUploads(withJobIds jobIds: Set<String>) {
         let now = Date()
 
-        // Within the grace period the extension may still be connected to the session
         let waitingJobs = self.loadAllJobs().filter {
-            jobIds.contains($0.id) && $0.isWaitingForUploadRetry && !Self.isInGracePeriod(since: $0.createdAt, now: now)
+            // Within the grace period the extension may still be connected to the session, unless this process is
+            let mayBelongToExtension = self.sessions[$0.sessionIdentifier] == nil && Self.isInGracePeriod(since: $0.createdAt, now: now)
+
+            return jobIds.contains($0.id) && $0.isWaitingForUploadRetry && !mayBelongToExtension
         }
 
         for (identifier, jobs) in Dictionary(grouping: waitingJobs, by: { $0.sessionIdentifier }) {
