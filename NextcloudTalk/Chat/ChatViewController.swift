@@ -673,6 +673,13 @@ import SwiftUI
     public override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
+        // Offer to continue the conversation on other devices
+        if !self.presentedInCall, !self.isThreadViewController {
+            let activity = ConversationHandoff.userActivity(for: self.room, account: self.account)
+            self.userActivity = activity
+            activity.becomeCurrent()
+        }
+
         if self.presentKeyboardOnAppear {
             self.presentKeyboard(true)
             self.presentKeyboardOnAppear = false
@@ -714,7 +721,11 @@ import SwiftUI
 
         self.saveLastReadMessage()
         self.stopVoiceMessagePlayer()
+
+        self.userActivity?.invalidate()
+        self.userActivity = nil
     }
+
 
     public override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)

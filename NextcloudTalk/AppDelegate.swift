@@ -105,6 +105,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
             return true
         }
 
+        // A conversation is continued from another device (Handoff)
+        if let conversationURL = ConversationHandoff.conversationURL(for: userActivity) {
+            NCUserInterfaceController.sharedInstance().presentChatForURL(conversationURL)
+            return true
+        }
+
         let intent = userActivity.interaction?.intent
         let audioCallIntent = intent is INStartAudioCallIntent
         let videoCallIntent = intent is INStartVideoCallIntent
