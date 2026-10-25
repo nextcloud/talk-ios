@@ -134,6 +134,8 @@ class CallViewController: UIViewController,
     #endif
     private var presentedScreenPeerId: String?
     private var callController: NCCallController?
+    private weak var cameraController: NCCameraController?
+    private var lastGestureReactionDate = Date.distantPast
     private var chatViewController: ChatViewController?
     private var chatNavigationController: UINavigationController?
     private var screensharingSize: CGSize?
@@ -1443,8 +1445,13 @@ class CallViewController: UIViewController,
     }
 
     func callController(_ callController: NCCallController, didCreateCameraController cameraController: NCCameraController) {
+        cameraController.onGestureReaction = { [weak self] reaction in
+            self?.sendGestureReaction(reaction)
+        }
+
         DispatchQueue.main.async {
             cameraController.localView = self.localVideoView
+            self.cameraController = cameraController
         }
     }
 
@@ -2334,6 +2341,18 @@ class CallViewController: UIViewController,
             }))
         }
 
+        // Center Stage
+        if !self.isAudioOnly, self.room.canPublishVideo, let cameraController, cameraController.isCenterStageSupported() {
+            let centerStageEnabled = cameraController.isCenterStageEnabled()
+
+            items.append(UIAction(title: NSLocalizedString("Center Stage", comment: "Camera feature that keeps the person in frame while moving"),
+                                  image: .init(systemName: "person.crop.rectangle.badge.plus"),
+                                  state: centerStageEnabled ? .on : .off) { _ in
+                HapticFeedback.selection()
+                cameraController.setCenterStageEnabled(!centerStageEnabled)
+            })
+        }
+
         // Screensharing
         if self.room.canPublishScreen {
             var screensharingImage = UIImage(systemName: "rectangle.inset.filled.on.rectangle")
@@ -3136,6 +3155,29 @@ class CallViewController: UIViewController,
     }
 
     // MARK: - Call Reactions
+
+    // A reaction the system recognized from a hand gesture in front of the camera
+    func sendGestureReaction(_ reaction: String) {
+        // Not every server allows the same reactions, and holding a gesture should not send a flood of them
+        guard self.room.callReactions.contains(reaction),
+              Date().timeIntervalSince(lastGestureReactionDate) > 2,
+              let callController
+        else { return }
+
+        callController.getVideoEnabledState { isEnabled in
+            // The camera might be running while video is turned off, but then nobody should know what we're doing
+            guard isEnabled else { return }
+
+            DispatchQueue.main.async {
+                self.lastGestureReactionDate = Date()
+                callController.sendReaction(reaction)
+
+                if let account = self.room.account {
+                    self.addReaction(reaction, fromUser: account.userDisplayName)
+                }
+            }
+        }
+    }
 
     func addReaction(_ reaction: String, fromUser user: String) {
         let callReactionView = CallReactionView(frame: .zero)
