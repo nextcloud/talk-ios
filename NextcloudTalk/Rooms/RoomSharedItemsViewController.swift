@@ -161,6 +161,8 @@ class RoomSharedItemsViewController: UIViewController,
 
         NCAppBranding.styleViewController(self)
 
+        NotificationCenter.default.addObserver(self, selector: #selector(playbackSpeedDidChange), name: VoiceMessagePlaybackSpeed.didChangeNotification, object: nil)
+
         self.navigationItem.title = NSLocalizedString("Shared items", comment: "")
         self.view.backgroundColor = .systemGroupedBackground
 
@@ -627,6 +629,8 @@ class RoomSharedItemsViewController: UIViewController,
                     self.stopAudio()
 
                     player.delegate = self
+                    player.enableRate = true
+                    player.rate = VoiceMessagePlaybackSpeed.current
                     self.audioPlayer = player
                     self.audioPlayerMessageId = message.messageId
                     self.startAudioPlayback(player)
@@ -637,6 +641,10 @@ class RoomSharedItemsViewController: UIViewController,
                 }
             }
         }
+    }
+
+    @objc private func playbackSpeedDidChange() {
+        self.audioPlayer?.rate = VoiceMessagePlaybackSpeed.current
     }
 
     private func startAudioPlayback(_ player: AVAudioPlayer) {
