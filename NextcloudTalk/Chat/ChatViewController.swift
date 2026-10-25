@@ -1789,6 +1789,7 @@ import SwiftUI
                     self.chatBackgroundView.loadingView.isHidden = true
                 } else {
                     self.celebrateIfNeeded(forReceivedMessages: messages)
+                    self.animateEmojiMessagesIfNeeded(messages)
                 }
 
                 if self.highlightMessageId > 0, let indexPath = self.indexPathAndMessage(forMessageId: self.highlightMessageId)?.indexPath {
@@ -2396,6 +2397,30 @@ import SwiftUI
 
         self.lastCelebrationTimestamp = now
         ChatEffects.showConfetti(in: self.view)
+    }
+
+    // Messages only consisting of a few emojis come to life once, when they arrive while the chat is open
+    private func animateEmojiMessagesIfNeeded(_ messages: [NCChatMessage]) {
+        let emojiMessages = messages.filter { message in
+            message.isEmojiMessage && message.timestamp >= Int(self.chatViewPresentedTimestamp) &&
+            !ChatEffects.isCelebration(message.message)
+        }
+
+        guard !emojiMessages.isEmpty else { return }
+
+        // Wait for the new rows to be in place
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { [weak self] in
+            guard let self, let tableView = self.tableView else { return }
+
+            for message in emojiMessages {
+                guard let indexPath = self.indexPath(for: message),
+                      let cell = tableView.cellForRow(at: indexPath) as? BaseChatTableViewCell,
+                      let messageTextView = cell.messageTextView
+                else { continue }
+
+                ChatEffects.animateEmoji(messageTextView, with: ChatEffects.emojiAnimation(forEmojiMessage: message.message))
+            }
+        }
     }
 
     // MARK: - ChatMessageTableViewCellDelegate delegate

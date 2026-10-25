@@ -80,6 +80,70 @@ enum ChatEffects {
         }.cgImage
     }
 
+    // MARK: - Animated emoji
+
+    // How a message only consisting of a few emojis comes to life when it arrives
+    enum EmojiAnimation: Equatable {
+        case heartbeat, shake, bounce, wave, flicker, spin, pop
+    }
+
+    // Keyed by the first unicode scalar, so skin tones and other variations of an emoji are animated the same
+    private static let emojiAnimations: [EmojiAnimation: String] = [
+        .heartbeat: "❤🧡💛💚💙💜🖤🤍🤎🩷🩵🩶💖💗💓💞💕💘😍🥰😘",
+        .shake: "😂🤣😆😹😡🤬😱😤",
+        .bounce: "👍👏🙌💪🤝✅🙏🥳",
+        .wave: "👋",
+        .flicker: "🔥✨⚡🌟⭐💥",
+        .spin: "🌀🌍🌎🌏⚽🏀😵"
+    ]
+
+    static func emojiAnimation(forEmojiMessage messageText: String) -> EmojiAnimation {
+        guard let firstScalar = messageText.unicodeScalars.first else { return .pop }
+
+        for (animation, emojis) in emojiAnimations where emojis.unicodeScalars.contains(firstScalar) {
+            return animation
+        }
+
+        return .pop
+    }
+
+    static func animateEmoji(_ view: UIView, with animation: EmojiAnimation) {
+        guard !UIAccessibility.isReduceMotionEnabled else { return }
+
+        let keyframeAnimation: CAAnimation
+
+        switch animation {
+        case .heartbeat:
+            keyframeAnimation = self.keyframes("transform.scale", values: [1, 1.3, 1, 1.3, 1], duration: 0.9)
+        case .shake:
+            keyframeAnimation = self.keyframes("transform.rotation.z", values: [0, -0.25, 0.25, -0.25, 0.25, 0], duration: 0.6)
+        case .bounce:
+            keyframeAnimation = self.keyframes("transform.translation.y", values: [0, -16, 0, -8, 0], duration: 0.7)
+        case .wave:
+            keyframeAnimation = self.keyframes("transform.rotation.z", values: [0, 0.4, -0.2, 0.4, -0.2, 0], duration: 1.0)
+        case .flicker:
+            let group = CAAnimationGroup()
+            group.animations = [self.keyframes("opacity", values: [1, 0.4, 1, 0.6, 1], duration: 0.8),
+                                self.keyframes("transform.scale", values: [1, 1.15, 0.95, 1.1, 1], duration: 0.8)]
+            group.duration = 0.8
+            keyframeAnimation = group
+        case .spin:
+            keyframeAnimation = self.keyframes("transform.rotation.z", values: [0, Double.pi, 2 * Double.pi], duration: 0.8)
+        case .pop:
+            keyframeAnimation = self.keyframes("transform.scale", values: [0.6, 1.25, 1], duration: 0.4)
+        }
+
+        view.layer.add(keyframeAnimation, forKey: "emojiAnimation")
+    }
+
+    private static func keyframes(_ keyPath: String, values: [Double], duration: CFTimeInterval) -> CAKeyframeAnimation {
+        let animation = CAKeyframeAnimation(keyPath: keyPath)
+        animation.values = values
+        animation.duration = duration
+        animation.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+        return animation
+    }
+
     // MARK: - Reaction burst
 
     /// Shows the emoji growing at the given point, while smaller copies of it fly outwards.
