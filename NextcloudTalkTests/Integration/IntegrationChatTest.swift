@@ -351,4 +351,112 @@ final class IntegrationChatTest: TestBase {
         await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
     }
 
+    // MARK: - Request encoding
+
+    // Characters that need escaping in a form body, "+" would be decoded as a space by PHP if left unescaped
+    static let specialCharacters = "C++ & a=b ?/:@ #50% [x] 'q' \"d\" é 😀\nnew line"
+
+    func testSendMessageWithSpecialCharacters() async throws {
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let room = try await createUniqueRoom(prefix: "Special Characters Room", withAccount: activeAccount)
+
+        // The helper only finds the message if the server stored the exact text
+        let (message, _) = try await sendMessage(message: Self.specialCharacters, inRoom: room.token, withAccount: activeAccount)
+        XCTAssertEqual(message.message, Self.specialCharacters)
+    }
+
+    func testSendSilentMessage() async throws {
+        try skipWithoutCapability(capability: TalkCapability.silentSend)
+
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let room = try await createUniqueRoom(prefix: "Silent Message Room", withAccount: activeAccount)
+        let chatMessage = "Silent message \(UUID().uuidString)"
+
+        let exp = expectation(description: "\(#function)\(#line)")
+
+        NCAPIController.sharedInstance().sendChatMessage(chatMessage, toRoom: room.token, threadTitle: "", replyTo: 0, referenceId: "", silently: true, forAccount: activeAccount) { error in
+            XCTAssertNil(error)
+
+            NCAPIController.sharedInstance().receiveChatMessages(ofRoom: room.token, fromLastMessageId: 0, inThread: 0, history: false, includeLastMessage: true, timeout: false, limit: 0, lastCommonReadMessage: 0, setReadMarker: false, markNotificationsAsRead: false, forAccount: activeAccount) { messages, _, _, error, _ in
+                XCTAssertNil(error)
+
+                let message = messages?
+                    .compactMap { NCChatMessage(dictionary: $0, andAccountId: activeAccount.accountId) }
+                    .first { $0.message == chatMessage }
+
+                XCTAssertNotNil(message)
+                XCTAssertTrue(message?.isSilent ?? false)
+
+                exp.fulfill()
+            }
+        }
+
+        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
+    }
+
+    func testMessageReactionInQuery() async throws {
+        try skipWithoutCapability(capability: TalkCapability.reactions)
+
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let room = try await createUniqueRoom(prefix: "Reaction Query Room", withAccount: activeAccount)
+        let (message, _) = try await sendMessage(message: "React with a skin tone", inRoom: room.token, withAccount: activeAccount)
+
+        // Multiple code points, sent in the body when adding and in the query when filtering or removing
+        let reaction = "👍🏽"
+
+        let exp = expectation(description: "\(#function)\(#line)")
+
+        NCAPIController.sharedInstance().addReaction(reaction, toMessage: message.messageId, inRoom: room.token, forAccount: activeAccount) { reactionsDict, error in
+            XCTAssertNil(error)
+            XCTAssertNotNil(reactionsDict?[reaction])
+
+            NCAPIController.sharedInstance().getReactions(reaction, fromMessage: message.messageId, inRoom: room.token, forAccount: activeAccount) { reactionsDict, error in
+                XCTAssertNil(error)
+                XCTAssertNotNil(reactionsDict?[reaction])
+
+                NCAPIController.sharedInstance().removeReaction(reaction, fromMessage: message.messageId, inRoom: room.token, forAccount: activeAccount) { reactionsDict, error in
+                    XCTAssertNil(error)
+                    XCTAssertNil(reactionsDict?[reaction])
+
+                    exp.fulfill()
+                }
+            }
+        }
+
+        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
+    }
+
+    func testPollWithArrayParameters() async throws {
+        try skipWithoutCapability(capability: TalkCapability.talkPolls)
+
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let room = try await createUniqueRoom(prefix: "Poll Room", withAccount: activeAccount)
+        let options = ["C++", "a & b = c", "👍🏽 ü", "1"]
+
+        let exp = expectation(description: "\(#function)\(#line)")
+
+        // Options are sent as options[], the vote as an array of ints in optionIds[]
+        NCAPIController.sharedInstance().createPoll(withQuestion: Self.specialCharacters, withOptions: options, withResultMode: .public, withMaxVotes: 2, asDraft: false, inRoom: room.token, forAccount: activeAccount) { poll, error in
+            XCTAssertNil(error)
+
+            guard let poll else {
+                XCTFail("Poll was not created")
+                exp.fulfill()
+                return
+            }
+
+            XCTAssertEqual(poll.question, Self.specialCharacters)
+            XCTAssertEqual(poll.options, options)
+            XCTAssertEqual(poll.maxVotes, 2)
+
+            NCAPIController.sharedInstance().voteOnPoll(withId: poll.pollId, inRoom: room.token, withOptions: [0, 2], forAccount: activeAccount) { votedPoll, error in
+                XCTAssertNil(error)
+                XCTAssertEqual(votedPoll?.votedSelf.sorted(), [0, 2])
+
+                exp.fulfill()
+            }
+        }
+
+        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
+    }
 }
