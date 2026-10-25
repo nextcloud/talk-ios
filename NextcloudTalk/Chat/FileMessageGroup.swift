@@ -31,6 +31,19 @@ struct FileMessageGroup {
         }
     }
 
+    /// The group a message belongs to, found by the message itself: the one shown for the group or any hidden in it.
+    /// `hiddenMessageIds` maps a hidden message to its anchor. With it the lookup is a dictionary access, which a
+    /// caller that asks for every row needs; without it the groups are searched.
+    static func containing(messageId: Int, in groups: [Int: FileMessageGroup], hiddenMessageIds: [Int: Int]? = nil) -> FileMessageGroup? {
+        if let hiddenMessageIds {
+            return groups[hiddenMessageIds[messageId] ?? messageId]
+        }
+
+        return groups[messageId] ?? groups.values.first { group in
+            group.messages.contains { $0.messageId == messageId }
+        }
+    }
+
     /// Splits the messages of a conversation, in the order they are shown, into the groups of files
     /// that were shared as one upload. Anything that is not a file of the same upload ends a group.
     static func groups(in messages: [NCChatMessage]) -> [FileMessageGroup] {
@@ -67,6 +80,24 @@ struct FileMessageGroup {
         finishCurrentGroup()
 
         return groups
+    }
+
+    /// The selected messages with all files of every group they belong to. A group is one row of the chat, so
+    /// picking it picks every file of its upload. Each group stands where its first selected message was, its
+    /// files in the order of the upload, and the other messages keep their order.
+    static func expandingSelection(_ selected: [NCChatMessage], in groups: [Int: FileMessageGroup], hiddenMessageIds: [Int: Int]) -> [NCChatMessage] {
+        var expanded: [NCChatMessage] = []
+        var addedIds = Set<Int>()
+
+        for message in selected {
+            let members = Self.containing(messageId: message.messageId, in: groups, hiddenMessageIds: hiddenMessageIds)?.messagesInUploadOrder ?? [message]
+
+            for member in members where addedIds.insert(member.messageId).inserted {
+                expanded.append(member)
+            }
+        }
+
+        return expanded
     }
 
     /// Position within the upload is deliberately not compared: a file that failed to upload leaves

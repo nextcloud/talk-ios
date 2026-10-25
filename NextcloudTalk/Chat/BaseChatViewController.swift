@@ -53,6 +53,17 @@ import Toast
     internal var interactingMessage: NCChatMessage?
     internal var lastMessageBeforeInteraction: IndexPath?
     internal var contextMenuActionBlock: (() -> Void)?
+
+    // Multi-selection mode, see BaseChatViewController+MessageSelection
+    internal var messageSelection = MessageSelection()
+    internal var rowGestureDelegate: ChatRowGestureDelegate?
+    internal var rowTapRecognizer: UITapGestureRecognizer?
+    internal var rowLongPressRecognizer: UILongPressGestureRecognizer?
+    internal var messageEditMenuInteraction: UIEditMenuInteraction?
+    internal var editMenuIndexPath: IndexPath?
+    internal var selectionToolbar: UIToolbar?
+    internal var selectionTitleLabel: UILabel?
+    internal var selectionSavedChrome: SelectionSavedChrome?
     internal var editingMessage: NCChatMessage?
 
     internal lazy var emojiTextField: EmojiTextField = {
@@ -277,6 +288,8 @@ import Toast
         // Set delegate to retrieve typing events
         self.tableView?.separatorStyle = .none
 
+        self.setUpMessageSelectionGestures()
+
         if #available(iOS 26.0, *) {
             // Our date headers make UIKit choose a hard edge, drawing a border below the navigation bar
             self.tableView?.topEdgeEffect.style = .soft
@@ -470,7 +483,8 @@ import Toast
 
         self.isVisible = false
 
-        if !self.textInputbar.isHidden {
+        // The selection mode hides the input bar, but the text of the user is still in it
+        if !self.textInputbar.isHidden || self.messageSelection.isActive {
             self.savePendingMessage()
         }
 
@@ -1307,14 +1321,22 @@ import Toast
     }
 
     func didPressForward(for message: NCChatMessage) {
-        var shareViewController: ShareViewController
-
         if message.isObjectShare {
-            shareViewController = ShareViewController(toForwardObjectShare: message, fromChatViewController: self)
+            self.present(shareViewController: ShareViewController(toForwardObjectShare: message, fromChatViewController: self))
         } else {
-            shareViewController = ShareViewController(toForwardMessage: message.parsedMessage().string, fromChatViewController: self)
+            self.didPressForward(text: message.parsedMessage().string)
         }
+    }
 
+    func didPressForward(text: String) {
+        self.present(shareViewController: ShareViewController(toForwardMessage: text, fromChatViewController: self))
+    }
+
+    func didPressForward(items: [ForwardItem], skippedFiles: Int) {
+        self.present(shareViewController: ShareViewController(toForwardItems: items, skippedFiles: skippedFiles, fromChatViewController: self))
+    }
+
+    private func present(shareViewController: ShareViewController) {
         shareViewController.delegate = self
         self.presentWithNavigation(shareViewController, animated: true)
     }
@@ -1430,8 +1452,17 @@ import Toast
     }
 
     func didPressCopy(for message: NCChatMessage) {
+        self.copyToPasteboard(message.parsedMessage().string)
+    }
+
+    /// The messages as one text, one message per line
+    func didPressCopy(messages: [NCChatMessage]) {
+        self.copyToPasteboard(MessageSelection.joinedText(of: messages.map { $0.parsedMessage().string }))
+    }
+
+    private func copyToPasteboard(_ text: String) {
         let pasteboard = UIPasteboard.general
-        pasteboard.string = message.parsedMessage().string
+        pasteboard.string = text
         NotificationPresenter.shared().present(text: NSLocalizedString("Message copied", comment: ""), dismissAfterDelay: 5.0, includedStyle: .dark)
     }
 
@@ -1783,7 +1814,12 @@ import Toast
     public func shareConfirmationViewControllerDidFail(_ viewController: ShareConfirmationViewController) {
         self.dismiss(animated: true) {
             if viewController.forwardingMessage {
-                NotificationPresenter.shared().present(text: NSLocalizedString("Failed to forward message", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
+                // Some of the messages are sent already, the user must know it to not send them twice
+                if viewController.forwardSentCount > 0 {
+                    NotificationPresenter.shared().present(text: String.localizedStringWithFormat(NSLocalizedString("Forwarded %1$ld of %2$ld messages", comment: "A forward of several messages stopped by an error, e.g. 'Forwarded 2 of 5 messages'"), viewController.forwardSentCount, viewController.forwardTotalCount), dismissAfterDelay: 5.0, includedStyle: .error)
+                } else {
+                    NotificationPresenter.shared().present(text: NSLocalizedString("Failed to forward message", comment: ""), dismissAfterDelay: 5.0, includedStyle: .error)
+                }
             }
         }
     }
@@ -1795,6 +1831,10 @@ import Toast
                 userInfo["token"] = viewController.room.token
                 userInfo["accountId"] = viewController.account.accountId
                 NotificationCenter.default.post(name: .NCChatViewControllerForwardNotification, object: self, userInfo: userInfo)
+
+                if viewController.forwardSkippedFiles > 0 {
+                    NotificationPresenter.shared().present(text: String.localizedStringWithFormat(NSLocalizedString("%ld files were not forwarded", comment: "Files among the selected messages that were left out of a forward"), viewController.forwardSkippedFiles), dismissAfterDelay: 5.0, includedStyle: .dark)
+                }
             }
         }
     }
@@ -3504,7 +3544,13 @@ import Toast
     public override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if tableView != self.autoCompletionView,
            let message = self.message(for: indexPath) {
-            return self.getCell(for: message)
+            let cell = self.getCell(for: message)
+
+            if let messageCell = cell as? BaseChatTableViewCell {
+                messageCell.setSelectionMode(self.messageSelection.isActive, selected: self.isSelected(message))
+            }
+
+            return cell
         }
 
         return super.tableView(tableView, cellForRowAt: indexPath)
@@ -3816,6 +3862,11 @@ import Toast
             return nil
         }
 
+        // In the selection mode a touch on a row only picks the message
+        if self.messageSelection.isActive {
+            return nil
+        }
+
         let cell = tableView.cellForRow(at: indexPath)
 
         if let cell = cell as? BaseChatTableViewCell {
@@ -3826,18 +3877,29 @@ import Toast
                 self.showReactionsSummary(of: message)
                 return nil
             }
+
+            // Next to the bubble a long press starts the selection mode instead, see handleRowLongPress
+            if self.supportsMessageSelection, ChatRowZone.zone(at: pointInCell, interactiveFrames: cell.interactiveFrames()) == .empty {
+                return nil
+            }
         }
 
-        guard let message = self.message(for: indexPath) else { return nil }
+        guard let message = self.message(for: indexPath), self.hasMenu(message) else { return nil }
 
-        if message.isSystemMessage || message.isDeletedMessage ||
-            message.messageId == MessageSeparatorTableViewCell.unreadMessagesSeparatorId ||
-            message.messageId == MessageSeparatorTableViewCell.unreadMessagesWithSummarySeparatorId ||
-            message.messageId == MessageSeparatorTableViewCell.chatBlockSeparatorId {
+        let menu = self.messageMenu(for: message, at: indexPath)
 
-            return nil
+        let configuration = UIContextMenuConfiguration(identifier: indexPath as NSIndexPath) { [weak self] in
+            return self?.getContextMenuPreviewController(forRowAt: indexPath)
+        } actionProvider: { _ in
+            return menu
         }
 
+        return configuration
+    }
+
+    /// The menu of a message, shown by a long press on the bubble and by a tap next to it.
+    /// A message with no menu doesn't get here, see `hasMenu`.
+    func messageMenu(for message: NCChatMessage, at indexPath: IndexPath) -> UIMenu {
         var actions: [UIMenuElement] = []
 
         // Copy option
@@ -3855,15 +3917,17 @@ import Toast
             self.didPressCopyLink(for: message)
         })
 
-        let menu = UIMenu(children: actions)
+        return UIMenu(children: actions)
+    }
 
-        let configuration = UIContextMenuConfiguration(identifier: indexPath as NSIndexPath) { [weak self] in
-            return self?.getContextMenuPreviewController(forRowAt: indexPath)
-        } actionProvider: { _ in
-            return menu
-        }
+    /// Whether a message has a menu: not for system and deleted messages and separators
+    func hasMenu(_ message: NCChatMessage) -> Bool {
+        return MessageSelection.hasMenu(messageId: message.messageId, isSystemMessage: message.isSystemMessage, isDeletedMessage: message.isDeletedMessage)
+    }
 
-        return configuration
+    /// Whether the chat has the multi-selection mode and the menu by a tap next to the bubble
+    var supportsMessageSelection: Bool {
+        return false
     }
 
     public override func tableView(_ tableView: UITableView, willDisplayContextMenu configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionAnimating?) {
