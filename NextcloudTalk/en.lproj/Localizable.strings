@@ -76,6 +76,9 @@
 /* Time until the user status is cleared */
 "%ld days" = "%ld days";
 
+/* Shown in the conversation list */
+"%ld files failed to send" = "%ld files failed to send";
+
 /* Time until the user status is cleared */
 "%ld hours" = "%ld hours";
 

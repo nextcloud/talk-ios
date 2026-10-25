@@ -69,6 +69,11 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
 
     private var activeContextMenuInteraction: ContextMenuInteraction?
     private var pendingRoomListRefresh = false
+    private var uploadSummaries: [String: ChatBackgroundUploadSummary] = [:]
+    private var uploadSummariesAccountId: String?
+    private var finishedUploadActivity: [String: Int] = [:]
+    private var uploadActivity: [String: Int] = [:]
+    private var isUploadRefreshScheduled = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -162,6 +167,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         notificationCenter.addObserver(self, selector: #selector(userThreadsUpdated(_:)), name: .NCUserThreadsUpdated, object: nil)
         notificationCenter.addObserver(self, selector: #selector(userHasThreadsUpdated(_:)), name: .NCUserHasThreadsFlagUpdated, object: nil)
         notificationCenter.addObserver(self, selector: #selector(conversationTagsUpdated(_:)), name: .NCConversationTagsUpdated, object: nil)
+        notificationCenter.addObserver(self, selector: #selector(backgroundUploadsDidChange(_:)), name: .ChatBackgroundUploaderDidChangeUploads, object: nil)
     }
 
     private func configureFilterButtonInToolbar() {
@@ -346,6 +352,11 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         let connectionStateRaw = (notification.userInfo?["connectionState"] as? NSNumber)?.intValue ?? 0
         let connectionState = ConnectionState(rawValue: connectionStateRaw) ?? .unknown
         adaptInterface(forConnectionState: connectionState)
+
+        // Uploading files show whether they wait for a network
+        if uploadSummaries.values.contains(where: { $0.pendingState == .uploading }) {
+            refreshRoomList()
+        }
     }
 
     @objc private func roomsDidUpdate(_ notification: Notification) {
@@ -398,6 +409,18 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
 
         // The updated tags are already stored in the database, so refreshing the list picks them up
         refreshRoomList()
+    }
+
+    @objc private func backgroundUploadsDidChange(_ notification: Notification) {
+        // A share saves its jobs many times in a row, one refresh covers them
+        guard !isUploadRefreshScheduled else { return }
+
+        isUploadRefreshScheduled = true
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.isUploadRefreshScheduled = false
+            self.refreshRoomList()
+        }
     }
 
     @objc private func notificationWillBePresented(_ notification: Notification) {
@@ -1143,7 +1166,8 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         }
 
         let account = NCDatabaseManager.sharedInstance().activeAccount()
-        let accountRooms = NCDatabaseManager.sharedInstance().roomsForAccountId(account.accountId, withRealm: nil)
+        updateUploadSummaries(for: account)
+        let accountRooms = NCDatabaseManager.sharedInstance().roomsForAccountId(account.accountId, withRealm: nil, lastActivityByToken: uploadActivity)
         allRooms = accountRooms
         rooms = accountRooms
 
@@ -1170,6 +1194,32 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         updateMentionsIndicator()
 
         highlightSelectedRoom()
+    }
+
+    /// Rooms whose uploads finished keep their activity until updateRoom returns, so they do not drop and jump back.
+    private func updateUploadSummaries(for account: TalkAccount) {
+        if uploadSummariesAccountId != account.accountId {
+            uploadSummariesAccountId = account.accountId
+            uploadSummaries = [:]
+            finishedUploadActivity = [:]
+        }
+
+        let previousSummaries = uploadSummaries
+        uploadSummaries = ChatBackgroundUploader.shared.uploadSummaries(forAccountId: account.accountId)
+
+        for (token, summary) in previousSummaries where uploadSummaries[token] == nil {
+            finishedUploadActivity[token] = summary.lastActivity
+
+            NCRoomsManager.shared.updateRoom(token, forAccount: account) { [weak self] _, _ in
+                // A later share of the room may have finished meanwhile
+                guard let self, self.finishedUploadActivity[token] == summary.lastActivity else { return }
+
+                self.finishedUploadActivity[token] = nil
+                self.refreshRoomList()
+            }
+        }
+
+        uploadActivity = uploadSummaries.mapValues { $0.lastActivity }.merging(finishedUploadActivity) { max($0, $1) }
     }
 
     private func updatePlaceholderView() {
@@ -1822,7 +1872,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
             cell.titleOnly = true
             cell.subtitleLabel.text = ""
         }
-        let date = Date(timeIntervalSince1970: TimeInterval(room.lastActivity))
+        let date = Date(timeIntervalSince1970: TimeInterval(room.lastActivity(including: uploadActivity)))
         cell.dateLabel.text = NCUtils.readableTimeOrDate(fromDate: date)
 
         // Event conversation handling
@@ -1840,6 +1890,10 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
             cell.titleOnly = false
         }
 
+        if let uploadSummary = uploadSummaries[room.token] {
+            showUploads(uploadSummary, of: room, in: cell)
+        }
+
         cell.avatarView.setAvatar(for: room)
 
         // Set favorite or call image
@@ -1853,6 +1907,56 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
 
         cell.roomToken = room.token
     }
+
+    /// Failed files replace the last message while nothing newer was written, otherwise each state adds a symbol to the date.
+    private func showUploads(_ uploadSummary: ChatBackgroundUploadSummary, of room: NCRoom, in cell: RoomTableViewCell) {
+        var dateSymbols: [(name: String, color: UIColor)] = []
+
+        if let lastFailure = uploadSummary.lastFailure {
+            if lastFailure >= room.lastActivity, !room.isFutureEvent {
+                let text = String.localizedStringWithFormat(NSLocalizedString("%ld files failed to send", comment: "Shown in the conversation list"), uploadSummary.failedFileCount)
+                let failedText = self.symbolString("exclamationmark.circle", color: .systemRed, font: cell.subtitleLabel.font)
+                failedText.append(NSAttributedString(string: " \(text)", attributes: [.foregroundColor: UIColor.systemRed]))
+
+                cell.titleOnly = false
+                cell.subtitleLabel.attributedText = failedText
+            } else {
+                dateSymbols.append(("exclamationmark.circle", .systemRed))
+            }
+        }
+
+        if case .waitingForRetry = uploadSummary.pendingState {
+            dateSymbols.append(("clock", .secondaryLabel))
+        } else if uploadSummary.pendingState == .uploading, NCConnectionController.shared.connectionState == .disconnected {
+            dateSymbols.append(("wifi.slash", .secondaryLabel))
+        } else if uploadSummary.pendingState != nil {
+            dateSymbols.append(("arrow.up.circle", NCAppBranding.elementColor()))
+        }
+
+        guard !dateSymbols.isEmpty else { return }
+
+        let dateText = NSMutableAttributedString()
+
+        for symbol in dateSymbols {
+            dateText.append(self.symbolString(symbol.name, color: symbol.color, font: cell.dateLabel.font))
+            dateText.append(NSAttributedString(string: " "))
+        }
+
+        if let text = cell.dateLabel.text {
+            dateText.append(NSAttributedString(string: text))
+        }
+
+        cell.dateLabel.attributedText = dateText
+    }
+
+    /// Sized for the font, so it follows the semibold date of unread rooms.
+    private func symbolString(_ symbolName: String, color: UIColor, font: UIFont) -> NSMutableAttributedString {
+        let attachment = NSTextAttachment()
+        attachment.image = UIImage(systemName: symbolName, withConfiguration: UIImage.SymbolConfiguration(font: font, scale: .small))?.withTintColor(color, renderingMode: .alwaysOriginal)
+
+        return NSMutableAttributedString(attachment: attachment)
+    }
+
     override func tableView(_ tableView: UITableView, didHighlightRowAt indexPath: IndexPath) {
         let cell = tableView.cellForRow(at: indexPath) as? RoomTableViewCell
         cell?.isSelected = true

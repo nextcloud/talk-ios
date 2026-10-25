@@ -47,6 +47,7 @@ import Foundation
         // https://stackoverflow.com/a/58631165/10976375
         self.subtitleLabel.attributedText = nil
         self.subtitleLabel.text = nil
+        self.dateLabel.attributedText = nil
         self.dateLabel.text = nil
         self.titleOnly = false
         self.accessibilityIdentifier = nil

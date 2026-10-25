@@ -33,6 +33,7 @@ struct ChatBackgroundUploadJob: Codable {
     var captionMessageParameters: String?
     // Not started yet while nil
     var taskStart: TaskStart?
+    var failedAt: Date?
 
     enum TaskStart: String, Codable {
         case foreground
@@ -83,6 +84,17 @@ struct ChatBackgroundUpload {
 
         return .uploading
     }
+}
+
+/// What the conversation list shows of the files shared into a conversation.
+struct ChatBackgroundUploadSummary {
+    /// Combined like the files behind a "+N" tile, nil when all of them failed
+    let pendingState: ChatBackgroundUploadState?
+    let failedFileCount: Int
+    /// Seconds, like NCRoom.lastActivity
+    let lastFailure: Int?
+    /// Sharing a file and its failure count as activity of the conversation. Seconds, like NCRoom.lastActivity.
+    let lastActivity: Int
 }
 
 extension Notification.Name {
@@ -753,6 +765,12 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
               let failedJobsDirectory = Self.failedJobsDirectory
         else { return }
 
+        // Not saved through updateJob, so only the move notifies
+        if var failedJob = self.loadJob(in: jobDirectory) {
+            failedJob.failedAt = Date()
+            try? JSONEncoder().encode(failedJob).write(to: jobDirectory.appendingPathComponent(Self.jobFileName), options: .atomic)
+        }
+
         do {
             try FileManager.default.createDirectory(at: failedJobsDirectory, withIntermediateDirectories: true)
             try FileManager.default.moveItem(at: jobDirectory, to: failedJobsDirectory.appendingPathComponent(job.id, isDirectory: true))
@@ -790,6 +808,33 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
 
     /// Pending and failed files, except those without a reference id to match their message.
     func uploads(forAccountId accountId: String, roomToken: String, threadId: Int?) -> [ChatBackgroundUpload] {
+        return self.shownUploads()
+            .filter { $0.job.accountId == accountId && $0.job.roomToken == roomToken }
+            .filter { $0.job.metadata.threadId == threadId && $0.job.referenceId != nil }
+            .sorted { ($0.job.createdAt, $0.job.index) < ($1.job.createdAt, $1.job.index) }
+    }
+
+    /// By room token, only for conversations that have pending or failed files.
+    func uploadSummaries(forAccountId accountId: String) -> [String: ChatBackgroundUploadSummary] {
+        let uploads = self.shownUploads().filter { $0.job.accountId == accountId }
+
+        func activity(of upload: ChatBackgroundUpload) -> Int {
+            return Int((upload.job.failedAt ?? upload.job.createdAt).timeIntervalSince1970)
+        }
+
+        return Dictionary(grouping: uploads, by: { $0.job.roomToken }).compactMapValues { roomUploads in
+            guard let lastActivity = roomUploads.map(activity(of:)).max() else { return nil }
+
+            let failedUploads = roomUploads.filter { $0.isFailed }
+
+            return ChatBackgroundUploadSummary(pendingState: roomUploads.filter { !$0.isFailed }.map { $0.state }.combined,
+                                               failedFileCount: failedUploads.count,
+                                               lastFailure: failedUploads.map(activity(of:)).max(),
+                                               lastActivity: lastActivity)
+        }
+    }
+
+    private func shownUploads() -> [ChatBackgroundUpload] {
         let now = Date()
 
         // Before its tasks start, a share may still fall back to uploading in the foreground
@@ -803,10 +848,7 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
             }
         }
 
-        return (pendingUploads + self.loadFailedUploads())
-            .filter { $0.job.accountId == accountId && $0.job.roomToken == roomToken }
-            .filter { $0.job.metadata.threadId == threadId && $0.job.referenceId != nil }
-            .sorted { ($0.job.createdAt, $0.job.index) < ($1.job.createdAt, $1.job.index) }
+        return pendingUploads + self.loadFailedUploads()
     }
 
     /// Only known while this process is connected to the session of the job.

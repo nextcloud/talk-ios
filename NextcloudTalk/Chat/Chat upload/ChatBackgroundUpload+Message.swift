@@ -158,16 +158,13 @@ extension NCChatMessage {
     }
 }
 
-extension Array where Element == NCChatMessage {
+extension Array where Element == ChatBackgroundUploadState {
 
-    /// What one tile shows for several files: a waiting one first, and uploaded only when all of them are.
-    /// Failed files never get here, they leave their group.
-    var combinedBackgroundUploadState: ChatBackgroundUploadState? {
-        let states = self.compactMap { $0.backgroundUploadState }
+    /// What one tile or list row shows for several files: a waiting one first, and uploaded only when all of them are.
+    var combined: ChatBackgroundUploadState? {
+        guard !self.isEmpty else { return nil }
 
-        guard !states.isEmpty else { return nil }
-
-        let retryDates = states.compactMap { state -> Date? in
+        let retryDates = self.compactMap { state -> Date? in
             guard case .waitingForRetry(let retryDate) = state else { return nil }
 
             return retryDate
@@ -177,7 +174,15 @@ extension Array where Element == NCChatMessage {
             return .waitingForRetry(until: nextRetryDate)
         }
 
-        return states.allSatisfy { $0 == .uploaded } ? .uploaded : .uploading
+        return self.allSatisfy { $0 == .uploaded } ? .uploaded : .uploading
+    }
+}
+
+extension Array where Element == NCChatMessage {
+
+    /// Failed files never get here, they leave their group.
+    var combinedBackgroundUploadState: ChatBackgroundUploadState? {
+        return self.compactMap { $0.backgroundUploadState }.combined
     }
 
     /// Weighted by file size, so a large video counts for more than a few small photos.
