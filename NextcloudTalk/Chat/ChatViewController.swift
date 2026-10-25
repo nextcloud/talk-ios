@@ -830,6 +830,7 @@ import SwiftUI
 
         guard !addedMessages.isEmpty || !changedMessages.isEmpty || !removedMessages.isEmpty || movedLateFiles else { return }
 
+        // insertMessages regrouped before the files were moved, and changes or removals do not regroup
         self.regroupFileMessages()
 
         // Rare, so a reload is enough
@@ -1998,20 +1999,15 @@ import SwiftUI
 
             let firstNewMessagesAfterHistory = notification.userInfo?["firstNewMessagesAfterHistory"] as? Bool ?? false
 
+            let messages = notification.userInfo?["messages"] as? [NCChatMessage] ?? []
+
             // A file of a share shown as pending can land out of place, which the sync corrects
-            let receivedMessages = notification.userInfo?["messages"] as? [NCChatMessage] ?? []
-
-            let receivesFileOfShownShare = receivedMessages.contains { message in
-                guard let uploadHash = message.fileUploadReference?.uploadHash else { return false }
-
-                return self.sharesShownAsPending.contains(uploadHash)
-            }
-
-            if receivesFileOfShownShare {
+            let receivedShares = Set(messages.compactMap { $0.fileUploadReference?.uploadHash })
+            if !receivedShares.isDisjoint(with: self.sharesShownAsPending) {
                 self.scheduleBackgroundUploadSync()
             }
 
-            if let messages = notification.userInfo?["messages"] as? [NCChatMessage], let tableView = self.tableView, !messages.isEmpty {
+            if let tableView = self.tableView, !messages.isEmpty {
                 // A pending trait change drops the tableView's cached row counts when applied, so apply it before the data
                 // source changes, otherwise the batch update is validated against a state that already contains the messages
                 tableView.layoutIfNeeded()
@@ -2192,9 +2188,7 @@ import SwiftUI
         let sectionsBeforeUpdate = self.dateSections
 
         // Files joining or leaving a group change what other rows show
-        let fileRowsBeforeUpdate = self.fileRowSnapshot()
-        self.appendMessages(messages: messages)
-        let changedFileRows = self.messagesWithChangedFileRows(since: fileRowsBeforeUpdate)
+        let changedFileRows = self.messagesWithChangedFileRows { self.appendMessages(messages: messages) }
         let changedFileRowIndexPaths = Set(changedFileRows.compactMap { self.indexPath(for: $0) })
 
         // Reloads and in-place updates address rows the tableView already knows, so their

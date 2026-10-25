@@ -105,8 +105,7 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
 
     private static let reconnectGracePeriod: TimeInterval = 60
 
-    /// For a while after a share was prepared, the extension may still be connected to its session or posting it,
-    /// its job directory may be half written, and it may still fall back to uploading in the foreground.
+    /// The extension may still own the session, write the job, upload in the foreground or post it.
     private static func isInGracePeriod(since preparedAt: Date, now: Date) -> Bool {
         return now.timeIntervalSince(preparedAt) <= self.reconnectGracePeriod
     }
@@ -302,18 +301,17 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
 
         for jobDirectory in jobDirectories {
             let job = self.loadJob(withId: jobDirectory.lastPathComponent)
-            // A directory without a readable job is still being prepared, or was left behind
             let preparedAt = job?.createdAt ?? (try? jobDirectory.resourceValues(forKeys: [.creationDateKey]))?.creationDate ?? now
-            let isPastGracePeriod = !Self.isInGracePeriod(since: preparedAt, now: now)
+            let isInGracePeriod = Self.isInGracePeriod(since: preparedAt, now: now)
 
-            if !isPastGracePeriod {
+            if isInGracePeriod {
                 // Look again once the grace period is over
                 self.scheduleResume(after: Self.reconnectGracePeriod - now.timeIntervalSince(preparedAt) + 1)
             }
 
             guard let job else {
                 // Left behind by an extension that was killed while preparing it
-                if isPastGracePeriod {
+                if !isInGracePeriod {
                     try? FileManager.default.removeItem(at: jobDirectory)
                 }
 
@@ -324,10 +322,10 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
                 self.drop(job, reason: "it is too old")
             } else if job.uploaded {
                 // The extension may still be posting it
-                if isPastGracePeriod {
+                if !isInGracePeriod {
                     sessionsToShare.insert(job.sessionIdentifier)
                 }
-            } else if !isPastGracePeriod {
+            } else if isInGracePeriod {
                 // Connect for the progress only, the extension may still own the session
                 if job.taskStart != nil {
                     sessionsToConnect.insert(job.sessionIdentifier)
@@ -367,11 +365,16 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
         return job.taskStart == .background && UIApplication.shared.applicationState == .active
     }
 
-    /// The task of a job as restartTasks sees it.
     struct UploadTaskSnapshot {
         let isRunning: Bool
         let bytesSent: Int64
         let earliestBeginDate: Date?
+
+        init(_ task: URLSessionTask) {
+            self.isRunning = task.state == .running
+            self.bytesSent = task.countOfBytesSent
+            self.earliestBeginDate = task.earliestBeginDate
+        }
     }
 
     enum UploadTaskRestart: Equatable {
@@ -383,8 +386,6 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
     /// What restartTasks does with the upload of a job.
     ///
     /// - Parameter task: Nil when the session has no task for the job, so it was lost.
-    /// - Parameter mayBeHeldBack: Started while the app was in the background, and the app is active now.
-    /// - Parameter isRetriedNow: Waits for its retry, which the user asked to start right away.
     static func uploadTaskRestart(for task: UploadTaskSnapshot?, mayBeHeldBack: Bool, isRetriedNow: Bool, now: Date) -> UploadTaskRestart {
         guard let task else { return .restart(earliestBeginDate: nil) }
 
@@ -439,7 +440,7 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
                     for var job in self.loadAllJobs() where job.sessionIdentifier == identifier && !job.uploaded {
                         let isRetriedNow = retryingJobIds.contains(job.id) && job.isWaitingForUploadRetry
                         let task = tasks.first(where: { $0.taskDescription == job.id })
-                        let taskSnapshot = task.map { UploadTaskSnapshot(isRunning: $0.state == .running, bytesSent: $0.countOfBytesSent, earliestBeginDate: $0.earliestBeginDate) }
+                        let taskSnapshot = task.map(UploadTaskSnapshot.init)
 
                         guard case .restart(let earliestBeginDate) = Self.uploadTaskRestart(for: taskSnapshot,
                                                                                          mayBeHeldBack: self.mayBeHeldBack(job),
@@ -639,7 +640,7 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
 
         let dropReason: String
 
-        // Too many requests fails right away: the server blocks other requests as well, and it rarely clears up in minutes
+        // 429 too: the server blocks other requests as well, and rarely within minutes
         if statusCode == 507 || ((400..<500).contains(statusCode) && statusCode != 408) {
             dropReason = "the server rejected it"
         } else if job.uploadRetryDate != nil {

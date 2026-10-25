@@ -7,13 +7,13 @@ import XCTest
 @testable import NextcloudTalk
 
 /// What the chat shows of files that are still being shared in the background.
-final class UnitChatBackgroundUploadTest: TestBaseRealm {
+final class UnitChatBackgroundUploadTest: XCTestCase {
 
     private func upload(uploaded: Bool = false, retryDate: Date? = nil, isFailed: Bool = false) -> ChatBackgroundUpload {
         var job = ChatBackgroundUploadJob(id: UUID().uuidString,
                                           sessionIdentifier: "session",
                                           index: 0,
-                                          accountId: TestBaseRealm.fakeAccountId,
+                                          accountId: "account",
                                           roomToken: "token",
                                           roomName: "Room",
                                           fileName: "IMG.jpg",

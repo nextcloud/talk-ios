@@ -21,24 +21,7 @@ final class UnitFileMessageGroupTest: TestBaseRealm {
                          overrides: [String: Any] = [:]) throws -> NCChatMessage {
         self.nextMessageId += 1
 
-        var dict: [String: Any] = [
-            "id": self.nextMessageId,
-            "token": "token",
-            "message": text,
-            "messageType": "comment",
-            "systemMessage": "",
-            "actorId": "alice",
-            "actorType": "users",
-            "messageParameters": ["file": ["type": "file", "id": "9", "name": "IMG.jpg", "path": "IMG.jpg", "mimetype": "image/jpeg"]]
-        ]
-
-        if let upload {
-            dict["referenceId"] = "\(upload)-\(String(format: "%03d", position))"
-        }
-
-        dict.merge(overrides) { _, override in override }
-
-        return try XCTUnwrap(NCChatMessage(dictionary: dict, andAccountId: TestBaseRealm.fakeAccountId))
+        return try self.fileMessage(id: self.nextMessageId, upload: upload, position: position, text: text, overrides: overrides)
     }
 
     private func textMessage() throws -> NCChatMessage {
@@ -186,19 +169,11 @@ final class UnitFileMessageGroupTest: TestBaseRealm {
 
     // MARK: - Files still being shared in the background
 
-    private func pendingMessage(upload: String, position: Int) throws -> NCChatMessage {
-        let message = try self.message(upload: upload, position: position)
-        message.messageId = 0
-        message.isTemporary = true
-
-        return message
-    }
-
     /// The bubble keeps its size while the files of a share are posted one by one
     func testPostedAndPendingFilesOfAShareAreOneGroup() throws {
         let messages = [try self.message(upload: self.uploadA, position: 1),
-                        try self.pendingMessage(upload: self.uploadA, position: 2),
-                        try self.pendingMessage(upload: self.uploadA, position: 3)]
+                        try self.pendingFileMessage(upload: self.uploadA, position: 2),
+                        try self.pendingFileMessage(upload: self.uploadA, position: 3)]
 
         let group = try XCTUnwrap(FileMessageGroup.groups(in: messages).first)
 
@@ -209,29 +184,29 @@ final class UnitFileMessageGroupTest: TestBaseRealm {
     /// Posted files in a thread have the thread as parent, pending ones have none yet
     func testAPendingFileJoinsItsShareInAThread() throws {
         let posted = try self.message(upload: self.uploadA, position: 1)
-        let pending = try self.pendingMessage(upload: self.uploadA, position: 2)
+        let pending = try self.pendingFileMessage(upload: self.uploadA, position: 2)
         posted.parentId = "thread"
 
         XCTAssertEqual(FileMessageGroup.groups(in: [posted, pending]).first?.messages.count, 2)
     }
 
     func testPendingFilesOfTwoSharesAreNotMerged() throws {
-        let messages = [try self.pendingMessage(upload: self.uploadA, position: 1),
-                        try self.pendingMessage(upload: self.uploadA, position: 2),
-                        try self.pendingMessage(upload: self.uploadB, position: 1),
-                        try self.pendingMessage(upload: self.uploadB, position: 2)]
+        let messages = [try self.pendingFileMessage(upload: self.uploadA, position: 1),
+                        try self.pendingFileMessage(upload: self.uploadA, position: 2),
+                        try self.pendingFileMessage(upload: self.uploadB, position: 1),
+                        try self.pendingFileMessage(upload: self.uploadB, position: 2)]
 
         XCTAssertEqual(FileMessageGroup.groups(in: messages).map { $0.messages.count }, [2, 2])
     }
 
     /// A failed file keeps its own bubble, so its state and actions stay visible
     func testAFailedFileLeavesItsGroup() throws {
-        let failed = try self.pendingMessage(upload: self.uploadA, position: 2)
+        let failed = try self.pendingFileMessage(upload: self.uploadA, position: 2)
         failed.sendingFailed = true
 
         let messages = [try self.message(upload: self.uploadA, position: 1),
                         failed,
-                        try self.pendingMessage(upload: self.uploadA, position: 3)]
+                        try self.pendingFileMessage(upload: self.uploadA, position: 3)]
 
         XCTAssertTrue(FileMessageGroup.groups(in: messages).isEmpty)
     }
