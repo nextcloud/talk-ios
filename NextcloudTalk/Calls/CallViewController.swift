@@ -135,6 +135,8 @@ class CallViewController: UIViewController,
     private var presentedScreenPeerId: String?
     private var callController: NCCallController?
     private weak var cameraController: NCCameraController?
+    private var pushToTalkTipPresenter: AnyObject? // TipPopoverPresenter, iOS 17 and later
+    private var gestureReactionsTipPresenter: AnyObject?
     private var lastGestureReactionDate = Date.distantPast
     private var chatViewController: ChatViewController?
     private var chatNavigationController: UINavigationController?
@@ -449,6 +451,17 @@ class CallViewController: UIViewController,
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+
+        // Shown once the microphone was muted for the first time
+        if #available(iOS 17.0, *), self.pushToTalkTipPresenter == nil {
+            let presenter = TipPopoverPresenter()
+            presenter.show(PushToTalkTip(), in: self) { [weak self] in
+                guard let self, !self.audioMuteButton.isHidden, self.audioMuteButton.isEnabled else { return nil }
+                return self.audioMuteButton
+            }
+
+            self.pushToTalkTipPresenter = presenter
+        }
 
         UIDevice.current.isProximityMonitoringEnabled = true
         UIApplication.shared.isIdleTimerDisabled = true
@@ -1452,6 +1465,21 @@ class CallViewController: UIViewController,
         DispatchQueue.main.async {
             cameraController.localView = self.localVideoView
             self.cameraController = cameraController
+        }
+
+        // Once the camera is running for a while, point out that hand gestures send reactions
+        DispatchQueue.main.asyncAfter(deadline: .now() + 8) { [weak self, weak cameraController] in
+            guard #available(iOS 17.0, *), let self, let cameraController, self.gestureReactionsTipPresenter == nil,
+                  cameraController.recognizesGestureReactions(), !self.room.callReactions.isEmpty
+            else { return }
+
+            let presenter = TipPopoverPresenter()
+            presenter.show(GestureReactionsTip(), in: self) { [weak self] in
+                guard let self else { return nil }
+                return self.reactionButton.isHidden ? self.moreMenuButton : self.reactionButton
+            }
+
+            self.gestureReactionsTipPresenter = presenter
         }
     }
 
@@ -2556,6 +2584,7 @@ class CallViewController: UIViewController,
             DispatchQueue.main.async {
                 self.buttonFeedbackGenerator.impactOccurred()
                 self.pushToTalkActive = true
+                FeatureTips.pushToTalkUsed()
             }
         }
     }
@@ -2654,6 +2683,12 @@ class CallViewController: UIViewController,
 
         callController.enableAudio(!muted)
         self.setAudioMuteButtonActive(!muted)
+
+        if muted, !self.pushToTalkActive {
+            DispatchQueue.main.async {
+                FeatureTips.microphoneMuted()
+            }
+        }
     }
 
     @IBAction func videoButtonPressed(_ sender: Any) {
@@ -2768,6 +2803,11 @@ class CallViewController: UIViewController,
         guard !hangingUp else { return }
 
         hangingUp = true
+
+        if #available(iOS 17.0, *) {
+            (self.pushToTalkTipPresenter as? TipPopoverPresenter)?.stop()
+            (self.gestureReactionsTipPresenter as? TipPopoverPresenter)?.stop()
+        }
 
         // Dismiss possible notifications
         // swiftlint:disable:next notification_center_detachment
@@ -3170,6 +3210,7 @@ class CallViewController: UIViewController,
 
             DispatchQueue.main.async {
                 self.lastGestureReactionDate = Date()
+                FeatureTips.gestureReactionUsed()
                 callController.sendReaction(reaction)
 
                 if let account = self.room.account {

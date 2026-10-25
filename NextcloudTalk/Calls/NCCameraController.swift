@@ -289,6 +289,13 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
 
     // MARK: - Gesture reactions
 
+    // Whether the camera recognizes hand gestures right now, which the user can turn off in Control Center
+    public func recognizesGestureReactions() -> Bool {
+        guard #available(iOS 17.0, *), let currentDevice else { return false }
+
+        return currentDevice.activeFormat.reactionEffectsSupported && AVCaptureDevice.reactionEffectGesturesEnabled
+    }
+
     // The system can recognize hand gestures (e.g. thumbs up, two hands forming a heart) and renders an effect
     // into the camera image. We send the matching call reaction as well, so everyone sees it, even without video.
     private func observeReactionEffects(of device: AVCaptureDevice) {

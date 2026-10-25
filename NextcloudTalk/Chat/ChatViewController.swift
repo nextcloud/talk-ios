@@ -35,6 +35,7 @@ import SwiftUI
     private var isLeavingChat = false
 
     private var chatViewPresentedTimestamp = Date().timeIntervalSince1970
+    private var tipPresenter: AnyObject? // TipPopoverPresenter, iOS 17 and later
 
     private var doubleTapReactionGesture: UITapGestureRecognizer?
     private var lastCelebrationTimestamp: TimeInterval = 0
@@ -675,6 +676,8 @@ import SwiftUI
 
         self.updateRaiseToListen()
 
+        self.showChatTipIfNeeded()
+
         if self.presentKeyboardOnAppear {
             self.presentKeyboard(true)
             self.presentKeyboardOnAppear = false
@@ -716,6 +719,43 @@ import SwiftUI
 
         self.saveLastReadMessage()
         self.stopVoiceMessagePlayer()
+
+        if #available(iOS 17.0, *) {
+            (self.tipPresenter as? TipPopoverPresenter)?.stop()
+        }
+    }
+
+    // MARK: - Tips
+
+    private func showChatTipIfNeeded() {
+        guard #available(iOS 17.0, *), !self.presentedInCall else { return }
+
+        let presenter = (self.tipPresenter as? TipPopoverPresenter) ?? TipPopoverPresenter()
+        self.tipPresenter = presenter
+
+        // Give the messages some time to load and settle
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
+            guard let self, self.isVisible, let tableView = self.tableView else { return }
+
+            let otherMessageCells = (tableView.indexPathsForVisibleRows ?? []).reversed().compactMap { indexPath -> (NCChatMessage, BaseChatTableViewCell)? in
+                guard let message = self.message(for: indexPath), !message.isSystemMessage,
+                      !(message.actorId == self.account.userId && message.actorType == "users"),
+                      let cell = tableView.cellForRow(at: indexPath) as? BaseChatTableViewCell
+                else { return nil }
+
+                return (message, cell)
+            }
+
+            if let voiceMessageCell = otherMessageCells.first(where: { $0.0.isVoiceMessage })?.1 {
+                presenter.show(VoiceMessageTip(), in: self) { [weak voiceMessageCell] in
+                    voiceMessageCell?.audioPlayerView
+                }
+            } else if self.room.canReact, let messageCell = otherMessageCells.first?.1 {
+                presenter.show(DoubleTapReactionTip(), in: self) { [weak messageCell] in
+                    messageCell?.bubbleView
+                }
+            }
+        }
     }
 
     public override func viewDidDisappear(_ animated: Bool) {
@@ -1303,6 +1343,7 @@ import SwiftUI
 
             // Raise to listen: holding the phone to the ear plays the newest voice message
             if self.voiceMessagesPlayer?.isPlaying != true, let message = self.raiseToListenMessage() {
+                FeatureTips.voiceMessageFeatureUsed()
                 self.cellWants(toPlayAudioFile: message)
             }
         } else {
@@ -2394,6 +2435,7 @@ import SwiftUI
         }
 
         HapticFeedback.light()
+        FeatureTips.doubleTapReactionUsed()
         self.addOrRemoveReaction(reaction: reaction, in: message)
     }
 

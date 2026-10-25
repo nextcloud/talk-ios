@@ -1463,6 +1463,7 @@ import Toast
     }
 
     func didPressTranscribeVoiceMessage(for message: NCChatMessage) {
+        FeatureTips.voiceMessageFeatureUsed()
         self.downloadFile(for: message) { [weak self] fileStatus in
             self?.transcribeVoiceMessage(with: fileStatus)
         }
