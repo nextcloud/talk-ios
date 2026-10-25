@@ -2125,7 +2125,7 @@
    Retry downloading the original file */
 "Retry" = "Retry";
 
-/* Upload a file again that failed to upload */
+/* Start uploading a file now that waits to be retried later */
 "Retry now" = "Retry now";
 
 /* Save conversation description */

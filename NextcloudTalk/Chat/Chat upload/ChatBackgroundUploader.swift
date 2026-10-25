@@ -103,8 +103,13 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
 
     private static let sessionIdentifierPrefix = "\(groupIdentifier).chatUpload."
 
-    // Younger jobs may still belong to a running extension, and two processes must not use the same session
     private static let reconnectGracePeriod: TimeInterval = 60
+
+    /// For a while after a share was prepared, the extension may still be connected to its session or posting it,
+    /// its job directory may be half written, and it may still fall back to uploading in the foreground.
+    private static func isInGracePeriod(since preparedAt: Date, now: Date) -> Bool {
+        return now.timeIntervalSince(preparedAt) <= self.reconnectGracePeriod
+    }
 
     // Gives a reconnected session time to deliver its completion events before tasks are taken as lost
     private static let lostTaskCheckDelay: TimeInterval = 5
@@ -113,9 +118,6 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
 
     // A failed upload is retried once after this delay, which covers a dropped connection or a server hiccup
     private static let uploadRetryDelay: TimeInterval = 30
-
-    // The server asked to slow down
-    private static let rateLimitedUploadRetryDelay: TimeInterval = 10 * 60
 
     // Also bounds the transfer, a background session does not tell it apart from waiting for a network
     private static let uploadResourceTimeout: TimeInterval = 60 * 60
@@ -299,15 +301,17 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
         var sessionsToConnect: Set<String> = []
 
         for jobDirectory in jobDirectories {
-            let creationDate = (try? jobDirectory.resourceValues(forKeys: [.creationDateKey]))?.creationDate ?? now
-            let isPastGracePeriod = now.timeIntervalSince(creationDate) > Self.reconnectGracePeriod
+            let job = self.loadJob(withId: jobDirectory.lastPathComponent)
+            // A directory without a readable job is still being prepared, or was left behind
+            let preparedAt = job?.createdAt ?? (try? jobDirectory.resourceValues(forKeys: [.creationDateKey]))?.creationDate ?? now
+            let isPastGracePeriod = !Self.isInGracePeriod(since: preparedAt, now: now)
 
             if !isPastGracePeriod {
                 // Look again once the grace period is over
-                self.scheduleResume(after: Self.reconnectGracePeriod - now.timeIntervalSince(creationDate) + 1)
+                self.scheduleResume(after: Self.reconnectGracePeriod - now.timeIntervalSince(preparedAt) + 1)
             }
 
-            guard let job = self.loadJob(withId: jobDirectory.lastPathComponent) else {
+            guard let job else {
                 // Left behind by an extension that was killed while preparing it
                 if isPastGracePeriod {
                     try? FileManager.default.removeItem(at: jobDirectory)
@@ -363,6 +367,51 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
         return job.taskStart == .background && UIApplication.shared.applicationState == .active
     }
 
+    /// The task of a job as restartTasks sees it.
+    struct UploadTaskSnapshot {
+        let isRunning: Bool
+        let bytesSent: Int64
+        let earliestBeginDate: Date?
+    }
+
+    enum UploadTaskRestart: Equatable {
+        case keep
+        /// Cancels the task the job has, if any, and starts a new one
+        case restart(earliestBeginDate: Date?)
+    }
+
+    /// What restartTasks does with the upload of a job.
+    ///
+    /// - Parameter task: Nil when the session has no task for the job, so it was lost.
+    /// - Parameter mayBeHeldBack: Started while the app was in the background, and the app is active now.
+    /// - Parameter isRetriedNow: Waits for its retry, which the user asked to start right away.
+    static func uploadTaskRestart(for task: UploadTaskSnapshot?, mayBeHeldBack: Bool, isRetriedNow: Bool, now: Date) -> UploadTaskRestart {
+        guard let task else { return .restart(earliestBeginDate: nil) }
+
+        // Already sending, nothing to restart
+        guard task.isRunning, task.bytesSent == 0 else { return .keep }
+
+        if isRetriedNow {
+            return .restart(earliestBeginDate: nil)
+        }
+
+        if mayBeHeldBack {
+            // Started again from the foreground, a retry that is not due yet keeps its time
+            if let earliestBeginDate = task.earliestBeginDate, earliestBeginDate > now {
+                return .restart(earliestBeginDate: earliestBeginDate)
+            }
+
+            return .restart(earliestBeginDate: nil)
+        }
+
+        // A retry the system still holds back after its time
+        if let earliestBeginDate = task.earliestBeginDate, earliestBeginDate <= now {
+            return .restart(earliestBeginDate: nil)
+        }
+
+        return .keep
+    }
+
     /// Restarts lost uploads, retries the system still holds back after their time, and from the foreground the
     /// uploads started in the background.
     ///
@@ -389,26 +438,17 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
 
                     for var job in self.loadAllJobs() where job.sessionIdentifier == identifier && !job.uploaded {
                         let isRetriedNow = retryingJobIds.contains(job.id) && job.isWaitingForUploadRetry
-                        var earliestBeginDate: Date?
+                        let task = tasks.first(where: { $0.taskDescription == job.id })
+                        let taskSnapshot = task.map { UploadTaskSnapshot(isRunning: $0.state == .running, bytesSent: $0.countOfBytesSent, earliestBeginDate: $0.earliestBeginDate) }
 
-                        if let task = tasks.first(where: { $0.taskDescription == job.id }) {
-                            // Already sending, nothing to restart
-                            guard task.state == .running, task.countOfBytesSent == 0 else { continue }
+                        guard case .restart(let earliestBeginDate) = Self.uploadTaskRestart(for: taskSnapshot,
+                                                                                         mayBeHeldBack: self.mayBeHeldBack(job),
+                                                                                         isRetriedNow: isRetriedNow,
+                                                                                         now: now)
+                        else { continue }
 
-                            let isRetryDue = (task.earliestBeginDate ?? .distantFuture) <= now
-
-                            if self.mayBeHeldBack(job), !isRetriedNow {
-                                // Started again from the foreground, a retry that is not due yet keeps its time
-                                if let beginDate = task.earliestBeginDate, beginDate > now {
-                                    earliestBeginDate = beginDate
-                                }
-                            } else if !isRetryDue, !isRetriedNow {
-                                continue
-                            }
-
-                            // Its cancellation is reported and ignored
-                            task.cancel()
-                        }
+                        // Its cancellation is reported and ignored
+                        task?.cancel()
 
                         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: job.accountId),
                               let authHeader = NCAPIController.sharedInstance().authHeader(forAccount: account)
@@ -599,20 +639,20 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
 
         let dropReason: String
 
-        if statusCode == 507 || ((400..<500).contains(statusCode) && statusCode != 408 && statusCode != 429) {
+        // Too many requests fails right away: the server blocks other requests as well, and it rarely clears up in minutes
+        if statusCode == 507 || ((400..<500).contains(statusCode) && statusCode != 408) {
             dropReason = "the server rejected it"
         } else if job.uploadRetryDate != nil {
             dropReason = "its retry failed as well"
         } else if let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: job.accountId),
                   let authHeader = NCAPIController.sharedInstance().authHeader(forAccount: account) {
-            let retryDelay = statusCode == 429 ? Self.rateLimitedUploadRetryDelay : Self.uploadRetryDelay
-            let retryDate = Date(timeIntervalSinceNow: retryDelay)
+            let retryDate = Date(timeIntervalSinceNow: Self.uploadRetryDelay)
 
             job.uploadRetryDate = retryDate
             try? self.save(job)
 
             // The system starts it then, even when neither the app nor the extension is running
-            NCLog.log("Retrying background upload of \(job.fileName) in \(Int(retryDelay))s")
+            NCLog.log("Retrying background upload of \(job.fileName) in \(Int(Self.uploadRetryDelay))s")
             self.startUploadTask(for: job, in: session, authHeader: authHeader, earliestBeginDate: retryDate)
             return
         } else {
@@ -753,7 +793,7 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
 
         // Before its tasks start, a share may still fall back to uploading in the foreground
         let startedJobs = self.loadAllJobs().filter {
-            $0.taskStart != nil || now.timeIntervalSince($0.createdAt) > Self.reconnectGracePeriod
+            $0.taskStart != nil || !Self.isInGracePeriod(since: $0.createdAt, now: now)
         }
 
         let pendingUploads = startedJobs.compactMap { job in
@@ -803,7 +843,7 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
 
         // Within the grace period the extension may still be connected to the session
         let waitingJobs = self.loadAllJobs().filter {
-            jobIds.contains($0.id) && $0.isWaitingForUploadRetry && now.timeIntervalSince($0.createdAt) > Self.reconnectGracePeriod
+            jobIds.contains($0.id) && $0.isWaitingForUploadRetry && !Self.isInGracePeriod(since: $0.createdAt, now: now)
         }
 
         for (identifier, jobs) in Dictionary(grouping: waitingJobs, by: { $0.sessionIdentifier }) {
