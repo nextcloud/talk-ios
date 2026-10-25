@@ -79,6 +79,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
         ConversationsWidgetController.shared.start()
         ConversationsSpotlightIndexer.shared.start()
 
+        // Talk on the Apple Watch
+        WatchSessionController.shared.start()
+
         self.registerBackgroundFetchTask()
         self.registerBackgroundProcessingTask()
 

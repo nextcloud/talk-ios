@@ -154,14 +154,24 @@
 		2CC1C38829C0945700C8436B /* DRCellSlideActionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CC1C38529C0945700C8436B /* DRCellSlideActionView.m */; };
 		3FCA62550CD1442D28E8A7C6 /* libPods-NotificationServiceExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B81BB7A4920C391CC2CACFD /* libPods-NotificationServiceExtension.a */; };
 		4890175925A0D7FC2EC76CC0 /* libPods-NextcloudTalkTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7005E22D6C2896927FC3AEEC /* libPods-NextcloudTalkTests.a */; };
+		60904AB5F6A7ED63F1650378 /* TalkWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 79AF6BBB2FB6BF3F65337592 /* TalkWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		80CDF8C42A8E098900CB57AE /* SwiftUIIntrospect in Frameworks */ = {isa = PBXBuildFile; productRef = 80CDF8C32A8E098900CB57AE /* SwiftUIIntrospect */; };
 		847EFC7236336B67A1A89358 /* libPods-BroadcastUploadExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A3D305FCD7BF7E727A62F35 /* libPods-BroadcastUploadExtension.a */; };
 		8789AE73BFCAA413B43319C0 /* libPods-ShareExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 684807120F4439797973DF73 /* libPods-ShareExtension.a */; };
 		9993261EDAC77481FF4EF58A /* libPods-NextcloudTalk.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F7C31E9D74F550EAF89931B /* libPods-NextcloudTalk.a */; };
+		9E157705099C5A00BFE8168D /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2C7F47AC20289B9600081CC7 /* Localizable.strings */; };
 		AACE32068D5BE4716C35504B /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2C7F47AC20289B9600081CC7 /* Localizable.strings */; };
+		DA8C554D79C30BF27ABB1864 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 2C8D3BAC2FA9DEF900F0A900 /* AppIcon.icon */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		1A4488481868794A3CE91B9A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2C0574751EDD9E8E00D9E7F2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B243578D27C803D6C01DED36;
+			remoteInfo = TalkWatch;
+		};
 		1F6D8C342B2E3756004376B8 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 2C0574751EDD9E8E00D9E7F2 /* Project object */;
@@ -287,6 +297,17 @@
 				1FF2FD722AB99CCB000C9905 /* BroadcastUploadExtension.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F0B0A58CE4AF1B414AC55820 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				60904AB5F6A7ED63F1650378 /* TalkWatch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -459,6 +480,7 @@
 		684807120F4439797973DF73 /* libPods-ShareExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ShareExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6E8E34E233E9B296CE1C3B0B /* Pods-TalkIntents.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TalkIntents.release.xcconfig"; path = "Pods/Target Support Files/Pods-TalkIntents/Pods-TalkIntents.release.xcconfig"; sourceTree = "<group>"; };
 		7005E22D6C2896927FC3AEEC /* libPods-NextcloudTalkTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NextcloudTalkTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		79AF6BBB2FB6BF3F65337592 /* TalkWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TalkWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		82CD0527E04B844CAD762ADE /* Pods-BroadcastUploadExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BroadcastUploadExtension.debug.xcconfig"; path = "Pods/Target Support Files/Pods-BroadcastUploadExtension/Pods-BroadcastUploadExtension.debug.xcconfig"; sourceTree = "<group>"; };
 		86A9CB1D6A94A44E9B016584 /* Pods-TalkIntents.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TalkIntents.debug.xcconfig"; path = "Pods/Target Support Files/Pods-TalkIntents/Pods-TalkIntents.debug.xcconfig"; sourceTree = "<group>"; };
 		95D756208A81284B975853EC /* Pods-ShareExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ShareExtension.release.xcconfig"; path = "Pods/Target Support Files/Pods-ShareExtension/Pods-ShareExtension.release.xcconfig"; sourceTree = "<group>"; };
@@ -986,6 +1008,20 @@
 			);
 			target = 2C05747C1EDD9E8E00D9E7F2 /* NextcloudTalk */;
 		};
+		55B85C4AD2523E0CE4C8035B /* Exceptions for "TalkWatch" folder in "NextcloudTalk" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				WatchModels.swift,
+			);
+			target = 2C05747C1EDD9E8E00D9E7F2 /* NextcloudTalk */;
+		};
+		5A5A7D9B2864BEF0BFA7FB55 /* Exceptions for "TalkWatch" folder in "TalkWatch" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = B243578D27C803D6C01DED36 /* TalkWatch */;
+		};
 		8B65C957AD2D5B226E3E451F /* Exceptions for "TalkWidgets" folder in "NextcloudTalk" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -1206,6 +1242,15 @@
 			path = TalkWidgets;
 			sourceTree = "<group>";
 		};
+		36AA1A303C9AB372AB76911B /* TalkWatch */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				55B85C4AD2523E0CE4C8035B /* Exceptions for "TalkWatch" folder in "NextcloudTalk" target */,
+				5A5A7D9B2864BEF0BFA7FB55 /* Exceptions for "TalkWatch" folder in "TalkWatch" target */,
+			);
+			path = TalkWatch;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1343,6 +1388,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		6B189E9569E86C5505FB8414 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C8BF89396AF80593D0F773E3 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -1362,6 +1414,7 @@
 				1F8977F52DB0F76100E8114D /* NextcloudTalkTests */,
 				1FA93D9D2D70FCC200DF6CDF /* TalkIntents */,
 				276FE3D714359BBDDFCFD105 /* TalkWidgets */,
+				36AA1A303C9AB372AB76911B /* TalkWatch */,
 				2C05747E1EDD9E8E00D9E7F2 /* Products */,
 				2C05749C1EDDA01700D9E7F2 /* ThirdParty */,
 				2C05747F1EDD9E8E00D9E7F2 /* NextcloudTalk */,
@@ -1382,6 +1435,7 @@
 				1F6D8C302B2E3756004376B8 /* NextcloudTalkTests.xctest */,
 				1FA93D9C2D70FCC200DF6CDF /* TalkIntents.appex */,
 				A06BE6676DC8072EFA0886DF /* TalkWidgets.appex */,
+				79AF6BBB2FB6BF3F65337592 /* TalkWatch.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1696,6 +1750,7 @@
 				2C8035721F950BA800501B5C /* ShellScript */,
 				2C3F6AB01FBB1ACD00E2705C /* Embed App Extensions */,
 				1FA93DAA2D70FCC200DF6CDF /* Embed ExtensionKit Extensions */,
+				F0B0A58CE4AF1B414AC55820 /* Embed Watch Content */,
 				2C5E72BC27957FCA004ED7FB /* ShellScript */,
 				C21100AE204AFC213989DA96 /* [CP] Embed Pods Frameworks */,
 				1F899F092EF8698200890727 /* Embed Frameworks */,
@@ -1708,6 +1763,7 @@
 				1FF2FD712AB99CCB000C9905 /* PBXTargetDependency */,
 				1FA93DA42D70FCC200DF6CDF /* PBXTargetDependency */,
 				F9B0708653706C7E88EE41B0 /* PBXTargetDependency */,
+				8ABBED5F401BCDE7A5BCCAE8 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				1F2058832CEBE4E700AAA673 /* ShareExtension */,
@@ -1859,6 +1915,28 @@
 			productReference = A06BE6676DC8072EFA0886DF /* TalkWidgets.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		B243578D27C803D6C01DED36 /* TalkWatch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C63D7341CFFCBB33BDA17813 /* Build configuration list for PBXNativeTarget "TalkWatch" */;
+			buildPhases = (
+				98528CF320BF47E1DF764CCE /* Sources */,
+				6B189E9569E86C5505FB8414 /* Frameworks */,
+				EE88803CC792652CC7021D63 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				36AA1A303C9AB372AB76911B /* TalkWatch */,
+			);
+			name = TalkWatch;
+			packageProductDependencies = (
+			);
+			productName = TalkWatch;
+			productReference = 79AF6BBB2FB6BF3F65337592 /* TalkWatch.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -1869,6 +1947,9 @@
 				LastUpgradeCheck = 1320;
 				ORGANIZATIONNAME = "";
 				TargetAttributes = {
+					B243578D27C803D6C01DED36 = {
+						CreatedOnToolsVersion = 27.1;
+					};
 					1F6D8C2F2B2E3756004376B8 = {
 						CreatedOnToolsVersion = 15.1;
 						LastSwiftMigration = 1520;
@@ -1991,6 +2072,7 @@
 				1F6D8C2F2B2E3756004376B8 /* NextcloudTalkTests */,
 				1FA93D9B2D70FCC200DF6CDF /* TalkIntents */,
 				404DF6649BF5F70D4316B064 /* TalkWidgets */,
+				B243578D27C803D6C01DED36 /* TalkWatch */,
 			);
 		};
 /* End PBXProject section */
@@ -2072,6 +2154,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				AACE32068D5BE4716C35504B /* Localizable.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EE88803CC792652CC7021D63 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DA8C554D79C30BF27ABB1864 /* AppIcon.icon in Resources */,
+				9E157705099C5A00BFE8168D /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2376,6 +2467,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		98528CF320BF47E1DF764CCE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -2408,6 +2506,11 @@
 			isa = PBXTargetDependency;
 			target = 2CC0014E24A1F0E900A20167 /* NotificationServiceExtension */;
 			targetProxy = 2CC0015524A1F0E900A20167 /* PBXContainerItemProxy */;
+		};
+		8ABBED5F401BCDE7A5BCCAE8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B243578D27C803D6C01DED36 /* TalkWatch */;
+			targetProxy = 1A4488481868794A3CE91B9A /* PBXContainerItemProxy */;
 		};
 		F9B0708653706C7E88EE41B0 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -3378,6 +3481,35 @@
 			};
 			name = Release;
 		};
+		4202E6DC5519575E4D2AD024 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "Apple Distribution";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = NKUJUXUJ3B;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = TalkWatch/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 25.0.2;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCH_COMPANION_APP_BUNDLE_IDENTIFIER = com.nextcloud.Talk;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
 		90C606693565B566AE1CBA39 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -3438,6 +3570,37 @@
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
+		};
+		E05142399061BD88389E5CC2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = NKUJUXUJ3B;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = TalkWatch/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 25.0.2;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCH_COMPANION_APP_BUNDLE_IDENTIFIER = com.nextcloud.Talk;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
 		};
 /* End XCBuildConfiguration section */
 
@@ -3519,6 +3682,15 @@
 			buildConfigurations = (
 				90C606693565B566AE1CBA39 /* Debug */,
 				9F99C4F4C1B607E85292FA51 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C63D7341CFFCBB33BDA17813 /* Build configuration list for PBXNativeTarget "TalkWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E05142399061BD88389E5CC2 /* Debug */,
+				4202E6DC5519575E4D2AD024 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
