@@ -277,7 +277,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
             var room: NCRoom?
 
             // Room object is returned only since Talk 11
-            if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.listableRooms) {
+            if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.listableRooms, forAccountId: account.accountId) {
                 room = NCRoom(dictionary: ocsResponse?.dataDict, andAccountId: account.accountId)
 
                 // In case there's no token, or a non-matching token, don't return

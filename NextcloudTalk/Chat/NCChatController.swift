@@ -593,7 +593,7 @@ public class NCChatController: NSObject {
         }
 
         if message.systemMessage == "reaction" || message.systemMessage == "reaction_revoked" || message.systemMessage == "reaction_deleted" {
-            handleReactionRelayMessage(message, withDict: messageDict, lastNewestMessageId: lastNewestMessageId)
+            storeRelayMessage(message, storableDict: messageDict, lastNewestMessageId: lastNewestMessageId)
             return
         }
 
@@ -649,7 +649,7 @@ public class NCChatController: NSObject {
     // notification and the read marker stay in sync.
     private func storeRelayMessage(_ message: NCChatMessage, storableDict: [String: Any], lastNewestMessageId: Int) {
         updateLastChatBlock(withNewestKnown: message.messageId)
-        storeMessages([storableDict])
+        storeMessages([keepingStoredReactionsSelf(in: storableDict, for: message)])
         checkForNewMessages(fromMessageId: lastNewestMessageId)
 
         // We only reach this point while the chat relay is active (these methods are only called in the
@@ -719,36 +719,54 @@ public class NCChatController: NSObject {
         return messageDict
     }
 
-    // Handles reaction system messages received via the chat relay. The relay broadcasts reactionsSelf
-    // from the actor's perspective (not per-user), so we replace it with the correct value computed
-    // from the current DB state plus the self-actor delta before passing to storeMessages — mirroring
-    // the web's fromRealtime reactionsSelf computation in messagesStore.js (PR #16349).
-    private func handleReactionRelayMessage(_ message: NCChatMessage, withDict messageDict: [String: Any], lastNewestMessageId: Int) {
-        var storableDict = messageDict
+    // The relay never carries reactionsSelf, as it differs per attendee, so storing a relayed message or its
+    // parent as-is would drop our own reactions. Keep the stored ones, and add or remove the emoji of our own
+    // reaction events.
+    private func keepingStoredReactionsSelf(in messageDict: [String: Any], for message: NCChatMessage) -> [String: Any] {
+        var messageDict = messageDict
 
-        if var parentDict = messageDict["parent"] as? [String: Any] {
-            var selfReactions: [String] = []
-            if let parentId = message.parentId,
-               let parentInDB = NCChatMessage.objects(where: "internalId = %@", parentId).firstObject() as? NCChatMessage,
-               let jsonString = parentInDB.reactionsSelfJSONString, !jsonString.isEmpty,
-               let data = jsonString.data(using: .utf8),
-               let parsed = try? JSONSerialization.jsonObject(with: data) as? [String] {
-                selfReactions = parsed
-            }
+        if let reactionsSelf = storedReactionsSelf(ofMessageWithInternalId: message.internalId) {
+            messageDict["reactionsSelf"] = reactionsSelf
+        }
+
+        guard var parentDict = messageDict["parent"] as? [String: Any] else { return messageDict }
+
+        var parentReactionsSelf = storedReactionsSelf(ofMessageWithInternalId: message.parentId)
+
+        if message.systemMessage == "reaction" || message.systemMessage == "reaction_revoked" || message.systemMessage == "reaction_deleted" {
+            // Also when the parent isn't stored yet, so our own reaction is still marked on it
+            var ownReactions = parentReactionsSelf ?? []
 
             if message.isMessage(from: account.userId), let emoji = message.message, !emoji.isEmpty {
-                if message.systemMessage == "reaction" && !selfReactions.contains(emoji) {
-                    selfReactions.append(emoji)
+                if message.systemMessage == "reaction", !ownReactions.contains(emoji) {
+                    ownReactions.append(emoji)
                 } else if message.systemMessage == "reaction_revoked" {
-                    selfReactions.removeAll { $0 == emoji }
+                    ownReactions.removeAll { $0 == emoji }
                 }
             }
 
-            parentDict["reactionsSelf"] = selfReactions
-            storableDict["parent"] = parentDict
+            parentReactionsSelf = ownReactions
         }
 
-        storeRelayMessage(message, storableDict: storableDict, lastNewestMessageId: lastNewestMessageId)
+        if let parentReactionsSelf {
+            parentDict["reactionsSelf"] = parentReactionsSelf
+            messageDict["parent"] = parentDict
+        }
+
+        return messageDict
+    }
+
+    /// nil when the message isn't stored, empty when it is but has none of our reactions
+    private func storedReactionsSelf(ofMessageWithInternalId internalId: String?) -> [String]? {
+        guard let internalId,
+              let storedMessage = NCChatMessage.objects(where: "internalId = %@", internalId).firstObject() as? NCChatMessage
+        else { return nil }
+
+        guard let data = storedMessage.reactionsSelfJSONString?.data(using: .utf8),
+              let reactionsSelf = try? JSONSerialization.jsonObject(with: data) as? [String]
+        else { return [] }
+
+        return reactionsSelf
     }
 
     @objc private func didReconnectExternalSignaling(_ notification: Notification) {

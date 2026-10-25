@@ -83,7 +83,7 @@ import SwiftyAttributes
         commentDeletion = commentDeletion && !self.isObjectShare
 
         // Check server capability for files or shared objects
-        var objectDeletion = NCDatabaseManager.sharedInstance().serverHasTalkCapability(.richObjectDelete)
+        var objectDeletion = NCDatabaseManager.sharedInstance().serverHasTalkCapability(.richObjectDelete, forAccountId: account.accountId)
         objectDeletion = objectDeletion && (self.file() != nil || self.isVoiceMessage || self.isObjectShare)
 
         // Check if user is allowed to delete a message
