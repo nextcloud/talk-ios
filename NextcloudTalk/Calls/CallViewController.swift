@@ -150,7 +150,10 @@ class CallViewController: UIViewController,
     private var userDisabledSpeaker = false
     private var videoCallUpgrade = false
     private var hangingUp = false
-    private var pushToTalkActive = false
+    private var pushToTalkActive = false {
+        didSet { self.setPushToTalkIndicatorVisible(pushToTalkActive) }
+    }
+    private var pushToTalkIndicator: PaddedLabel?
     private var forceMutedUntil = Date.distantPast
     private var isHandRaised = false
     private var proximityState = false
@@ -473,7 +476,16 @@ class CallViewController: UIViewController,
             return
         }
 
-        super.pressesBegan(presses, with: event)
+        super.pressesEnded(presses, with: event)
+    }
+
+    override func pressesCancelled(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
+        // E.g. when the app goes to the background while the space bar is held down
+        if presses.contains(where: { $0.key?.keyCode == .keyboardSpacebar }) {
+            self.pushToTalkEnd()
+        }
+
+        super.pressesCancelled(presses, with: event)
     }
 
     // MARK: - App lifecycle notifications
@@ -2546,6 +2558,45 @@ class CallViewController: UIViewController,
 
         self.setAudioMuted(true)
         self.pushToTalkActive = false
+        HapticFeedback.selection()
+    }
+
+    // While the mute button or the space bar is held down, a pill above the bottom bar shows that
+    // the microphone is on, as the finger covers the mute button itself
+    private func setPushToTalkIndicatorVisible(_ visible: Bool) {
+        if visible, self.pushToTalkIndicator == nil {
+            let indicator = PaddedLabel()
+            indicator.text = "🎙️ " + NSLocalizedString("You are talking", comment: "Shown in a call while holding the mute button to temporarily unmute")
+            indicator.font = .preferredFont(for: .subheadline, weight: .semibold)
+            indicator.textColor = .white
+            indicator.backgroundColor = .systemGreen
+            indicator.layer.cornerRadius = 15
+            indicator.layer.masksToBounds = true
+            indicator.translatesAutoresizingMaskIntoConstraints = false
+            indicator.alpha = 0
+            indicator.isAccessibilityElement = false
+
+            self.view.addSubview(indicator)
+
+            NSLayoutConstraint.activate([
+                indicator.centerXAnchor.constraint(equalTo: self.bottomBarView.centerXAnchor),
+                indicator.bottomAnchor.constraint(equalTo: self.bottomBarView.topAnchor, constant: -12)
+            ])
+
+            self.pushToTalkIndicator = indicator
+        }
+
+        guard let indicator = self.pushToTalkIndicator else { return }
+
+        self.view.bringSubviewToFront(indicator)
+
+        UIView.animate(withDuration: 0.15) {
+            indicator.alpha = visible ? 1 : 0
+        }
+
+        if visible {
+            UIAccessibility.post(notification: .announcement, argument: NSLocalizedString("You are talking", comment: "Shown in a call while holding the mute button to temporarily unmute"))
+        }
     }
 
     @IBAction func audioButtonPressed(_ sender: Any) {
