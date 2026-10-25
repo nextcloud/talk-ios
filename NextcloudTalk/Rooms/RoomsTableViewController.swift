@@ -1925,7 +1925,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
             }
         }
 
-        if case .waitingForRetry = uploadSummary.pendingState {
+        if uploadSummary.pendingState?.isWaiting == true {
             dateSymbols.append(("clock", .secondaryLabel))
         } else if uploadSummary.pendingState == .uploading, NCConnectionController.shared.connectionState == .disconnected {
             dateSymbols.append(("wifi.slash", .secondaryLabel))

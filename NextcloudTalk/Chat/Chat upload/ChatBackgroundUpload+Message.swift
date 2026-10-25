@@ -107,13 +107,18 @@ extension ChatBackgroundUploadState {
         return false
     }
 
+    /// Shown with a clock, a tap starts it or moves it to the front
+    var isWaiting: Bool {
+        return self.isWaitingForRetry || self == .waitingForTurn
+    }
+
     /// Shown instead of the progress, nil while the progress is shown.
     var symbolName: String? {
         switch self {
         case .uploading:
             // The upload waits for a network by itself, the symbol tells why nothing moves
             return NCConnectionController.shared.connectionState == .disconnected ? "wifi.slash" : nil
-        case .waitingForRetry:
+        case .waitingForRetry, .waitingForTurn:
             return "clock"
         case .uploaded:
             return "checkmark"
@@ -161,7 +166,7 @@ extension NCChatMessage {
 extension Array where Element == ChatBackgroundUploadState {
 
     /// What one tile or list row shows for several files: a sending one first, then a waiting one, and uploaded only
-    /// when all of them are. Waiting files count as not sent in the combined progress.
+    /// when all of them are.
     var combined: ChatBackgroundUploadState? {
         guard !self.isEmpty else { return nil }
 
@@ -170,7 +175,7 @@ extension Array where Element == ChatBackgroundUploadState {
         }
 
         let retryDates = self.compactMap { state -> Date? in
-            guard case .waitingForRetry(let retryDate?) = state else { return nil }
+            guard case .waitingForRetry(let retryDate) = state else { return nil }
 
             return retryDate
         }
@@ -179,8 +184,8 @@ extension Array where Element == ChatBackgroundUploadState {
             return .waitingForRetry(until: nextRetryDate)
         }
 
-        if self.contains(where: { $0.isWaitingForRetry }) {
-            return .waitingForRetry(until: nil)
+        if self.contains(.waitingForTurn) {
+            return .waitingForTurn
         }
 
         return self.allSatisfy { $0 == .uploaded } ? .uploaded : .uploading

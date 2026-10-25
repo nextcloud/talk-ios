@@ -43,11 +43,17 @@ struct ChatBackgroundUploadJob: Codable {
         case background
     }
 
-    /// Some servers read only a few uploads of one connection and let the others time out, so after such a
-    /// timeout the files of the share are sent a few at a time.
+    /// Some servers read only a few uploads of one connection and let the others time out, so a file that timed out
+    /// waits until fewer than uploadsPerTurn files of its share are sending.
     enum UploadTurn: String, Codable {
         case waiting
+        // Still waiting, but tapped by the user, so it starts next and shows as uploading
+        case requested
         case started
+    }
+
+    var isWaitingForUploadTurn: Bool {
+        return self.uploadTurn == .waiting || self.uploadTurn == .requested
     }
 
     var isWaitingForUploadRetry: Bool {
@@ -67,8 +73,9 @@ struct ChatBackgroundUploadJob: Codable {
 /// What the chat shows of a file shared in the background.
 enum ChatBackgroundUploadState: Equatable {
     case uploading
-    /// Without a date while it waits for its turn, see ChatBackgroundUploadJob.UploadTurn
-    case waitingForRetry(until: Date?)
+    case waitingForRetry(until: Date)
+    /// See ChatBackgroundUploadJob.UploadTurn
+    case waitingForTurn
     case uploaded
     case failed
 }
@@ -89,7 +96,11 @@ struct ChatBackgroundUpload {
         }
 
         if self.job.uploadTurn == .waiting {
-            return .waitingForRetry(until: nil)
+            return .waitingForTurn
+        }
+
+        if self.job.uploadTurn == .requested {
+            return .uploading
         }
 
         if self.job.isWaitingForUploadRetry, let uploadRetryDate = self.job.uploadRetryDate {
@@ -361,7 +372,7 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
             } else {
                 let isUnchecked = !self.checkedSessions.contains(job.sessionIdentifier)
                 let isRetryDue = (job.uploadRetryDate ?? .distantFuture) <= now
-                if isUnchecked || isRetryDue || self.mayBeHeldBack(job) || job.uploadTurn == .waiting {
+                if isUnchecked || isRetryDue || self.mayBeHeldBack(job) || job.isWaitingForUploadTurn {
                     sessionsToCheck.insert(job.sessionIdentifier)
                 }
             }
@@ -465,14 +476,8 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
 
                     let now = Date()
 
-                    for var job in self.loadAllJobs() where job.sessionIdentifier == identifier && !job.uploaded {
-                        let isWaitingForUploadTurn = job.uploadTurn == .waiting
-
-                        // Started by startUploadTurns, unless the user asks for it now
-                        if isWaitingForUploadTurn, !retryingJobIds.contains(job.id) {
-                            continue
-                        }
-
+                    // Files waiting for their turn are started by startUploadTurns
+                    for var job in self.loadAllJobs() where job.sessionIdentifier == identifier && !job.uploaded && !job.isWaitingForUploadTurn {
                         let isRetriedNow = retryingJobIds.contains(job.id) && job.isWaitingForUploadRetry
                         let task = tasks.first(where: { $0.taskDescription == job.id })
                         let taskSnapshot = task.map(UploadTaskSnapshot.init)
@@ -497,19 +502,12 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
                             job = retriedJob
                         }
 
-                        // Waiting for its turn does not use up its retry
-                        if isWaitingForUploadTurn, let startedJob = self.updateJob(withId: job.id, { $0.uploadTurn = .started }) {
-                            job = startedJob
-                        }
-
                         NCLog.log("Restarting background upload of \(job.fileName)")
                         self.startUploadTask(for: job, in: session, authHeader: authHeader, earliestBeginDate: earliestBeginDate)
                     }
 
                     // No file of the share may be sending anymore, for example after a force quit
-                    self.startUploadTurns(in: session)
-
-                    completion?()
+                    self.startUploadTurns(in: session, completion: completion)
                 }
             }
         }
@@ -721,31 +719,47 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
     }
 
     /// Starts files waiting for their turn while fewer than uploadsPerTurn files of the share are sending.
-    private func startUploadTurns(in session: URLSession) {
+    private func startUploadTurns(in session: URLSession, completion: (() -> Void)? = nil) {
         guard let identifier = session.configuration.identifier,
-              self.loadAllJobs().contains(where: { $0.sessionIdentifier == identifier && $0.uploadTurn == .waiting })
-        else { return }
+              self.loadAllJobs().contains(where: { $0.sessionIdentifier == identifier && $0.isWaitingForUploadTurn })
+        else {
+            completion?()
+            return
+        }
+
+        // Otherwise the process may be suspended before the next files are handed to the system
+        let bgTask = BGTaskHelper.startExpiringActivity(withName: "ChatBackgroundUploader.turns")
 
         session.getAllTasks { tasks in
             DispatchQueue.main.async {
+                defer {
+                    bgTask.stopBackgroundTask()
+                    completion?()
+                }
+
                 // Invalidated in the meantime, as another process is connected to it
                 guard self.sessions[identifier] === session else { return }
 
-                let jobs = self.loadAllJobs().filter { $0.sessionIdentifier == identifier && !$0.uploaded }
+                let jobs = self.loadAllJobs().filter { $0.sessionIdentifier == identifier && !$0.uploaded }.sorted { $0.index < $1.index }
                 let runningJobIds = Set(tasks.filter { $0.state == .running }.compactMap { $0.taskDescription })
+
                 // Started turns count by their job, as their tasks may be missing from a list fetched before
-                let sendingCount = jobs.filter { $0.uploadTurn == .started || ($0.uploadTurn == nil && runningJobIds.contains($0.id)) }.count
-                let waitingJobs = jobs.filter { $0.uploadTurn == .waiting }.sorted { $0.index < $1.index }
+                let sendingCount = jobs.filter { job in
+                    job.uploadTurn == .started || (job.uploadTurn == nil && runningJobIds.contains(job.id))
+                }.count
+
+                let waitingJobs = jobs.filter { $0.uploadTurn == .requested } + jobs.filter { $0.uploadTurn == .waiting }
 
                 for job in waitingJobs.prefix(max(Self.uploadsPerTurn - sendingCount, 0)) {
                     guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: job.accountId),
                           let authHeader = NCAPIController.sharedInstance().authHeader(forAccount: account)
                     else {
                         self.drop(job, reason: "its account is gone")
+                        self.shareFiles(of: identifier)
                         continue
                     }
 
-                    let startedJob = self.updateJob(withId: job.id) { $0.uploadTurn = .started } ?? job
+                    guard let startedJob = self.updateJob(withId: job.id, { $0.uploadTurn = .started }) else { continue }
 
                     NCLog.log("Starting background upload of \(job.fileName) in its turn")
                     self.startUploadTask(for: startedJob, in: session, authHeader: authHeader)
@@ -946,9 +960,14 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
 
         // Without a connection to the session, the upload still finishes and is ignored then
         for identifier in Set(jobs.map { $0.sessionIdentifier }) {
-            self.sessions[identifier]?.getAllTasks { tasks in
+            guard let session = self.sessions[identifier] else { continue }
+
+            session.getAllTasks { tasks in
                 tasks.filter { jobIds.contains($0.taskDescription ?? "") }.forEach { $0.cancel() }
             }
+
+            // A cancelled file frees its turn, which resumePendingJobs leaves alone in the grace period
+            self.startUploadTurns(in: session)
         }
 
         // The rest of a share may have waited for the cancelled files
@@ -965,11 +984,27 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
             // Within the grace period the extension may still be connected to the session, unless this process is
             let mayBelongToExtension = self.sessions[$0.sessionIdentifier] == nil && Self.isInGracePeriod(since: $0.createdAt, now: now)
 
-            return jobIds.contains($0.id) && ($0.isWaitingForUploadRetry || $0.uploadTurn == .waiting) && !mayBelongToExtension
+            return jobIds.contains($0.id) && $0.isWaitingForUploadRetry && !mayBelongToExtension
         }
 
         for (identifier, jobs) in Dictionary(grouping: waitingJobs, by: { $0.sessionIdentifier }) {
             self.restartTasks(in: self.session(withIdentifier: identifier), retryingJobIds: Set(jobs.map { $0.id }))
+        }
+    }
+
+    /// Moves files waiting for their turn to the front. Starting them right away would time out again.
+    func requestUploadTurns(forJobIds jobIds: Set<String>) {
+        let waitingJobs = self.loadAllJobs().filter { jobIds.contains($0.id) && $0.uploadTurn == .waiting }
+
+        for job in waitingJobs {
+            self.updateJob(withId: job.id) { $0.uploadTurn = .requested }
+        }
+
+        // Otherwise the process connected to the session starts them on its next turn
+        for identifier in Set(waitingJobs.map { $0.sessionIdentifier }) {
+            if let session = self.sessions[identifier] {
+                self.startUploadTurns(in: session)
+            }
         }
     }
 

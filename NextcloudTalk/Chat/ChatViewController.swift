@@ -896,7 +896,7 @@ import SwiftUI
         self.backgroundUploadRetryTimer = nil
 
         let retryDates = self.messages.values.joined().compactMap { message -> Date? in
-            guard case .waitingForRetry(let retryDate?) = message.backgroundUploadState else { return nil }
+            guard case .waitingForRetry(let retryDate) = message.backgroundUploadState else { return nil }
 
             return retryDate
         }
@@ -993,6 +993,8 @@ import SwiftUI
         case .waitingForRetry:
             // Posting waits for every file of the share anyway
             self.retryWaitingBackgroundUploads(of: self.backgroundUploadMessages(sharedWith: message))
+        case .waitingForTurn:
+            ChatBackgroundUploader.shared.requestUploadTurns(forJobIds: [jobId])
         case .uploading, .uploaded:
             // The local copy opens like a downloaded file
             if let fileStatus = message.file()?.fileStatus {

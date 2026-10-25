@@ -221,8 +221,9 @@ class GroupedFilePreviewView: UIView {
 
                 tileView.setup(with: message, account: account, size: GroupedFilePreviewView.tileSize, badgeMessages: badgeMessages)
 
-                // A tap on its clock retries, like on any other tile
-                if let waitingMessage = badgeMessages.first(where: { $0.backgroundUploadState?.isWaitingForRetry == true }),
+                // A tap on its clock acts on the file the clock is shown for, like on any other tile
+                if let badgeState = badgeMessages.combinedBackgroundUploadState, badgeState.isWaiting,
+                   let waitingMessage = badgeMessages.first(where: { $0.backgroundUploadState == badgeState }),
                    let waitingFile = waitingMessage.file() {
                     tappedFile = waitingFile
                 }
