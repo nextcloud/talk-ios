@@ -223,6 +223,7 @@ import Toast
 
         NotificationCenter.default.addObserver(self, selector: #selector(willShowKeyboard(notification:)), name: UIWindow.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(willHideKeyboard(notification:)), name: UIWindow.keyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(voiceMessagePlaybackSpeedDidChange), name: VoiceMessagePlaybackSpeed.didChangeNotification, object: nil)
 
         AllocationTracker.shared.addAllocation("ChatViewController")
     }
@@ -2425,6 +2426,8 @@ import Toast
         self.voiceMessagesPlayer = player
         self.playerAudioFileStatus = fileStatus
         player.delegate = self
+        player.enableRate = true
+        player.rate = VoiceMessagePlaybackSpeed.current
         self.playVoiceMessagePlayer()
     }
 
@@ -2434,6 +2437,10 @@ import Toast
 
         self.startVoiceMessagePlayerTimer()
         self.voiceMessagesPlayer?.play()
+    }
+
+    func voiceMessagePlaybackSpeedDidChange() {
+        self.voiceMessagesPlayer?.rate = VoiceMessagePlaybackSpeed.current
     }
 
     func pauseVoiceMessagePlayer() {

@@ -21,6 +21,10 @@ class AudioPlayerView: UIView {
 
     var isPlaying: Bool = false
 
+    // Only shown while this player's audio file is loaded
+    private let speedButton = UIButton(type: .system)
+    private var speedButtonWidthConstraint: NSLayoutConstraint?
+
     public weak var delegate: AudioPlayerViewDelegate?
 
     override init(frame: CGRect) {
@@ -62,6 +66,9 @@ class AudioPlayerView: UIView {
             delegate?.audioPlayerProgressChanged(progress: CGFloat(slider.value))
         }
 
+        // Playback speed
+        self.setupSpeedButton()
+
         // Duration label
         hideDurationLabel()
 
@@ -72,8 +79,69 @@ class AudioPlayerView: UIView {
         self.addSubview(contentView)
     }
 
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
+    private func setupSpeedButton() {
+        speedButton.translatesAutoresizingMaskIntoConstraints = false
+        speedButton.titleLabel?.font = .systemFont(ofSize: 12, weight: .semibold)
+        speedButton.setTitleColor(.label, for: .normal)
+        speedButton.backgroundColor = .systemGray4
+        speedButton.layer.cornerRadius = 10
+        speedButton.layer.masksToBounds = true
+        speedButton.accessibilityLabel = NSLocalizedString("Playback speed", comment: "")
+        speedButton.addAction(for: .touchUpInside) {
+            VoiceMessagePlaybackSpeed.current = VoiceMessagePlaybackSpeed.next(after: VoiceMessagePlaybackSpeed.current)
+        }
+
+        contentView.addSubview(speedButton)
+
+        // Place the button between the slider and the duration label
+        if let sliderToLabel = contentView.constraints.first(where: {
+            ($0.firstItem === durationLabel && $0.secondItem === slider) || ($0.firstItem === slider && $0.secondItem === durationLabel)
+        }) {
+            sliderToLabel.isActive = false
+        }
+
+        let widthConstraint = speedButton.widthAnchor.constraint(equalToConstant: 0)
+        speedButtonWidthConstraint = widthConstraint
+
+        NSLayoutConstraint.activate([
+            widthConstraint,
+            speedButton.heightAnchor.constraint(equalToConstant: 22),
+            speedButton.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            speedButton.leadingAnchor.constraint(equalTo: slider.trailingAnchor, constant: 8),
+            durationLabel.leadingAnchor.constraint(equalTo: speedButton.trailingAnchor, constant: 8)
+        ])
+
+        setSpeedButtonVisible(false)
+
+        NotificationCenter.default.addObserver(self, selector: #selector(playbackSpeedDidChange), name: VoiceMessagePlaybackSpeed.didChangeNotification, object: nil)
+    }
+
+    @objc private func playbackSpeedDidChange() {
+        self.updateSpeedButtonTitle()
+    }
+
+    private func updateSpeedButtonTitle() {
+        let speed = VoiceMessagePlaybackSpeed.current
+        speedButton.setTitle(VoiceMessagePlaybackSpeed.label(for: speed), for: .normal)
+        speedButton.accessibilityValue = VoiceMessagePlaybackSpeed.label(for: speed)
+    }
+
+    private func setSpeedButtonVisible(_ visible: Bool) {
+        if visible {
+            updateSpeedButtonTitle()
+        }
+
+        speedButton.isHidden = !visible
+        speedButtonWidthConstraint?.constant = visible ? 38 : 0
+    }
+
     func setPlayerProgress(_ progress: CGFloat, isPlaying playing: Bool, maximumValue maxValue: CGFloat) {
         setPlayPauseButton(playing: playing)
+        setSpeedButtonVisible(true)
         slider.isEnabled = true
         slider.value = Float(progress)
         slider.maximumValue = Float(maxValue)
@@ -83,6 +151,7 @@ class AudioPlayerView: UIView {
 
     func resetPlayer() {
         setPlayPauseButton(playing: false)
+        setSpeedButtonVisible(false)
         slider.isEnabled = false
         slider.value = 0
         hideDurationLabel()
