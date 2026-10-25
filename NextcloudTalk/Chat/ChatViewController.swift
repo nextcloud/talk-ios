@@ -673,6 +673,8 @@ import SwiftUI
     public override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
+        self.updateRaiseToListen()
+
         if self.presentKeyboardOnAppear {
             self.presentKeyboard(true)
             self.presentKeyboardOnAppear = false
@@ -763,6 +765,7 @@ import SwiftUI
 
         // Check if new messages were added while the app was inactive (eg. via background-refresh)
         self.checkForNewStoredMessages()
+        self.updateRaiseToListen()
 
         if !self.offlineMode {
             NCRoomsManager.shared.joinRoom(self.room.token, forAccountId: self.account.accountId, forCall: false)
@@ -775,6 +778,12 @@ import SwiftUI
         // If we stopped the chat, we don't want to change anything here
         if self.hasStopped {
             return
+        }
+
+        // Don't turn off the screen while the app is not in use, unless a voice message is played at the ear
+        if !self.presentedInCall, self.voiceMessagesPlayer?.isPlaying != true {
+            NotificationCenter.default.removeObserver(self, name: UIDevice.proximityStateDidChangeNotification, object: nil)
+            UIDevice.current.isProximityMonitoringEnabled = false
         }
 
         self.startReceivingMessagesAfterJoin = true
@@ -1257,7 +1266,7 @@ import SwiftUI
 
     override func playVoiceMessagePlayer() {
         if !self.presentedInCall {
-            self.setSpeakerAudioSession()
+            self.setAudioSessionForProximityState()
             self.enableProximitySensor()
         }
 
@@ -1291,9 +1300,49 @@ import SwiftUI
 
         if UIDevice.current.proximityState {
             self.setVoiceChatAudioSession()
+
+            // Raise to listen: holding the phone to the ear plays the newest voice message
+            if self.voiceMessagesPlayer?.isPlaying != true, let message = self.raiseToListenMessage() {
+                self.cellWants(toPlayAudioFile: message)
+            }
         } else {
             self.pauseVoiceMessagePlayer()
             self.setSpeakerAudioSession()
+            self.disableProximitySensor()
+        }
+    }
+
+    // MARK: - Raise to listen
+
+    override var keepsProximitySensorEnabled: Bool {
+        return self.raiseToListenMessage() != nil
+    }
+
+    /// The voice message that is played when raising the phone to the ear: the newest message, if it's a voice message from somebody else
+    private func raiseToListenMessage() -> NCChatMessage? {
+        guard NCUserDefaults.raiseToListenEnabled(),
+              UIDevice.current.userInterfaceIdiom == .phone,
+              !self.presentedInCall,
+              self.isVisible,
+              UIApplication.shared.applicationState == .active,
+              let lastSection = self.dateSections.last,
+              let lastMessage = self.messages[lastSection]?.last(where: { !$0.isSystemMessage }),
+              lastMessage.isVoiceMessage,
+              !(lastMessage.actorId == self.account.userId && lastMessage.actorType == "users")
+        else { return nil }
+
+        return lastMessage
+    }
+
+    // The proximity sensor turns the screen off when something is close to it, so it's only enabled when there's something to listen to
+    func updateRaiseToListen() {
+        guard !self.presentedInCall else { return }
+
+        if self.raiseToListenMessage() != nil {
+            if !UIDevice.current.isProximityMonitoringEnabled {
+                self.enableProximitySensor()
+            }
+        } else if self.voiceMessagesPlayer?.isPlaying != true {
             self.disableProximitySensor()
         }
     }
@@ -1790,6 +1839,8 @@ import SwiftUI
                 } else {
                     self.celebrateIfNeeded(forReceivedMessages: messages)
                 }
+
+                self.updateRaiseToListen()
 
                 if self.highlightMessageId > 0, let indexPath = self.indexPathAndMessage(forMessageId: self.highlightMessageId)?.indexPath {
                     self.highlightMessage(at: indexPath, with: .middle)

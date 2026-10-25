@@ -2429,7 +2429,7 @@ import Toast
     }
 
     func playVoiceMessagePlayer() {
-        self.setSpeakerAudioSession()
+        self.setAudioSessionForProximityState()
         self.enableProximitySensor()
 
         self.startVoiceMessagePlayerTimer()
@@ -2452,17 +2452,33 @@ import Toast
     }
 
     func enableProximitySensor() {
+        // Make sure to only observe once, the sensor might be enabled already for raise to listen
+        NotificationCenter.default.removeObserver(self, name: UIDevice.proximityStateDidChangeNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(sensorStateChange(notification:)), name: UIDevice.proximityStateDidChangeNotification, object: nil)
         UIDevice.current.isProximityMonitoringEnabled = true
     }
 
+    // Subclasses can keep the proximity sensor running while nothing is played, see raise to listen in ChatViewController
+    var keepsProximitySensorEnabled: Bool {
+        return false
+    }
+
     func disableProximitySensor() {
-        if UIDevice.current.proximityState == false {
+        if UIDevice.current.proximityState == false, !self.keepsProximitySensorEnabled {
             // Only disable monitoring if proximity sensor state is not active.
             // If not proximity sensor state is cached as active and next time we enable monitoring
             // sensorStateChange won't be trigger until proximity sensor state changes to inactive.
             NotificationCenter.default.removeObserver(self, name: UIDevice.proximityStateDidChangeNotification, object: nil)
             UIDevice.current.isProximityMonitoringEnabled = false
+        }
+    }
+
+    // Holding the phone to the ear plays through the earpiece instead of the speaker
+    func setAudioSessionForProximityState() {
+        if UIDevice.current.isProximityMonitoringEnabled, UIDevice.current.proximityState {
+            self.setVoiceChatAudioSession()
+        } else {
+            self.setSpeakerAudioSession()
         }
     }
 
@@ -2532,7 +2548,39 @@ import Toast
     public func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         self.stopVoiceMessagePlayerTimer()
         self.checkVisibleCellAudioPlayers()
+
+        // Play voice messages sent right after each other in one go
+        if flag, let playerAudioFileStatus, let nextVoiceMessage = self.voiceMessage(following: playerAudioFileStatus) {
+            self.cellWants(toPlayAudioFile: nextVoiceMessage)
+            return
+        }
+
         self.disableProximitySensor()
+    }
+
+    /// The voice message right after the one of the given file, if the next message is a voice message as well
+    internal func voiceMessage(following fileStatus: NCChatFileStatus) -> NCChatMessage? {
+        var foundCurrentMessage = false
+
+        for section in self.dateSections {
+            for message in self.messages[section] ?? [] {
+                if foundCurrentMessage {
+                    // E.g. "Alice joined the call" between two voice messages doesn't stop playing
+                    if message.isSystemMessage {
+                        continue
+                    }
+
+                    return message.isVoiceMessage ? message : nil
+                }
+
+                if message.isVoiceMessage, let file = message.file(),
+                   file.parameterId == fileStatus.fileId, file.path == fileStatus.filePath {
+                    foundCurrentMessage = true
+                }
+            }
+        }
+
+        return nil
     }
 
     // MARK: - Gesture recognizer
