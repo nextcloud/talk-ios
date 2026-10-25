@@ -44,6 +44,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
     private var newConversationButton: UIBarButtonItem?
     private var filterButton: UIBarButtonItem?
     private var settingsButton: UIBarButtonItem!
+    private var tipPresenter: AnyObject? // TipPopoverPresenter, iOS 17 and later
     private var profileButton: UIButton!
     private var activeUserStatus: NCUserStatus?
     private var refreshRoomsTimer: Timer?
@@ -289,8 +290,23 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         NotificationCenter.default.removeObserver(self)
     }
 
+    private func showWidgetTipIfNeeded() {
+        FeatureTips.appOpened()
+
+        guard #available(iOS 17.0, *), self.tipPresenter == nil else { return }
+
+        let presenter = TipPopoverPresenter()
+        presenter.show(WidgetTip(), in: self) { [weak self] in
+            self?.settingsButton?.customView
+        }
+
+        self.tipPresenter = presenter
+    }
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+
+        self.showWidgetTipIfNeeded()
 
         adaptInterface(forAppState: NCConnectionController.shared.appState)
         adaptInterface(forConnectionState: NCConnectionController.shared.connectionState)

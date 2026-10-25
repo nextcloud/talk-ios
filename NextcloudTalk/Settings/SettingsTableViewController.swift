@@ -30,6 +30,7 @@ enum AccountSettingsOptions: Int {
 enum ConfigurationSectionOption: Int {
     case kConfigurationSectionOptionVideo = 0
     case kConfigurationSectionOptionRecents
+    case kConfigurationSectionOptionRaiseToListen
 }
 
 enum AdvancedSectionOption: Int {
@@ -55,6 +56,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
     var contactSyncSwitch = UISwitch()
     var setPhoneAction: UIAlertAction?
     var includeInRecentsSwitch = UISwitch()
+    var raiseToListenSwitch = UISwitch()
 
     var totalImageCacheSize = 0
     var totalFileCacheSize = 0
@@ -99,6 +101,9 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
 
         includeInRecentsSwitch.frame = .zero
         includeInRecentsSwitch.addTarget(self, action: #selector(includeInRecentsValueChanged(_:)), for: .valueChanged)
+
+        raiseToListenSwitch.frame = .zero
+        raiseToListenSwitch.addTarget(self, action: #selector(raiseToListenValueChanged(_:)), for: .valueChanged)
 
         typingIndicatorSwitch.frame = .zero
         typingIndicatorSwitch.addTarget(self, action: #selector(typingIndicatorValueChanged(_:)), for: .valueChanged)
@@ -187,6 +192,11 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
 
         // Calls in recents
         options.append(ConfigurationSectionOption.kConfigurationSectionOptionRecents.rawValue)
+
+        // Raise to listen, only phones have a proximity sensor
+        if UIDevice.current.userInterfaceIdiom == .phone {
+            options.append(ConfigurationSectionOption.kConfigurationSectionOptionRaiseToListen.rawValue)
+        }
 
         return options
     }
@@ -519,6 +529,10 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
     @objc func includeInRecentsValueChanged(_ sender: Any?) {
         NCUserDefaults.setIncludeCallsInRecentsEnabled(includeInRecentsSwitch.isOn)
         CallKitManager.sharedInstance().setIncludeInRecents(toValue: includeInRecentsSwitch.isOn)
+    }
+
+    @objc func raiseToListenValueChanged(_ sender: Any?) {
+        NCUserDefaults.setRaiseToListenEnabled(raiseToListenSwitch.isOn)
     }
 
     // MARK: - Advanced actions
@@ -920,6 +934,16 @@ extension SettingsTableViewController {
             cell.selectionStyle = .none
             cell.accessoryView = includeInRecentsSwitch
             includeInRecentsSwitch.isOn = NCUserDefaults.includeCallsInRecents()
+            return cell
+
+        case ConfigurationSectionOption.kConfigurationSectionOptionRaiseToListen.rawValue:
+            let cell: SettingsTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: configurationCellIdentifier, style: .default)
+            cell.textLabel?.text = NSLocalizedString("Raise to listen", comment: "Play voice messages by raising the phone to the ear")
+            cell.textLabel?.numberOfLines = 0
+            cell.setSettingsImage(image: UIImage(systemName: "ear")?.applyingSymbolConfiguration(iconConfiguration))
+            cell.selectionStyle = .none
+            cell.accessoryView = raiseToListenSwitch
+            raiseToListenSwitch.isOn = NCUserDefaults.raiseToListenEnabled()
             return cell
 
         default:

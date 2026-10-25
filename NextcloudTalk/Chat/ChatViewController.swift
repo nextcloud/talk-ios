@@ -35,6 +35,7 @@ import SwiftUI
     private var isLeavingChat = false
 
     private var chatViewPresentedTimestamp = Date().timeIntervalSince1970
+    private var tipPresenter: AnyObject? // TipPopoverPresenter, iOS 17 and later
 
     private var doubleTapReactionGesture: UITapGestureRecognizer?
     private var lastCelebrationTimestamp: TimeInterval = 0
@@ -673,6 +674,10 @@ import SwiftUI
     public override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
+        self.updateRaiseToListen()
+
+        self.showChatTipIfNeeded()
+
         if self.presentKeyboardOnAppear {
             self.presentKeyboard(true)
             self.presentKeyboardOnAppear = false
@@ -714,6 +719,43 @@ import SwiftUI
 
         self.saveLastReadMessage()
         self.stopVoiceMessagePlayer()
+
+        if #available(iOS 17.0, *) {
+            (self.tipPresenter as? TipPopoverPresenter)?.stop()
+        }
+    }
+
+    // MARK: - Tips
+
+    private func showChatTipIfNeeded() {
+        guard #available(iOS 17.0, *), !self.presentedInCall else { return }
+
+        let presenter = (self.tipPresenter as? TipPopoverPresenter) ?? TipPopoverPresenter()
+        self.tipPresenter = presenter
+
+        // Give the messages some time to load and settle
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
+            guard let self, self.isVisible, let tableView = self.tableView else { return }
+
+            let otherMessageCells = (tableView.indexPathsForVisibleRows ?? []).reversed().compactMap { indexPath -> (NCChatMessage, BaseChatTableViewCell)? in
+                guard let message = self.message(for: indexPath), !message.isSystemMessage,
+                      !(message.actorId == self.account.userId && message.actorType == "users"),
+                      let cell = tableView.cellForRow(at: indexPath) as? BaseChatTableViewCell
+                else { return nil }
+
+                return (message, cell)
+            }
+
+            if let voiceMessageCell = otherMessageCells.first(where: { $0.0.isVoiceMessage })?.1 {
+                presenter.show(VoiceMessageTip(), in: self) { [weak voiceMessageCell] in
+                    voiceMessageCell?.audioPlayerView
+                }
+            } else if self.room.canReact, let messageCell = otherMessageCells.first?.1 {
+                presenter.show(DoubleTapReactionTip(), in: self) { [weak messageCell] in
+                    messageCell?.bubbleView
+                }
+            }
+        }
     }
 
     public override func viewDidDisappear(_ animated: Bool) {
@@ -763,6 +805,7 @@ import SwiftUI
 
         // Check if new messages were added while the app was inactive (eg. via background-refresh)
         self.checkForNewStoredMessages()
+        self.updateRaiseToListen()
 
         if !self.offlineMode {
             NCRoomsManager.shared.joinRoom(self.room.token, forAccountId: self.account.accountId, forCall: false)
@@ -775,6 +818,12 @@ import SwiftUI
         // If we stopped the chat, we don't want to change anything here
         if self.hasStopped {
             return
+        }
+
+        // Don't turn off the screen while the app is not in use, unless a voice message is played at the ear
+        if !self.presentedInCall, self.voiceMessagesPlayer?.isPlaying != true {
+            NotificationCenter.default.removeObserver(self, name: UIDevice.proximityStateDidChangeNotification, object: nil)
+            UIDevice.current.isProximityMonitoringEnabled = false
         }
 
         self.startReceivingMessagesAfterJoin = true
@@ -1257,7 +1306,7 @@ import SwiftUI
 
     override func playVoiceMessagePlayer() {
         if !self.presentedInCall {
-            self.setSpeakerAudioSession()
+            self.setAudioSessionForProximityState()
             self.enableProximitySensor()
         }
 
@@ -1291,9 +1340,50 @@ import SwiftUI
 
         if UIDevice.current.proximityState {
             self.setVoiceChatAudioSession()
+
+            // Raise to listen: holding the phone to the ear plays the newest voice message
+            if self.voiceMessagesPlayer?.isPlaying != true, let message = self.raiseToListenMessage() {
+                FeatureTips.voiceMessageFeatureUsed()
+                self.cellWants(toPlayAudioFile: message)
+            }
         } else {
             self.pauseVoiceMessagePlayer()
             self.setSpeakerAudioSession()
+            self.disableProximitySensor()
+        }
+    }
+
+    // MARK: - Raise to listen
+
+    override var keepsProximitySensorEnabled: Bool {
+        return self.raiseToListenMessage() != nil
+    }
+
+    /// The voice message that is played when raising the phone to the ear: the newest message, if it's a voice message from somebody else
+    private func raiseToListenMessage() -> NCChatMessage? {
+        guard NCUserDefaults.raiseToListenEnabled(),
+              UIDevice.current.userInterfaceIdiom == .phone,
+              !self.presentedInCall,
+              self.isVisible,
+              UIApplication.shared.applicationState == .active,
+              let lastSection = self.dateSections.last,
+              let lastMessage = self.messages[lastSection]?.last(where: { !$0.isSystemMessage }),
+              lastMessage.isVoiceMessage,
+              !(lastMessage.actorId == self.account.userId && lastMessage.actorType == "users")
+        else { return nil }
+
+        return lastMessage
+    }
+
+    // The proximity sensor turns the screen off when something is close to it, so it's only enabled when there's something to listen to
+    func updateRaiseToListen() {
+        guard !self.presentedInCall else { return }
+
+        if self.raiseToListenMessage() != nil {
+            if !UIDevice.current.isProximityMonitoringEnabled {
+                self.enableProximitySensor()
+            }
+        } else if self.voiceMessagesPlayer?.isPlaying != true {
             self.disableProximitySensor()
         }
     }
@@ -1790,6 +1880,8 @@ import SwiftUI
                 } else {
                     self.celebrateIfNeeded(forReceivedMessages: messages)
                 }
+
+                self.updateRaiseToListen()
 
                 if self.highlightMessageId > 0, let indexPath = self.indexPathAndMessage(forMessageId: self.highlightMessageId)?.indexPath {
                     self.highlightMessage(at: indexPath, with: .middle)
@@ -2343,6 +2435,7 @@ import SwiftUI
         }
 
         HapticFeedback.light()
+        FeatureTips.doubleTapReactionUsed()
         self.addOrRemoveReaction(reaction: reaction, in: message)
     }
 
