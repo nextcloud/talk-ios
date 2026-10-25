@@ -12,6 +12,7 @@ public class NCUserDefaults: NSObject {
     private static let includeCallsInRecentsKey = "ncIncludeCallsInRecents"
     private static let preferredCallViewModeKey = "ncPreferredCallViewMode"
     private static let speakerViewStripeHiddenKey = "ncSpeakerViewStripeHidden"
+    private static let showCallPreflightKey = "ncShowCallPreflight"
 
     public static func setPreferredCameraFlashMode(_ flashMode: Int) {
         UserDefaults.standard.set(flashMode, forKey: preferredCameraFlashModeKey)
@@ -58,5 +59,14 @@ public class NCUserDefaults: NSObject {
 
     public static func speakerViewStripeHidden() -> Bool {
         return UserDefaults.standard.bool(forKey: speakerViewStripeHiddenKey)
+    }
+
+    public static func setShowCallPreflight(_ enabled: Bool) {
+        UserDefaults.standard.set(enabled, forKey: showCallPreflightKey)
+    }
+
+    // Check camera and microphone before joining a call, enabled by default
+    public static func showCallPreflight() -> Bool {
+        return UserDefaults.standard.object(forKey: showCallPreflightKey) as? Bool ?? true
     }
 }

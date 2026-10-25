@@ -197,6 +197,23 @@ import SwiftUI
     }
 
     func startCall(withVideo video: Bool, silently: Bool, button: BarButtonItemWithActivity) {
+        guard CallPreflightViewController.isNeeded(for: self.room, withVideo: video) else {
+            self.startCallAfterPreflight(withVideo: video, silently: silently, button: button)
+            return
+        }
+
+        let room = self.room
+        let preflightViewController = CallPreflightViewController(room: room, withVideo: video) { [weak self] result in
+            guard let self, let result else { return }
+
+            CallPreflightPreferences.store(result, for: room.token)
+            self.startCallAfterPreflight(withVideo: video, silently: silently, button: button)
+        }
+
+        self.present(preflightViewController, animated: true)
+    }
+
+    private func startCallAfterPreflight(withVideo video: Bool, silently: Bool, button: BarButtonItemWithActivity) {
         button.showIndicator()
         if self.room.recordingConsent {
             NCUserInterfaceController.sharedInstance().presentRecordingConsentAlert(for: self.room) { confirmed in
