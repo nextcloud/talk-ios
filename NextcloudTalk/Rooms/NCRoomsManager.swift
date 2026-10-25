@@ -738,6 +738,12 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
         } else if room.canModerate, room.isPendingClassifiedDeletion {
             // Classified conversations are auto-deleted after a call unless kept, so offer the choice right away
             self.deleteClassifiedRoomWithConfirmationAfterCall(room)
+        } else if let recap = viewController.callRecap, recap.isWorthShowing, NCUserDefaults.showCallRecap(),
+                  UIApplication.shared.applicationState == .active {
+            // Give the call view some time to disappear first
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                NCUserInterfaceController.sharedInstance().presentCallRecap(recap, forAccount: account)
+            }
         }
     }
 

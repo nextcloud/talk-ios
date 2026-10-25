@@ -170,6 +170,10 @@ class CallViewController: UIViewController,
     private var callDurationTimer: Timer?
     private var soundsPlayer: AVAudioPlayer?
     private var currentCallState: CallState = .joining
+    private let recapCollector = CallRecapCollector()
+
+    // Set when the call finished, to show a short summary afterwards
+    public private(set) var callRecap: CallRecap?
     private var previousParticipants: [String] = []
 
     public init(for room: NCRoom, withAccount account: TalkAccount, audioOnly: Bool) {
@@ -1923,6 +1927,10 @@ class CallViewController: UIViewController,
             }
         }
 
+        if self.room.type == .oneToOne, !self.peersInCall.isEmpty {
+            self.recapCollector.addParticipant(id: "oneToOne", displayName: self.room.displayName)
+        }
+
         guard self.room.type != .oneToOne, let personImage = UIImage(systemName: "person.2") else { return }
 
         WebRTCCommon.shared.dispatch {
@@ -1932,6 +1940,12 @@ class CallViewController: UIViewController,
                 if let actor = self.callController?.getActor(fromSessionId: peerConnection.peerId) {
                     participantsInCall.append(actor)
                 }
+            }
+
+            // Without ourselves, also when joined from another device
+            let otherParticipants = participantsInCall.compactMap { actor -> (id: String, name: String)? in
+                guard let id = actor.id, !(id == self.room.account?.userId && actor.type == kParticipantTypeUser) else { return nil }
+                return ("\(actor.type ?? "")/\(id)", actor.displayName)
             }
 
             let ownActor = TalkActor(actorId: self.room.account?.userId, actorType: kParticipantTypeUser)
@@ -1945,6 +1959,10 @@ class CallViewController: UIViewController,
 
                 self.participantsLabel.attributedText = participantText
                 self.participantsLabel.isHidden = false
+
+                for participant in otherParticipants {
+                    self.recapCollector.addParticipant(id: participant.id, displayName: participant.name)
+                }
             }
         }
     }
@@ -1963,6 +1981,7 @@ class CallViewController: UIViewController,
         case .inCall:
             self.stopPlayingConnectingSound()
             self.hideWaitingScreen()
+            self.recapCollector.callDidStart()
 
             if !self.isAudioOnly {
                 self.addTapGestureForDetailedView()
@@ -3090,6 +3109,7 @@ class CallViewController: UIViewController,
 
     func finishCall() {
         callController = nil
+        self.callRecap = self.recapCollector.recap(for: self.room)
 
         DispatchQueue.main.async {
             self.stopPictureInPicture()
@@ -3138,6 +3158,8 @@ class CallViewController: UIViewController,
     // MARK: - Call Reactions
 
     func addReaction(_ reaction: String, fromUser user: String) {
+        self.recapCollector.addReaction()
+
         let callReactionView = CallReactionView(frame: .zero)
         callReactionView.setReaction(reaction: reaction, actor: user)
 
