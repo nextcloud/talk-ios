@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AACE32068D5BE4716C35504B /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2C7F47AC20289B9600081CC7 /* Localizable.strings */; };
 		07F8FEC44AC7B36560C5EE1B /* TalkWidgets.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = A06BE6676DC8072EFA0886DF /* TalkWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		1F0ECBF52A68274400921E90 /* CDMarkdownKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F0ECBF42A68274400921E90 /* CDMarkdownKit */; };
 		1F0ECBF72A68277000921E90 /* CDMarkdownKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1F0ECBF62A68277000921E90 /* CDMarkdownKit */; };
@@ -159,16 +158,10 @@
 		847EFC7236336B67A1A89358 /* libPods-BroadcastUploadExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A3D305FCD7BF7E727A62F35 /* libPods-BroadcastUploadExtension.a */; };
 		8789AE73BFCAA413B43319C0 /* libPods-ShareExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 684807120F4439797973DF73 /* libPods-ShareExtension.a */; };
 		9993261EDAC77481FF4EF58A /* libPods-NextcloudTalk.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F7C31E9D74F550EAF89931B /* libPods-NextcloudTalk.a */; };
+		AACE32068D5BE4716C35504B /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2C7F47AC20289B9600081CC7 /* Localizable.strings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		B38B10737B74861948D4B46A /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 2C0574751EDD9E8E00D9E7F2 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 404DF6649BF5F70D4316B064;
-			remoteInfo = TalkWidgets;
-		};
 		1F6D8C342B2E3756004376B8 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 2C0574751EDD9E8E00D9E7F2 /* Project object */;
@@ -210,6 +203,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 2CC0014E24A1F0E900A20167;
 			remoteInfo = NotificationServiceExtension;
+		};
+		B38B10737B74861948D4B46A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2C0574751EDD9E8E00D9E7F2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 404DF6649BF5F70D4316B064;
+			remoteInfo = TalkWidgets;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -292,7 +292,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		A06BE6676DC8072EFA0886DF /* TalkWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TalkWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		1F21A0622C77863500ED8C0C /* nb-NO */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "nb-NO"; path = "nb-NO.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		1F21A0632C77863500ED8C0C /* nb-NO */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "nb-NO"; path = "nb-NO.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		1F21A0642C77863500ED8C0C /* nb-NO */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "nb-NO"; path = "nb-NO.lproj/Localizable.stringsdict"; sourceTree = "<group>"; };
@@ -465,6 +464,7 @@
 		95D756208A81284B975853EC /* Pods-ShareExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ShareExtension.release.xcconfig"; path = "Pods/Target Support Files/Pods-ShareExtension/Pods-ShareExtension.release.xcconfig"; sourceTree = "<group>"; };
 		9A3D305FCD7BF7E727A62F35 /* libPods-BroadcastUploadExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-BroadcastUploadExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9B81BB7A4920C391CC2CACFD /* libPods-NotificationServiceExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NotificationServiceExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A06BE6676DC8072EFA0886DF /* TalkWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TalkWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		A8F95DE6635ABC1E64CA8E4A /* Pods-BroadcastUploadExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BroadcastUploadExtension.release.xcconfig"; path = "Pods/Target Support Files/Pods-BroadcastUploadExtension/Pods-BroadcastUploadExtension.release.xcconfig"; sourceTree = "<group>"; };
 		B7874918820589BF8FD69BED /* Pods-NextcloudTalkTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NextcloudTalkTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-NextcloudTalkTests/Pods-NextcloudTalkTests.release.xcconfig"; sourceTree = "<group>"; };
 		D6DF51D976DC0F681FF83F7B /* Pods-NotificationServiceExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationServiceExtension.debug.xcconfig"; path = "Pods/Target Support Files/Pods-NotificationServiceExtension/Pods-NotificationServiceExtension.debug.xcconfig"; sourceTree = "<group>"; };
@@ -472,20 +472,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		8B65C957AD2D5B226E3E451F /* Exceptions for "TalkWidgets" folder in "NextcloudTalk" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				ConversationsWidgetData.swift,
-			);
-			target = 2C05747C1EDD9E8E00D9E7F2 /* NextcloudTalk */;
-		};
-		AF55F227961AC70B32D0CA6E /* Exceptions for "TalkWidgets" folder in "TalkWidgets" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = 404DF6649BF5F70D4316B064 /* TalkWidgets */;
-		};
 		1F2058712CEBE4E200AAA673 /* Exceptions for "NotificationServiceExtension" folder in "NotificationServiceExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -1000,18 +986,23 @@
 			);
 			target = 2C05747C1EDD9E8E00D9E7F2 /* NextcloudTalk */;
 		};
+		8B65C957AD2D5B226E3E451F /* Exceptions for "TalkWidgets" folder in "NextcloudTalk" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				ConversationsWidgetData.swift,
+			);
+			target = 2C05747C1EDD9E8E00D9E7F2 /* NextcloudTalk */;
+		};
+		AF55F227961AC70B32D0CA6E /* Exceptions for "TalkWidgets" folder in "TalkWidgets" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 404DF6649BF5F70D4316B064 /* TalkWidgets */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		276FE3D714359BBDDFCFD105 /* TalkWidgets */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				8B65C957AD2D5B226E3E451F /* Exceptions for "TalkWidgets" folder in "NextcloudTalk" target */,
-				AF55F227961AC70B32D0CA6E /* Exceptions for "TalkWidgets" folder in "TalkWidgets" target */,
-			);
-			path = TalkWidgets;
-			sourceTree = "<group>";
-		};
 		1F20586F2CEBE4E200AAA673 /* NotificationServiceExtension */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -1206,16 +1197,18 @@
 			path = TalkIntents;
 			sourceTree = "<group>";
 		};
+		276FE3D714359BBDDFCFD105 /* TalkWidgets */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				8B65C957AD2D5B226E3E451F /* Exceptions for "TalkWidgets" folder in "NextcloudTalk" target */,
+				AF55F227961AC70B32D0CA6E /* Exceptions for "TalkWidgets" folder in "TalkWidgets" target */,
+			);
+			path = TalkWidgets;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		C8BF89396AF80593D0F773E3 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		1F6D8C2D2B2E3756004376B8 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -1347,6 +1340,13 @@
 				3FCA62550CD1442D28E8A7C6 /* libPods-NotificationServiceExtension.a in Frameworks */,
 				1F45A11E2A01D719005FE87D /* SDWebImage in Frameworks */,
 				2C349B802D71A030004EC882 /* SwiftyXMLParser in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C8BF89396AF80593D0F773E3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1559,28 +1559,6 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		404DF6649BF5F70D4316B064 /* TalkWidgets */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 9ABE05A230C005038CB734E7 /* Build configuration list for PBXNativeTarget "TalkWidgets" */;
-			buildPhases = (
-				7B48D333E0BB9346485C467C /* Sources */,
-				C8BF89396AF80593D0F773E3 /* Frameworks */,
-				E8B6BD717E91928AEB804805 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				276FE3D714359BBDDFCFD105 /* TalkWidgets */,
-			);
-			name = TalkWidgets;
-			packageProductDependencies = (
-			);
-			productName = TalkWidgets;
-			productReference = A06BE6676DC8072EFA0886DF /* TalkWidgets.appex */;
-			productType = "com.apple.product-type.app-extension";
-		};
 		1F6D8C2F2B2E3756004376B8 /* NextcloudTalkTests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1F6D8C362B2E3756004376B8 /* Build configuration list for PBXNativeTarget "NextcloudTalkTests" */;
@@ -1859,6 +1837,28 @@
 			productReference = 2CC0014F24A1F0E900A20167 /* NotificationServiceExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		404DF6649BF5F70D4316B064 /* TalkWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9ABE05A230C005038CB734E7 /* Build configuration list for PBXNativeTarget "TalkWidgets" */;
+			buildPhases = (
+				7B48D333E0BB9346485C467C /* Sources */,
+				C8BF89396AF80593D0F773E3 /* Frameworks */,
+				E8B6BD717E91928AEB804805 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				276FE3D714359BBDDFCFD105 /* TalkWidgets */,
+			);
+			name = TalkWidgets;
+			packageProductDependencies = (
+			);
+			productName = TalkWidgets;
+			productReference = A06BE6676DC8072EFA0886DF /* TalkWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -1869,9 +1869,6 @@
 				LastUpgradeCheck = 1320;
 				ORGANIZATIONNAME = "";
 				TargetAttributes = {
-					404DF6649BF5F70D4316B064 = {
-						CreatedOnToolsVersion = 27.1;
-					};
 					1F6D8C2F2B2E3756004376B8 = {
 						CreatedOnToolsVersion = 15.1;
 						LastSwiftMigration = 1520;
@@ -1915,6 +1912,9 @@
 						CreatedOnToolsVersion = 11.5;
 						LastSwiftMigration = 1220;
 						ProvisioningStyle = Automatic;
+					};
+					404DF6649BF5F70D4316B064 = {
+						CreatedOnToolsVersion = 27.1;
 					};
 				};
 			};
@@ -1996,14 +1996,6 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		E8B6BD717E91928AEB804805 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				AACE32068D5BE4716C35504B /* Localizable.strings in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		1F6D8C2E2B2E3756004376B8 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -2072,6 +2064,14 @@
 				1F59446225B8EDF5002AD65F /* Localizable.strings in Resources */,
 				1FE7DE352BBC8FA10040EE12 /* PrivacyInfo.xcprivacy in Resources */,
 				2C8D3BAF2FA9DEF900F0A900 /* AppIcon.icon in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E8B6BD717E91928AEB804805 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AACE32068D5BE4716C35504B /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2281,13 +2281,6 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		7B48D333E0BB9346485C467C /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		1F6D8C2C2B2E3756004376B8 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -2376,14 +2369,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		7B48D333E0BB9346485C467C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		F9B0708653706C7E88EE41B0 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 404DF6649BF5F70D4316B064 /* TalkWidgets */;
-			targetProxy = B38B10737B74861948D4B46A /* PBXContainerItemProxy */;
-		};
 		1F6D8C352B2E3756004376B8 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 2C05747C1EDD9E8E00D9E7F2 /* NextcloudTalk */;
@@ -2413,6 +2408,11 @@
 			isa = PBXTargetDependency;
 			target = 2CC0014E24A1F0E900A20167 /* NotificationServiceExtension */;
 			targetProxy = 2CC0015524A1F0E900A20167 /* PBXContainerItemProxy */;
+		};
+		F9B0708653706C7E88EE41B0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 404DF6649BF5F70D4316B064 /* TalkWidgets */;
+			targetProxy = B38B10737B74861948D4B46A /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -2540,67 +2540,6 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		90C606693565B566AE1CBA39 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				APPLICATION_EXTENSION_API_ONLY = YES;
-				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = TalkWidgets/TalkWidgets.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = NKUJUXUJ3B;
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = TalkWidgets/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 25.0.2;
-				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.TalkWidgets;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = APP_EXTENSION;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		9F99C4F4C1B607E85292FA51 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				APPLICATION_EXTENSION_API_ONLY = YES;
-				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = TalkWidgets/TalkWidgets.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Distribution: Nextcloud GmbH (NKUJUXUJ3B)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = NKUJUXUJ3B;
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = TalkWidgets/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 25.0.2;
-				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.TalkWidgets;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = APP_EXTENSION;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
 		1F6D8C372B2E3756004376B8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 342600BABD1AD1FCA48B5E59 /* Pods-NextcloudTalkTests.debug.xcconfig */;
@@ -3439,18 +3378,70 @@
 			};
 			name = Release;
 		};
+		90C606693565B566AE1CBA39 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = TalkWidgets/TalkWidgets.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = NKUJUXUJ3B;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = TalkWidgets/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 25.0.2;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.TalkWidgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = APP_EXTENSION;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		9F99C4F4C1B607E85292FA51 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = TalkWidgets/TalkWidgets.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Nextcloud GmbH (NKUJUXUJ3B)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = NKUJUXUJ3B;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = TalkWidgets/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 25.0.2;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.TalkWidgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = APP_EXTENSION;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		9ABE05A230C005038CB734E7 /* Build configuration list for PBXNativeTarget "TalkWidgets" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				90C606693565B566AE1CBA39 /* Debug */,
-				9F99C4F4C1B607E85292FA51 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		1F6D8C362B2E3756004376B8 /* Build configuration list for PBXNativeTarget "NextcloudTalkTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -3519,6 +3510,15 @@
 			buildConfigurations = (
 				2CC0015824A1F0E900A20167 /* Debug */,
 				2CC0015924A1F0E900A20167 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9ABE05A230C005038CB734E7 /* Build configuration list for PBXNativeTarget "TalkWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				90C606693565B566AE1CBA39 /* Debug */,
+				9F99C4F4C1B607E85292FA51 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
