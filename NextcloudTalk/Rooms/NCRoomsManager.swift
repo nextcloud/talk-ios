@@ -561,6 +561,12 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
 
         callViewController.videoDisabledAtStart = !videoEnabled
         callViewController.voiceChatModeAtStart = voiceChatMode
+
+        // What was chosen in the check before joining the call
+        if let preflightResult = CallPreflightPreferences.take(for: room.token) {
+            callViewController.audioDisabledAtStart = !preflightResult.microphoneEnabled
+            callViewController.videoDisabledAtStart = callViewController.videoDisabledAtStart || !preflightResult.cameraEnabled
+        }
         callViewController.initiator = initiator
         callViewController.silentCall = silently
         callViewController.recordingConsent = recordingConsent
