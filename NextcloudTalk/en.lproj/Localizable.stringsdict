@@ -706,5 +706,21 @@
 			<string>{actor0} and %ld more participants left the call</string>
 		</dict>
 	</dict>
+	<key>%ld others</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@others@</string>
+		<key>others</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%ld other</string>
+			<key>other</key>
+			<string>%ld others</string>
+		</dict>
+	</dict>
 </dict>
 </plist>

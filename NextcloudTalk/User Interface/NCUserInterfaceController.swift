@@ -233,6 +233,13 @@ public typealias PresentCallControllerCompletionBlock = () -> Void
         }
     }
 
+    func presentCallRecap(_ recap: CallRecap, forAccount account: TalkAccount) {
+        // Never cover anything else, e.g. a new call or an alert
+        guard mainViewController.presentedViewController == nil else { return }
+
+        mainViewController.present(CallRecapViewController(recap: recap, account: account), animated: true)
+    }
+
     func presentAlertViewController(_ alertViewController: UIAlertController) {
         if let presentedViewController = mainViewController.presentedViewController, !presentedViewController.isBeingDismissed {
             // When the callview is presented, we need to show the alert this way

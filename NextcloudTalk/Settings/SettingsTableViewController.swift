@@ -30,6 +30,7 @@ enum AccountSettingsOptions: Int {
 enum ConfigurationSectionOption: Int {
     case kConfigurationSectionOptionVideo = 0
     case kConfigurationSectionOptionRecents
+    case kConfigurationSectionOptionCallRecap
 }
 
 enum AdvancedSectionOption: Int {
@@ -55,6 +56,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
     var contactSyncSwitch = UISwitch()
     var setPhoneAction: UIAlertAction?
     var includeInRecentsSwitch = UISwitch()
+    var callRecapSwitch = UISwitch()
 
     var totalImageCacheSize = 0
     var totalFileCacheSize = 0
@@ -99,6 +101,9 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
 
         includeInRecentsSwitch.frame = .zero
         includeInRecentsSwitch.addTarget(self, action: #selector(includeInRecentsValueChanged(_:)), for: .valueChanged)
+
+        callRecapSwitch.frame = .zero
+        callRecapSwitch.addTarget(self, action: #selector(callRecapValueChanged(_:)), for: .valueChanged)
 
         typingIndicatorSwitch.frame = .zero
         typingIndicatorSwitch.addTarget(self, action: #selector(typingIndicatorValueChanged(_:)), for: .valueChanged)
@@ -187,6 +192,9 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
 
         // Calls in recents
         options.append(ConfigurationSectionOption.kConfigurationSectionOptionRecents.rawValue)
+
+        // Summary after a call
+        options.append(ConfigurationSectionOption.kConfigurationSectionOptionCallRecap.rawValue)
 
         return options
     }
@@ -519,6 +527,10 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
     @objc func includeInRecentsValueChanged(_ sender: Any?) {
         NCUserDefaults.setIncludeCallsInRecentsEnabled(includeInRecentsSwitch.isOn)
         CallKitManager.sharedInstance().setIncludeInRecents(toValue: includeInRecentsSwitch.isOn)
+    }
+
+    @objc func callRecapValueChanged(_ sender: Any?) {
+        NCUserDefaults.setShowCallRecap(callRecapSwitch.isOn)
     }
 
     // MARK: - Advanced actions
@@ -920,6 +932,16 @@ extension SettingsTableViewController {
             cell.selectionStyle = .none
             cell.accessoryView = includeInRecentsSwitch
             includeInRecentsSwitch.isOn = NCUserDefaults.includeCallsInRecents()
+            return cell
+
+        case ConfigurationSectionOption.kConfigurationSectionOptionCallRecap.rawValue:
+            let cell: SettingsTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: configurationCellIdentifier, style: .default)
+            cell.textLabel?.text = NSLocalizedString("Show a summary after calls", comment: "")
+            cell.textLabel?.numberOfLines = 0
+            cell.setSettingsImage(image: UIImage(systemName: "list.bullet.rectangle")?.applyingSymbolConfiguration(iconConfiguration))
+            cell.selectionStyle = .none
+            cell.accessoryView = callRecapSwitch
+            callRecapSwitch.isOn = NCUserDefaults.showCallRecap()
             return cell
 
         default:
