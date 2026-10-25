@@ -35,6 +35,8 @@ import SwiftUI
     private var isLeavingChat = false
 
     private var chatViewPresentedTimestamp = Date().timeIntervalSince1970
+    private var suggestedRepliesView: SuggestedRepliesView?
+    private var suggestedRepliesTask: Task<Void, Never>?
 
     private var doubleTapReactionGesture: UITapGestureRecognizer?
     private var lastCelebrationTimestamp: TimeInterval = 0
@@ -601,6 +603,8 @@ import SwiftUI
 
     public override func viewDidLoad() {
         super.viewDidLoad()
+
+        self.setupSuggestedReplies()
 
         // Right bar button items
         var barButtonsItems: [UIBarButtonItem] = []
@@ -1791,6 +1795,8 @@ import SwiftUI
                     self.celebrateIfNeeded(forReceivedMessages: messages)
                 }
 
+                self.updateSuggestedReplies()
+
                 if self.highlightMessageId > 0, let indexPath = self.indexPathAndMessage(forMessageId: self.highlightMessageId)?.indexPath {
                     self.highlightMessage(at: indexPath, with: .middle)
                     self.highlightMessageId = 0
@@ -2396,6 +2402,100 @@ import SwiftUI
 
         self.lastCelebrationTimestamp = now
         ChatEffects.showConfetti(in: self.view)
+    }
+
+    // MARK: - Suggested replies
+
+    private func setupSuggestedReplies() {
+        guard SmartReplies.isAvailable, !self.presentedInCall else { return }
+
+        let suggestedRepliesView = SuggestedRepliesView()
+        suggestedRepliesView.translatesAutoresizingMaskIntoConstraints = false
+        suggestedRepliesView.onSelect = { [weak self] reply in
+            guard let self else { return }
+
+            // The reply is only put into the text field, so it can still be changed before sending
+            self.textView.text = reply
+            self.textView.becomeFirstResponder()
+            self.hideSuggestedReplies()
+        }
+
+        suggestedRepliesView.onVisibilityChange = { [weak self] visible in
+            guard let self, let tableView = self.tableView else { return }
+
+            let wasAtBottom = self.shouldScrollOnNewMessages()
+            tableView.contentInset.bottom = visible ? 42 : 0
+
+            if visible, wasAtBottom {
+                self.scrollChatToBottom(animated: true)
+            }
+        }
+
+        self.view.addSubview(suggestedRepliesView)
+
+        NSLayoutConstraint.activate([
+            suggestedRepliesView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 12),
+            suggestedRepliesView.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -12),
+            suggestedRepliesView.bottomAnchor.constraint(equalTo: self.autoCompletionView.topAnchor, constant: -8),
+            suggestedRepliesView.heightAnchor.constraint(equalToConstant: 34)
+        ])
+
+        self.suggestedRepliesView = suggestedRepliesView
+    }
+
+    private func updateSuggestedReplies() {
+        guard let suggestedRepliesView, SmartReplies.isEnabled, self.textView.text.isEmpty, !self.textInputbar.isEditing,
+              let lastSection = self.dateSections.last, let lastMessages = self.messages[lastSection]
+        else {
+            self.hideSuggestedReplies()
+            return
+        }
+
+        let contextMessages = lastMessages
+            .filter { !$0.isSystemMessage && !$0.isDeletedMessage && !$0.isVoiceMessage && $0.file() == nil && $0.poll == nil }
+            .suffix(SmartReplies.maxContextMessages)
+            .map { message in
+                SmartReplies.ContextMessage(author: message.actorDisplayName ?? "",
+                                            isOwnMessage: message.actorId == self.account.userId && message.actorType == "users",
+                                            text: message.parsedMessage()?.string ?? message.message ?? "")
+            }
+
+        // Only answer the very last message, not something older when e.g. a file was sent afterwards
+        guard let lastMessage = lastMessages.last(where: { !$0.isSystemMessage }),
+              let lastContextMessage = contextMessages.last,
+              lastContextMessage.text == (lastMessage.parsedMessage()?.string ?? lastMessage.message ?? ""),
+              SmartReplies.shouldSuggestReplies(to: Array(contextMessages))
+        else {
+            self.hideSuggestedReplies()
+            return
+        }
+
+        self.suggestedRepliesTask?.cancel()
+        self.suggestedRepliesTask = Task { @MainActor [weak self] in
+            let replies = await SmartReplies.suggestions(for: Array(contextMessages))
+
+            guard !Task.isCancelled, let self, self.textView.text.isEmpty else { return }
+
+            if replies.isEmpty {
+                self.hideSuggestedReplies()
+            } else {
+                suggestedRepliesView.show(replies)
+            }
+        }
+    }
+
+    private func hideSuggestedReplies() {
+        self.suggestedRepliesTask?.cancel()
+        self.suggestedRepliesTask = nil
+        self.suggestedRepliesView?.hide()
+    }
+
+    public override func textViewDidChange(_ textView: UITextView) {
+        super.textViewDidChange(textView)
+
+        if !textView.text.isEmpty {
+            self.hideSuggestedReplies()
+        }
     }
 
     // MARK: - ChatMessageTableViewCellDelegate delegate

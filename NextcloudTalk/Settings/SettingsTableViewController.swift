@@ -30,6 +30,7 @@ enum AccountSettingsOptions: Int {
 enum ConfigurationSectionOption: Int {
     case kConfigurationSectionOptionVideo = 0
     case kConfigurationSectionOptionRecents
+    case kConfigurationSectionOptionSmartReplies
 }
 
 enum AdvancedSectionOption: Int {
@@ -55,6 +56,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
     var contactSyncSwitch = UISwitch()
     var setPhoneAction: UIAlertAction?
     var includeInRecentsSwitch = UISwitch()
+    var smartRepliesSwitch = UISwitch()
 
     var totalImageCacheSize = 0
     var totalFileCacheSize = 0
@@ -99,6 +101,9 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
 
         includeInRecentsSwitch.frame = .zero
         includeInRecentsSwitch.addTarget(self, action: #selector(includeInRecentsValueChanged(_:)), for: .valueChanged)
+
+        smartRepliesSwitch.frame = .zero
+        smartRepliesSwitch.addTarget(self, action: #selector(smartRepliesValueChanged(_:)), for: .valueChanged)
 
         typingIndicatorSwitch.frame = .zero
         typingIndicatorSwitch.addTarget(self, action: #selector(typingIndicatorValueChanged(_:)), for: .valueChanged)
@@ -187,6 +192,11 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
 
         // Calls in recents
         options.append(ConfigurationSectionOption.kConfigurationSectionOptionRecents.rawValue)
+
+        // Suggested replies, only with Apple Intelligence
+        if SmartReplies.isAvailable {
+            options.append(ConfigurationSectionOption.kConfigurationSectionOptionSmartReplies.rawValue)
+        }
 
         return options
     }
@@ -519,6 +529,10 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
     @objc func includeInRecentsValueChanged(_ sender: Any?) {
         NCUserDefaults.setIncludeCallsInRecentsEnabled(includeInRecentsSwitch.isOn)
         CallKitManager.sharedInstance().setIncludeInRecents(toValue: includeInRecentsSwitch.isOn)
+    }
+
+    @objc func smartRepliesValueChanged(_ sender: Any?) {
+        NCUserDefaults.setSmartRepliesEnabled(smartRepliesSwitch.isOn)
     }
 
     // MARK: - Advanced actions
@@ -920,6 +934,18 @@ extension SettingsTableViewController {
             cell.selectionStyle = .none
             cell.accessoryView = includeInRecentsSwitch
             includeInRecentsSwitch.isOn = NCUserDefaults.includeCallsInRecents()
+            return cell
+
+        case ConfigurationSectionOption.kConfigurationSectionOptionSmartReplies.rawValue:
+            let cell: SettingsTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: "ConfigurationSubtitleCellIdentifier", style: .subtitle)
+            cell.textLabel?.text = NSLocalizedString("Suggested replies", comment: "")
+            cell.textLabel?.numberOfLines = 0
+            cell.detailTextLabel?.text = NSLocalizedString("Created on this device, messages are not sent anywhere", comment: "Explains how suggested replies are generated")
+            cell.detailTextLabel?.numberOfLines = 0
+            cell.setSettingsImage(image: UIImage(systemName: "text.bubble")?.applyingSymbolConfiguration(iconConfiguration))
+            cell.selectionStyle = .none
+            cell.accessoryView = smartRepliesSwitch
+            smartRepliesSwitch.isOn = NCUserDefaults.smartRepliesEnabled()
             return cell
 
         default:
