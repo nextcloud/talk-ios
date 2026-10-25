@@ -21,6 +21,10 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
 
     public weak var delegate: NCCameraControllerDelegate?
 
+    // Called on the main thread with the call reaction (e.g. "👍") that matches a reaction the system
+    // recognized from a hand gesture, so it can be sent to everyone in the call
+    public var onGestureReaction: ((String) -> Void)?
+
     // State
     private var backgroundBlurEnabled = NCUserDefaults.backgroundBlurEnabled()
     private var usingFrontCamera = true
@@ -31,6 +35,9 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
 
     // AVFoundation
     private var session: AVCaptureSession?
+    private var currentDevice: AVCaptureDevice?
+    private var reactionEffectsObservation: NSKeyValueObservation?
+    private var handledReactionStartTimes = Set<Double>() // Start times in seconds
 
     // WebRTC
     private var videoSource: RTCVideoSource
@@ -80,6 +87,7 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
     }
 
     deinit {
+        reactionEffectsObservation?.invalidate()
         session?.stopRunning()
     }
 
@@ -139,6 +147,10 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
             if diff < currentDiff {
                 selectedFormat = format
                 currentDiff = diff
+            } else if diff == currentDiff, let currentFormat = selectedFormat,
+                      CameraEffects.prefers(format, over: currentFormat) {
+                // Same resolution, but this one supports gesture reactions or Center Stage
+                selectedFormat = format
             }
         }
 
@@ -179,6 +191,7 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
         }
 
         self.setFormat(for: device)
+        self.observeReactionEffects(of: device)
 
         guard let input = try? AVCaptureDeviceInput(device: device) else {
             print("Error getting AVCaptureDeviceInput")
@@ -195,6 +208,7 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
         }
 
         self.setFormat(for: device)
+        self.observeReactionEffects(of: device)
 
         guard let input = try? AVCaptureDeviceInput(device: device) else {
             print("Error getting AVCaptureDeviceInput")
@@ -254,6 +268,57 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
 
     public func isBackgroundBlurEnabled() -> Bool {
         return self.backgroundBlurEnabled
+    }
+
+    // MARK: - Center Stage
+
+    // Center Stage keeps the person in frame while moving around, on cameras with a wide field of view (e.g. iPad)
+    public func isCenterStageSupported() -> Bool {
+        return currentDevice?.activeFormat.isCenterStageSupported ?? false
+    }
+
+    public func isCenterStageEnabled() -> Bool {
+        return AVCaptureDevice.isCenterStageEnabled
+    }
+
+    public func setCenterStageEnabled(_ enabled: Bool) {
+        // In the cooperative mode, both the app and the user in Control Center can turn it on and off
+        AVCaptureDevice.centerStageControlMode = .cooperative
+        AVCaptureDevice.isCenterStageEnabled = enabled
+    }
+
+    // MARK: - Gesture reactions
+
+    // The system can recognize hand gestures (e.g. thumbs up, two hands forming a heart) and renders an effect
+    // into the camera image. We send the matching call reaction as well, so everyone sees it, even without video.
+    private func observeReactionEffects(of device: AVCaptureDevice) {
+        self.currentDevice = device
+        self.reactionEffectsObservation?.invalidate()
+        self.reactionEffectsObservation = nil
+
+        guard #available(iOS 17.0, *) else { return }
+
+        self.reactionEffectsObservation = device.observe(\.reactionEffectsInProgress, options: [.new]) { [weak self] device, _ in
+            let effects = device.reactionEffectsInProgress.map { (type: $0.reactionType, startTime: CMTimeGetSeconds($0.startTime)) }
+
+            DispatchQueue.main.async {
+                self?.handleReactionEffects(effects)
+            }
+        }
+    }
+
+    @available(iOS 17.0, *)
+    private func handleReactionEffects(_ effects: [(type: AVCaptureReactionType, startTime: Double)]) {
+        for effect in effects where !handledReactionStartTimes.contains(effect.startTime) {
+            handledReactionStartTimes.insert(effect.startTime)
+
+            if let reaction = CameraEffects.callReaction(for: effect.type) {
+                onGestureReaction?(reaction)
+            }
+        }
+
+        // Only effects that are still in progress can show up again
+        handledReactionStartTimes.formIntersection(effects.map(\.startTime))
     }
 
     // MARK: - Videoframe processing
