@@ -9,6 +9,7 @@ import Foundation
 import SDWebImage
 import UIKit
 import SwiftyGif
+import VisionKit
 
 @objc protocol NCMediaViewerPageViewControllerDelegate {
     @objc func mediaViewerPageZoomDidChange(_ controller: NCMediaViewerPageViewController, _ scale: Double)
@@ -174,6 +175,11 @@ import SwiftyGif
         fatalError("init(coder:) has not been implemented")
     }
 
+    // Live Text: select and copy text, or tap phone numbers, addresses and links in images
+    private static let imageAnalyzer: ImageAnalyzer? = ImageAnalyzer.isSupported ? ImageAnalyzer() : nil
+    private var imageAnalysisInteraction: ImageAnalysisInteraction?
+    private var imageAnalysisTask: Task<Void, Never>?
+
     override func viewDidLoad() {
         self.view.addSubview(self.zoomableView)
         self.view.addSubview(self.activityIndicator)
@@ -195,6 +201,14 @@ import SwiftyGif
 
         self.zoomableView.replaceContentView(self.imageView)
 
+        if Self.imageAnalyzer != nil {
+            let interaction = ImageAnalysisInteraction()
+            // The button in the corner would move with the image when zooming, text can be selected directly instead
+            interaction.isSupplementaryInterfaceHidden = true
+            self.imageView.addInteraction(interaction)
+            self.imageAnalysisInteraction = interaction
+        }
+
         self.navigationItem.title = self.message.file()?.name
 
         self.downloadObserver.fileParameter = self.message.file()
@@ -205,6 +219,7 @@ import SwiftyGif
     }
 
     deinit {
+        self.imageAnalysisTask?.cancel()
         self.pendingDownload?.cancel()
         self.pendingIndicatorReveal?.cancel()
         self.previewRequest?.cancel()
@@ -502,6 +517,26 @@ import SwiftyGif
 
         self.applyContentSize(contentSize)
         self.showContent()
+        self.analyzeImage(image)
+    }
+
+    private func analyzeImage(_ image: UIImage) {
+        guard let imageAnalyzer = Self.imageAnalyzer, let interaction = self.imageAnalysisInteraction else { return }
+
+        self.imageAnalysisTask?.cancel()
+        interaction.analysis = nil
+        interaction.preferredInteractionTypes = []
+
+        self.imageAnalysisTask = Task { @MainActor in
+            let configuration = ImageAnalyzer.Configuration([.text, .machineReadableCode])
+
+            guard let analysis = try? await imageAnalyzer.analyze(image, configuration: configuration),
+                  !Task.isCancelled
+            else { return }
+
+            interaction.analysis = analysis
+            interaction.preferredInteractionTypes = .automatic
+        }
     }
 
     ///
