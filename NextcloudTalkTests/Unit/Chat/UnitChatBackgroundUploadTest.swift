@@ -47,7 +47,7 @@ final class UnitChatBackgroundUploadTest: XCTestCase {
 
     func testFilesWaitForTheEarliestRetryOfThem() {
         let earlierRetryDate = Date(timeIntervalSinceNow: 30)
-        let messages = [self.message(for: self.upload()),
+        let messages = [self.message(for: self.upload(uploaded: true)),
                         self.message(for: self.upload(retryDate: Date(timeIntervalSinceNow: 60))),
                         self.message(for: self.upload(retryDate: earlierRetryDate))]
 

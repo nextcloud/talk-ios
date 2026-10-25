@@ -160,18 +160,27 @@ extension NCChatMessage {
 
 extension Array where Element == ChatBackgroundUploadState {
 
-    /// What one tile or list row shows for several files: a waiting one first, and uploaded only when all of them are.
+    /// What one tile or list row shows for several files: a sending one first, then a waiting one, and uploaded only
+    /// when all of them are. Waiting files count as not sent in the combined progress.
     var combined: ChatBackgroundUploadState? {
         guard !self.isEmpty else { return nil }
 
+        if self.contains(.uploading) {
+            return .uploading
+        }
+
         let retryDates = self.compactMap { state -> Date? in
-            guard case .waitingForRetry(let retryDate) = state else { return nil }
+            guard case .waitingForRetry(let retryDate?) = state else { return nil }
 
             return retryDate
         }
 
         if let nextRetryDate = retryDates.min() {
             return .waitingForRetry(until: nextRetryDate)
+        }
+
+        if self.contains(where: { $0.isWaitingForRetry }) {
+            return .waitingForRetry(until: nil)
         }
 
         return self.allSatisfy { $0 == .uploaded } ? .uploaded : .uploading

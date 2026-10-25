@@ -896,7 +896,7 @@ import SwiftUI
         self.backgroundUploadRetryTimer = nil
 
         let retryDates = self.messages.values.joined().compactMap { message -> Date? in
-            guard case .waitingForRetry(let retryDate) = message.backgroundUploadState else { return nil }
+            guard case .waitingForRetry(let retryDate?) = message.backgroundUploadState else { return nil }
 
             return retryDate
         }
