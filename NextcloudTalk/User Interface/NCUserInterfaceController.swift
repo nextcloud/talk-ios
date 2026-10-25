@@ -233,6 +233,18 @@ public typealias PresentCallControllerCompletionBlock = () -> Void
         }
     }
 
+    func presentNewConversation() {
+        // Not while in a call, the call view would be dismissed
+        guard NCRoomsManager.shared.callViewController == nil else { return }
+
+        mainViewController.dismiss(animated: true) { [weak self] in
+            guard let self else { return }
+
+            self.popToConversationsList()
+            self.roomsTableViewController.presentNewConversation()
+        }
+    }
+
     func presentAlertViewController(_ alertViewController: UIAlertController) {
         if let presentedViewController = mainViewController.presentedViewController, !presentedViewController.isBeingDismissed {
             // When the callview is presented, we need to show the alert this way

@@ -50,6 +50,23 @@ struct ConversationsWidgetData: Codable, Equatable {
         return components.url
     }
 
+    // The same data, but with the conversation shown as read, until the app has the real state from the server
+    func markingAsRead(token: String) -> ConversationsWidgetData {
+        guard let conversation = conversations.first(where: { $0.token == token }), conversation.unreadMessages > 0 else { return self }
+
+        let updatedConversations = conversations.map { conversation in
+            guard conversation.token == token else { return conversation }
+
+            return Conversation(id: conversation.id, token: conversation.token, displayName: conversation.displayName,
+                                unreadMessages: 0, unreadMention: false, isFavorite: conversation.isFavorite,
+                                hasCall: conversation.hasCall, avatarFileName: conversation.avatarFileName)
+        }
+
+        return ConversationsWidgetData(server: server, userId: userId, conversations: updatedConversations,
+                                       unreadConversations: max(0, unreadConversations - 1),
+                                       unreadMentions: max(0, unreadMentions - (conversation.unreadMention ? 1 : 0)))
+    }
+
     // MARK: - Storage
 
     static func directoryURL(appGroupIdentifier: String) -> URL? {

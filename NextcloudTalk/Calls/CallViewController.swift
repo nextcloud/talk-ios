@@ -2035,6 +2035,26 @@ class CallViewController: UIViewController,
             }
 
             self.audioMuteButton.accessibilityValue = micStatusString
+
+            // Control Center shows whether we're muted
+            TalkWidgetActions.callDidChange(isInCall: !self.hangingUp, isMicrophoneMuted: !isActive)
+        }
+    }
+
+    // The microphone was muted or unmuted with the control in Control Center
+    func setMicrophoneMutedFromControl(_ muted: Bool) {
+        guard let callController else { return }
+
+        callController.getAudioEnabledState { isEnabled in
+            guard isEnabled == muted else { return }
+
+            if CallKitManager.isCallKitAvailable() {
+                DispatchQueue.main.async {
+                    CallKitManager.sharedInstance().changeAudioMuted(muted, forCall: self.room.token)
+                }
+            } else {
+                self.setAudioMuted(muted)
+            }
         }
     }
 
@@ -3090,6 +3110,10 @@ class CallViewController: UIViewController,
 
     func finishCall() {
         callController = nil
+
+        DispatchQueue.main.async {
+            TalkWidgetActions.callDidChange(isInCall: false, isMicrophoneMuted: false)
+        }
 
         DispatchQueue.main.async {
             self.stopPictureInPicture()

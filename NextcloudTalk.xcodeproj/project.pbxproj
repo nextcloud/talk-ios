@@ -990,6 +990,8 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				ConversationsWidgetData.swift,
+				TalkControlsState.swift,
+				TalkWidgetIntents.swift,
 			);
 			target = 2C05747C1EDD9E8E00D9E7F2 /* NextcloudTalk */;
 		};

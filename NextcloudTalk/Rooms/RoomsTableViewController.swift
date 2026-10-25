@@ -150,6 +150,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         notificationCenter.addObserver(self, selector: #selector(appStateHasChanged(_:)), name: .NCAppStateHasChangedNotification, object: nil)
         notificationCenter.addObserver(self, selector: #selector(connectionStateHasChanged(_:)), name: .NCConnectionStateHasChangedNotification, object: nil)
         notificationCenter.addObserver(self, selector: #selector(roomsDidUpdate(_:)), name: .NCRoomsManagerDidUpdateRooms, object: nil)
+        notificationCenter.addObserver(self, selector: #selector(userStatusDidChangeFromWidget), name: .TalkWidgetActionsDidChangeUserStatus, object: nil)
         notificationCenter.addObserver(self, selector: #selector(notificationWillBePresented(_:)), name: .NCNotificationControllerWillPresent, object: nil)
         notificationCenter.addObserver(self, selector: #selector(serverCapabilitiesUpdated(_:)), name: .NCServerCapabilitiesUpdated, object: nil)
         notificationCenter.addObserver(self, selector: #selector(userProfileImageUpdated(_:)), name: .NCUserProfileImageUpdated, object: nil)
@@ -275,6 +276,11 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
             return UIDevice.current.userInterfaceIdiom == .phone
         }
         return false
+    }
+
+    // E.g. from the control in Control Center
+    func presentNewConversation() {
+        self.presentNewRoomViewController()
     }
 
     @objc private func presentNewRoomViewController() {
@@ -547,6 +553,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
 
                 self.activeUserStatus = userStatus
                 self.updateProfileButtonImage()
+                TalkWidgetActions.userStatusDidChange(userStatus.status)
 
                 completion([onlineOption])
             }
@@ -1367,12 +1374,18 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         }
     }
 
+    // The status was changed in a widget or in Control Center
+    @objc private func userStatusDidChangeFromWidget() {
+        self.updateUserStatus()
+    }
+
     private func updateUserStatus() {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         NCAPIController.sharedInstance().getUserStatus(forAccount: activeAccount) { [weak self] userStatus in
             if let userStatus {
                 self?.activeUserStatus = userStatus
                 self?.updateProfileButtonImage()
+                TalkWidgetActions.userStatusDidChange(userStatus.status)
             }
         }
     }

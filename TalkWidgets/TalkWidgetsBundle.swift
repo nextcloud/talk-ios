@@ -11,6 +11,16 @@ struct TalkWidgetsBundle: WidgetBundle {
     var body: some Widget {
         ConversationsWidget()
         UnreadConversationsWidget()
+
+        if #available(iOSApplicationExtension 17.0, *) {
+            StatusWidget()
+        }
+
+        if #available(iOSApplicationExtension 18.0, *) {
+            MuteMicrophoneControl()
+            DoNotDisturbControl()
+            NewConversationControl()
+        }
     }
 }
 
