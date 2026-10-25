@@ -22,8 +22,16 @@ class ConversationsWidgetController {
     func start() {
         NotificationCenter.default.addObserver(self, selector: #selector(setNeedsUpdate), name: .NCRoomsManagerDidUpdateRooms, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(setNeedsUpdate), name: .NCSettingsControllerDidChangeActiveAccount, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(activeAccountDidChange), name: .NCSettingsControllerDidChangeActiveAccount, object: nil)
 
         self.setNeedsUpdate()
+    }
+
+    // The status of the new account is only known once it was loaded again
+    @objc private func activeAccountDidChange() {
+        DispatchQueue.main.async {
+            TalkWidgetActions.userStatusDidChange(nil)
+        }
     }
 
     // Rooms are often updated several times in a row, so the update is slightly delayed to only do it once
@@ -97,6 +105,10 @@ class ConversationsWidgetController {
         ConversationsWidgetData.remove(appGroupIdentifier: groupIdentifier)
         self.lastSavedData = nil
         WidgetCenter.shared.reloadAllTimelines()
+
+        DispatchQueue.main.async {
+            TalkWidgetActions.accountsDidChange()
+        }
     }
 
     // MARK: - Avatars

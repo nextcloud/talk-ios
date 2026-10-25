@@ -143,32 +143,38 @@ struct ConversationsListView: View {
                 NoConversationsView()
             } else {
                 ForEach(conversations) { conversation in
-                    ConversationLink(url: data.openURL(for: conversation)) {
-                        HStack(spacing: 10) {
-                            ConversationAvatar(conversation: conversation, size: 36)
+                    HStack(spacing: 8) {
+                        ConversationLink(url: data.openURL(for: conversation)) {
+                            HStack(spacing: 10) {
+                                ConversationAvatar(conversation: conversation, size: 36)
 
-                            Text(conversation.displayName)
-                                .font(.subheadline.weight(conversation.unreadMessages > 0 ? .semibold : .regular))
-                                .lineLimit(1)
-                                .privacySensitive()
+                                Text(conversation.displayName)
+                                    .font(.subheadline.weight(conversation.unreadMessages > 0 ? .semibold : .regular))
+                                    .lineLimit(1)
+                                    .privacySensitive()
 
-                            Spacer(minLength: 4)
+                                Spacer(minLength: 4)
 
-                            if conversation.hasCall {
-                                Image(systemName: "video.fill")
-                                    .foregroundColor(.green)
-                                    .font(.caption)
+                                if conversation.hasCall {
+                                    Image(systemName: "video.fill")
+                                        .foregroundColor(.green)
+                                        .font(.caption)
+                                }
+
+                                if conversation.isFavorite {
+                                    Image(systemName: "star.fill")
+                                        .foregroundColor(.yellow)
+                                        .font(.caption2)
+                                }
+
+                                if conversation.unreadMessages > 0 {
+                                    UnreadBadge(conversation: conversation)
+                                }
                             }
+                        }
 
-                            if conversation.isFavorite {
-                                Image(systemName: "star.fill")
-                                    .foregroundColor(.yellow)
-                                    .font(.caption2)
-                            }
-
-                            if conversation.unreadMessages > 0 {
-                                UnreadBadge(conversation: conversation)
-                            }
+                        if conversation.unreadMessages > 0 {
+                            MarkAsReadButton(data: data, conversation: conversation)
                         }
                     }
                 }
@@ -180,6 +186,25 @@ struct ConversationsListView: View {
 }
 
 // MARK: - Components
+
+// Marks a conversation as read without opening the app (iOS 17 and later)
+struct MarkAsReadButton: View {
+
+    let data: ConversationsWidgetData
+    let conversation: ConversationsWidgetData.Conversation
+
+    var body: some View {
+        if #available(iOSApplicationExtension 17.0, *) {
+            Button(intent: WidgetMarkAsReadIntent(server: data.server, userId: data.userId, token: conversation.token)) {
+                Image(systemName: "checkmark.circle")
+                    .font(.body)
+                    .foregroundColor(.talkAccent)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(NSLocalizedString("Mark as read", comment: ""))
+        }
+    }
+}
 
 struct ConversationLink<Content: View>: View {
 
