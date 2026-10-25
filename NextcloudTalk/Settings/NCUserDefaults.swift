@@ -12,6 +12,7 @@ public class NCUserDefaults: NSObject {
     private static let includeCallsInRecentsKey = "ncIncludeCallsInRecents"
     private static let preferredCallViewModeKey = "ncPreferredCallViewMode"
     private static let speakerViewStripeHiddenKey = "ncSpeakerViewStripeHidden"
+    private static let smartRepliesKey = "ncSmartReplies"
 
     public static func setPreferredCameraFlashMode(_ flashMode: Int) {
         UserDefaults.standard.set(flashMode, forKey: preferredCameraFlashModeKey)
@@ -58,5 +59,14 @@ public class NCUserDefaults: NSObject {
 
     public static func speakerViewStripeHidden() -> Bool {
         return UserDefaults.standard.bool(forKey: speakerViewStripeHiddenKey)
+    }
+
+    public static func setSmartRepliesEnabled(_ enabled: Bool) {
+        UserDefaults.standard.set(enabled, forKey: smartRepliesKey)
+    }
+
+    // Suggest replies with the on-device language model, enabled by default where available
+    public static func smartRepliesEnabled() -> Bool {
+        return UserDefaults.standard.object(forKey: smartRepliesKey) as? Bool ?? true
     }
 }
