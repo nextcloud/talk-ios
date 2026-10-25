@@ -79,4 +79,21 @@ final class UnitChatFileGroupRegroupTest: TestBaseRealm {
 
         XCTAssertTrue(changedMessages.contains { $0 === pendingLastFile })
     }
+
+    /// A failed file keeps its own bubble, so its state and actions stay visible
+    func testAFileFailingSplitsItsGroup() throws {
+        let chatViewController = try self.chatViewController()
+        let tableView = try XCTUnwrap(chatViewController.tableView)
+        let files = [try self.pendingFile(1), try self.pendingFile(2), try self.pendingFile(3)]
+        chatViewController.appendMessages(messages: files)
+
+        // Windowless, the table only loads its rows on layout
+        tableView.reloadData()
+        tableView.layoutIfNeeded()
+
+        chatViewController.modifyMessageWith(referenceId: try XCTUnwrap(files[1].referenceId)) { $0.sendingFailed = true }
+
+        XCTAssertFalse(chatViewController.isHiddenInFileMessageGroup(files[0]))
+        XCTAssertNil(chatViewController.fileMessageGroup(showing: files[2]))
+    }
 }

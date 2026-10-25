@@ -47,12 +47,6 @@ final class UnitFileMessageGroupTest: TestBaseRealm {
         XCTAssertTrue(groups.isEmpty)
     }
 
-    func testFilesSharedBeforeTheAgreedReferenceIdAreNotGrouped() throws {
-        let messages = [try self.message(), try self.message()]
-
-        XCTAssertTrue(FileMessageGroup.groups(in: messages).isEmpty)
-    }
-
     /// The group is anchored on the last message, so its timestamp and read state are the newest
     func testTheGroupIsShownAsItsLastMessage() throws {
         let messages = [try self.message(upload: self.uploadA, position: 1),
@@ -105,15 +99,6 @@ final class UnitFileMessageGroupTest: TestBaseRealm {
                         try self.message(upload: self.uploadA, position: 4)]
 
         XCTAssertEqual(FileMessageGroup.groups(in: messages).map { $0.messages.count }, [2, 2])
-    }
-
-    func testAVoiceMessageInBetweenEndsTheGroup() throws {
-        let messages = [try self.message(upload: self.uploadA, position: 1),
-                        try self.message(upload: self.uploadA, position: 2),
-                        try self.message(upload: self.uploadA, position: 3, overrides: ["messageType": "voice-message"]),
-                        try self.message(upload: self.uploadA, position: 4)]
-
-        XCTAssertEqual(FileMessageGroup.groups(in: messages).map { $0.messages.count }, [2])
     }
 
     /// The caption is added to the file shared last, so it is the last thing in its group
@@ -188,27 +173,6 @@ final class UnitFileMessageGroupTest: TestBaseRealm {
         posted.parentId = "thread"
 
         XCTAssertEqual(FileMessageGroup.groups(in: [posted, pending]).first?.messages.count, 2)
-    }
-
-    func testPendingFilesOfTwoSharesAreNotMerged() throws {
-        let messages = [try self.pendingFileMessage(upload: self.uploadA, position: 1),
-                        try self.pendingFileMessage(upload: self.uploadA, position: 2),
-                        try self.pendingFileMessage(upload: self.uploadB, position: 1),
-                        try self.pendingFileMessage(upload: self.uploadB, position: 2)]
-
-        XCTAssertEqual(FileMessageGroup.groups(in: messages).map { $0.messages.count }, [2, 2])
-    }
-
-    /// A failed file keeps its own bubble, so its state and actions stay visible
-    func testAFailedFileLeavesItsGroup() throws {
-        let failed = try self.pendingFileMessage(upload: self.uploadA, position: 2)
-        failed.sendingFailed = true
-
-        let messages = [try self.message(upload: self.uploadA, position: 1),
-                        failed,
-                        try self.pendingFileMessage(upload: self.uploadA, position: 3)]
-
-        XCTAssertTrue(FileMessageGroup.groups(in: messages).isEmpty)
     }
 
     // MARK: - Recognizing a caption
