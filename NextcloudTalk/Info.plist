@@ -67,6 +67,7 @@
 	<key>NSUserActivityTypes</key>
 	<array>
 		<string>INSendMessageIntent</string>
+		<string>$(PRODUCT_BUNDLE_IDENTIFIER).conversation</string>
 	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
