@@ -78,6 +78,11 @@ extension BaseChatTableViewCell: GroupedFilePreviewViewDelegate {
 
         let message = messages[index]
 
+        if message.backgroundUploadJobId != nil {
+            self.delegate?.cellWants(toOpenBackgroundUpload: message)
+            return
+        }
+
         guard let file = message.file(), file.path != nil else { return }
 
         self.delegate?.cellWants(toDownloadFile: file, for: message)

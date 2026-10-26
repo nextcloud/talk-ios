@@ -15,6 +15,9 @@ import UIKit
     public var uploadProgress: CGFloat = 0
     public var isImage: Bool = false
     public var caption: String!
+    // The caption with mention placeholders, and the parameters of those mentions
+    public var captionMessage: String?
+    public var captionMessageParameters: String?
 
     @objc(initWithURL:name:placeholderImage:isImage:)
     public init(url fileURL: URL, name fileName: String, placeholderImage: UIImage?, isImage: Bool) {

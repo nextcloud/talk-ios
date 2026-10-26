@@ -626,7 +626,7 @@ public class NCNotificationController: NSObject, UNUserNotificationCenterDelegat
         }
 
         switch localNotificationType {
-        case .missedCall, .cancelledCall, .failedSendChat, .chatNotification, .recordingConsentRequired:
+        case .missedCall, .cancelledCall, .failedSendChat, .chatNotification, .recordingConsentRequired, .failedBackgroundUpload:
             NCUserInterfaceController.sharedInstance().presentChat(forLocalNotification: notificationUserInfo)
         case .callFromOldAccount:
             NCUserInterfaceController.sharedInstance().presentSettingsViewController()

@@ -42,7 +42,18 @@ class GroupedFileRowView: UIView {
         return indicator
     }()
 
+    /// Replaces the indicator of a pending upload with a clock while it waits for its retry, a checkmark once uploaded
+    private lazy var stateImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.tintColor = .secondaryLabel
+        imageView.contentMode = .scaleAspectFit
+        imageView.isHidden = true
+        return imageView
+    }()
+
     private var fileParameter: NCMessageFileParameter?
+    private var uploadJobId: String?
 
     private lazy var labelStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [self.nameLabel, self.detailLabel])
@@ -74,6 +85,7 @@ class GroupedFileRowView: UIView {
         self.addSubview(self.iconImageView)
         self.addSubview(self.labelStackView)
         self.addSubview(self.downloadIndicator)
+        self.addSubview(self.stateImageView)
 
         let rowHeight = GroupedFilePreviewView.fileRowHeight
         let iconSize = UIFont.preferredFont(forTextStyle: .body).lineHeight + UIFont.preferredFont(forTextStyle: .footnote).lineHeight
@@ -96,17 +108,31 @@ class GroupedFileRowView: UIView {
             self.downloadIndicator.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -GroupedFileRowView.cardPadding),
             self.downloadIndicator.centerYAnchor.constraint(equalTo: self.centerYAnchor),
             self.downloadIndicator.widthAnchor.constraint(equalToConstant: 20),
-            self.downloadIndicator.heightAnchor.constraint(equalToConstant: 20)
+            self.downloadIndicator.heightAnchor.constraint(equalToConstant: 20),
+
+            self.stateImageView.centerXAnchor.constraint(equalTo: self.downloadIndicator.centerXAnchor),
+            self.stateImageView.centerYAnchor.constraint(equalTo: self.downloadIndicator.centerYAnchor),
+            self.stateImageView.widthAnchor.constraint(equalToConstant: 18),
+            self.stateImageView.heightAnchor.constraint(equalToConstant: 18)
         ])
     }
 
-    func setup(with file: NCMessageFileParameter, maximumWidth: CGFloat) {
+    func setup(with message: NCChatMessage, maximumWidth: CGFloat) {
+        guard let file = message.file() else { return }
+
         self.maximumWidthConstraint?.constant = maximumWidth
         self.maximumWidthConstraint?.isActive = maximumWidth > 0
 
         self.fileParameter = file
+        self.uploadJobId = message.backgroundUploadJobId
 
-        if let fileStatus = file.fileStatus, fileStatus.isDownloading {
+        if let uploadState = message.backgroundUploadState, uploadState != .failed {
+            if let symbolName = uploadState.symbolName {
+                self.showStateImage(named: symbolName)
+            } else {
+                self.showDownload(withProgress: message.backgroundUploadProgress)
+            }
+        } else if let fileStatus = file.fileStatus, fileStatus.isDownloading {
             self.showDownload(withProgress: fileStatus.canReportProgress ? Float(fileStatus.downloadProgress) : 0)
         }
 
@@ -131,7 +157,20 @@ class GroupedFileRowView: UIView {
         }
     }
 
+    func updateUploadProgress(_ progress: Float, forJobId jobId: String) {
+        guard self.uploadJobId == jobId else { return }
+
+        self.showDownload(withProgress: progress)
+    }
+
+    private func showStateImage(named systemName: String) {
+        self.hideDownload()
+        self.stateImageView.image = UIImage(systemName: systemName)
+        self.stateImageView.isHidden = false
+    }
+
     private func showDownload(withProgress progress: Float) {
+        self.stateImageView.isHidden = true
         self.downloadIndicator.isHidden = false
 
         if progress > 0 {

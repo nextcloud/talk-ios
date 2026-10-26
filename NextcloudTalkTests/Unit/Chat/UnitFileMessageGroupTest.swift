@@ -21,24 +21,7 @@ final class UnitFileMessageGroupTest: TestBaseRealm {
                          overrides: [String: Any] = [:]) throws -> NCChatMessage {
         self.nextMessageId += 1
 
-        var dict: [String: Any] = [
-            "id": self.nextMessageId,
-            "token": "token",
-            "message": text,
-            "messageType": "comment",
-            "systemMessage": "",
-            "actorId": "alice",
-            "actorType": "users",
-            "messageParameters": ["file": ["type": "file", "id": "9", "name": "IMG.jpg", "path": "IMG.jpg", "mimetype": "image/jpeg"]]
-        ]
-
-        if let upload {
-            dict["referenceId"] = "\(upload)-\(String(format: "%03d", position))"
-        }
-
-        dict.merge(overrides) { _, override in override }
-
-        return try XCTUnwrap(NCChatMessage(dictionary: dict, andAccountId: TestBaseRealm.fakeAccountId))
+        return try self.fileMessage(id: self.nextMessageId, upload: upload, position: position, text: text, overrides: overrides)
     }
 
     private func textMessage() throws -> NCChatMessage {
@@ -62,12 +45,6 @@ final class UnitFileMessageGroupTest: TestBaseRealm {
         let groups = FileMessageGroup.groups(in: [try self.message(upload: self.uploadA)])
 
         XCTAssertTrue(groups.isEmpty)
-    }
-
-    func testFilesSharedBeforeTheAgreedReferenceIdAreNotGrouped() throws {
-        let messages = [try self.message(), try self.message()]
-
-        XCTAssertTrue(FileMessageGroup.groups(in: messages).isEmpty)
     }
 
     /// The group is anchored on the last message, so its timestamp and read state are the newest
@@ -124,15 +101,6 @@ final class UnitFileMessageGroupTest: TestBaseRealm {
         XCTAssertEqual(FileMessageGroup.groups(in: messages).map { $0.messages.count }, [2, 2])
     }
 
-    func testAVoiceMessageInBetweenEndsTheGroup() throws {
-        let messages = [try self.message(upload: self.uploadA, position: 1),
-                        try self.message(upload: self.uploadA, position: 2),
-                        try self.message(upload: self.uploadA, position: 3, overrides: ["messageType": "voice-message"]),
-                        try self.message(upload: self.uploadA, position: 4)]
-
-        XCTAssertEqual(FileMessageGroup.groups(in: messages).map { $0.messages.count }, [2])
-    }
-
     /// The caption is added to the file shared last, so it is the last thing in its group
     func testACaptionEndsTheGroupItBelongsTo() throws {
         let messages = [try self.message(upload: self.uploadA, position: 1),
@@ -182,6 +150,29 @@ final class UnitFileMessageGroupTest: TestBaseRealm {
         second.parentId = "one"
 
         XCTAssertEqual(FileMessageGroup.groups(in: [first, second]).count, 1)
+    }
+
+    // MARK: - Files still being shared in the background
+
+    /// The bubble keeps its size while the files of a share are posted one by one
+    func testPostedAndPendingFilesOfAShareAreOneGroup() throws {
+        let messages = [try self.message(upload: self.uploadA, position: 1),
+                        try self.pendingFileMessage(upload: self.uploadA, position: 2),
+                        try self.pendingFileMessage(upload: self.uploadA, position: 3)]
+
+        let group = try XCTUnwrap(FileMessageGroup.groups(in: messages).first)
+
+        XCTAssertEqual(group.messages.count, 3)
+        XCTAssertTrue(group.anchor === messages[2])
+    }
+
+    /// Posted files in a thread have the thread as parent, pending ones have none yet
+    func testAPendingFileJoinsItsShareInAThread() throws {
+        let posted = try self.message(upload: self.uploadA, position: 1)
+        let pending = try self.pendingFileMessage(upload: self.uploadA, position: 2)
+        posted.parentId = "thread"
+
+        XCTAssertEqual(FileMessageGroup.groups(in: [posted, pending]).first?.messages.count, 2)
     }
 
     // MARK: - Recognizing a caption

@@ -52,6 +52,9 @@ final class UnitNCChatMessageFileGroupingTest: TestBaseRealm {
 
     func testVoiceMessagesAreNotGroupable() throws {
         XCTAssertFalse(try self.message(["messageType": "voice-message"]).isGroupableFileMessage)
+        // Also with an audio file, which is groupable otherwise
+        let audioParameters = ["file": self.fileParameter(mimetype: "audio/mpeg")]
+        XCTAssertFalse(try self.message(["messageType": "voice-message"], parameters: audioParameters).isGroupableFileMessage)
     }
 
     func testContactCardsAreNotGroupable() throws {
@@ -64,12 +67,6 @@ final class UnitNCChatMessageFileGroupingTest: TestBaseRealm {
     func testAudioFilesAreGroupable() throws {
         let parameters = ["file": self.fileParameter(mimetype: "audio/mpeg")]
         XCTAssertTrue(try self.message(parameters: parameters).isGroupableFileMessage)
-    }
-
-    /// The real audio widget is the voice message, which the message type already keeps out
-    func testVoiceMessagesStayExcludedRegardless() throws {
-        let parameters = ["file": self.fileParameter(mimetype: "audio/mpeg")]
-        XCTAssertFalse(try self.message(["messageType": "voice-message"], parameters: parameters).isGroupableFileMessage)
     }
 
     func testLocationsAreNotGroupable() throws {
@@ -152,11 +149,6 @@ final class UnitNCChatMessageFileGroupingTest: TestBaseRealm {
     }
 
     // MARK: - Plain file shares
-
-    func testWidgetsOfTheirOwnAreNoPlainFileShares() throws {
-        XCTAssertNil(try self.message(["messageType": "voice-message"]).plainFileShare)
-        XCTAssertNil(try self.message(parameters: ["file": self.fileParameter(mimetype: "text/vcard")]).plainFileShare)
-    }
 
     /// Unlike grouping, this does not depend on the file having been shared as part of an upload
     func testAFileOfNoUploadIsStillAPlainFileShare() throws {

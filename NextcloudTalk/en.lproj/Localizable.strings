@@ -4,6 +4,9 @@
 /* Alice and Bob will receive invitations */
 "%1$@ and %2$@ will receive invitations" = "%1$@ and %2$@ will receive invitations";
 
+/* 'photo.jpg' could not be sent to 'Conversation name' */
+"%1$@ could not be sent to %2$@" = "%1$@ could not be sent to %2$@";
+
 /* 'Alice in Team meeting' - the author of a message and the conversation it was sent in */
 "%1$@ in %2$@" = "%1$@ in %2$@";
 
@@ -72,6 +75,9 @@
 
 /* Time until the user status is cleared */
 "%ld days" = "%ld days";
+
+/* Shown in the conversation list */
+"%ld files failed to send" = "%ld files failed to send";
 
 /* Time until the user status is cleared */
 "%ld hours" = "%ld hours";
@@ -591,6 +597,9 @@
 
 /* No comment provided by engineer. */
 "Cancel" = "Cancel";
+
+/* Stop uploading a file that is shared in the background */
+"Cancel upload" = "Cancel upload";
 
 /* No comment provided by engineer. */
 "Cancelled call from another account" = "Cancelled call from another account";
@@ -1959,6 +1968,9 @@
 /* No comment provided by engineer. */
 "Polls" = "Polls";
 
+/* Files are prepared for being uploaded in the background */
+"Preparing upload" = "Preparing upload";
+
 /* No comment provided by engineer. */
 "Preview" = "Preview";
 
@@ -2115,6 +2127,9 @@
 /* Button to retry a failed operation
    Retry downloading the original file */
 "Retry" = "Retry";
+
+/* Start uploading a file now that waits to be retried later */
+"Retry now" = "Retry now";
 
 /* Save conversation description */
 "Save" = "Save";

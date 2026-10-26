@@ -788,6 +788,11 @@ public extension Notification.Name {
     // MARK: - Rooms
 
     func roomsForAccountId(_ accountId: String, withRealm realm: RLMRealm?) -> [NCRoom] {
+        return self.roomsForAccountId(accountId, withRealm: realm, lastActivityByToken: [:])
+    }
+
+    /// - Parameter lastActivityByToken: Activity the server does not know about yet, used where it is newer.
+    func roomsForAccountId(_ accountId: String, withRealm realm: RLMRealm?, lastActivityByToken: [String: Int]) -> [NCRoom] {
         let query = NSPredicate(format: "accountId = %@", accountId)
         var managedRooms: RLMResults<AnyObject>
 
@@ -818,7 +823,7 @@ public extension Notification.Name {
             sortOrder = NCRoomSortOrder(rawValue: capabilities.roomsSortOrder) ?? sortOrder
         }
 
-        unmanagedRooms.sortRooms(withGroupMode: groupMode, withSortOrder: sortOrder)
+        unmanagedRooms.sortRooms(withGroupMode: groupMode, withSortOrder: sortOrder, lastActivityByToken: lastActivityByToken)
 
         return unmanagedRooms
     }

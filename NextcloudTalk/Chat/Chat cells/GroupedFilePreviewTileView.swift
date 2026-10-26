@@ -43,6 +43,17 @@ class GroupedFilePreviewTileView: UIView {
         return label
     }()
 
+    // Inside the preview for its rounded corners, below the "+N" badge
+    private lazy var uploadOverlayView = FileUploadOverlayView(style: .covering)
+
+    // Above the "+N" badge, for all the files it stands for
+    private lazy var badgeUploadOverlayView = FileUploadOverlayView(style: .corner)
+
+    private var badgeMessages: [NCChatMessage] = []
+
+    /// The files shared in the background this tile shows the upload of.
+    private(set) var uploadJobIds: Set<String> = []
+
     private var sizeConstraints: [NSLayoutConstraint] = []
     private var playIconConstraints: [NSLayoutConstraint] = []
 
@@ -61,6 +72,8 @@ class GroupedFilePreviewTileView: UIView {
         self.addSubview(self.previewImageView)
         self.addSubview(self.playIconImageView)
         self.addSubview(self.overflowLabel)
+        self.uploadOverlayView.pin(to: self.previewImageView)
+        self.badgeUploadOverlayView.pin(to: self)
 
         self.sizeConstraints = [
             self.widthAnchor.constraint(equalToConstant: 0),
@@ -89,7 +102,10 @@ class GroupedFilePreviewTileView: UIView {
         ])
     }
 
-    func setup(with file: NCMessageFileParameter, account: TalkAccount, size: CGFloat, hiddenCount: Int) {
+    /// - Parameter badgeMessages: The files a "+N" badge stands for, this one included. Empty for a tile without badge.
+    func setup(with message: NCChatMessage, account: TalkAccount, size: CGFloat, badgeMessages: [NCChatMessage] = []) {
+        guard let file = message.file() else { return }
+
         for constraint in self.sizeConstraints {
             constraint.constant = size
         }
@@ -100,15 +116,32 @@ class GroupedFilePreviewTileView: UIView {
 
         let previewSize = Int(size * UIScreen.main.scale)
 
-        self.previewImageView.setPreview(forFileId: file.parameterId, withWidth: previewSize, withHeight: previewSize, usingAccount: account)
+        let referenceId = message.referenceId ?? ""
+
+        if let upload = message.backgroundUpload {
+            self.previewImageView.setLocalPreview(forReferenceId: referenceId, fileURL: upload.fileURL, maximumPixelSize: previewSize)
+        } else if !referenceId.isEmpty, FilePreviewImageView.hasLocalPreview(forReferenceId: referenceId, maximumPixelSize: previewSize) {
+            // Shared from this device, so the posted file keeps the preview it had while uploading
+            self.previewImageView.setLocalPreview(forReferenceId: referenceId, fileURL: nil, maximumPixelSize: previewSize)
+        } else {
+            self.previewImageView.setPreview(forFileId: file.parameterId, withWidth: previewSize, withHeight: previewSize, usingAccount: account)
+        }
+
+        self.badgeMessages = badgeMessages
+
+        if badgeMessages.isEmpty {
+            self.uploadJobIds = Set([message.backgroundUploadJobId].compactMap { $0 })
+            self.uploadOverlayView.update(for: message)
+        } else {
+            self.uploadJobIds = Set(badgeMessages.compactMap { $0.backgroundUploadJobId })
+            self.badgeUploadOverlayView.update(state: badgeMessages.combinedBackgroundUploadState, progress: badgeMessages.combinedBackgroundUploadProgress)
+
+            self.overflowLabel.isHidden = false
+            self.overflowLabel.text = "+\(badgeMessages.count)"
+        }
 
         if let mimetype = file.mimetype, NCUtils.isVideo(fileType: mimetype) {
             self.playIconImageView.isHidden = false
-        }
-
-        if hiddenCount > 0 {
-            self.overflowLabel.isHidden = false
-            self.overflowLabel.text = "+\(hiddenCount)"
         }
 
         self.accessibilityLabel = file.name
@@ -116,9 +149,22 @@ class GroupedFilePreviewTileView: UIView {
         self.isAccessibilityElement = true
     }
 
+    func updateUploadProgress(_ progress: Float) {
+        if self.badgeMessages.isEmpty {
+            self.uploadOverlayView.showUpload(withProgress: progress)
+        } else {
+            // The progress of each file is read again from the uploader
+            self.badgeUploadOverlayView.update(state: self.badgeMessages.combinedBackgroundUploadState, progress: self.badgeMessages.combinedBackgroundUploadProgress)
+        }
+    }
+
     func prepareForReuse() {
-        self.previewImageView.currentRequest?.cancel()
+        self.previewImageView.cancelPreview()
         self.previewImageView.image = nil
+        self.badgeMessages = []
+        self.uploadJobIds = []
+        self.uploadOverlayView.hide()
+        self.badgeUploadOverlayView.hide()
         self.playIconImageView.isHidden = true
         self.overflowLabel.isHidden = true
         self.overflowLabel.text = nil

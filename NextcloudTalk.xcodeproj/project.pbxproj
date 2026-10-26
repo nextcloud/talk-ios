@@ -550,6 +550,7 @@
 				"Chat cells/AutoCompletionTableViewCell.swift",
 				"Chat cells/EmojiUtils.swift",
 				"Chat cells/SwiftMarkdownObjCBridge.swift",
+				"Chat upload/ChatBackgroundUploader.swift",
 				"Chat upload/ChatFileUpload.swift",
 				"Chat upload/ChatFileUploadDestination.swift",
 				"Chat upload/ChatFileUploader.swift",

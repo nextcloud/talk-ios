@@ -17,6 +17,10 @@ final class UnitFileUploadReferenceTest: XCTestCase {
 
         XCTAssertEqual(read, written)
         XCTAssertEqual(read.position, 5)
+
+        // The largest upload still fits the three digits
+        let lastWritten = try XCTUnwrap(FileUploadReference(uploadId: "upload", index: FileUploadReference.maximumFileCount - 1))
+        XCTAssertEqual(FileUploadReference(referenceId: lastWritten.referenceId)?.position, 999)
     }
 
     func testFilesOfTheSameUploadShareTheirHash() throws {
@@ -72,14 +76,5 @@ final class UnitFileUploadReferenceTest: XCTestCase {
         XCTAssertNil(FileUploadReference(referenceId: "\(self.uploadHash)-0001"))
         // Position that is signed rather than a plain number
         XCTAssertNil(FileUploadReference(referenceId: "\(self.uploadHash)-+01"))
-    }
-
-    func testTwoFilesOfOneUploadAreRecognizedAsBelongingTogether() throws {
-        let first = try XCTUnwrap(FileUploadReference(referenceId: "\(self.uploadHash)-001"))
-        let second = try XCTUnwrap(FileUploadReference(referenceId: "\(self.uploadHash)-002"))
-
-        XCTAssertEqual(first.uploadHash, second.uploadHash)
-        XCTAssertEqual(first.position, 1)
-        XCTAssertEqual(second.position, 2)
     }
 }

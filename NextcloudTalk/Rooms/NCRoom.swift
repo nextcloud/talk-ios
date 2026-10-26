@@ -9,7 +9,7 @@ import SwiftyAttributes
 
 extension Array where Element == NCRoom {
 
-    mutating func sortRooms(withGroupMode groupMode: NCRoomGroupMode, withSortOrder sortOrder: NCRoomSortOrder) {
+    mutating func sortRooms(withGroupMode groupMode: NCRoomGroupMode, withSortOrder sortOrder: NCRoomSortOrder, lastActivityByToken: [String: Int] = [:]) {
         self.sort { (first: NCRoom, second: NCRoom) in
             // 1. Favorites
             if first.isFavorite != second.isFavorite {
@@ -33,10 +33,20 @@ extension Array where Element == NCRoom {
             }
 
             // Default: Recent activity
-            return first.lastActivity > second.lastActivity
+            return first.lastActivity(including: lastActivityByToken) > second.lastActivity(including: lastActivityByToken)
         }
     }
 
+}
+
+extension NCRoom {
+
+    /// - Parameter lastActivityByToken: Activity the server does not know about yet, used where it is newer.
+    func lastActivity(including lastActivityByToken: [String: Int]) -> Int {
+        guard let token = self.token, let otherActivity = lastActivityByToken[token] else { return self.lastActivity }
+
+        return max(self.lastActivity, otherActivity)
+    }
 }
 
 @objc extension NCRoom {
