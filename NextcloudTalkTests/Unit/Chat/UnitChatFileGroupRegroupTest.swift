@@ -94,6 +94,6 @@ final class UnitChatFileGroupRegroupTest: TestBaseRealm {
         chatViewController.modifyMessageWith(referenceId: try XCTUnwrap(files[1].referenceId)) { $0.sendingFailed = true }
 
         XCTAssertFalse(chatViewController.isHiddenInFileMessageGroup(files[0]))
-        XCTAssertNil(chatViewController.fileMessageGroup(showing: files[2]))
+        XCTAssertNil(chatViewController.fileGroup(anchoredAt: files[2]))
     }
 }
