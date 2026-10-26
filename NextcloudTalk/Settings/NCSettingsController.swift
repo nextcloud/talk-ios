@@ -432,6 +432,10 @@ public class NCSettingsController: NSObject {
         NCRoomsManager.shared.chatViewController?.leaveChat()
         self.createAccountsFile()
 
+        // Don't keep showing the conversations of the removed account
+        ConversationsWidgetController.shared.setNeedsUpdate()
+        ConversationsSpotlightIndexer.shared.setNeedsUpdate()
+
         // Activate any of the inactive accounts
         self.switchToAnyInactiveAccount()
 

@@ -145,6 +145,9 @@ import UIKit
             if let responsePoll = responsePoll, error == nil {
                 self.poll = responsePoll
                 self.editingVote = false
+                HapticFeedback.success()
+            } else {
+                HapticFeedback.error()
             }
             self.setupPollView()
         }
