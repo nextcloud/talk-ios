@@ -305,4 +305,41 @@ final class UnitNCChatMessageTest: TestBaseRealm {
         let parameters = (existingMessage.messageParameters as? [String: Any])?["actor"] as? [String: String]
         XCTAssertEqual(try XCTUnwrap(parameters)["name"], "bob")
     }
+
+    // MARK: - Reply and delete conditions
+
+    private func message(overrides: [String: Any] = [:]) throws -> NCChatMessage {
+        var dict: [String: Any] = ["id": 1, "token": "conditionToken", "message": "Hi", "messageType": "comment", "actorId": "alice", "actorType": "users", "isReplyable": true]
+        dict.merge(overrides) { _, override in override }
+
+        return try XCTUnwrap(NCChatMessage(dictionary: dict, andAccountId: TestBaseRealm.fakeAccountId))
+    }
+
+    func testReplyIsOfferedForReplyableMessages() throws {
+        let room = self.addRoom(withToken: "conditionToken")
+
+        XCTAssertTrue(try self.message().canReply(in: room))
+        XCTAssertFalse(try self.message(overrides: ["isReplyable": false]).canReply(in: room), "A message the server does not allow to reply to must not offer it")
+
+        let deletingMessage = try self.message()
+        deletingMessage.isDeleting = true
+        XCTAssertFalse(deletingMessage.canReply(in: room), "A message that is being deleted must not offer a reply")
+        XCTAssertFalse(deletingMessage.canBeRepliedTo)
+    }
+
+    func testDeleteIsOfferedForMessagesThatNeverReachedTheServer() throws {
+        let room = self.addRoom(withToken: "conditionToken")
+        let account = try XCTUnwrap(NCDatabaseManager.sharedInstance().talkAccount(forAccountId: TestBaseRealm.fakeAccountId))
+
+        // Without the delete capability a sent message can not be deleted
+        XCTAssertFalse(try self.message().canDelete(for: account, in: room))
+
+        let failedMessage = try self.message()
+        failedMessage.sendingFailed = true
+        XCTAssertTrue(failedMessage.canDelete(for: account, in: room), "A message that failed to send can always be discarded")
+
+        let offlineMessage = try self.message()
+        offlineMessage.isOfflineMessage = true
+        XCTAssertTrue(offlineMessage.canDelete(for: account, in: room), "A message that was never sent can always be discarded")
+    }
 }
