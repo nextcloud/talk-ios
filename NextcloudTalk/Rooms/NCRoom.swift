@@ -43,7 +43,7 @@ extension NCRoom {
 
     /// - Parameter lastActivityByToken: Activity the server does not know about yet, used where it is newer.
     func lastActivity(including lastActivityByToken: [String: Int]) -> Int {
-        guard let otherActivity = lastActivityByToken[self.token] else { return self.lastActivity }
+        guard let token = self.token, let otherActivity = lastActivityByToken[token] else { return self.lastActivity }
 
         return max(self.lastActivity, otherActivity)
     }

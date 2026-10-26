@@ -1890,7 +1890,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
             cell.titleOnly = false
         }
 
-        if let uploadSummary = uploadSummaries[room.token] {
+        if let token = room.token, let uploadSummary = uploadSummaries[token] {
             showUploads(uploadSummary, of: room, in: cell)
         }
 
