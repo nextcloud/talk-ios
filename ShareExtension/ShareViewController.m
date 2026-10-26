@@ -55,6 +55,18 @@
     return self;
 }
 
+- (id)initToForwardFileMessage:(NCChatMessage *)fileMessage fromChatViewController:(UIViewController *)chatViewController
+{
+    self = [super init];
+    if (self) {
+        self.chatViewController = chatViewController;
+        self.forwardFileMessage = fileMessage;
+        self.forwarding = YES;
+    }
+    
+    return self;
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -258,17 +270,25 @@
 {
     _shareAccount = account;
     if (!account) {
-        TalkAccount *managedActiveAccount = [TalkAccount objectsInRealm:_realm where:(@"active = true")].firstObject;
-        if (managedActiveAccount) {
-            _shareAccount = [[TalkAccount alloc] initWithValue:managedActiveAccount];
+        TalkAccount *managedAccount;
+        if (_forwardFileMessage) {
+            NSPredicate *query = [NSPredicate predicateWithFormat:@"accountId = %@", _forwardFileMessage.accountId];
+            managedAccount = [TalkAccount objectsInRealm:_realm withPredicate:query].firstObject;
         } else {
-            // No account is configured in the app yet
+            managedAccount = [TalkAccount objectsInRealm:_realm where:(@"active = true")].firstObject;
+        }
+
+        if (managedAccount) {
+            _shareAccount = [[TalkAccount alloc] initWithValue:managedAccount];
+        } else {
+            // No account is configured, or the account of the forwarded file is gone
             return;
         }
     }
     
     // Show account button selector if there are more than one account
-    if ([TalkAccount allObjectsInRealm:_realm].count > 1) {
+    // Not when forwarding a file: its path belongs to the account of the message, another account must not send it
+    if (!_forwardFileMessage && [TalkAccount allObjectsInRealm:_realm].count > 1) {
         [self setProfileButtonForAccount:_shareAccount];
     }
     
@@ -540,6 +560,10 @@
         shareConfirmationVC.delegate = (id<ShareConfirmationViewControllerDelegate>)_chatViewController;
         shareConfirmationVC.forwardingMessage = YES;
         [shareConfirmationVC shareObjectShareMessage:_forwardObjectShareMessage];
+    } else if (_forwardFileMessage) {
+        shareConfirmationVC.delegate = (id<ShareConfirmationViewControllerDelegate>)_chatViewController;
+        shareConfirmationVC.forwardingMessage = YES;
+        [shareConfirmationVC shareFileMessage:_forwardFileMessage];
     } else {
         [self setSharedItemToShareConfirmationViewController:shareConfirmationVC];
     }

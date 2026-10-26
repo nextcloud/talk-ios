@@ -31,6 +31,19 @@ struct FileMessageGroup {
         }
     }
 
+    /// The group a message belongs to, found by the message itself and not only by the anchor the groups are keyed by.
+    static func containing(messageId: Int, in groups: [Int: FileMessageGroup]) -> FileMessageGroup? {
+        return groups[messageId] ?? groups.values.first { group in
+            group.messages.contains { $0.messageId == messageId }
+        }
+    }
+
+    /// A group is deleted as a whole, so no file of it is left behind unseen. It is offered only
+    /// when every file of it can be deleted.
+    func canDelete(for account: TalkAccount, in room: NCRoom) -> Bool {
+        return room.canChat && self.messages.allSatisfy { $0.isDeletable(for: account, in: room) }
+    }
+
     /// Splits the messages of a conversation, in the order they are shown, into the groups of files
     /// that were shared as one upload. Anything that is not a file of the same upload ends a group.
     static func groups(in messages: [NCChatMessage]) -> [FileMessageGroup] {
