@@ -45,6 +45,20 @@ final class UnitFileMessageGroupTest: TestBaseRealm {
         return try self.message(text: "Hi", overrides: ["messageParameters": [:]])
     }
 
+    // MARK: - Finding the group of a file
+
+    func testGroupIsFoundByAnyOfItsFiles() throws {
+        let first = try self.message(upload: uploadA, position: 1)
+        let second = try self.message(upload: uploadA, position: 2)
+        let group = try XCTUnwrap(FileMessageGroup.groups(in: [first, second]).first)
+        let groups = [group.anchor.messageId: group]
+
+        XCTAssertEqual(FileMessageGroup.containing(messageId: second.messageId, in: groups)?.messages.count, 2)
+        XCTAssertEqual(FileMessageGroup.containing(messageId: first.messageId, in: groups)?.messages.count, 2,
+                       "A file that is not the anchor of its group must find the group as well")
+        XCTAssertNil(FileMessageGroup.containing(messageId: first.messageId + 100, in: groups))
+    }
+
     // MARK: - What is grouped
 
     func testFilesOfOneUploadAreGrouped() throws {
