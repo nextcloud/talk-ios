@@ -34,6 +34,22 @@
 			<string>%d ψήφοι</string>
 		</dict>
 	</dict>
+	<key>%ld files failed to send</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@files@</string>
+		<key>files</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%ld file failed to send</string>
+			<key>other</key>
+			<string>%ld files failed to send</string>
+		</dict>
+	</dict>
 	<key>%ld participants</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
