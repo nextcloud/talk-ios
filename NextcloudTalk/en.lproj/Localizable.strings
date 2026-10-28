@@ -2288,9 +2288,6 @@
 "Short absence status is too long" = "Short absence status is too long";
 
 /* No comment provided by engineer. */
-"Show more…" = "Show more…";
-
-/* No comment provided by engineer. */
 "Signaling" = "Signaling";
 
 /* No comment provided by engineer. */
@@ -2631,9 +2628,6 @@
 
 /* No comment provided by engineer. */
 "Unread messages" = "Unread messages";
-
-/* Calling is not supported */
-"Unsupported" = "Unsupported";
 
 /* Button to update the app */
 "Update" = "Update";
