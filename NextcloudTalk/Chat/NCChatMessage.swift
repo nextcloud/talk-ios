@@ -22,6 +22,11 @@ import SwiftyAttributes
             return true
         }
 
+        // Private reply quotes are only stored to be displayed as quotes, they should not be shown in the chat
+        if self.isPrivateReply {
+            return true
+        }
+
         return self.systemMessage == "message_deleted" ||
                self.systemMessage == "reaction" ||
                self.systemMessage == "reaction_revoked" ||
