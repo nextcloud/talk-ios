@@ -12,14 +12,10 @@ final class CarPlayManager {
 
     static let shared = CarPlayManager()
 
-    // MARK: - CarPlay
-
     private weak var interfaceController: CPInterfaceController?
     private var rootTemplate: CPListTemplate?
     private var conversationTemplate: CPContactTemplate?
     private var conversationRoomToken: String?
-
-    // MARK: - Init
 
     private init() {
         NotificationCenter.default.addObserver(
@@ -35,6 +31,7 @@ final class CarPlayManager {
             name: .NCSettingsControllerDidChangeActiveAccount,
             object: nil
         )
+
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(callStateDidChange(_:)),
@@ -65,16 +62,7 @@ final class CarPlayManager {
 
     func connect(_ interfaceController: CPInterfaceController) {
         self.interfaceController = interfaceController
-
         installRootTemplate()
-
-        // Seed Siri with the same one-to-one destinations that CarPlay exposes
-        // in Speed Dial. NCIntentController donates both messaging and call
-        // interactions for these rooms.
-        for room in CarPlayConversationProvider.shared.speedDial().prefix(20)
-        where room.type == .oneToOne {
-            NCIntentController.sharedInstance().donateSendMessageIntent(for: room)
-        }
 
         NCRoomsManager.shared.updateRooms(
             updatingUserStatus: false,
@@ -92,9 +80,7 @@ final class CarPlayManager {
     // MARK: - Root
 
     private func installRootTemplate() {
-        guard let interfaceController else {
-            return
-        }
+        guard let interfaceController else { return }
 
         let assistantConfiguration = CPAssistantCellConfiguration(
             position: .top,
@@ -107,20 +93,15 @@ final class CarPlayManager {
             sections: makeRootSections(),
             assistantCellConfiguration: assistantConfiguration
         )
+        root.emptyViewTitleVariants = [NSLocalizedString("No conversations", comment: "")]
 
         rootTemplate = root
 
-        interfaceController.setRootTemplate(
-            root,
-            animated: false,
-            completion: { success, error in
-                if let error {
-                    NCLog.log("CarPlay failed to install root template: \(error)")
-                } else {
-                    NCLog.log("CarPlay root template installed: success=\(success)")
-                }
+        interfaceController.setRootTemplate(root, animated: false) { _, error in
+            if let error {
+                NCLog.log("CarPlay failed to install root template: \(error.localizedDescription)")
             }
-        )
+        }
     }
 
     private func refreshTemplates() {
@@ -141,7 +122,10 @@ final class CarPlayManager {
             detailText: subtitle(for: room),
             image: UIImage(systemName: "person.crop.circle")
         )
-        loadAvatar(for: room, into: item)
+
+        loadAvatar(for: room) { image in
+            item.setImage(image)
+        }
 
         item.handler = { [weak self] _, completion in
             self?.showConversation(room)
@@ -165,109 +149,61 @@ final class CarPlayManager {
 
         return nil
     }
-    
+
     private func makeRootSections() -> [CPListSection] {
-        let rooms = CarPlayConversationProvider.shared.conversations()
+        let rooms = CarPlayConversationProvider.shared.callableRooms()
 
-        let ongoingCalls = rooms.filter {
-            $0.hasCall
-        }
+        let ongoingCalls = rooms.filter(\.hasCall)
+        let favorites = rooms.filter { $0.isFavorite && !$0.hasCall }
+        let otherRooms = rooms.filter { !$0.hasCall && !$0.isFavorite }
 
-        let favorites = rooms.filter {
-            $0.isFavorite && !$0.hasCall
-        }
-
-        let otherRooms = rooms.filter {
-            !$0.hasCall && !$0.isFavorite
-        }
-
+        var remainingItems = CPListTemplate.maximumItemCount
+        let maximumSections = CPListTemplate.maximumSectionCount
         var sections: [CPListSection] = []
 
-        if !ongoingCalls.isEmpty {
-            let items = ongoingCalls
-                .prefix(10)
-                .map { makeConversationItem($0) }
+        func appendSection(_ rooms: [NCRoom], header: String) {
+            guard remainingItems > 0,
+                  sections.count < maximumSections,
+                  !rooms.isEmpty else {
+                return
+            }
+
+            let itemCount = min(rooms.count, remainingItems)
+            let items = rooms.prefix(itemCount).map { makeConversationItem($0) }
 
             sections.append(
                 CPListSection(
                     items: Array(items),
-                    header: NSLocalizedString("Ongoing calls", comment: ""),
+                    header: header,
                     sectionIndexTitle: nil
                 )
             )
+
+            remainingItems -= itemCount
         }
 
-        if !favorites.isEmpty {
-            let items = favorites
-                .prefix(20)
-                .map { makeConversationItem($0) }
-
-            sections.append(
-                CPListSection(
-                    items: Array(items),
-                    header: NSLocalizedString("Favorites", comment: ""),
-                    sectionIndexTitle: nil
-                )
-            )
-        }
-
-        if !otherRooms.isEmpty {
-            let items = otherRooms
-                .prefix(100)
-                .map { makeConversationItem($0) }
-
-            sections.append(
-                CPListSection(
-                    items: Array(items),
-                    header: NSLocalizedString("Conversations", comment: ""),
-                    sectionIndexTitle: nil
-                )
-            )
-        }
-
-        if sections.isEmpty {
-            let item = CPListItem(
-                text: NSLocalizedString("No conversations", comment: ""),
-                detailText: nil
-            )
-
-            item.isEnabled = false
-            sections.append(CPListSection(items: [item]))
-        }
+        // Prioritize active calls, then favorites, then the remaining callable rooms.
+        appendSection(ongoingCalls, header: NSLocalizedString("Ongoing calls", comment: ""))
+        appendSection(favorites, header: NSLocalizedString("Favorites", comment: ""))
+        appendSection(otherRooms, header: NSLocalizedString("Conversations", comment: ""))
 
         return sections
     }
-    
-    private func loadAvatar(for room: NCRoom, into item: CPListItem) {
-        let traitCollection = UITraitCollection.current
 
-        _ = AvatarManager.shared.getAvatar(
-            for: room,
-            with: traitCollection.userInterfaceStyle
-        ) { image in
-            guard let image else {
-                return
-            }
+    // MARK: - Avatars
 
-            item.setImage(
-                NCUtils.roundedImage(
-                    fromImage: image,
-                    traitCollection: traitCollection
-                )
-            )
-        }
+    private var carTraitCollection: UITraitCollection {
+        interfaceController?.carTraitCollection ?? UITraitCollection.current
     }
 
     private func loadAvatar(for room: NCRoom, completion: @escaping (UIImage) -> Void) {
-        let traitCollection = UITraitCollection.current
+        let traitCollection = carTraitCollection
 
         _ = AvatarManager.shared.getAvatar(
             for: room,
             with: traitCollection.userInterfaceStyle
         ) { image in
-            guard let image else {
-                return
-            }
+            guard let image else { return }
 
             completion(
                 NCUtils.roundedImage(
@@ -281,44 +217,28 @@ final class CarPlayManager {
     // MARK: - Conversation details
 
     private func showConversation(_ room: NCRoom) {
-        guard let interfaceController else {
-            return
-        }
+        guard let interfaceController else { return }
 
         let placeholder = UIImage(systemName: "person.crop.circle") ?? UIImage()
-        let contact = makeContact(for: room, image: placeholder)
-        let template = CPContactTemplate(contact: contact)
+        let template = CPContactTemplate(contact: makeContact(for: room, image: placeholder))
 
         conversationTemplate = template
         conversationRoomToken = room.token
 
         loadAvatar(for: room) { [weak self, weak template] image in
-            guard let self, let template else {
-                return
-            }
-
+            guard let self, let template else { return }
             template.contact = self.makeContact(for: room, image: image)
         }
 
-        interfaceController.pushTemplate(
-            template,
-            animated: true
-        ) { success, error in
+        interfaceController.pushTemplate(template, animated: true) { _, error in
             if let error {
-                NCLog.log("CarPlay failed to show conversation: \(error)")
-                return
+                NCLog.log("CarPlay failed to show conversation: \(error.localizedDescription)")
             }
-
-            NCLog.log("CarPlay conversation view displayed: success=\(success)")
         }
     }
 
     private func makeContact(for room: NCRoom, image: UIImage) -> CPContact {
-        let contact = CPContact(
-            name: room.displayName,
-            image: image
-        )
-
+        let contact = CPContact(name: room.displayName, image: image)
         let userIsInCall = isUserInCall(room)
 
         if room.hasCall || userIsInCall {
@@ -326,29 +246,18 @@ final class CarPlayManager {
         }
 
         if userIsInCall {
-            let endCallImage = UIImage(named: "carplay_end_call")?
-                .withRenderingMode(.alwaysOriginal) ?? UIImage()
-
-            let endCallButton = CPButton(image: endCallImage) { [weak self] _ in
-                CallKitManager.sharedInstance().endCall(
-                    room.token,
-                    withStatusCode: 0
-                )
-
-                self?.refreshTemplates()
+            let endCallButton = CPButton(image: endCallImage()) { _ in
+                CallKitManager.sharedInstance().endCall(room.token, withStatusCode: 0)
             }
-
             endCallButton.title = NSLocalizedString("End call", comment: "")
             contact.actions = [endCallButton]
         } else {
             let callButton = CPContactCallButton { [weak self] _ in
                 self?.startTalkCall(in: room)
             }
-
             callButton.title = room.hasCall
                 ? NSLocalizedString("Join call", comment: "")
                 : NSLocalizedString("Call", comment: "")
-
             contact.actions = [callButton]
         }
 
@@ -356,11 +265,9 @@ final class CarPlayManager {
     }
 
     private func refreshConversationTemplate() {
-        guard
-            let template = conversationTemplate,
-            let token = conversationRoomToken,
-            let room = CarPlayConversationProvider.shared.room(withToken: token)
-        else {
+        guard let template = conversationTemplate,
+              let token = conversationRoomToken,
+              let room = CarPlayConversationProvider.shared.room(withToken: token) else {
             return
         }
 
@@ -368,58 +275,129 @@ final class CarPlayManager {
         template.contact = makeContact(for: room, image: placeholder)
 
         loadAvatar(for: room) { [weak self, weak template] image in
-            guard let self, let template else {
-                return
-            }
-
+            guard let self, let template else { return }
             template.contact = self.makeContact(for: room, image: image)
         }
     }
 
+    // MARK: - Calls
+
     private func startTalkCall(in room: NCRoom) {
         guard let account = room.account else {
-            NCLog.log("CarPlay call rejected: room has no account, room=\(room.token)")
+            NCLog.log("CarPlay call rejected: room has no account")
             return
         }
-        
-        NCRoomsManager.shared.suppressNextCallUIPresentationForCarPlay()
 
+        if room.recordingConsent {
+            presentRecordingConsent(for: room, account: account)
+            return
+        }
+
+        startTalkCall(in: room, account: account, recordingConsent: true)
+    }
+
+    private func startTalkCall(in room: NCRoom, account: TalkAccount, recordingConsent: Bool) {
         CallKitManager.sharedInstance().startCall(
             room.token,
             withVideoEnabled: false,
             andDisplayName: room.displayName,
             asInitiator: !room.hasCall,
             silently: false,
-            recordingConsent: false,
+            recordingConsent: recordingConsent,
             withAccountId: account.accountId
         )
     }
-    
+
+    private func presentRecordingConsent(for room: NCRoom, account: TalkAccount) {
+        guard let interfaceController else { return }
+
+        let joinAction = CPAlertAction(
+            title: NSLocalizedString(
+                "Give consent and join call",
+                comment: "Give consent to the recording of the call and join that call"
+            ),
+            style: .default
+        ) { [weak self] _ in
+            self?.startTalkCall(in: room, account: account, recordingConsent: true)
+        }
+
+        let cancelAction = CPAlertAction(
+            title: NSLocalizedString("Cancel", comment: ""),
+            style: .cancel
+        ) { _ in }
+
+        let template = CPActionSheetTemplate(
+            title: "⚠️ " + NSLocalizedString("The call might be recorded", comment: ""),
+            message: NSLocalizedString(
+                "The recording might include your voice, video from camera, and screen share. Your consent is required before joining the call.",
+                comment: ""
+            ),
+            actions: [joinAction, cancelAction]
+        )
+
+        interfaceController.presentTemplate(template, animated: true) { _, error in
+            if let error {
+                NCLog.log("CarPlay failed to present recording consent: \(error.localizedDescription)")
+            }
+        }
+    }
+
     private func isUserInCall(_ room: NCRoom) -> Bool {
         CallKitManager.sharedInstance().calls.values.contains { call in
-            call.token == room.token
+            call.token == room.token && !call.isRinging
         }
+    }
+
+    private func endCallImage() -> UIImage {
+        let traitCollection = carTraitCollection
+        let size = CGSize(width: 64, height: 64)
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = max(traitCollection.displayScale, 1)
+        format.opaque = false
+
+        let renderer = UIGraphicsImageRenderer(size: size, format: format)
+        let image = renderer.image { _ in
+            UIColor.systemRed.resolvedColor(with: traitCollection).setFill()
+            UIBezierPath(ovalIn: CGRect(origin: .zero, size: size)).fill()
+
+            let configuration = UIImage.SymbolConfiguration(pointSize: 28, weight: .semibold)
+            guard let symbol = UIImage(systemName: "phone.down.fill", withConfiguration: configuration)?
+                .withTintColor(.white, renderingMode: .alwaysOriginal),
+                  symbol.size.width > 0 else {
+                return
+            }
+
+            let targetWidth: CGFloat = 30
+            let aspectRatio = symbol.size.height / symbol.size.width
+            let targetHeight = targetWidth * aspectRatio
+
+            let symbolRect = CGRect(
+                x: (size.width - targetWidth) / 2,
+                y: (size.height - targetHeight) / 2 + 1,
+                width: targetWidth,
+                height: targetHeight
+            )
+
+            symbol.draw(in: symbolRect)
+        }
+
+        return image.withRenderingMode(.alwaysOriginal)
     }
 
     // MARK: - Notifications
 
     @objc
     private func roomsDidUpdate() {
-        DispatchQueue.main.async { [weak self] in
-            self?.refreshTemplates()
-        }
+        refreshTemplates()
     }
 
     @objc
     private func activeAccountDidChange() {
-        DispatchQueue.main.async { [weak self] in
-            self?.refreshTemplates()
-        }
+        refreshTemplates()
     }
+
     @objc
-    private func callStateDidChange(_ notification: Notification) {
-        DispatchQueue.main.async { [weak self] in
-            self?.refreshTemplates()
-        }
+    private func callStateDidChange(_: Notification) {
+        refreshTemplates()
     }
 }
