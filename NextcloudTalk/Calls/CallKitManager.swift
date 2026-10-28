@@ -606,6 +606,12 @@ public class CallKitManager: NSObject, CXProviderDelegate {
             ]
 
             NotificationCenter.default.post(name: .CallKitManagerDidStartCall, object: self, userInfo: userInfo)
+
+            if let token = call.token,
+               let accountId = call.accountId,
+               let room = NCDatabaseManager.sharedInstance().room(withToken: token, forAccountId: accountId) {
+                NCIntentController.sharedInstance().donateCallIntent(for: room)
+            }
         }
 
         action.fulfill()
