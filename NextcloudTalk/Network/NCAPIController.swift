@@ -77,10 +77,10 @@ class NCAPIController: NSObject, NKCommonDelegate {
         let configuration = URLSessionConfiguration.default
         configuration.httpCookieStorage = self.getHTTPCookieStorage(forAccountId: accountId)
         let apiSessionManager = NCAPISessionManager(configuration: configuration)
-        apiSessionManager.requestSerializer.setValue(authHeader, forHTTPHeaderField: "Authorization")
+        apiSessionManager.setValue(authHeader, forHTTPHeaderField: "Authorization")
 
         // As we can run max. 30s in the background, the default timeout should be lower than 30 to avoid being killed by the OS
-        apiSessionManager.requestSerializer.timeoutInterval = TimeInterval(25)
+        apiSessionManager.timeoutInterval = TimeInterval(25)
         apiSessionManagers[accountId] = apiSessionManager
 
         return apiSessionManager
@@ -98,7 +98,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         let longConfiguration = URLSessionConfiguration.default
         longConfiguration.httpCookieStorage = self.getHTTPCookieStorage(forAccountId: accountId)
         let longApiSessionManager = NCAPISessionManager(configuration: longConfiguration)
-        longApiSessionManager.requestSerializer.setValue(authHeader, forHTTPHeaderField: "Authorization")
+        longApiSessionManager.setValue(authHeader, forHTTPHeaderField: "Authorization")
         longPollingApiSessionManagers[accountId] = longApiSessionManager
 
         return longApiSessionManager
@@ -116,7 +116,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         let calDAVConfiguration = URLSessionConfiguration.default
         calDAVConfiguration.httpCookieStorage = self.getHTTPCookieStorage(forAccountId: accountId)
         let calDAVSessionManager = NCCalDAVSessionManager(configuration: calDAVConfiguration)
-        calDAVSessionManager.requestSerializer.setValue(authHeader, forHTTPHeaderField: "Authorization")
+        calDAVSessionManager.setValue(authHeader, forHTTPHeaderField: "Authorization")
         calDAVSessionManagers[accountId] = calDAVSessionManager
 
         return calDAVSessionManager
@@ -1013,7 +1013,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
             parameters["internalNote"] = internalNote
         }
 
-        apiSessionManager.post(urlString, parameters: parameters, progress: nil) { _, _ in
+        apiSessionManager.post(urlString, parameters: parameters) { _, _ in
             completionBlock(true)
         } failure: { _, _ in
             completionBlock(false)
@@ -1816,10 +1816,10 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
         let configuration = URLSessionConfiguration.default
         let apiSessionManager = NCAPISessionManager(configuration: configuration)
-        apiSessionManager.requestSerializer.setValue(authHeader, forHTTPHeaderField: "Authorization")
-        apiSessionManager.requestSerializer.setValue(NCAppBranding.userAgentForLogin(), forHTTPHeaderField: "User-Agent")
+        apiSessionManager.setValue(authHeader, forHTTPHeaderField: "Authorization")
+        apiSessionManager.setValue(NCAppBranding.userAgentForLogin(), forHTTPHeaderField: "User-Agent")
 
-        _ = apiSessionManager.get(appPasswordRoute, parameters: nil, progress: nil) { _, result in
+        _ = apiSessionManager.get(appPasswordRoute, parameters: nil) { _, result in
             if let resultDict = result as? [String: AnyObject],
                let ocs = resultDict["ocs"] as? [String: AnyObject],
                let data = ocs["data"] as? [String: AnyObject],
@@ -2168,11 +2168,11 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
         switch action.actionType {
         case .kNotificationActionTypeGet:
-            apiSessionManager.get(actionLink, parameters: nil, progress: nil, success: success, failure: failure)
+            apiSessionManager.get(actionLink, parameters: nil, success: success, failure: failure)
         case .kNotificationActionTypePut:
             apiSessionManager.put(actionLink, parameters: nil, success: success, failure: failure)
         case .kNotificationActionTypePost:
-            apiSessionManager.post(actionLink, parameters: nil, progress: nil, success: success, failure: failure)
+            apiSessionManager.post(actionLink, parameters: nil, success: success, failure: failure)
         case .kNotificationActionTypeDelete:
             apiSessionManager.delete(actionLink, parameters: nil, success: success, failure: failure)
         default:
@@ -2597,7 +2597,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
         ]
 
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-            NCPushProxySessionManager.shared.post(urlString, parameters: parameters, progress: nil) { _, _ in
+            NCPushProxySessionManager.shared.post(urlString, parameters: parameters) { _, _ in
                 continuation.resume()
             } failure: { _, error in
                 continuation.resume(throwing: error)
@@ -2656,7 +2656,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
     public func getAppStoreAppId(withCompletionBlock completionBlock: @escaping (_ appId: String?, _ error: Error?) -> Void) {
         let urlString = "http://itunes.apple.com/lookup?bundleId=\(bundleIdentifier)"
 
-        defaultAPISessionManager.get(urlString, parameters: nil, progress: nil, success: { _, responseObject in
+        defaultAPISessionManager.get(urlString, parameters: nil, success: { _, responseObject in
             if let responseDict = responseObject as? [String: Any], let results = responseDict["results"] as? [[String: Any]], let firstResult = results.first {
                 if let trackId = firstResult["trackId"] as? Int {
                     completionBlock(String(trackId), nil)
@@ -3440,9 +3440,8 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
         let urlString = "\(account.server)/ocs/v2.php/apps/spreed/temp-user-avatar"
 
-        apiSessionManager.post(urlString, parameters: nil) { formData in
+        apiSessionManager.post(urlString) { formData in
             formData.appendPart(withFileData: imageData, name: "files[]", fileName: "avatar.jpg", mimeType: "image/jpeg")
-        } progress: { _ in
         } success: { _, _ in
             completionBlock(nil)
         } failure: { _, error in
@@ -3727,9 +3726,8 @@ class NCAPIController: NSObject, NKCommonDelegate {
         let endpoint = "room/\(encodedToken)/avatar"
         let urlString = self.getRequestURL(forEndpoint: endpoint, withAPIType: .avatar, forAccount: account)
 
-        apiSessionManager.post(urlString, parameters: nil) { formData in
+        apiSessionManager.post(urlString) { formData in
             formData.appendPart(withFileData: imageData, name: "file", fileName: "avatar.jpg", mimeType: "image/jpeg")
-        } progress: { _ in
         } success: { _, _ in
             completionBlock(nil)
         } failure: { _, error in

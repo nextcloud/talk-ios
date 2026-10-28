@@ -586,7 +586,7 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
             NCLog.log("Failed to post background upload \(job.fileName). Error: \(error.localizedDescription)")
 
             // An earlier post whose answer got lost already moved the file out of the draft folder
-            let response = (error as NSError).userInfo[AFNetworkingOperationFailingURLResponseErrorKey] as? HTTPURLResponse
+            let response = (error as? NCHTTPResponseError)?.response
             if earlierPostStarted, response?.statusCode == 404 {
                 NCLog.log("Background upload \(job.fileName) was already posted")
                 self.removeJob(job)

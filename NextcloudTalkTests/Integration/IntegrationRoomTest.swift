@@ -5,6 +5,7 @@
 
 import XCTest
 import Foundation
+import UIKit
 @testable import NextcloudTalk
 
 final class IntegrationRoomTest: TestBase {
@@ -479,4 +480,122 @@ final class IntegrationRoomTest: TestBase {
         XCTAssertEqual(disabledBot?.state, .disabled)
     }
 
+    // MARK: - Request encoding
+
+    private func fetchRoom(withToken token: String, forAccount account: TalkAccount) async throws -> NCRoom {
+        return try await withCheckedThrowingContinuation { continuation in
+            NCAPIController.sharedInstance().getRoom(forAccount: account, withToken: token) { roomDict, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else if let room = NCRoom(dictionary: roomDict, andAccountId: account.accountId) {
+                    continuation.resume(returning: room)
+                } else {
+                    continuation.resume(throwing: TestCaseError.expectedValueNotFound)
+                }
+            }
+        }
+    }
+
+    private func squareTestImage() -> UIImage {
+        return UIGraphicsImageRenderer(size: CGSize(width: 128, height: 128)).image { context in
+            UIColor.systemTeal.setFill()
+            context.fill(CGRect(x: 0, y: 0, width: 128, height: 128))
+        }
+    }
+
+    func testRoomNameAndDescriptionWithSpecialCharacters() async throws {
+        try skipWithoutCapability(capability: TalkCapability.roomDescription)
+
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let room = try await createUniqueRoom(prefix: "Rename Special Room", withAccount: activeAccount)
+
+        // Both are sent as PUT form bodies, which the server parses separately from POST
+        let roomName = "C++ & a=b ?/:@ #50% 😀 \(UUID().uuidString)"
+        let roomDescription = IntegrationChatTest.specialCharacters
+
+        let exp = expectation(description: "\(#function)\(#line)")
+
+        NCAPIController.sharedInstance().renameRoom(room.token, forAccount: activeAccount, withName: roomName) { error in
+            XCTAssertNil(error)
+
+            NCAPIController.sharedInstance().setRoomDescription(roomDescription, forRoom: room.token, forAccount: activeAccount) { error in
+                XCTAssertNil(error)
+                exp.fulfill()
+            }
+        }
+
+        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
+
+        let updatedRoom = try await fetchRoom(withToken: room.token, forAccount: activeAccount)
+        XCTAssertEqual(updatedRoom.displayName, roomName)
+        XCTAssertEqual(updatedRoom.roomDescription, roomDescription)
+    }
+
+    func testRoomAvatarUpload() async throws {
+        try skipWithoutCapability(capability: TalkCapability.conversationAvatars)
+
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let room = try await createUniqueRoom(prefix: "Avatar Room", withAccount: activeAccount)
+        XCTAssertFalse(room.isCustomAvatar)
+
+        let exp = expectation(description: "\(#function)\(#line)")
+
+        // Multipart upload with the file in a part named "file"
+        NCAPIController.sharedInstance().setAvatar(forRoom: room.token, withImage: squareTestImage(), forAccount: activeAccount) { error in
+            XCTAssertNil(error)
+            exp.fulfill()
+        }
+
+        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
+
+        let updatedRoom = try await fetchRoom(withToken: room.token, forAccount: activeAccount)
+        XCTAssertTrue(updatedRoom.isCustomAvatar)
+        XCTAssertNotEqual(updatedRoom.avatarVersion, room.avatarVersion)
+    }
+
+    func testUserAvatarUpload() async throws {
+        try skipWithoutCapability(capability: TalkCapability.tempUserAvatarAPI)
+
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let exp = expectation(description: "\(#function)\(#line)")
+
+        // Multipart upload with the file in a part named "files[]", removed again to leave the account unchanged
+        NCAPIController.sharedInstance().setUserProfileImage(squareTestImage(), forAccount: activeAccount) { error in
+            XCTAssertNil(error)
+
+            NCAPIController.sharedInstance().removeUserProfileImage(forAccount: activeAccount) { error in
+                XCTAssertNil(error)
+                exp.fulfill()
+            }
+        }
+
+        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
+    }
+
+    func testConversationTags() async throws {
+        try skipWithoutCapability(capability: TalkCapability.conversationTags)
+
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let room = try await createUniqueRoom(prefix: "Tags Room", withAccount: activeAccount)
+
+        let firstName = "C++ & a=b \(UUID().uuidString.prefix(8))"
+        let secondName = "😀 é \(UUID().uuidString.prefix(8))"
+        let firstTag = try await NCAPIController.sharedInstance().createConversationTag(firstName, forAccount: activeAccount)
+        let secondTag = try await NCAPIController.sharedInstance().createConversationTag(secondName, forAccount: activeAccount)
+
+        XCTAssertEqual(firstTag.name, firstName)
+        XCTAssertEqual(secondTag.name, secondName)
+
+        // Array of strings in a POST body
+        let taggedRoom = try await NCAPIController.sharedInstance().setConversationTags([firstTag.tagId, secondTag.tagId], forRoom: room.token, forAccount: activeAccount)
+        XCTAssertEqual(Set(taggedRoom?.tagIdList ?? []), [firstTag.tagId, secondTag.tagId])
+
+        // Array of strings in a PUT body, the server ignores ids that do not arrive as strings
+        let reorderedTags = try await NCAPIController.sharedInstance().reorderConversationTags(withOrderedIds: [secondTag.tagId, firstTag.tagId], forAccount: activeAccount)
+        let ownTagIds = reorderedTags.map(\.tagId).filter { $0 == firstTag.tagId || $0 == secondTag.tagId }
+        XCTAssertEqual(ownTagIds, [secondTag.tagId, firstTag.tagId])
+
+        try await NCAPIController.sharedInstance().deleteConversationTag(withId: firstTag.tagId, forAccount: activeAccount)
+        try await NCAPIController.sharedInstance().deleteConversationTag(withId: secondTag.tagId, forAccount: activeAccount)
+    }
 }

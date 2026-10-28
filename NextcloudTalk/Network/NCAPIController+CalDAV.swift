@@ -32,12 +32,16 @@ extension NCAPIController {
                 """
 
         let urlString = "\(account.server)/remote.php/dav/calendars/\(account.userId)/"
-        let request = calDAVSessionManager.requestSerializer.request(withMethod: "PROPFIND", urlString: urlString, parameters: nil, error: nil)
+        guard var request = calDAVSessionManager.request(withMethod: "PROPFIND", urlString: urlString, parameters: nil) else {
+            completionBlock([])
+            return
+        }
+
         request.setValue("application/xml", forHTTPHeaderField: "Content-Type")
         request.setValue("1", forHTTPHeaderField: "Depth")
         request.httpBody = xmlBody.data(using: .utf8)
 
-        let task = calDAVSessionManager.dataTask(with: request as URLRequest) { _, responseObject, error in
+        let task = calDAVSessionManager.dataTask(with: request) { _, responseObject, error in
             guard error == nil, let responseData = responseObject as? Data else {
                 completionBlock([])
                 return

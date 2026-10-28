@@ -20,11 +20,11 @@ class TestBase: XCTestCase {
 
         let configuration = URLSessionConfiguration.default
         let apiSessionManager = NCAPISessionManager(configuration: configuration)
-        apiSessionManager.requestSerializer.setValue(authHeader, forHTTPHeaderField: "Authorization")
+        apiSessionManager.setValue(authHeader, forHTTPHeaderField: "Authorization")
 
         let exp = expectation(description: "\(#function)\(#line)")
 
-        _ = apiSessionManager.get(appPasswordRoute, parameters: nil, progress: nil) { _, result in
+        _ = apiSessionManager.get(appPasswordRoute, parameters: nil) { _, result in
             if let resultDict = result as? [String: AnyObject],
                let ocs = resultDict["ocs"] as? [String: AnyObject],
                let data = ocs["data"] as? [String: AnyObject],
@@ -46,7 +46,7 @@ class TestBase: XCTestCase {
 
         let configuration = URLSessionConfiguration.default
         let apiSessionManager = NCAPISessionManager(configuration: configuration)
-        apiSessionManager.requestSerializer.setValue(authHeader, forHTTPHeaderField: "Authorization")
+        apiSessionManager.setValue(authHeader, forHTTPHeaderField: "Authorization")
 
         self.apiSessionManager = apiSessionManager
     }

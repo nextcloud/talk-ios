@@ -8,10 +8,10 @@ import Foundation
 @objcMembers public class NCAPISessionManager: NCBaseSessionManager {
 
     init(configuration: URLSessionConfiguration) {
-        super.init(configuration: configuration, responseSerializer: AFJSONResponseSerializer(), requestSerializer: AFHTTPRequestSerializer())
+        super.init(configuration: configuration, responseType: .json)
 
-        self.requestSerializer.setValue("application/json", forHTTPHeaderField: "Accept")
-        self.requestSerializer.setValue("true", forHTTPHeaderField: "OCS-APIRequest")
+        self.setValue("application/json", forHTTPHeaderField: "Accept")
+        self.setValue("true", forHTTPHeaderField: "OCS-APIRequest")
     }
 
     private func checkHeaders(for task: URLSessionDataTask, for account: TalkAccount) {
@@ -57,7 +57,7 @@ import Foundation
     @discardableResult
     @available(*, renamed: "getOcs()")
     public func getOcs(_ URLString: String, account: TalkAccount?, parameters: Any? = nil, checkResponseHeaders: Bool = true, checkResponseStatusCode: Bool = true, completion: ((OcsResponse?, OcsError?) -> Void)?) -> URLSessionDataTask? {
-        return self.get(URLString, parameters: parameters, progress: nil) { task, data in
+        return self.get(URLString, parameters: parameters) { task, data in
             if checkResponseHeaders, let account {
                 self.checkHeaders(for: task, for: account)
             }
@@ -68,21 +68,21 @@ import Foundation
                 self.checkStatusCode(for: task, for: account)
             }
 
-            completion?(nil, OcsError(withError: error as NSError, withTask: task))
+            completion?(nil, OcsError(withError: error, withTask: task))
         }
     }
 
     @discardableResult
     @available(*, renamed: "postOcs()")
     public func postOcs(_ URLString: String, account: TalkAccount, parameters: Any? = nil, checkResponseStatusCode: Bool = true, completion: ((OcsResponse?, OcsError?) -> Void)?) -> URLSessionDataTask? {
-        return self.post(URLString, parameters: parameters, progress: nil) { task, data in
+        return self.post(URLString, parameters: parameters) { task, data in
             completion?(OcsResponse(withData: data, withTask: task), nil)
         } failure: { task, error in
             if checkResponseStatusCode, let task {
                 self.checkStatusCode(for: task, for: account)
             }
 
-            completion?(nil, OcsError(withError: error as NSError, withTask: task))
+            completion?(nil, OcsError(withError: error, withTask: task))
         }
     }
 
@@ -96,7 +96,7 @@ import Foundation
                 self.checkStatusCode(for: task, for: account)
             }
 
-            completion?(nil, OcsError(withError: error as NSError, withTask: task))
+            completion?(nil, OcsError(withError: error, withTask: task))
         }
     }
 
@@ -110,7 +110,7 @@ import Foundation
                 self.checkStatusCode(for: task, for: account)
             }
 
-            completion?(nil, OcsError(withError: error as NSError, withTask: task))
+            completion?(nil, OcsError(withError: error, withTask: task))
         }
     }
 
