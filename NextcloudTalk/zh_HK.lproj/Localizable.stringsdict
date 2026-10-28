@@ -40,10 +40,8 @@
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
-			<key>one</key>
-			<string>%ld file failed to send</string>
 			<key>other</key>
-			<string>%ld files failed to send</string>
+			<string>%ld 個檔案傳送失敗</string>
 		</dict>
 	</dict>
 	<key>%ld participants</key>

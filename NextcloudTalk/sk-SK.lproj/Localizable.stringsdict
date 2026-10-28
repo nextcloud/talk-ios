@@ -53,9 +53,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%ld file failed to send</string>
+			<string>%ld súbor sa nepodarilo odoslať</string>
+			<key>few</key>
+			<string>%ld súbory sa nepodarilo odoslať</string>
+			<key>many</key>
+			<string>%ld súborov sa nepodarilo odoslať</string>
 			<key>other</key>
-			<string>%ld files failed to send</string>
+			<string>%ld súborov sa nepodarilo odoslať</string>
 		</dict>
 	</dict>
 	<key>%ld participants</key>
