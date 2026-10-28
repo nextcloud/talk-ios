@@ -45,7 +45,7 @@ class NCIntentController: NSObject {
             interaction.direction = .incoming
             interaction.donate { error in
                 if let error {
-                    NSLog("Interaction donation failed: %@", error.localizedDescription)
+                    NCLog.log("Interaction donation failed: \(error.localizedDescription)")
                     block(nil)
                 } else {
                     block(sendMessageIntent)
@@ -55,11 +55,6 @@ class NCIntentController: NSObject {
     }
 
     func donateSendMessageIntent(for room: NCRoom) {
-        // Siri needs app-specific people in the calling domain in addition to
-        // the messaging domain. Keep the call donation tied to the existing
-        // room donation entry point used by CarPlay.
-        donateCallIntent(for: room)
-
         // When the system suggests to write a message to "someone", we don't receive the conversationIdentifier.
         // Therefore we also add a recipient here, although it's technically not a "Person", but a "Room".
         let handle = INPersonHandle(value: nil, type: .unknown)
@@ -88,41 +83,37 @@ class NCIntentController: NSObject {
         }
     }
 
-    private func donateCallIntent(for room: NCRoom) {
-        // Siri needs app-specific people in the calling domain, not only in the
-        // messaging domain. Donate one-to-one Talk rooms as native Talk call
-        // destinations. The prefixed custom identifier is later used by the main
-        // app to resolve the corresponding Talk room.
+    func donateCallIntent(for room: NCRoom) {
         guard room.type == .oneToOne,
-              room.canStartCall,
+              room.supportsCalling,
+              room.userCanStartCall,
               !room.internalId.isEmpty else {
             return
         }
 
-        let customIdentifier = "talk-room:\(room.internalId)"
         let handleValue = room.name.isEmpty ? room.displayName : room.name
+        let person = INPerson(
+            personHandle: INPersonHandle(value: handleValue, type: .unknown),
+            nameComponents: nil,
+            displayName: room.displayName,
+            image: nil,
+            contactIdentifier: nil,
+            customIdentifier: "talk-room:\(room.internalId)"
+        )
 
-        let handle = INPersonHandle(value: handleValue, type: .unknown)
-        let person = INPerson(personHandle: handle,
-                              nameComponents: nil,
-                              displayName: room.displayName,
-                              image: nil,
-                              contactIdentifier: nil,
-                              customIdentifier: customIdentifier)
+        let intent = INStartCallIntent(
+            audioRoute: .unknown,
+            destinationType: .normal,
+            contacts: [person],
+            recordTypeForRedialing: .unknown,
+            callCapability: .audioCall
+        )
 
-        let callIntent = INStartCallIntent(audioRoute: .unknown,
-                                           destinationType: .normal,
-                                           contacts: [person],
-                                           recordTypeForRedialing: .unknown,
-                                           callCapability: .audioCall)
-
-        let interaction = INInteraction(intent: callIntent, response: nil)
+        let interaction = INInteraction(intent: intent, response: nil)
         interaction.direction = .outgoing
         interaction.donate { error in
             if let error {
-                NSLog("Failed to donate Talk call intent for %@: %@", room.displayName, error.localizedDescription)
-            } else {
-                NSLog("Talk call intent donated for %@", room.displayName)
+                NCLog.log("Failed to donate Talk call intent: \(error.localizedDescription)")
             }
         }
     }
@@ -131,9 +122,7 @@ class NCIntentController: NSObject {
         let interaction = INInteraction(intent: sendMessageIntent, response: nil)
         interaction.donate { error in
             if let error {
-                NSLog("Failed to donate sendMessageIntent: %@", error.localizedDescription)
-            } else {
-                NSLog("SendMessageIntent successfully donated")
+                NCLog.log("Failed to donate sendMessageIntent: \(error.localizedDescription)")
             }
         }
     }
