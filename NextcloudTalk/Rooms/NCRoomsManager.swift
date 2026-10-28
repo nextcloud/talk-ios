@@ -53,15 +53,6 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
     private var pendingToStartCallAccountId: String?
     private var pendingToStartCallHasVideo: Bool = false
 
-    // One-shot flag used by CarPlay calls.
-    //
-    // CarPlay has its own UI scene, so presenting the normal iPhone
-    // CallViewController from a CarPlay-triggered CallKit action causes
-    // NCUserInterfaceController.present(...) to assert. This flag suppresses
-    // only the next call UI presentation while keeping the regular Talk call
-    // setup, room join, signaling and CallKit flow unchanged.
-    private var suppressNextCallUIPresentation = false
-
     private var highlightMessageDict: [AnyHashable: Any]?
     private var showThreadPushNotification: NCPushNotification?
     private var pendingPrivateReplyInternalId: String?
@@ -554,16 +545,6 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
 
     // MARK: - Call
 
-    /// Prevents the normal iPhone CallViewController from being presented for
-    /// the next call only.
-    ///
-    /// This is intended for CarPlay, which renders its own call UI. The flag is
-    /// consumed by `startCall(...)` and automatically reset, so all regular Talk
-    /// call paths keep their existing behavior.
-    public func suppressNextCallUIPresentationForCarPlay() {
-        suppressNextCallUIPresentation = true
-    }
-
     // swiftlint:disable:next function_parameter_count
     public func startCall(withVideo video: Bool, inRoom room: NCRoom, withVideoEnabled videoEnabled: Bool, asInitiator initiator: Bool, silently: Bool, withRecordingConsent recordingConsent: Bool, withVoiceChatMode voiceChatMode: Bool) {
         guard self.callViewController == nil else {
@@ -620,31 +601,8 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
             }
         }
 
-        // CarPlay owns a separate UI scene. When a call was started from
-        // CarPlay, do not try to present the iPhone CallViewController from
-        // this path; doing so triggers an assertion in
-        // NCUserInterfaceController.present(...).
-        //
-        // Consume the flag immediately so it can never leak into a subsequent
-        // regular Talk call.
-        let shouldSuppressCallUI = suppressNextCallUIPresentation
-        suppressNextCallUIPresentation = false
-
-        if shouldSuppressCallUI {
-            NCLog.log("Starting Talk call without presenting iPhone call UI (CarPlay)")
-
-            // CallViewController is also the NCCallController delegate and receives
-            // room/call notifications even when it is not presented. Load its view
-            // hierarchy so its outlets are initialized before NCRoomsManagerDidJoinRoom
-            // is posted. Without this, didJoinRoom() accesses nil outlets such as
-            // titleView and triggers a Swift assertion.
-            callViewController.loadViewIfNeeded()
-
+        NCUserInterfaceController.sharedInstance().present(callViewController) {
             self.joinRoom(room.token, forAccountId: account.accountId, forCall: true)
-        } else {
-            NCUserInterfaceController.sharedInstance().present(callViewController) {
-                self.joinRoom(room.token, forAccountId: account.accountId, forCall: true)
-            }
         }
     }
 
