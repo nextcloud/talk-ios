@@ -49,9 +49,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%ld file failed to send</string>
+			<string>Falha ao enviar %ld arquivo</string>
+			<key>many</key>
+			<string>Falha ao enviar %ld de arquivos</string>
 			<key>other</key>
-			<string>%ld files failed to send</string>
+			<string>Falha ao enviar %ld arquivos</string>
 		</dict>
 	</dict>
 	<key>%ld participants</key>
