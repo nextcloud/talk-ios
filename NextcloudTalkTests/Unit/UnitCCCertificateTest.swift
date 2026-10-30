@@ -69,6 +69,18 @@ final class UnitCCCertificateTest: XCTestCase {
         XCTAssertFalse(manager.checkTrustedChallenge(try challenge(host: hostA, certificate: certificateA)))
     }
 
+    func testListAndRemoveAcceptedCertificates() throws {
+        let manager = CCCertificate.sharedManager()!
+
+        XCTAssertTrue(manager.acceptCertificate(certificateA, forHost: hostA))
+        XCTAssertTrue(manager.acceptedCertificateHosts().contains(hostA))
+
+        XCTAssertTrue(manager.removeAcceptedCertificate(forHost: hostA))
+
+        XCTAssertFalse(manager.acceptedCertificateHosts().contains(hostA))
+        XCTAssertFalse(manager.checkTrustedChallenge(try challenge(host: hostA, certificate: certificateA)))
+    }
+
     // MARK: - Helpers
 
     private func challenge(host: String, certificate: Data) throws -> URLAuthenticationChallenge {

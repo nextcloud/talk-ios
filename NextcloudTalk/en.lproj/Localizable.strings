@@ -157,6 +157,9 @@
 /* No comment provided by engineer. */
 "Accept" = "Accept";
 
+/* Date when a certificate was accepted, e.g. 'Accepted on Oct 31, 2026' */
+"Accepted on %@" = "Accepted on %@";
+
 /* No comment provided by engineer. */
 "Account" = "Account";
 
@@ -609,6 +612,12 @@
 
 /* No comment provided by engineer. */
 "Capabilities" = "Capabilities";
+
+/* No comment provided by engineer. */
+"Certificates" = "Certificates";
+
+/* No comment provided by engineer. */
+"Certificates you chose to trust for servers whose identity could not be verified. Each certificate is only trusted for the server it was accepted for." = "Certificates you chose to trust for servers whose identity could not be verified. Each certificate is only trusted for the server it was accepted for.";
 
 /* No comment provided by engineer. */
 "Change password" = "Change password";
@@ -1687,6 +1696,9 @@
 
 /* No comment provided by engineer. */
 "No" = "No";
+
+/* No comment provided by engineer. */
+"No accepted certificates" = "No accepted certificates";
 
 /* No comment provided by engineer. */
 "No actions available" = "No actions available";

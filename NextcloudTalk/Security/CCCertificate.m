@@ -179,6 +179,45 @@ static SecCertificateRef SecTrustGetLeafCertificate(SecTrustRef trust)
     return YES;
 }
 
+- (NSArray<NSString *> *)acceptedCertificateHosts
+{
+    NSString *localCertificatesFolder = [self getDirectoryCerificates];
+    NSMutableArray<NSString *> *hosts = [NSMutableArray array];
+
+    for (NSString *directoryName in [[NSFileManager defaultManager] contentsOfDirectoryAtPath:localCertificatesFolder error:NULL]) {
+        NSString *hostFilePath = [[localCertificatesFolder stringByAppendingPathComponent:directoryName] stringByAppendingPathComponent:hostFileName];
+        NSString *host = [NSString stringWithContentsOfFile:hostFilePath encoding:NSUTF8StringEncoding error:NULL];
+
+        if (host.length > 0) {
+            [hosts addObject:host];
+        }
+    }
+
+    return [hosts sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
+}
+
+- (NSURL *)acceptedCertificateURLForHost:(NSString *)host
+{
+    NSString *hostDirectory = [self directoryForHost:host];
+
+    if (!hostDirectory) {
+        return nil;
+    }
+
+    return [NSURL fileURLWithPath:[hostDirectory stringByAppendingPathComponent:certificateFileName]];
+}
+
+- (BOOL)removeAcceptedCertificateForHost:(NSString *)host
+{
+    NSString *hostDirectory = [self directoryForHost:host];
+
+    if (!hostDirectory) {
+        return NO;
+    }
+
+    return [[NSFileManager defaultManager] removeItemAtPath:hostDirectory error:NULL];
+}
+
 - (NSString *)directoryForHost:(NSString *)host
 {
     if (host.length == 0) {
