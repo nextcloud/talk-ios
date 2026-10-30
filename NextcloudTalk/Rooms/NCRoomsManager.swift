@@ -124,6 +124,11 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
                     chatController = NCChatController(for: room)
                 }
 
+                // Temporary diagnostics for #2760, remove after the investigation
+                if let openRoom = self.chatViewController?.room, openRoom.internalId == room.internalId {
+                    NCChatController.log2760("updateRoomsAndChats room=\(room.token ?? "-") is open, reusesActiveController=\(chatController === self.chatViewController?.chatController)")
+                }
+
                 chatController.updateHistoryInBackground { _ in
                     print("Finished updating \(room.internalId)")
                     chatUpdateGroup.leave()

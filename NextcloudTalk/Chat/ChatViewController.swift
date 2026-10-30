@@ -762,6 +762,8 @@ import SwiftUI
             return
         }
 
+        NCChatController.log2760("appDidBecomeActive room=\(self.room.token ?? "-") stopped=\(self.hasStopped) offline=\(self.offlineMode)")
+
         // If we stopped the chat, we don't want to resume it here
         if self.hasStopped {
             return
@@ -778,6 +780,8 @@ import SwiftUI
     }
 
     func appWillResignActive(notification: Notification) {
+        NCChatController.log2760("appWillResignActive room=\(self.room.token ?? "-") stopped=\(self.hasStopped)")
+
         // If we stopped the chat, we don't want to change anything here
         if self.hasStopped {
             return
@@ -1205,6 +1209,11 @@ import SwiftUI
         // Create temporary message
         guard let temporaryMessage = self.createTemporaryMessage(message: message, replyTo: replyTo, messageParameters: messageParameters, silently: silently, isVoiceMessage: false) else { return }
 
+        let showsTemporaryMessage2760 = NCDatabaseManager.sharedInstance().roomHasTalkCapability(.chatReferenceId, for: room)
+        NCChatController.log2760("sendChatMessage room=\(room.token ?? "-") ref=\(NCChatController.shortRef(temporaryMessage.referenceId)) ts=\(temporaryMessage.timestamp) " +
+             "showsTemporary=\(showsTemporaryMessage2760) thread=\(temporaryMessage.threadId) parent=\(replyTo?.messageId ?? -1) hasReceivedHistory=\(self.hasReceiveInitialHistory) " +
+             "joined=\(self.hasJoinedRoom) offline=\(self.offlineMode) stopped=\(self.hasStopped)")
+
         if NCDatabaseManager.sharedInstance().roomHasTalkCapability(.chatReferenceId, for: room) {
             self.appendTemporaryMessage(temporaryMessage: temporaryMessage)
         }
@@ -1451,6 +1460,9 @@ import SwiftUI
         self.checkRoomControlsAvailability()
         self.checkPinnedMessage()
 
+        NCChatController.log2760("didJoinRoom room=\(self.room.token ?? "-") stopped=\(self.hasStopped) startAfterJoin=\(self.startReceivingMessagesAfterJoin) " +
+             "hasReceivedHistory=\(self.hasReceiveInitialHistory) hasRequestedHistory=\(self.hasRequestedInitialHistory) lastRead=\(self.room.lastReadMessage)")
+
         if self.hasStopped {
             return
         }
@@ -1510,6 +1522,7 @@ import SwiftUI
             }
 
             if self.shouldPresentLobbyView() {
+                NCChatController.log2760("didReceiveInitialChatHistory room=\(self.room.token ?? "-") dropped, lobby is shown")
                 self.hasRequestedInitialHistory = false
                 self.startObservingRoomLobbyFlag()
 
@@ -1555,6 +1568,8 @@ import SwiftUI
                 }
 
                 let storedTemporaryMessages = self.chatController.getTemporaryMessages()
+                NCChatController.log2760("didReceiveInitialChatHistory room=\(self.room.token ?? "-") count=\(messages.count) ids=\(messages.first?.messageId ?? -1)-\(messages.last?.messageId ?? -1) " +
+                     "temporary=" + storedTemporaryMessages.map { "\(NCChatController.shortRef($0.referenceId))(ts=\($0.timestamp))" }.joined(separator: ","))
 
                 if !storedTemporaryMessages.isEmpty {
                     self.insertMessages(messages: storedTemporaryMessages)
@@ -1581,6 +1596,8 @@ import SwiftUI
             }
 
             self.hasReceiveInitialHistory = true
+
+            NCChatController.log2760("didReceiveInitialChatHistory room=\(self.room.token ?? "-") error=\(notification.userInfo?["error"] != nil), starting poll or offline mode")
 
             if notification.userInfo?["error"] == nil {
                 self.chatController.startReceivingNewChatMessages()
@@ -1660,6 +1677,11 @@ import SwiftUI
         let bgTask = BGTaskHelper.startBackgroundTask(withName: "didReceiveChatMessages")
 
         DispatchQueue.main.async {
+            let messages2760 = notification.userInfo?["messages"] as? [NCChatMessage] ?? []
+            NCChatController.log2760("didReceiveChatMessages room=\(self.room.token ?? "-") ownController=\(notification.object as? NCChatController == self.chatController) " +
+                 "error=\(notification.userInfo?["error"] != nil) tableView=\(self.tableView != nil) messages=" +
+                 messages2760.map { "\($0.messageId):\(NCChatController.shortRef($0.referenceId))" }.joined(separator: ","))
+
             if notification.object as? NCChatController != self.chatController || notification.userInfo?["error"] != nil {
                 bgTask.stopBackgroundTask()
                 return
@@ -1876,7 +1898,10 @@ import SwiftUI
             // Thread messages should not be displayed outside of threads or vise-versa
             guard (!self.isThreadViewController && !newMessage.isThreadMessage())
                     || (self.isThreadViewController && (newMessage.isThreadMessage() || newMessage.isThreadOriginalMessage()))
-            else { continue }
+            else {
+                NCChatController.log2760("appendReceived id=\(newMessage.messageId) ref=\(NCChatController.shortRef(newMessage.referenceId)) skipped as thread message thread=\(newMessage.threadId)")
+                continue
+            }
 
             // System messages are hidden client-side in channels and announcements, so they are
             // not added to the data source by appendMessages. Skip them here as well to stay in
@@ -1885,6 +1910,13 @@ import SwiftUI
 
             // If we don't get an indexPath here, something is wrong with our appendMessages function
             let indexPath = self.indexPath(for: newMessage)!
+
+            if let referenceId = newMessage.referenceId, !referenceId.isEmpty {
+                let rowsWithReference = self.messages.values.joined().filter { $0.referenceId == referenceId }
+                NCChatController.log2760("appendReceived id=\(newMessage.messageId) ref=\(NCChatController.shortRef(referenceId)) ts=\(newMessage.timestamp) " +
+                     "matchedTemporary=\(temporaryReplacementHeights[referenceId] != nil) rows=\(rowsWithReference.count) " +
+                     "temporaryRows=\(rowsWithReference.filter { $0.isTemporary }.count) indexPath=\(indexPath.section):\(indexPath.row)")
+            }
 
             if !sectionsBeforeUpdate.contains(self.dateSections[indexPath.section]) {
                 // The message created a new date section -> insert it at its sorted position
@@ -1954,6 +1986,8 @@ import SwiftUI
         if notification.object as? NCChatController != self.chatController {
             return
         }
+
+        NCChatController.log2760("didReceiveChatBlocked room=\(self.room.token ?? "-")")
 
         self.startObservingRoomLobbyFlag()
     }
@@ -2089,6 +2123,7 @@ import SwiftUI
         }
 
         print("didReceiveMessagesInBackground")
+        NCChatController.log2760("didReceiveMessagesInBackground room=\(self.room.token ?? "-") lastRealMessage=\(self.getLastRealMessage()?.message.messageId ?? -1)")
         self.checkForNewStoredMessages()
     }
 

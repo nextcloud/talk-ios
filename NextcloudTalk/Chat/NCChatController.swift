@@ -219,11 +219,17 @@ public class NCChatController: NSObject {
         // Add or update messages
         for messageDict in messages {
             // messageWithDictionary takes care of setting a potential available parentId
-            guard let message = NCChatMessage(dictionary: messageDict, andAccountId: account.accountId) else { continue }
+            guard let message = NCChatMessage(dictionary: messageDict, andAccountId: account.accountId) else {
+                Self.log2760("storeMessages room=\(room.token ?? "-") could not parse message id=\(messageDict["id"] as? Int ?? -1)")
+                continue
+            }
 
             if let referenceId = message.referenceId, !referenceId.isEmpty {
                 if let managedTemporaryMessage = NCChatMessage.objects(where: "referenceId = %@ AND isTemporary = true", referenceId).firstObject() as? NCChatMessage {
                     realm.delete(managedTemporaryMessage)
+                    Self.log2760("storeMessages room=\(room.token ?? "-") id=\(message.messageId) ref=\(Self.shortRef(referenceId)) deleted temporary message")
+                } else if message.isMessage(from: account.userId), message.timestamp > Int(Date().timeIntervalSince1970) - 600 {
+                    Self.log2760("storeMessages room=\(room.token ?? "-") id=\(message.messageId) ref=\(Self.shortRef(referenceId)) no temporary message")
                 }
             }
 
@@ -793,6 +799,7 @@ public class NCChatController: NSObject {
     public func updateHistoryInBackground(completion: ((_ error: OcsError?) -> Void)?) {
         // If there's a pull task running right now, we should not interfere with that
         if let pullMessagesTask, pullMessagesTask.state == .running {
+            Self.log2760("updateHistoryInBackground room=\(room.token ?? "-") skipped, pullTask=\(pullTaskState2760)")
             completion?(OcsError(withError: NSError(domain: NSCocoaErrorDomain, code: 0), withTask: nil))
             return
         }
@@ -808,7 +815,12 @@ public class NCChatController: NSObject {
             self.pullMessagesTask?.cancel()
         }
 
-        pullMessagesTask = NCAPIController.sharedInstance().receiveChatMessages(ofRoom: room.token, fromLastMessageId: lastChatBlock?.newestMessageId ?? 0, inThread: threadId, history: false, includeLastMessage: false, timeout: false, limit: NCAPIController.shared.kReceivedChatMessagesLimit, lastCommonReadMessage: room.lastCommonReadMessage, setReadMarker: false, markNotificationsAsRead: false, forAccount: account) { messages, lastKnownMessage, lastCommonReadMessage, error, _ in
+        Self.log2760("updateHistoryInBackground room=\(room.token ?? "-") from=\(lastChatBlock?.newestMessageId ?? 0) replacing pullTask=\(pullTaskState2760) stopped=\(stopChatMessagesPoll)")
+
+        pullMessagesTask = NCAPIController.sharedInstance().receiveChatMessages(ofRoom: room.token, fromLastMessageId: lastChatBlock?.newestMessageId ?? 0, inThread: threadId, history: false, includeLastMessage: false, timeout: false, limit: NCAPIController.shared.kReceivedChatMessagesLimit, lastCommonReadMessage: room.lastCommonReadMessage, setReadMarker: false, markNotificationsAsRead: false, forAccount: account) { messages, lastKnownMessage, lastCommonReadMessage, error, statusCode in
+            Self.log2760("updateHistoryInBackground room=\(self.room.token ?? "-") done status=\(statusCode) error=\(error?.underlyingError.code ?? 0) expired=\(expired) lastGiven=\(lastKnownMessage) " +
+                         "lastCommonRead=\(lastCommonReadMessage) \(Self.describe2760(messageDicts: messages))")
+
             if expired {
                 completion?(error)
                 bgTask.stopBackgroundTask()
@@ -855,6 +867,9 @@ public class NCChatController: NSObject {
     public func checkForNewMessages(fromMessageId messageId: Int) {
         let lastChatBlock = chatBlocksForRoomOrThread().last
         let storedMessages = getNewStoredMessages(inBlock: lastChatBlock, sinceMessageId: messageId)
+
+        Self.log2760("checkForNewMessages room=\(room.token ?? "-") from=\(messageId) blockNewest=\(lastChatBlock?.newestMessageId ?? -1) " +
+                     "found=\(storedMessages.count) ids=\(storedMessages.first?.messageId ?? -1)-\(storedMessages.last?.messageId ?? -1) main=\(Thread.isMainThread)")
 
         guard !storedMessages.isEmpty else { return }
 
@@ -920,6 +935,11 @@ public class NCChatController: NSObject {
         // messages to display (they were already notified above to keep the thread reply count up to date).
         let chatMessages = isThreadController ? storedMessages : storedMessages.filter { !$0.isThreadMessage() }
 
+        if chatMessages.count != storedMessages.count {
+            Self.log2760("notify room=\(room.token ?? "-") filtered \(storedMessages.count - chatMessages.count) thread messages: " +
+                         storedMessages.filter { $0.isThreadMessage() }.map { "\($0.messageId)(thread=\($0.threadId))" }.joined(separator: ","))
+        }
+
         userInfo["messages"] = chatMessages
         userInfo["firstNewMessagesAfterHistory"] = !hasReceivedMessagesFromServer
         NotificationCenter.default.post(name: .NCChatControllerDidReceiveChatMessages, object: self, userInfo: userInfo)
@@ -984,7 +1004,12 @@ public class NCChatController: NSObject {
             lastReadMessageId = room.lastReadMessage
         }
 
+        logRoomState2760("getInitialChatHistory from=\(lastReadMessageId)")
+
         fetchHistoryUntilVisible(fromMessageId: lastReadMessageId, forInitialChatHistory: true, isFirstIteration: true) { messages, lastCommonReadMessage, error, statusCode in
+            Self.log2760("getInitialChatHistory room=\(self.room.token ?? "-") done status=\(statusCode) error=\(error?.underlyingError.code ?? 0) " +
+                         "count=\(messages?.count ?? 0) ids=\(messages?.first?.messageId ?? -1)-\(messages?.last?.messageId ?? -1) blocks=\(self.chatBlocks2760)")
+
             // A 304 means no message at or before the last read one is left, which is an empty history and not
             // a failure. Reporting it as an error would go offline instead of polling for the newer messages.
             if let error, statusCode != 304 {
@@ -1075,7 +1100,11 @@ public class NCChatController: NSObject {
 
         // If no messages are found or visible in last chat block, fall back to fetching them from the server
         getHistoryTask = NCAPIController.sharedInstance().receiveChatMessages(ofRoom: room.token, fromLastMessageId: messageId, inThread: threadId, history: true, includeLastMessage: forInitialChatHistory, timeout: false, limit: NCAPIController.shared.kReceivedChatMessagesLimit, lastCommonReadMessage: room.lastCommonReadMessage, setReadMarker: true, markNotificationsAsRead: true, forAccount: account) { messages, lastKnownMessage, lastCommonReadMessage, error, statusCode in
+            Self.log2760("fetchHistoryUntilVisible room=\(self.room.token ?? "-") from=\(messageId) initial=\(forInitialChatHistory) first=\(isFirstIteration) " +
+                         "status=\(statusCode) error=\(error?.underlyingError.code ?? 0) lastGiven=\(lastKnownMessage) stopped=\(self.stopChatMessagesPoll) \(Self.describe2760(messageDicts: messages))")
+
             if self.stopChatMessagesPoll {
+                Self.log2760("fetchHistoryUntilVisible room=\(self.room.token ?? "-") dropped result, controller is stopped")
                 return
             }
 
@@ -1178,15 +1207,28 @@ public class NCChatController: NSObject {
         // may resurrect a controller that has been stopped. Since stopReceivingNewChatMessages and the
         // catch-up's restart both resolve on the main queue, bailing here guarantees a stop that ran first
         // sticks, regardless of the queue interleaving.
-        guard !stopChatMessagesPoll else { return }
+        guard !stopChatMessagesPoll else {
+            Self.log2760("poll room=\(room.token ?? "-") not started, controller is stopped")
+            return
+        }
+        if let pullMessagesTask, pullMessagesTask.state == .running {
+            Self.log2760("poll room=\(room.token ?? "-") cancelling running pullTask=\(pullTaskState2760)")
+        }
         pullMessagesTask?.cancel()
+        let requestStart2760 = Date()
         pullMessagesTask = NCAPIController.sharedInstance().receiveChatMessages(ofRoom: room.token, fromLastMessageId: messageId, inThread: threadId, history: false, includeLastMessage: false, timeout: timeout, limit: NCAPIController.shared.kReceivedChatMessagesLimit, lastCommonReadMessage: room.lastCommonReadMessage, setReadMarker: true, markNotificationsAsRead: true, forAccount: account) { messages, lastKnownMessage, lastCommonReadMessage, error, statusCode in
+            Self.log2760("poll room=\(self.room.token ?? "-") from=\(messageId) done status=\(statusCode) error=\(error?.underlyingError.code ?? 0) " +
+                         "duration=\(String(format: "%.1f", Date().timeIntervalSince(requestStart2760))) lastGiven=\(lastKnownMessage) lastCommonRead=\(lastCommonReadMessage) " +
+                         "stopped=\(self.stopChatMessagesPoll) \(Self.describe2760(messageDicts: messages))")
+
             if self.stopChatMessagesPoll {
+                Self.log2760("poll room=\(self.room.token ?? "-") exit: controller is stopped")
                 return
             }
 
             if let error {
                 if self.isChatBeingBlocked(statusCode) {
+                    Self.log2760("poll room=\(self.room.token ?? "-") exit: chat is blocked (412)")
                     self.resetChatRelayState()
                     self.notifyChatIsBlocked()
                     return
@@ -1223,6 +1265,7 @@ public class NCChatController: NSObject {
                         // When we receive a "history_cleared" message, we don't continue here, as otherwise
                         // we would request new messages, but instead, we need to request the initial history again
                         if message?.systemMessage == "history_cleared" {
+                            Self.log2760("poll room=\(self.room.token ?? "-") exit: history_cleared id=\(message?.messageId ?? -1)")
                             self.resetChatRelayState()
                             return
                         }
@@ -1239,13 +1282,19 @@ public class NCChatController: NSObject {
                 let lastChatBlock = self.chatBlocksForRoomOrThread().last
 
                 if chatIsUpToDate, self.externalSignalingController?.hasChatRelay == true {
+                    Self.log2760("poll room=\(self.room.token ?? "-") exit: handing over to chat relay")
                     self.handOverPollingToChatRelay(fromMessagesId: lastChatBlock?.newestMessageId ?? 0)
                     return
                 }
 
+                Self.log2760("poll room=\(self.room.token ?? "-") next from=\(lastChatBlock?.newestMessageId ?? 0) timeout=\(chatIsUpToDate)")
                 self.startReceivingChatMessages(fromMessagesId: lastChatBlock?.newestMessageId ?? 0, withTimeout: chatIsUpToDate)
+            } else {
+                Self.log2760("poll room=\(self.room.token ?? "-") exit: request was cancelled")
             }
         }
+
+        Self.log2760("poll room=\(room.token ?? "-") start from=\(messageId) timeout=\(timeout) lastCommonRead=\(room.lastCommonReadMessage) pullTask=\(pullTaskState2760)")
     }
 
     public func startReceivingNewChatMessages() {
@@ -1254,6 +1303,7 @@ public class NCChatController: NSObject {
         // controller (see the guard in startReceivingChatMessages).
         stopChatMessagesPoll = false
         let lastChatBlock = chatBlocksForRoomOrThread().last
+        logRoomState2760("startReceivingNewChatMessages")
         startReceivingChatMessages(fromMessagesId: lastChatBlock?.newestMessageId ?? 0, withTimeout: false)
     }
 
@@ -1262,6 +1312,7 @@ public class NCChatController: NSObject {
         chatRelayMessagesQueue?.async {
             self.chatRelayState = .inactive
         }
+        Self.log2760("stopReceivingNewChatMessages room=\(room.token ?? "-") pullTask=\(pullTaskState2760)")
         stopChatMessagesPoll = true
         pullMessagesTask?.cancel()
     }
@@ -1285,7 +1336,13 @@ public class NCChatController: NSObject {
             }
         }
 
+        Self.log2760("send room=\(room.token ?? "-") ref=\(Self.shortRef(referenceId)) retry=\(retryCount) replyTo=\(replyTo) pullTask=\(pullTaskState2760) stopped=\(stopChatMessagesPoll)")
+        let sendStart2760 = Date()
+
         NCAPIController.sharedInstance().sendChatMessage(message, toRoom: room.token, threadTitle: nil, replyTo: replyTo, replyToToken: replyToToken, referenceId: referenceId, silently: silently, forAccount: account) { error in
+            Self.log2760("send room=\(self.room.token ?? "-") ref=\(Self.shortRef(referenceId)) done status=\(error?.responseStatusCode ?? 0) error=\(error?.underlyingError.code ?? 0) " +
+                         "duration=\(String(format: "%.1f", Date().timeIntervalSince(sendStart2760))) pullTask=\(self.pullTaskState2760) stopped=\(self.stopChatMessagesPoll)")
+
             if let referenceId {
                 userInfo["referenceId"] = referenceId
             }
@@ -1400,6 +1457,7 @@ public class NCChatController: NSObject {
     }
 
     public func clearHistoryAndResetChatController() {
+        Self.log2760("clearHistoryAndResetChatController room=\(room.token ?? "-") pullTask=\(pullTaskState2760)")
         pullMessagesTask?.cancel()
         removeAllStoredMessagesAndChatBlocks()
         room.lastReadMessage = 0
@@ -1491,5 +1549,86 @@ extension NCChatController {
     // There is no signaling controller configured for the fake account, so tests pass in their own.
     func setupChatRelayForTesting(with signalingController: NCExternalSignalingController) {
         setupChatRelay(with: signalingController)
+    }
+}
+
+// MARK: - Temporary diagnostics for #2760, remove after the investigation
+
+extension NCChatController {
+
+    static func log2760(_ message: String) {
+        NCLog.log("[2760] \(message)")
+    }
+
+    static func shortRef(_ referenceId: String?) -> String {
+        guard let referenceId, !referenceId.isEmpty else { return "-" }
+        return String(referenceId.prefix(8))
+    }
+
+    static func describe2760(messageDicts messages: [[String: Any]]?) -> String {
+        guard let messages, !messages.isEmpty else { return "count=0" }
+
+        let ids = messages.compactMap { $0["id"] as? Int }
+        var result = "count=\(messages.count) ids=\(ids.min() ?? -1)-\(ids.max() ?? -1)"
+
+        let refs = messages.compactMap { dict -> String? in
+            guard let referenceId = dict["referenceId"] as? String, !referenceId.isEmpty else { return nil }
+            return "\(dict["id"] as? Int ?? -1):\(shortRef(referenceId))"
+        }
+
+        if !refs.isEmpty {
+            result += " refs=[\(refs.joined(separator: ","))]"
+        }
+
+        return result
+    }
+
+    var chatBlocks2760: String {
+        let blocks = chatBlocksForRoomOrThread().map { "\($0.oldestMessageId)-\($0.newestMessageId)" }
+        return "[\(blocks.joined(separator: ","))]"
+    }
+
+    var temporaryMessages2760: String {
+        let query = NSPredicate(format: "accountId = %@ AND token = %@ AND isTemporary = true", account.accountId, room.token)
+        var refs: [String] = []
+        for case let message as NCChatMessage in NCChatMessage.objects(with: query) {
+            refs.append("\(Self.shortRef(message.referenceId))(ts=\(message.timestamp),failed=\(message.sendingFailed),offline=\(message.isOfflineMessage))")
+        }
+        return "\(refs.count)[\(refs.joined(separator: ","))]"
+    }
+
+    var pullTaskState2760: String {
+        guard let pullMessagesTask else { return "nil" }
+        return "\(pullMessagesTask.taskIdentifier):\(pullMessagesTask.state.rawValue)"
+    }
+
+    func logRoomState2760(_ context: String) {
+        let token: String = room.token ?? "-"
+        let objectType: String = room.objectType ?? "-"
+        let lastMessageId: String = room.lastMessageId ?? "-"
+        let hasChatRelay: Bool = externalSignalingController?.hasChatRelay == true
+
+        let fields: [String] = [
+            context,
+            "room=\(token)",
+            "thread=\(threadId)",
+            "type=\(room.type.rawValue)",
+            "readOnly=\(room.readOnlyState.rawValue)",
+            "lobby=\(room.lobbyState.rawValue)",
+            "expiration=\(room.messageExpiration.rawValue)",
+            "objectType=\(objectType)",
+            "lastRead=\(room.lastReadMessage)",
+            "lastCommonRead=\(room.lastCommonReadMessage)",
+            "lastMessageId=\(lastMessageId)",
+            "lastActivity=\(room.lastActivity)",
+            "unread=\(room.unreadMessages)",
+            "relay=\(hasChatRelay)",
+            "blocks=\(chatBlocks2760)",
+            "temporary=\(temporaryMessages2760)",
+            "stopped=\(stopChatMessagesPoll)",
+            "pullTask=\(pullTaskState2760)"
+        ]
+
+        Self.log2760(fields.joined(separator: " "))
     }
 }

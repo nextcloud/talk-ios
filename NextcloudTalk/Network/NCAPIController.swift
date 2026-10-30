@@ -2767,7 +2767,15 @@ class NCAPIController: NSObject, NKCommonDelegate {
             parameters["threadTitle"] = threadTitle
         }
 
-        return apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { _, ocsError in
+        return apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
+            // Temporary diagnostics for #2760, remove after the investigation
+            if let referenceId {
+                let messageDict = ocsResponse?.dataDict
+                NCLog.log("[2760] send response room=\(token) ref=\(referenceId.prefix(8)) status=\(ocsResponse?.responseStatusCode ?? ocsError?.responseStatusCode ?? 0) " +
+                          "id=\(messageDict?["id"] as? Int ?? -1) responseRef=\((messageDict?["referenceId"] as? String)?.prefix(8) ?? "-") " +
+                          "threadId=\(messageDict?["threadId"] as? Int ?? 0) isThread=\(messageDict?["isThread"] as? Bool ?? false) timestamp=\(messageDict?["timestamp"] as? Int ?? -1)")
+            }
+
             completionBlock(ocsError)
         }
     }

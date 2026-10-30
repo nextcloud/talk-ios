@@ -359,6 +359,8 @@ public class NCNotificationController: NSObject, UNUserNotificationCenterDelegat
 
     public func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         // Called when a notification is delivered to a foreground app.
+        // Temporary diagnostics for #2760, remove after the investigation
+        NCLog.log("[2760] foreground notification room=\(notification.request.content.userInfo["roomToken"] as? String ?? "-")")
         NotificationCenter.default.post(name: .NCNotificationControllerWillPresent, object: self, userInfo: nil)
         completionHandler([.list, .banner])
 
