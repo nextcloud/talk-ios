@@ -15,15 +15,12 @@
 
 @interface CCCertificate : NSObject
 
-@property (weak) id<CCCertificateDelegate> delegate;
-
 + (CCCertificate *)sharedManager;
 
 - (BOOL)checkTrustedChallenge:(NSURLAuthenticationChallenge *)challenge;
-- (BOOL)acceptCertificate;
-- (void)saveCertificate:(SecTrustRef)trust withName:(NSString *)certName;
+- (BOOL)acceptCertificate:(NSData *)certificateData forHost:(NSString *)host NS_SWIFT_NAME(acceptCertificate(_:forHost:));
 
-- (void)presentViewControllerCertificateWithTitle:(NSString *)title viewController:(UIViewController *)viewController delegate:(id)delegate;
+- (void)presentViewControllerCertificateWithError:(NSError *)error viewController:(UIViewController *)viewController delegate:(id)delegate NS_SWIFT_NAME(presentViewControllerCertificate(withError:viewController:delegate:));
 
 @end
 

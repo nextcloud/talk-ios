@@ -9,9 +9,20 @@
 
 #import "NextcloudTalk-Swift.h"
 
+@interface CCCertificate ()
+
+// Last untrusted certificate per host, offered when the user is asked to accept it
+@property (nonatomic, strong) NSMutableDictionary<NSString *, NSData *> *pendingCertificates;
+
+@end
+
 @implementation CCCertificate
 
 NSString *const appCertificates = @"Library/Application Support/Certificates";
+
+// Stored next to the certificate of a host, as the directory name is a hash of the host
+static NSString *const hostFileName = @"host";
+static NSString *const certificateFileName = @"certificate.der";
 
 //Singleton
 + (CCCertificate *)sharedManager {
@@ -19,6 +30,8 @@ NSString *const appCertificates = @"Library/Application Support/Certificates";
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         CCCertificate = [[self alloc] init];
+        CCCertificate.pendingCertificates = [NSMutableDictionary dictionary];
+        [CCCertificate removeLegacyCertificates];
     });
     return CCCertificate;
 }
@@ -42,106 +55,156 @@ static SecCertificateRef SecTrustGetLeafCertificate(SecTrustRef trust)
 
 - (BOOL)checkTrustedChallenge:(NSURLAuthenticationChallenge *)challenge
 {
-    BOOL trusted = NO;
-    SecTrustRef trust;
-    NSURLProtectionSpace *protectionSpace;
-    
-    protectionSpace = [challenge protectionSpace];
-    trust = [protectionSpace serverTrust];
-        
-    if(trust != nil) {
-        [self saveCertificate:trust withName:@"tmp.der"];
-        NSString *localCertificatesFolder = [self getDirectoryCerificates];
-        NSArray* listCertificateLocation = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:localCertificatesFolder error:NULL];
-        
-        for (int i = 0 ; i < [listCertificateLocation count] ; i++) {
-            NSString *currentLocalCertLocation = [NSString stringWithFormat:@"%@/%@",localCertificatesFolder,[listCertificateLocation objectAtIndex:i]];
-            NSString *tempCertLocation = [NSString stringWithFormat:@"%@/%@",localCertificatesFolder,@"tmp.der"];
-            NSFileManager *fileManager = [ NSFileManager defaultManager];
-            
-            if(![currentLocalCertLocation isEqualToString:tempCertLocation] &&
-               [fileManager contentsEqualAtPath:tempCertLocation andPath:currentLocalCertLocation]) {
-                
-                NSLog(@"Certificated matched with one saved previously.");
-                trusted = YES;
-            }
-        }
-    } else {
-        trusted = NO;
+    NSURLProtectionSpace *protectionSpace = [challenge protectionSpace];
+    SecTrustRef trust = [protectionSpace serverTrust];
+
+    if (trust == nil) {
+        return NO;
     }
-    
-    return trusted;
+
+    NSData *certificateData = [self leafCertificateDataOfTrust:trust];
+    NSString *hostDirectory = [self directoryForHost:protectionSpace.host];
+
+    if (!certificateData || !hostDirectory) {
+        return NO;
+    }
+
+    NSData *acceptedCertificateData = [NSData dataWithContentsOfFile:[hostDirectory stringByAppendingPathComponent:certificateFileName]];
+
+    if ([acceptedCertificateData isEqualToData:certificateData]) {
+        NSLog(@"Certificated matched with one saved previously.");
+        return YES;
+    }
+
+    @synchronized (self.pendingCertificates) {
+        self.pendingCertificates[[protectionSpace.host lowercaseString]] = certificateData;
+    }
+
+    return NO;
 }
 
-- (void)saveCertificate:(SecTrustRef)trust withName:(NSString *)certName
+- (NSData *)leafCertificateDataOfTrust:(SecTrustRef)trust
 {
-    SecCertificateRef currentServerCert = SecTrustGetLeafCertificate(trust);
-    CFDataRef data = SecCertificateCopyData(currentServerCert);
+    SecCertificateRef certificate = SecTrustGetLeafCertificate(trust);
 
-    if (!data) {
-        return;
+    if (!certificate) {
+        return nil;
     }
 
-    NSData *nsData = (__bridge NSData *)(data);
-    NSString *base64Certificate = [nsData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength | NSDataBase64EncodingEndLineWithLineFeed];
-
-    if (!base64Certificate) {
-        return;
-    }
-
-    NSString *localCertificatesFolder = [self getDirectoryCerificates];
-    certName = [NSString stringWithFormat:@"%@/%@", localCertificatesFolder, certName];
-
-    [base64Certificate writeToFile:certName atomically:YES encoding:NSUTF8StringEncoding error:nil];
+    return (__bridge_transfer NSData *)SecCertificateCopyData(certificate);
 }
 
-- (void)presentViewControllerCertificateWithTitle:(NSString *)title viewController:(UIViewController *)viewController delegate:(id)delegate
+- (NSString *)hostFromError:(NSError *)error
+{
+    id failingURL = error.userInfo[NSURLErrorFailingURLErrorKey];
+
+    return [failingURL isKindOfClass:[NSURL class]] ? [failingURL host] : nil;
+}
+
+- (void)presentViewControllerCertificateWithError:(NSError *)error viewController:(UIViewController *)viewController delegate:(id)delegate
 {
     if (![viewController isKindOfClass:[UIViewController class]])
         return;
-    
-    _delegate = delegate;
+
+    // Only the certificate seen for the failed host is accepted, and only for that host
+    NSString *host = [self hostFromError:error];
+    NSData *certificateData = nil;
+
+    @synchronized (self.pendingCertificates) {
+        certificateData = self.pendingCertificates[[host lowercaseString]];
+    }
+
+    if (!certificateData || !host) {
+        NSLog(@"[LOG] Untrusted certificate error without certificate or host");
+        return;
+    }
+
+    __weak id<CCCertificateDelegate> weakDelegate = delegate;
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
         
-        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:NSLocalizedString(@"Do you want to connect to the server anyway?", nil)  preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:error.localizedDescription message:NSLocalizedString(@"Do you want to connect to the server anyway?", nil)  preferredStyle:UIAlertControllerStyleAlert];
         
         [alertController addAction: [UIAlertAction actionWithTitle:NSLocalizedString(@"Yes", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
             
-            [[CCCertificate sharedManager] acceptCertificate];
+            [[CCCertificate sharedManager] acceptCertificate:certificateData forHost:host];
             
-            if([self.delegate respondsToSelector:@selector(trustedCerticateAccepted)])
-                [self.delegate trustedCerticateAccepted];
+            if([weakDelegate respondsToSelector:@selector(trustedCerticateAccepted)])
+                [weakDelegate trustedCerticateAccepted];
         }]];
         
         [alertController addAction: [UIAlertAction actionWithTitle:NSLocalizedString(@"No", nil) style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
             
-            if([self.delegate respondsToSelector:@selector(trustedCerticateDenied)])
-                [self.delegate trustedCerticateDenied];
+            if([weakDelegate respondsToSelector:@selector(trustedCerticateDenied)])
+                [weakDelegate trustedCerticateDenied];
         }]];
         
         [viewController presentViewController:alertController animated:YES completion:nil];
     });
 }
 
-- (BOOL)acceptCertificate
+- (BOOL)acceptCertificate:(NSData *)certificateData forHost:(NSString *)host
 {
-    NSString *localCertificatesFolder = [self getDirectoryCerificates];
+    NSString *hostDirectory = [self directoryForHost:host];
+
+    if (!hostDirectory) {
+        return NO;
+    }
+
+    NSFileManager *fileManager = [NSFileManager defaultManager];
     NSError *error;
-    NSFileManager *fm = [[NSFileManager alloc] init];
-    NSTimeInterval dateCertificate = [[NSDate date] timeIntervalSince1970];
-    NSString *currentCertLocation = [NSString stringWithFormat:@"%@/%f.der",localCertificatesFolder, dateCertificate];
-    
-    NSLog(@"[LOG] currentCertLocation: %@", currentCertLocation);
-    
-    if(![fm moveItemAtPath:[NSString stringWithFormat:@"%@/%@",localCertificatesFolder, @"tmp.der"] toPath:currentCertLocation error:&error]) {
-        
+
+    // Replaces the certificate previously accepted for this host
+    [fileManager removeItemAtPath:hostDirectory error:NULL];
+
+    if (![fileManager createDirectoryAtPath:hostDirectory withIntermediateDirectories:YES attributes:nil error:&error]) {
         NSLog(@"[LOG] Error: %@", [error localizedDescription]);
         return NO;
-        
+    }
+
+    if (![host writeToFile:[hostDirectory stringByAppendingPathComponent:hostFileName] atomically:YES encoding:NSUTF8StringEncoding error:&error]) {
+        NSLog(@"[LOG] Error: %@", [error localizedDescription]);
+        return NO;
+    }
+
+    NSString *currentCertLocation = [hostDirectory stringByAppendingPathComponent:certificateFileName];
+
+    NSLog(@"[LOG] currentCertLocation: %@", currentCertLocation);
+
+    if (![certificateData writeToFile:currentCertLocation options:NSDataWritingAtomic error:&error]) {
+        NSLog(@"[LOG] Error: %@", [error localizedDescription]);
+        return NO;
     }
     
     return YES;
+}
+
+- (NSString *)directoryForHost:(NSString *)host
+{
+    if (host.length == 0) {
+        return nil;
+    }
+
+    // Hashed, as a host is not guaranteed to be a valid file name
+    NSString *directoryName = [NCUtils sha256FromString:[host lowercaseString]];
+
+    return [[self getDirectoryCerificates] stringByAppendingPathComponent:directoryName];
+}
+
+// Certificates accepted before they were stored per host are no longer trusted
+- (void)removeLegacyCertificates
+{
+    NSString *localCertificatesFolder = [self getDirectoryCerificates];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+
+    for (NSString *fileName in [fileManager contentsOfDirectoryAtPath:localCertificatesFolder error:NULL]) {
+        NSString *path = [localCertificatesFolder stringByAppendingPathComponent:fileName];
+        BOOL isDirectory = NO;
+
+        if ([fileManager fileExistsAtPath:path isDirectory:&isDirectory] && !isDirectory) {
+            [fileManager removeItemAtPath:path error:NULL];
+        }
+    }
 }
 
 - (NSString *)getDirectoryCerificates

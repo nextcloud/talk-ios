@@ -923,7 +923,7 @@ public enum NCExternalSignalingSendMessageStatus {
                 DispatchQueue.main.async {
                     CCCertificate.sharedManager()
                         .presentViewControllerCertificate(
-                            withTitle: error.localizedDescription,
+                            withError: error as NSError,
                             viewController: NCUserInterfaceController.sharedInstance().mainViewController,
                             delegate: self)
                 }
