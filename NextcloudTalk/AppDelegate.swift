@@ -89,12 +89,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
 
         // When we include VLCKit we need to manually call this because otherwise, device rotation might not work
         UIDevice.current.beginGeneratingDeviceOrientationNotifications()
-
         return true
     }
 
     func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
         let intent = userActivity.interaction?.intent
+
+        // Modern Siri / CarPlay call intent. Only previously donated Talk
+        // identities are accepted here; the app does not create conversations
+        // from a spoken-name directory search.
+        if let startCallIntent = intent as? INStartCallIntent {
+            return handleStartCallIntent(startCallIntent)
+        }
+
+        // Keep compatibility with the legacy call intents already supported by
+        // Talk on older iOS versions.
+
         let audioCallIntent = intent is INStartAudioCallIntent
         let videoCallIntent = intent is INStartVideoCallIntent
         if audioCallIntent || videoCallIntent {
@@ -116,6 +126,59 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
                 }
             }
         }
+
+        return true
+    }
+    
+    @MainActor
+    private func routeSiriStartCall(_ person: INPerson) -> Bool {
+        // A Talk identity donated by the app is authoritative.
+        if let customIdentifier = person.customIdentifier,
+           customIdentifier.hasPrefix("talk-room:") {
+            let internalId = String(customIdentifier.dropFirst("talk-room:".count))
+            guard let room = NCDatabaseManager.sharedInstance().room(withInternalId: internalId) else {
+                NCLog.log("Siri/CarPlay Talk target not found: internalId=\(internalId)")
+                return false
+            }
+
+            return startTalkCall(in: room)
+        }
+
+        // Compatibility with older Talk donations where the room internal id
+        // was stored directly without the talk-room: prefix.
+        if let customIdentifier = person.customIdentifier,
+           !customIdentifier.isEmpty,
+           let room = NCDatabaseManager.sharedInstance().room(withInternalId: customIdentifier) {
+            return startTalkCall(in: room)
+        }
+
+        NCLog.log("Siri/CarPlay call rejected: unresolved Talk destination")
+        return false
+    }
+
+    @MainActor
+    private func startTalkCall(in room: NCRoom) -> Bool {
+        // Siri cannot ask for Talk's recording consent in the main-app handoff.
+        // Never join such a room implicitly.
+        guard !room.recordingConsent else {
+            NCLog.log("Siri/CarPlay call rejected: recording consent required")
+            return false
+        }
+
+        guard let account = room.account else {
+            NCLog.log("Siri/CarPlay call rejected: room has no account, room=\(room.token)")
+            return false
+        }
+
+        CallKitManager.sharedInstance().startCall(
+            room.token,
+            withVideoEnabled: false,
+            andDisplayName: room.displayName,
+            asInitiator: !room.hasCall,
+            silently: false,
+            recordingConsent: false,
+            withAccountId: account.accountId
+        )
 
         return true
     }
@@ -563,5 +626,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
         keepAliveBGTask?.stopBackgroundTask()
 
         NCSettingsController.sharedInstance().connectDisconnectedExternalSignalingControllers()
+    }
+    
+    @MainActor
+    func handleStartCallIntent(_ intent: INStartCallIntent) -> Bool {
+        guard let person = intent.contacts?.first else {
+            NCLog.log("Siri/CarPlay call rejected: no contact supplied")
+            return false
+        }
+
+        return routeSiriStartCall(person)
     }
 }

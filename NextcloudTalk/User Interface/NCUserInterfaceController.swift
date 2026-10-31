@@ -277,6 +277,16 @@ public typealias PresentCallControllerCompletionBlock = () -> Void
     }
 
     func present(_ callViewController: CallViewController, completionBlock block: PresentCallControllerCompletionBlock?) {
+        guard let mainViewController else {
+            // A CarPlay scene can receive a call intent before the phone scene
+            // has created its split view controller. The CallViewController is
+            // still required as the call delegate, so initialize its outlets and
+            // continue the normal room join without trying to present UIKit UI.
+            callViewController.loadViewIfNeeded()
+            block?()
+            return
+        }
+
         mainViewController.dismiss(animated: false)
         mainViewController.present(callViewController, animated: true) {
             block?()

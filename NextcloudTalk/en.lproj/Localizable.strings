@@ -98,6 +98,9 @@
 "%ld replies" = "%ld replies";
 
 /* No comment provided by engineer. */
+"%ld unread messages" = "%ld unread messages";
+
+/* No comment provided by engineer. */
 "'Do not disturb' user status is ignored for important conversations" = "'Do not disturb' user status is ignored for important conversations";
 
 /* No comment provided by engineer. */
@@ -531,6 +534,12 @@
 
 /* No comment provided by engineer. */
 "Calendar" = "Calendar";
+
+/* No comment provided by engineer. */
+"Call" = "Call";
+
+/* No comment provided by engineer. */
+"Call in progress" = "Call in progress";
 
 /* No comment provided by engineer. */
 "Call notification sent" = "Call notification sent";
@@ -1704,6 +1713,9 @@
 "No bots available for this conversation" = "No bots available for this conversation";
 
 /* No comment provided by engineer. */
+"No conversations" = "No conversations";
+
+/* No comment provided by engineer. */
 "No description provided" = "No description provided";
 
 /* No comment provided by engineer. */
@@ -1798,6 +1810,9 @@
 
 /* No comment provided by engineer. */
 "Once a conversation is unarchived, it will be shown by default again." = "Once a conversation is unarchived, it will be shown by default again.";
+
+/* No comment provided by engineer. */
+"Ongoing calls" = "Ongoing calls";
 
 /* No comment provided by engineer. */
 "Online" = "Online";
@@ -2288,9 +2303,6 @@
 "Short absence status is too long" = "Short absence status is too long";
 
 /* No comment provided by engineer. */
-"Show more…" = "Show more…";
-
-/* No comment provided by engineer. */
 "Signaling" = "Signaling";
 
 /* No comment provided by engineer. */
@@ -2631,9 +2643,6 @@
 
 /* No comment provided by engineer. */
 "Unread messages" = "Unread messages";
-
-/* Calling is not supported */
-"Unsupported" = "Unsupported";
 
 /* Button to update the app */
 "Update" = "Update";
