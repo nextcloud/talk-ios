@@ -49,9 +49,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%ld file failed to send</string>
+			<string>%ld fișier nu a putut fi trimis</string>
+			<key>few</key>
+			<string>%ld fișiere nu au putut fi trimise</string>
 			<key>other</key>
-			<string>%ld files failed to send</string>
+			<string>%ld de fișiere nu au putut fi trimise</string>
 		</dict>
 	</dict>
 	<key>%ld participants</key>
@@ -353,7 +355,7 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%4$ld altă persoană vor primi invitații</string>
+			<string>%4$ld altă persoană va primi invitații</string>
 			<key>few</key>
 			<string>%4$ld alte persoane vor primi invitații</string>
 			<key>other</key>
