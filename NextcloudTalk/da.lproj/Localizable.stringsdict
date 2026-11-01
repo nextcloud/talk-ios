@@ -141,7 +141,7 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%ld notifikationer</string>
+			<string>%ld notifikation</string>
 			<key>other</key>
 			<string>%ld notifikationer</string>
 		</dict>
@@ -157,7 +157,7 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>Du har %ld afventende invitationer</string>
+			<string>Du har %ld afventende invitation</string>
 			<key>other</key>
 			<string>Du har %ld afventende invitationer</string>
 		</dict>
@@ -173,9 +173,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%d muligheder</string>
+			<string>%d valgmulighed</string>
 			<key>other</key>
-			<string>%d muligheder</string>
+			<string>%d valgmuligheder</string>
 		</dict>
 	</dict>
 	<key>This conversation will be automatically deleted for everyone in %ld days of no activity.</key>
