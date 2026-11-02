@@ -2456,6 +2456,9 @@
 "The call might be recorded" = "The call might be recorded";
 
 /* No comment provided by engineer. */
+"The certificate of this server has changed since you last accepted it. Do you want to connect to the server anyway?" = "The certificate of this server has changed since you last accepted it. Do you want to connect to the server anyway?";
+
+/* No comment provided by engineer. */
 "The password is wrong" = "The password is wrong";
 
 /* No comment provided by engineer. */

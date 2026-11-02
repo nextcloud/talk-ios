@@ -120,10 +120,19 @@ static SecCertificateRef SecTrustGetLeafCertificate(SecTrustRef trust)
     }
 
     __weak id<CCCertificateDelegate> weakDelegate = delegate;
+
+    NSString *certificatePath = [[self directoryForHost:host] stringByAppendingPathComponent:certificateFileName];
+    BOOL certificateChanged = [[NSFileManager defaultManager] fileExistsAtPath:certificatePath];
+
+    NSString *message = NSLocalizedString(@"Do you want to connect to the server anyway?", nil);
+
+    if (certificateChanged) {
+        message = NSLocalizedString(@"The certificate of this server has changed since you last accepted it. Do you want to connect to the server anyway?", nil);
+    }
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
         
-        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:error.localizedDescription message:NSLocalizedString(@"Do you want to connect to the server anyway?", nil)  preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:error.localizedDescription message:message preferredStyle:UIAlertControllerStyleAlert];
         
         [alertController addAction: [UIAlertAction actionWithTitle:NSLocalizedString(@"Yes", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
             
