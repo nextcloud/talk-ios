@@ -2684,6 +2684,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
                                     lastCommonReadMessage: Int,
                                     setReadMarker: Bool,
                                     markNotificationsAsRead: Bool,
+                                    updateStatus: Bool = true,
                                     forAccount account: TalkAccount,
                                     completionBlock: @escaping (_ messages: [[String: Any]]?, _ lastKnownMessage: Int, _ lastCommonReadMessage: Int, _ error: OcsError?, _ statusCode: Int) -> Void) -> URLSessionDataTask? {
 
@@ -2708,6 +2709,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
             "setReadMarker": setReadMarker ? 1 : 0,
             "includeLastKnown": includeLastMessage ? 1 : 0,
             "markNotificationsAsRead": markNotificationsAsRead ? 1 : 0,
+            "noStatusUpdate": updateStatus ? 0 : 1,
             "threadId": threadId
         ]
 
