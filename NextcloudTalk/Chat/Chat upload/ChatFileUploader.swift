@@ -192,13 +192,19 @@ enum ChatFileUploader {
                                                                    allowUpdate: upload.allowUpdate,
                                                                    forAccount: upload.account)
             case .attachmentFolder(let serverPath, _):
-                // The files sharing API has no way to grant update permissions, which is why the
-                // option is not offered at all without conversation subfolders.
+                // The user only picks view only or editable with conversation subfolder capability, so only a 501 fallback sends permissions
+                var permissions: NCAPIController.SharePermissions?
+
+                if upload.room.supportsConversationSubfolders {
+                    permissions = upload.allowUpdate ? [.read, .update, .share] : [.read, .share]
+                }
+
                 try await apiController.shareFileOrFolder(forAccount: upload.account,
                                                           atPath: serverPath,
                                                           toRoom: upload.room.token,
                                                           withTalkMetaData: talkMetaData,
-                                                          withReferenceId: upload.referenceId)
+                                                          withReferenceId: upload.referenceId,
+                                                          permissions: permissions)
             }
         } catch {
             throw ChatFileUploadError.shareFailed(underlyingError: error)
