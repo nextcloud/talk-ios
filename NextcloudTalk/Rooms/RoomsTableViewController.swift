@@ -159,6 +159,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         notificationCenter.addObserver(self, selector: #selector(serverCapabilitiesUpdated(_:)), name: .NCServerCapabilitiesUpdated, object: nil)
         notificationCenter.addObserver(self, selector: #selector(userProfileImageUpdated(_:)), name: .NCUserProfileImageUpdated, object: nil)
         notificationCenter.addObserver(self, selector: #selector(appWillEnterForeground(_:)), name: UIApplication.willEnterForegroundNotification, object: nil)
+        notificationCenter.addObserver(self, selector: #selector(appDidBecomeActive(_:)), name: UIApplication.didBecomeActiveNotification, object: nil)
         notificationCenter.addObserver(self, selector: #selector(appWillResignActive(_:)), name: UIApplication.willResignActiveNotification, object: nil)
         notificationCenter.addObserver(self, selector: #selector(roomCreated(_:)), name: .NCRoomCreated, object: nil)
         notificationCenter.addObserver(self, selector: #selector(activeAccountDidChange(_:)), name: .NCSettingsControllerDidChangeActiveAccount, object: nil)
@@ -448,6 +449,14 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
                 self.setUnreadMessageForInactiveAccountsIndicator()
             }
         }
+    }
+
+    @objc private func appDidBecomeActive(_ notification: Notification) {
+        // Returning from Control Center or a system alert posts no willEnterForeground, so nothing else restarts the timer
+        guard refreshRoomsTimer == nil, NCConnectionController.shared.appState == .ready, viewIfLoaded?.window != nil else { return }
+
+        refreshRooms()
+        startRefreshRoomsTimer()
     }
 
     @objc private func appWillResignActive(_ notification: Notification) {
@@ -1252,7 +1261,12 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
             updateUserStatus()
             getUserThreads()
             refreshConversationTags()
-            startRefreshRoomsTimer()
+
+            // Reachability changes also land here in the background, the timer would then bump the user status on every later wake
+            if UIApplication.shared.applicationState != .background {
+                startRefreshRoomsTimer()
+            }
+
             setupNavigationBar()
         default:
             break
