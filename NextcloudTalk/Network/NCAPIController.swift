@@ -3148,8 +3148,26 @@ class NCAPIController: NSObject, NKCommonDelegate {
         }
     }
 
+    /// Permissions of a share created through the files sharing API.
+    public struct SharePermissions: OptionSet {
+        public let rawValue: Int
+
+        public init(rawValue: Int) {
+            self.rawValue = rawValue
+        }
+
+        public static let read = SharePermissions(rawValue: 1)
+        public static let update = SharePermissions(rawValue: 2)
+        public static let create = SharePermissions(rawValue: 4)
+        public static let delete = SharePermissions(rawValue: 8)
+        public static let share = SharePermissions(rawValue: 16)
+
+        public static let all: SharePermissions = [.read, .update, .create, .delete, .share]
+    }
+
+    /// - Parameter permissions: Without them the server applies its default share permissions.
     // swiftlint:disable:next function_parameter_count
-    public func shareFileOrFolder(forAccount account: TalkAccount, atPath path: String, toRoom token: String, withTalkMetaData talkMetaData: [String: Any]?, withReferenceId referenceId: String?, completionBlock: @escaping (_ error: Error?) -> Void) {
+    public func shareFileOrFolder(forAccount account: TalkAccount, atPath path: String, toRoom token: String, withTalkMetaData talkMetaData: [String: Any]?, withReferenceId referenceId: String?, permissions: SharePermissions? = nil, completionBlock: @escaping (_ error: Error?) -> Void) {
         guard let apiSessionManager = self.getAPISessionManager(forAccountId: account.accountId)
         else {
             completionBlock(ApiControllerError.preconditionError)
@@ -3166,6 +3184,10 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
         if let referenceId {
             parameters["referenceId"] = referenceId
+        }
+
+        if let permissions {
+            parameters["permissions"] = permissions.rawValue
         }
 
         if let talkMetaData, let jsonData = try? JSONSerialization.data(withJSONObject: talkMetaData), let jsonString = String(data: jsonData, encoding: .utf8) {
@@ -3310,9 +3332,10 @@ class NCAPIController: NSObject, NKCommonDelegate {
     // MARK: - Async/Await wrapper for file uploads
 
     @MainActor
-    public func shareFileOrFolder(forAccount account: TalkAccount, atPath path: String, toRoom token: String, withTalkMetaData talkMetaData: [String: Any]?, withReferenceId referenceId: String?) async throws {
+    // swiftlint:disable:next function_parameter_count
+    public func shareFileOrFolder(forAccount account: TalkAccount, atPath path: String, toRoom token: String, withTalkMetaData talkMetaData: [String: Any]?, withReferenceId referenceId: String?, permissions: SharePermissions? = nil) async throws {
         return try await withCheckedThrowingContinuation { continuation in
-            shareFileOrFolder(forAccount: account, atPath: path, toRoom: token, withTalkMetaData: talkMetaData, withReferenceId: referenceId) { error in
+            shareFileOrFolder(forAccount: account, atPath: path, toRoom: token, withTalkMetaData: talkMetaData, withReferenceId: referenceId, permissions: permissions) { error in
                 if let error {
                     continuation.resume(throwing: error)
                 } else {
