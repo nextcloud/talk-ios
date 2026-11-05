@@ -3256,14 +3256,15 @@ class NCAPIController: NSObject, NKCommonDelegate {
         ]
 
         apiSessionManager.postOcs(urlString, account: account, parameters: parameters) { ocsResponse, ocsError in
+            // The OcsError itself is passed on, callers need its status code to detect a 501
             guard let dataDict = ocsResponse?.dataDict else {
-                completionBlock(nil, nil, ocsError?.underlyingError)
+                completionBlock(nil, nil, ocsError)
                 return
             }
 
             let folder = dataDict["folder"] as? String
             let renames = dataDict["renames"] as? [[String: String]]
-            completionBlock(folder, renames, ocsError?.underlyingError)
+            completionBlock(folder, renames, ocsError)
         }
     }
 
