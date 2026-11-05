@@ -2555,7 +2555,7 @@
 				CODE_SIGN_ENTITLEMENTS = TalkIntents/TalkIntents.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -2569,7 +2569,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 25.0.2;
+				MARKETING_VERSION = 25.0.3;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.TalkIntents;
@@ -2597,7 +2597,7 @@
 				CODE_SIGN_ENTITLEMENTS = TalkIntents/TalkIntents.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -2611,7 +2611,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 25.0.2;
+				MARKETING_VERSION = 25.0.3;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.TalkIntents;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2693,7 +2693,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2711,7 +2711,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 25.0.2;
+				MARKETING_VERSION = 25.0.3;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.BroadcastUploadExtension;
@@ -2738,7 +2738,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Nextcloud GmbH (NKUJUXUJ3B)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2756,7 +2756,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 25.0.2;
+				MARKETING_VERSION = 25.0.3;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.BroadcastUploadExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2897,7 +2897,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				ENABLE_BITCODE = NO;
@@ -2920,7 +2920,7 @@
 					"@executable_path/Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				MARKETING_VERSION = 25.0.2;
+				MARKETING_VERSION = 25.0.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -2942,7 +2942,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Nextcloud GmbH (NKUJUXUJ3B)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				ENABLE_BITCODE = NO;
@@ -2965,7 +2965,7 @@
 					"@executable_path/Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				MARKETING_VERSION = 25.0.2;
+				MARKETING_VERSION = 25.0.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -2996,7 +2996,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				ENABLE_BITCODE = NO;
@@ -3050,7 +3050,7 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/UICKeyChainStore\"",
 					"\"${PODS_ROOT}/Realm/core\"",
 				);
-				MARKETING_VERSION = 25.0.2;
+				MARKETING_VERSION = 25.0.3;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.ShareExtension;
@@ -3087,7 +3087,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Nextcloud GmbH (NKUJUXUJ3B)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				ENABLE_BITCODE = NO;
@@ -3141,7 +3141,7 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/UICKeyChainStore\"",
 					"\"${PODS_ROOT}/Realm/core\"",
 				);
-				MARKETING_VERSION = 25.0.2;
+				MARKETING_VERSION = 25.0.3;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.ShareExtension;
 				PRODUCT_NAME = ShareExtension;
@@ -3176,7 +3176,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
@@ -3212,7 +3212,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				MARKETING_VERSION = 25.0.2;
+				MARKETING_VERSION = 25.0.3;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.NotificationServiceExtension;
@@ -3248,7 +3248,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Nextcloud GmbH (NKUJUXUJ3B)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = NKUJUXUJ3B;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
@@ -3284,7 +3284,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				MARKETING_VERSION = 25.0.2;
+				MARKETING_VERSION = 25.0.3;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nextcloud.Talk.NotificationServiceExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
