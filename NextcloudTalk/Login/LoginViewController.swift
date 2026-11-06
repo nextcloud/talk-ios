@@ -194,7 +194,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, CCCertificateD
                     DispatchQueue.main.async {
                         CCCertificate.sharedManager()
                             .presentViewControllerCertificate(
-                                withTitle: error.underlyingError.localizedDescription,
+                                withError: error.underlyingError,
                                 viewController: self,
                                 delegate: self)
                     }

@@ -157,6 +157,9 @@
 /* No comment provided by engineer. */
 "Accept" = "Accept";
 
+/* Date when a certificate was accepted, e.g. 'Accepted on Oct 31, 2026' */
+"Accepted on %@" = "Accepted on %@";
+
 /* No comment provided by engineer. */
 "Account" = "Account";
 
@@ -609,6 +612,12 @@
 
 /* No comment provided by engineer. */
 "Capabilities" = "Capabilities";
+
+/* No comment provided by engineer. */
+"Certificates" = "Certificates";
+
+/* No comment provided by engineer. */
+"Certificates you chose to trust for servers whose identity could not be verified. Each certificate is only trusted for the server it was accepted for." = "Certificates you chose to trust for servers whose identity could not be verified. Each certificate is only trusted for the server it was accepted for.";
 
 /* No comment provided by engineer. */
 "Change password" = "Change password";
@@ -1689,6 +1698,9 @@
 "No" = "No";
 
 /* No comment provided by engineer. */
+"No accepted certificates" = "No accepted certificates";
+
+/* No comment provided by engineer. */
 "No actions available" = "No actions available";
 
 /* No comment provided by engineer. */
@@ -2442,6 +2454,9 @@
 
 /* No comment provided by engineer. */
 "The call might be recorded" = "The call might be recorded";
+
+/* No comment provided by engineer. */
+"The certificate of this server has changed since you last accepted it. Do you want to connect to the server anyway?" = "The certificate of this server has changed since you last accepted it. Do you want to connect to the server anyway?";
 
 /* No comment provided by engineer. */
 "The password is wrong" = "The password is wrong";
