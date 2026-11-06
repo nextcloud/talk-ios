@@ -187,10 +187,11 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
         guard let authHeader = NCAPIController.sharedInstance().authHeader(forAccount: firstUpload.account)
         else { throw ChatFileUploadError.destinationUnavailable(underlyingError: nil) }
 
-        let draftFolder = try await ChatFileUploader.probeDraftFolder(for: firstUpload.room,
-                                                                      account: firstUpload.account,
-                                                                      fileNames: uploads.map { $0.fileName },
-                                                                      allowUpdate: firstUpload.allowUpdate)
+        guard let draftFolder = try await ChatFileUploader.probeDraftFolder(for: firstUpload.room,
+                                                                            account: firstUpload.account,
+                                                                            fileNames: uploads.map { $0.fileName },
+                                                                            allowUpdate: firstUpload.allowUpdate)
+        else { throw ChatFileUploadError.destinationUnavailable(underlyingError: nil) }
 
         let sessionIdentifier = Self.sessionIdentifierPrefix + UUID().uuidString
         var preparedJobs: [ChatBackgroundUploadJob] = []
