@@ -52,6 +52,7 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
     private var pendingToStartCallToken: String?
     private var pendingToStartCallAccountId: String?
     private var pendingToStartCallHasVideo: Bool = false
+
     private var highlightMessageDict: [AnyHashable: Any]?
     private var showThreadPushNotification: NCPushNotification?
     private var pendingPrivateReplyInternalId: String?
