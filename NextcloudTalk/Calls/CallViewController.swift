@@ -211,6 +211,8 @@ class CallViewController: UIViewController,
         callController.silentCall = self.silentCall
         callController.recordingConsent = self.recordingConsent
 
+        CallLiveActivityManager.shared.startActivity(for: self, isVideoCall: !self.isAudioOnly, isAudioMuted: self.audioDisabledAtStart)
+
         // Check if there are previous participants and we are joning an extended room
         if self.room.objectType == NCRoomObjectTypeExtendedConversation {
             callController.silentCall = false
@@ -1878,6 +1880,12 @@ class CallViewController: UIViewController,
 
     // MARK: - User Interface
 
+    private func updateLiveActivity(_ change: @escaping (inout CallActivityAttributes.ContentState) -> Void) {
+        DispatchQueue.main.async {
+            CallLiveActivityManager.shared.updateActivity(change)
+        }
+    }
+
     public func setCallStateForPeersInCall() {
         if self.peersInCall.isEmpty {
             if self.currentCallState == .inCall {
@@ -1911,12 +1919,15 @@ class CallViewController: UIViewController,
 
                 self.participantsLabel.attributedText = participantText
                 self.participantsLabel.isHidden = false
+
+                CallLiveActivityManager.shared.updateActivity { $0.participantCount = uniqueParticipantsCount }
             }
         }
     }
 
     public func setCallState(_ state: CallState) {
         self.currentCallState = state
+        self.updateLiveActivity { $0.status = CallLiveActivityManager.status(for: state) }
 
         switch state {
         case .joining, .waitingParticipants, .reconnecting:
@@ -1989,6 +2000,8 @@ class CallViewController: UIViewController,
     }
 
     func setAudioMuteButtonActive(_ isActive: Bool) {
+        self.updateLiveActivity { $0.isAudioMuted = !isActive }
+
         DispatchQueue.main.async {
             var micStatusString: String
 
@@ -2433,6 +2446,7 @@ class CallViewController: UIViewController,
         let callStartTime = min(self.room.callStartTime, currentTimestamp)
 
         let callDuration = currentTimestamp - callStartTime
+        CallLiveActivityManager.shared.updateActivity { $0.callStartDate = Date(timeIntervalSince1970: TimeInterval(callStartTime)) }
         let oneHourInSeconds = 60 * 60
 
         let hours = callDuration / 3600
@@ -2689,6 +2703,8 @@ class CallViewController: UIViewController,
         guard !hangingUp else { return }
 
         hangingUp = true
+
+        CallLiveActivityManager.shared.endActivity(for: self)
 
         // Dismiss possible notifications
         // swiftlint:disable:next notification_center_detachment
@@ -3033,6 +3049,7 @@ class CallViewController: UIViewController,
 
         DispatchQueue.main.async {
             self.stopPictureInPicture()
+            CallLiveActivityManager.shared.endActivity(for: self)
         }
 
         if videoCallUpgrade {
