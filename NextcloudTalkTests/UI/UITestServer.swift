@@ -168,17 +168,6 @@ extension XCTestCase {
         return "\(prefix) \(UUID().uuidString.prefix(8))"
     }
 
-    // The room is deleted again when the test finishes, whatever the outcome
-    func createRoom(named name: String, type: UITestServer.RoomType = .group, as owner: TestUser = .admin) throws -> TestRoom {
-        let room = try UITestServer.createRoom(named: name, type: type, as: owner)
-
-        addTeardownBlock {
-            try? UITestServer.deleteRoom(room)
-        }
-
-        return room
-    }
-
     // For server state changed by requests of the app, which the test can't wait for directly
     func waitForServer(timeout: Double = TestConstants.timeoutShort, until condition: () throws -> Bool) rethrows -> Bool {
         let deadline = Date().addingTimeInterval(timeout)

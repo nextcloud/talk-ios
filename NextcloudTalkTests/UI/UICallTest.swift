@@ -5,17 +5,7 @@
 
 import XCTest
 
-final class UICallTest: XCTestCase {
-
-    override func setUpWithError() throws {
-        // In UI tests it is usually best to stop immediately when a failure occurs.
-        continueAfterFailure = false
-    }
-
-    override func tearDownWithError() throws {
-        // Check if all controllers are deallocated -> that should be the case after every test
-        XCTAssert(XCUIApplication().staticTexts["{}"].waitForExistence(timeout: TestConstants.timeoutShort))
-    }
+final class UICallTest: UITestCase {
 
     func testCallView() throws {
         let room = try createRoom(named: uniqueName("CallTest"))
@@ -71,8 +61,5 @@ final class UICallTest: XCTestCase {
         // Go back to the main view controller
         XCTAssert(callOptionsButton.waitForExistence(timeout: TestConstants.timeoutShort))
         chatNavBar.buttons["Conversations"].tap()
-
-        // Check if all call view controllers are deallocated
-        XCTAssert(app.staticTexts["{}"].waitForExistence(timeout: TestConstants.timeoutShort))
     }
 }

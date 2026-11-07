@@ -6,12 +6,7 @@
 import Foundation
 import XCTest
 
-final class UILoginTest: XCTestCase {
-
-    override func setUpWithError() throws {
-        // In UI tests it is usually best to stop immediately when a failure occurs.
-        continueAfterFailure = false
-    }
+final class UILoginTest: UITestCase {
 
     func testLogin() {
         let app = launchApp(with: ["-TestResetAccounts"])

@@ -5,12 +5,7 @@
 
 import XCTest
 
-final class UIRoomTest: XCTestCase {
-
-    override func setUpWithError() throws {
-        // In UI tests it is usually best to stop immediately when a failure occurs.
-        continueAfterFailure = false
-    }
+final class UIRoomTest: UITestCase {
 
     func testCreateAndDeleteConversation() throws {
         let app = launchAndLogin()
@@ -128,19 +123,19 @@ final class UIRoomTest: XCTestCase {
         XCTAssertFalse(try UITestServer.roomNames(for: .admin).contains(openConversationName), "Server still lists us as participant of the left conversation")
     }
 
-    func testDeallocation() throws {
-        let room = try createRoom(named: uniqueName("DeAllocTest"))
+    func testMessageSearch() throws {
+        let room = try createRoom(named: uniqueName("MessageSearchTest"))
 
         let app = launchAndLogin()
         openConversation(room, in: app)
 
-        // Check if we have one chat view controller allocated
+        // The tracker has to count the open chat, otherwise the deallocation check after every test would pass trivially
         let debugLabel = app.staticTexts.labelContains("ChatViewController\":1").firstMatch
         XCTAssert(debugLabel.waitForExistence(timeout: TestConstants.timeoutShort))
 
         // Send a test message. The message needs to be unique, because conversations of previous
         // test runs can still be on the server (failed cleanup) and would also be found when searching for it later.
-        let testMessage = "TestMessage - DeAlloc \(UUID().uuidString.prefix(8))"
+        let testMessage = "TestMessage - Search \(UUID().uuidString.prefix(8))"
         let toolbar = app.otherElements["SLKTextInputbar"]
         let textView = toolbar.textViews["Write message, @ to mention someone …"]
         XCTAssert(textView.waitForExistence(timeout: TestConstants.timeoutShort))
@@ -163,14 +158,6 @@ final class UIRoomTest: XCTestCase {
         let foundElement = waitForEitherElementToExist(reactionShortcut, app.buttons["Reply"], TestConstants.timeoutShort)
         waitForReady(object: foundElement).tap()
 
-        // Start a call and hangup afterwards
-        let chatNavBar = app.navigationBars["NextcloudTalk.ChatView"]
-        let callOptionsButton = chatNavBar.buttons["Call options"]
-        waitForReady(object: callOptionsButton).tap()
-
-        waitForReady(object: app.buttons["Voice only call"]).tap()
-        waitForReady(object: app.buttons["Hang up"]).tap()
-
         /*
             // Disabled for now, as there are too many timeouts on CI.
 
@@ -192,8 +179,8 @@ final class UIRoomTest: XCTestCase {
         */
 
         // Go back to the main view controller
-        XCTAssert(callOptionsButton.waitForExistence(timeout: TestConstants.timeoutShort))
-        chatNavBar.buttons["Conversations"].tap()
+        let chatNavBar = app.navigationBars["NextcloudTalk.ChatView"]
+        waitForReady(object: chatNavBar.buttons["Conversations"]).tap()
 
         // Search for the message we just wrote and open its context
         waitForReady(object: app.searchFields.firstMatch).tap()
@@ -223,9 +210,6 @@ final class UIRoomTest: XCTestCase {
 
         // Close the SearchController
         app.buttons["close"].tap()
-
-        // Check if all controllers are deallocated
-        XCTAssert(app.staticTexts["{}"].waitForExistence(timeout: TestConstants.timeoutShort))
     }
 
     func testMessageQuoting() throws {
