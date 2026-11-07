@@ -179,6 +179,21 @@ extension XCTestCase {
         return room
     }
 
+    // For server state changed by requests of the app, which the test can't wait for directly
+    func waitForServer(timeout: Double = TestConstants.timeoutShort, until condition: () throws -> Bool) rethrows -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+
+        repeat {
+            if try condition() {
+                return true
+            }
+
+            usleep(500_000)
+        } while Date() < deadline
+
+        return false
+    }
+
     // Opens the chat directly through the deep link, without depending on the conversation list
     func openConversation(_ room: TestRoom, in app: XCUIApplication) {
         var components = URLComponents()

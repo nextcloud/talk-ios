@@ -12,7 +12,7 @@ final class UIRoomTest: XCTestCase {
         continueAfterFailure = false
     }
 
-    func testCreateAndDeleteConversation() {
+    func testCreateAndDeleteConversation() throws {
         let app = launchAndLogin()
         let newConversationName = "Test conversation" + UUID().uuidString
 
@@ -57,8 +57,21 @@ final class UIRoomTest: XCTestCase {
 
         app.buttons["Delete"].tap()
 
-        // Check that the conversation is removed from the conversation list
+        // The cell is removed right away, before the server deleted the conversation
         XCTAssert(conversationStaticText.waitForNonExistence(timeout: TestConstants.timeoutShort))
+
+        let deletedOnServer = try waitForServer {
+            try !UITestServer.roomNames(for: .admin).contains(newConversationName)
+        }
+        XCTAssert(deletedOnServer, "Server still lists the deleted conversation")
+
+        // Only a list loaded after deleting can contain a conversation created after deleting,
+        // so once it is shown, a reload has happened that must not bring the deleted conversation back
+        let markerRoom = try createRoom(named: uniqueName("RefreshMarker"))
+        app.tables.firstMatch.pullToRefresh()
+        XCTAssert(app.tables.cells.staticTexts[markerRoom.name].waitForExistence(timeout: TestConstants.timeoutShort))
+
+        XCTAssertFalse(conversationStaticText.exists, "Deleted conversation is still in the conversation list")
     }
 
     func testJoinAndLeaveConversation() throws {
