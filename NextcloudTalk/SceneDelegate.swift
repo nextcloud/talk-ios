@@ -22,7 +22,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Needs the main view controller, removing accounts can switch the active account and present the conversation list
         TestEnvironment.shared.setUpIfNeeded()
 
-        if NCUtils.isTestEnvironment {
+        if TestEnvironment.isEnabled {
             let mainView: UIView = NCUserInterfaceController.sharedInstance().mainViewController.view
 
             let debugLabel = UILabel(frame: CGRect(x: 20, y: 30, width: 200, height: 20))

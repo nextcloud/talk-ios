@@ -144,7 +144,7 @@ class CallParticipantViewCell: UICollectionViewCell {
         tapGestureRecognizer.numberOfTapsRequired = 2
         contentView.addGestureRecognizer(tapGestureRecognizer)
 
-        if NCUtils.isTestEnvironment {
+        if TestEnvironment.isEnabled {
             setupDebugLabel()
         }
     }

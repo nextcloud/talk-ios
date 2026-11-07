@@ -5,12 +5,15 @@
 
 import Foundation
 
-// Prepares the account state for UI tests through launch arguments (only with -TestEnvironment):
-//   -TestResetAccounts                 remove all accounts, the app starts at the login screen
+// Launch arguments used by the UI tests, all others only apply together with -TestEnvironment:
+//   -TestEnvironment                   debug allocation label and test only UI
+//   -TestResetAccounts                remove all accounts, the app starts at the login screen
 //   -TestAccountServer <url>
 //   -TestAccountUser <user>
 //   -TestAccountPassword <password>    remove all accounts and log in with this one
 class TestEnvironment {
+
+    static let isEnabled = ProcessInfo.processInfo.arguments.contains("-TestEnvironment")
 
     static let shared = TestEnvironment()
 
@@ -21,7 +24,7 @@ class TestEnvironment {
 
     func setUpIfNeeded() {
         // Launch arguments apply once per process, not again for every scene that connects
-        guard NCUtils.isTestEnvironment, !didSetUp else { return }
+        guard TestEnvironment.isEnabled, !didSetUp else { return }
         didSetUp = true
 
         let defaults = UserDefaults.standard

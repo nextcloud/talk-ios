@@ -2315,7 +2315,7 @@ class CallViewController: UIViewController,
             }))
         }
 
-        if NCUtils.isTestEnvironment {
+        if TestEnvironment.isEnabled {
             items.append(self.getDebugMenu())
         }
 

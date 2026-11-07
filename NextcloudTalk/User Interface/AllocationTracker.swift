@@ -12,7 +12,7 @@ import UIKit
     private var allocationDict: [String: Int] = [:]
 
     public func addAllocation(_ name: String = #fileID) {
-        if !NCUtils.isTestEnvironment {
+        if !TestEnvironment.isEnabled {
             return
         }
 
@@ -20,7 +20,7 @@ import UIKit
     }
 
     public func removeAllocation(_ name: String = #fileID) {
-        if !NCUtils.isTestEnvironment {
+        if !TestEnvironment.isEnabled {
             return
         }
 
@@ -36,7 +36,7 @@ import UIKit
     }
 
     override var description: String {
-        if !NCUtils.isTestEnvironment {
+        if !TestEnvironment.isEnabled {
             return "Not running in testing environment."
         }
 
