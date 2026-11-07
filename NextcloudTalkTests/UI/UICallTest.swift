@@ -58,6 +58,11 @@ final class UICallTest: UITestCase {
         // Hangup the call
         hangupCallButton.tap()
 
+        // A voice only call is set up and torn down differently, so start and end one as well
+        waitForReady(object: callOptionsButton).tap()
+        waitForReady(object: app.buttons["Voice only call"]).tap()
+        waitForReady(object: hangupCallButton).tap()
+
         // Go back to the main view controller
         XCTAssert(callOptionsButton.waitForExistence(timeout: TestConstants.timeoutShort))
         chatNavBar.buttons["Conversations"].tap()
