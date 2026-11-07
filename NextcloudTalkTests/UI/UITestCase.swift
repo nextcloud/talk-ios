@@ -80,7 +80,11 @@ class UITestCase: XCTestCase {
     // Every test has to release all tracked objects (controllers, calls, chats) once we are back at the conversation list
     private func checkDeallocation() {
         let app = XCUIApplication()
-        guard app.state == .runningForeground else { return }
+        // A crash after the last interaction of a test is only noticed when the app is queried again
+        guard app.state == .runningForeground else {
+            XCTFail("App is not running in the foreground anymore, it might have crashed")
+            return
+        }
 
         let chatNavBar = app.navigationBars["NextcloudTalk.ChatView"]
         if chatNavBar.exists {
