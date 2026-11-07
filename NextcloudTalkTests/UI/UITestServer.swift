@@ -93,6 +93,13 @@ enum UITestServer {
         try ocsRequest("POST", "\(chatApi)/chat/\(room.token)", as: user, body: ["message": message])
     }
 
+    // Display names of all conversations the user is a participant of
+    static func roomNames(for user: TestUser) throws -> [String] {
+        let data = try ocsRequest("GET", "\(spreedApi)/room", as: user)
+
+        return (data as? [[String: Any]])?.compactMap { $0["displayName"] as? String } ?? []
+    }
+
     static func hasTalkFeature(_ feature: String) throws -> Bool {
         let data = try ocsRequest("GET", "/cloud/capabilities", as: .admin)
         let capabilities = (data as? [String: Any])?["capabilities"] as? [String: Any]

@@ -49,7 +49,7 @@ final class UIRoomTest: XCTestCase {
         // Try to delete the room
         conversationStaticText.press(forDuration: 2.0)
         let deleteConversation = app.buttons["Delete conversation"]
-        XCTAssert(conversationStaticText.waitForExistence(timeout: TestConstants.timeoutShort))
+        XCTAssert(deleteConversation.waitForExistence(timeout: TestConstants.timeoutShort))
 
         deleteConversation.tap()
         let alert = app.alerts.element.staticTexts["Delete conversation"]
@@ -57,7 +57,8 @@ final class UIRoomTest: XCTestCase {
 
         app.buttons["Delete"].tap()
 
-        XCTAssert(conversationTextField.waitForNonExistence(timeout: TestConstants.timeoutShort))
+        // Check that the conversation is removed from the conversation list
+        XCTAssert(conversationStaticText.waitForNonExistence(timeout: TestConstants.timeoutShort))
     }
 
     func testJoinAndLeaveConversation() throws {
@@ -103,16 +104,15 @@ final class UIRoomTest: XCTestCase {
         waitForReady(object: app.alerts.buttons["Leave"]).tap()
         waitForReady(object: app.buttons["Create or join a conversation"])
 
-        // Check that the conversation is no longer in conversations list
-        let conversationTextField = app.textFields[openConversationName]
-        let existsInitially = conversationTextField.waitForExistence(timeout: 0.5)
-        if existsInitially {
-            // If it is there initially → it must not be there after the timeout
-            XCTAssertTrue(conversationTextField.waitForNonExistence(timeout: TestConstants.timeoutShort))
-        } else {
-            // If it is not there initially → it must stay like this after timeout
-            XCTAssertFalse(conversationTextField.waitForExistence(timeout: TestConstants.timeoutShort))
-        }
+        // Closing the settings shows the chat again, which once joined the open conversation right away and made us a
+        // participant again (fixed in 27773173f). Depending on the list reload that is only visible later, so we wait for
+        // a list loaded after leaving: it is the first one that can contain a conversation created after leaving
+        let markerRoom = try createRoom(named: uniqueName("RefreshMarker"))
+        app.tables.firstMatch.pullToRefresh()
+        XCTAssert(app.tables.cells.staticTexts[markerRoom.name].waitForExistence(timeout: TestConstants.timeoutShort))
+
+        XCTAssertFalse(app.tables.cells.staticTexts[openConversationName].exists, "Left conversation is still in the conversation list")
+        XCTAssertFalse(try UITestServer.roomNames(for: .admin).contains(openConversationName), "Server still lists us as participant of the left conversation")
     }
 
     func testDeallocation() throws {
