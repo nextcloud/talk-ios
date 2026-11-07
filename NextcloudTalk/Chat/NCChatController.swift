@@ -826,7 +826,7 @@ public class NCChatController: NSObject {
             self.pullMessagesTask?.cancel()
         }
 
-        pullMessagesTask = NCAPIController.sharedInstance().receiveChatMessages(ofRoom: room.token, fromLastMessageId: lastChatBlock?.newestMessageId ?? 0, inThread: threadId, history: false, includeLastMessage: false, timeout: false, limit: NCAPIController.shared.kReceivedChatMessagesLimit, lastCommonReadMessage: room.lastCommonReadMessage, setReadMarker: false, markNotificationsAsRead: false, updateStatus: false, forAccount: account) { messages, lastKnownMessage, lastCommonReadMessage, error, _ in
+        pullMessagesTask = NCAPIController.sharedInstance().receiveChatMessages(ofRoom: room.token, fromLastMessageId: lastChatBlock?.newestMessageId ?? 0, inThread: threadId, history: false, includeLastMessage: false, timeout: false, limit: NCAPIController.shared.kReceivedChatMessagesLimit, lastCommonReadMessage: room.lastCommonReadMessage, setReadMarker: false, markNotificationsAsRead: false, updateStatus: false, prefetch: true, forAccount: account) { messages, lastKnownMessage, lastCommonReadMessage, error, _ in
             if expired {
                 completion?(error)
                 bgTask.stopBackgroundTask()
