@@ -2685,6 +2685,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
                                     setReadMarker: Bool,
                                     markNotificationsAsRead: Bool,
                                     updateStatus: Bool = true,
+                                    prefetch: Bool = false,
                                     forAccount account: TalkAccount,
                                     completionBlock: @escaping (_ messages: [[String: Any]]?, _ lastKnownMessage: Int, _ lastCommonReadMessage: Int, _ error: OcsError?, _ statusCode: Int) -> Void) -> URLSessionDataTask? {
 
@@ -2700,7 +2701,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
             limitParameter = kReceivedChatMessagesLimit
         }
 
-        let parameters: [String: Any] = [
+        var parameters: [String: Any] = [
             "lookIntoFuture": history ? 0 : 1,
             "limit": min(kReceivedChatMessagesLimit, limitParameter),
             "timeout": timeout ? 30 : 0,
@@ -2712,6 +2713,11 @@ class NCAPIController: NSObject, NKCommonDelegate {
             "noStatusUpdate": updateStatus ? 0 : 1,
             "threadId": threadId
         ]
+
+        // Ignored by the server, only lets background fetches be told apart in access logs
+        if prefetch {
+            parameters["prefetch"] = 1
+        }
 
         let apiSessionManager: NCAPISessionManager?
 
