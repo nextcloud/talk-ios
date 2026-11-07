@@ -77,6 +77,10 @@ class NCConnectionController: NSObject {
     }
 
     public func checkAppState() {
+        if TestEnvironment.shared.isSettingUpAccounts {
+            return
+        }
+
         if NCDatabaseManager.sharedInstance().numberOfAccounts() == 0 {
             self.appState = .noServerProvided
             NCUserInterfaceController.sharedInstance().presentLoginViewController()

@@ -352,7 +352,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, CCCertificateD
         NotificationPresenter.shared().displayActivityIndicator(true)
 
         // We received a onetime login token and need to convert it to a permanent one. The token only allows to retrieve a permanent one, no other routes allowed
-        NCAPIController.sharedInstance().getAppPasswordOnetime(forServer: serverURL, withUsername: user, andOnetimeToken: onetimeToken) { [weak self] permanentAppToken in
+        NCAPIController.sharedInstance().getAppPassword(forServer: serverURL, withUsername: user, andPassword: onetimeToken, isOnetimeToken: true) { [weak self] permanentAppToken in
             NotificationPresenter.shared().dismiss()
 
             guard let permanentAppToken else {

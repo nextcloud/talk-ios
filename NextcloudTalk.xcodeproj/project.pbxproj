@@ -501,7 +501,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Common/TestConstants.swift,
-				UI/AAAALoginTest.swift,
+				UI/UILoginTest.swift,
 				UI/UICallTest.swift,
 				UI/UIRoomTest.swift,
 				UI/XCTestCaseExtensions.swift,
@@ -513,7 +513,7 @@
 		1F8978172DB0F76100E8114D /* Exceptions for "NextcloudTalkTests" folder in "NextcloudTalkTests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				UI/AAAALoginTest.swift,
+				UI/UILoginTest.swift,
 				UI/UICallTest.swift,
 				UI/UIRoomTest.swift,
 				UI/XCTestCaseExtensions.swift,

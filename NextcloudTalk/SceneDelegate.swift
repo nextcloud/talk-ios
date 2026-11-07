@@ -19,6 +19,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         NCUserInterfaceController.sharedInstance().roomsTableViewController = NCUserInterfaceController.sharedInstance().mainViewController.viewControllers.first?.children.first as? RoomsTableViewController
         NCUserInterfaceController.sharedInstance().mainViewController.displayModeButtonVisibility = .never
 
+        // Needs the main view controller, removing accounts can switch the active account and present the conversation list
+        TestEnvironment.shared.setUpIfNeeded()
+
         if NCUtils.isTestEnvironment {
             let mainView: UIView = NCUserInterfaceController.sharedInstance().mainViewController.view
 
