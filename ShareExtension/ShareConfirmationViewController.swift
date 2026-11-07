@@ -492,6 +492,9 @@ private let kShareConfirmationOptionsViewHeight: CGFloat = 44
     public override func viewDidLoad() {
         super.viewDidLoad()
 
+        // Lets UI tests tell this inputbar apart from the chat's behind it
+        self.view.accessibilityIdentifier = "ShareConfirmationView"
+
         // Thumbnails are generated at the display scale, so they have to be regenerated when it changes.
         // Registered before the token guard below, which can return early.
         if #available(iOS 17.0, *) {

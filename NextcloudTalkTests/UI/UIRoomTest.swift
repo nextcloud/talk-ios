@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
+import UniformTypeIdentifiers
 import XCTest
 
 final class UIRoomTest: UITestCase {
@@ -153,26 +154,6 @@ final class UIRoomTest: UITestCase {
             waitForReady(object: app.buttons["Reply"]).tap()
         }
 
-        /*
-            // Disabled for now, as there are too many timeouts on CI.
-
-            // Share an image and open the media preview
-            waitForReady(object: app.buttons["shareButton"]).tap()
-            waitForReady(object: app.buttons["Photo Library"]).tap()
-
-            // All photos in simulator start with "Photo", use the first one
-            waitForReady(object: app.images.labelContains("Photo").firstMatch).tap()
-            app.buttons["Add"].tap()
-
-            // On old versions, we don't have an inputbar on the sharing dialog, therefore also check for the send button
-            let foundSendButton = waitForEitherElementToExist(messageInputBar(in: app).buttons["Send message"], app.buttons["Send"], TestConstants.timeoutShort)
-            waitForReady(object: foundSendButton).tap()
-
-            // Open the preview and close it again
-            waitForReady(object: app.images["filePreviewImageView"], timeout: TestConstants.timeoutLong + 60).tap()
-            waitForReady(object: app.buttons["Close"]).tap()
-        */
-
         // Go back to the main view controller
         let chatNavBar = app.navigationBars["NextcloudTalk.ChatView"]
         waitForReady(object: chatNavBar.buttons["Conversations"]).tap()
@@ -206,6 +187,49 @@ final class UIRoomTest: UITestCase {
 
         // Close the SearchController
         app.buttons["close"].tap()
+    }
+
+    func testShareImage() throws {
+        let supportsCaptions = try UITestServer.hasTalkFeature("media-caption")
+        let room = try createRoom(named: uniqueName("ShareTest"))
+
+        let app = launchAndLogin()
+        openConversation(room, in: app)
+
+        // Pasting avoids the system photo picker
+        UIPasteboard.general.setData(generatedImagePNG(), forPasteboardType: UTType.png.identifier)
+
+        let textView = messageTextView(in: app)
+        XCTAssert(textView.waitForExistence(timeout: TestConstants.timeoutShort))
+        textView.tap()
+
+        // Typing cmd+v is unreliable, it races with the keyboard focus
+        textView.press(forDuration: 1.0)
+        waitForReady(object: app.menuItems["Paste"]).tap()
+
+        let shareConfirmation = app.otherElements["ShareConfirmationView"]
+        XCTAssert(shareConfirmation.waitForExistence(timeout: TestConstants.timeoutShort))
+
+        // Without captions the send button is in the navigation bar
+        let sendButton = supportsCaptions ? shareConfirmation.otherElements["SLKTextInputbar"].buttons["Send message"] : app.navigationBars.buttons["Send"]
+        waitForReady(object: sendButton).tap()
+
+        // Skip the pending upload, which uses the same preview
+        let sentFilePreview = app.cells["CellMessageSent"].images["filePreviewImageView"]
+        waitForReady(object: sentFilePreview, timeout: TestConstants.timeoutLong).tap()
+
+        // Close the media viewer
+        waitForReady(object: app.buttons["Close"]).tap()
+    }
+
+    // Small, so upload and server preview stay fast
+    private func generatedImagePNG() -> Data {
+        let size = CGSize(width: 64, height: 64)
+
+        return UIGraphicsImageRenderer(size: size).pngData { context in
+            UIColor.systemBlue.setFill()
+            context.fill(CGRect(origin: .zero, size: size))
+        }
     }
 
     func testMessageQuoting() throws {
