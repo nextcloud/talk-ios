@@ -43,6 +43,40 @@ class UITestCase: XCTestCase {
         return room
     }
 
+    // MARK: - Chat
+
+    func messageInputBar(in app: XCUIApplication) -> XCUIElement {
+        return app.otherElements["SLKTextInputbar"]
+    }
+
+    func messageTextView(in app: XCUIApplication) -> XCUIElement {
+        return messageInputBar(in: app).textViews["Write message, @ to mention someone …"]
+    }
+
+    // Does not wait for the message to be sent, what to check for (count, content) depends on the test
+    func sendMessage(_ message: String, in app: XCUIApplication) {
+        let textView = messageTextView(in: app)
+        XCTAssert(textView.waitForExistence(timeout: TestConstants.timeoutShort))
+        textView.tap()
+        app.typeText(message)
+        messageInputBar(in: app).buttons["Send message"].tap()
+    }
+
+    func assertNoMessageInput(in app: XCUIApplication) {
+        XCTAssertFalse(messageTextView(in: app).exists, "Message input should not be available")
+    }
+
+    func openContextMenu(of element: XCUIElement) {
+        element.press(forDuration: 2.0)
+    }
+
+    // The emoji of the reaction shortcuts is drawn into an image, so match on the label instead of an element type
+    func contextMenuReaction(_ emoji: String, in app: XCUIApplication) -> XCUIElement {
+        return app.descendants(matching: .any).labelContains(emoji).firstMatch
+    }
+
+    // MARK: - Deallocation
+
     // Every test has to release all tracked objects (controllers, calls, chats) once we are back at the conversation list
     private func checkDeallocation() {
         let app = XCUIApplication()
