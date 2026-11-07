@@ -60,22 +60,13 @@ final class UIRoomTest: XCTestCase {
         XCTAssert(conversationTextField.waitForNonExistence(timeout: TestConstants.timeoutShort))
     }
 
-    func testJoinAndLeaveConversation() {
+    func testJoinAndLeaveConversation() throws {
+        // Created by another user, so we are not a participant yet
+        let room = try createRoom(named: uniqueName("OpenConversationTest"), as: .alice)
+        try UITestServer.setListable(.registeredUsers, for: room)
+
         let app = launchAndLogin()
-        let openConversationName = "OpenConversationTest"
-
-        // Check if the open conversation already exist in conversations list
-        let conversationStaticText = app.tables.cells.staticTexts[openConversationName]
-        let alreadyJoined = conversationStaticText.waitForExistence(timeout: 3.0)
-        if alreadyJoined {
-            // Try to leave the open conversation
-            conversationStaticText.press(forDuration: 2.0)
-            let leaveConversation = app.buttons["Leave conversation"]
-            XCTAssert(conversationStaticText.waitForExistence(timeout: TestConstants.timeoutShort))
-            leaveConversation.tap()
-
-            waitForReady(object: app.buttons["Leave"]).tap()
-        }
+        let openConversationName = room.name
 
         waitForReady(object: app.buttons["Create or join a conversation"]).tap()
         waitForReady(object: app.tables.cells.staticTexts["Join open conversations"]).tap()
@@ -124,19 +115,18 @@ final class UIRoomTest: XCTestCase {
         }
     }
 
-    func testDeallocation() {
-        let app = launchAndLogin()
-        let newConversationName = "DeAllocTest"
+    func testDeallocation() throws {
+        let room = try createRoom(named: uniqueName("DeAllocTest"))
 
-        // Create a new test conversion
-        self.createConversation(for: app, with: newConversationName)
+        let app = launchAndLogin()
+        openConversation(room, in: app)
 
         // Check if we have one chat view controller allocated
         let debugLabel = app.staticTexts.labelContains("ChatViewController\":1").firstMatch
         XCTAssert(debugLabel.waitForExistence(timeout: TestConstants.timeoutShort))
 
         // Send a test message. The message needs to be unique, because conversations of previous
-        // test runs are still on the server and would also be found when searching for it later.
+        // test runs can still be on the server (failed cleanup) and would also be found when searching for it later.
         let testMessage = "TestMessage - DeAlloc \(UUID().uuidString.prefix(8))"
         let toolbar = app.otherElements["SLKTextInputbar"]
         let textView = toolbar.textViews["Write message, @ to mention someone …"]
@@ -225,12 +215,11 @@ final class UIRoomTest: XCTestCase {
         XCTAssert(app.staticTexts["{}"].waitForExistence(timeout: TestConstants.timeoutShort))
     }
 
-    func testMessageQuoting() {
-        let app = launchAndLogin()
-        let newConversationName = "QuoteTest"
+    func testMessageQuoting() throws {
+        let room = try createRoom(named: uniqueName("QuoteTest"))
 
-        // Create a new test conversion
-        self.createConversation(for: app, with: newConversationName)
+        let app = launchAndLogin()
+        openConversation(room, in: app)
 
         // Send a test message
         let testMessage = "TestMessage"
@@ -264,12 +253,13 @@ final class UIRoomTest: XCTestCase {
         waitForCount(query: app.cells.matching(identifier: "CellMessageSent"), count: 2, timeout: TestConstants.timeoutShort)
     }
 
-    func testChatViewControllerMentions() {
-        let app = launchAndLogin()
-        let newConversationName = "MentionTest 🇨🇨"
+    func testChatViewControllerMentions() throws {
+        // The conversation itself is offered as mention, so its name is what we type and check for
+        let room = try createRoom(named: uniqueName("MentionTest 🇨🇨"))
+        let newConversationName = room.name
 
-        // Create a new test conversion
-        self.createConversation(for: app, with: newConversationName)
+        let app = launchAndLogin()
+        openConversation(room, in: app)
 
         // Select a mention
         let toolbar = app.otherElements["SLKTextInputbar"]
@@ -349,13 +339,14 @@ final class UIRoomTest: XCTestCase {
         XCTAssert(messageTextView.waitForExistence(timeout: TestConstants.timeoutShort))
     }
 
-    func testLobbyView() {
+    func testLobbyView() throws {
+        // Created by another user, so we are a normal participant waiting in the lobby
+        let room = try createRoom(named: uniqueName("LobbyTest"), as: .alice)
+        try UITestServer.enableLobby(in: room)
+        try UITestServer.addParticipant(.admin, to: room)
+
         let app = launchAndLogin()
-
-        let lobbyCell = app.tables.cells.staticTexts["LobbyTest"]
-        XCTAssert(lobbyCell.waitForExistence(timeout: TestConstants.timeoutShort))
-
-        lobbyCell.tap()
+        openConversation(room, in: app)
 
         // Check that the lobby view is displayed
         let backgroundView = app.descendants(matching: .any)["Chat PlacerholderView"]
@@ -382,22 +373,20 @@ final class UIRoomTest: XCTestCase {
     }
 
     func testReactOnlyPermission() throws {
+        try XCTSkipUnless(UITestServer.hasTalkFeature("react-permission"), "Requires the react-permission capability (Talk 24+)")
+
+        // Created by another user, we only get the default permissions, which allow to react but not to chat
+        let message = "React to this message!"
+        let room = try createRoom(named: uniqueName("ReactOnlyTest"), as: .alice)
+        try UITestServer.setDefaultPermissions(UITestServer.defaultPermissionsReactOnly, for: room)
+        try UITestServer.addParticipant(.admin, to: room)
+        try UITestServer.sendMessage(message, to: room, as: .alice)
+
         let app = launchAndLogin()
-
-        // ReactOnlyTest room is only created for Talk 24+ (main branch)
-        let reactOnlyCell = app.tables.cells.staticTexts["ReactOnlyTest"]
-
-        // Skip test if the room doesn't exist (older server versions)
-        try XCTSkipUnless(reactOnlyCell.waitForExistence(timeout: TestConstants.timeoutShort),
-                         "ReactOnlyTest room not found - skipping (requires Talk 24+)")
-
-        reactOnlyCell.tap()
-
-        let chatNavBar = app.navigationBars["NextcloudTalk.ChatView"]
-        XCTAssert(chatNavBar.waitForExistence(timeout: TestConstants.timeoutLong))
+        openConversation(room, in: app)
 
         // Find the message from alice that we should react to
-        let messageText = app.tables.textViews["React to this message!"].firstMatch
+        let messageText = app.tables.textViews[message].firstMatch
         XCTAssert(messageText.waitForExistence(timeout: TestConstants.timeoutShort))
 
         // Open context menu by long-pressing on the message

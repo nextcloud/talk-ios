@@ -17,12 +17,11 @@ final class UICallTest: XCTestCase {
         XCTAssert(XCUIApplication().staticTexts["{}"].waitForExistence(timeout: TestConstants.timeoutShort))
     }
 
-    func testCallView() {
-        let app = launchAndLogin()
-        let newConversationName = "CallTest"
+    func testCallView() throws {
+        let room = try createRoom(named: uniqueName("CallTest"))
 
-        // Create a new test conversion
-        self.createConversation(for: app, with: newConversationName)
+        let app = launchAndLogin()
+        openConversation(room, in: app)
 
         // Start a call
         let chatNavBar = app.navigationBars["NextcloudTalk.ChatView"]
