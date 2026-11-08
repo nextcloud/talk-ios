@@ -172,7 +172,7 @@ jobs:
         key: ${{ steps.extcache.outputs.key }}
 
     - name: Set up php ${{ matrix.configs.phpversion }}
-      uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2.40.0
+      uses: shivammathur/setup-php@f5a207e3fa7ed0e8762c537092784175d225c284
       with:
         php-version: ${{ matrix.configs.phpversion }}
         extensions: ${{ env.PHP_EXTENSIONS }}
