@@ -30,6 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property BOOL federationOnlyTrustedServers;
 @property NSInteger maxGifSize;
 @property NSInteger summaryThreshold;
+@property BOOL mobilePreloadChat;
 @property NSInteger descriptionLength;
 @property NSInteger retentionEvent;
 @property NSInteger retentionPhone;

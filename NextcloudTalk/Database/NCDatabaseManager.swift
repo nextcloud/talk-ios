@@ -7,7 +7,7 @@ import Foundation
 
 public let kTalkDatabaseFolder = "Library/Application Support/Talk"
 public let kTalkDatabaseFileName = "talk.realm"
-public let kTalkDatabaseSchemaVersion: UInt64 = 94
+public let kTalkDatabaseSchemaVersion: UInt64 = 95
 
 // Objective-C bridge for the Talk database constants that are still referenced from Objective-C code.
 // These reference the Swift values and can be removed once those call sites are migrated to Swift.
@@ -464,6 +464,7 @@ public extension Notification.Name {
         capabilities.chatMaxLength = (chatConfig?["max-length"] as? NSNumber)?.intValue ?? 0
         capabilities.typingPrivacy = (chatConfig?["typing-privacy"] as? NSNumber)?.boolValue ?? true
         capabilities.summaryThreshold = (chatConfig?["summary-threshold"] as? NSNumber)?.intValue ?? 0
+        capabilities.mobilePreloadChat = (chatConfig?["mobile-preload-chat"] as? NSNumber)?.boolValue ?? true
 
         // Translations
         if let translations = chatConfig?["translations"] as? [Any],
