@@ -572,7 +572,7 @@ import SwiftUI
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveChatMessages(notification:)), name: NSNotification.Name.NCChatControllerDidReceiveChatMessages, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didSendChatMessage(notification:)), name: NSNotification.Name.NCChatControllerDidSendChatMessage, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveChatBlocked(notification:)), name: NSNotification.Name.NCChatControllerDidReceiveChatBlocked, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveNewerCommonReadMessage(notification:)), name: NSNotification.Name.NCChatControllerDidReceiveNewerCommonReadMessage, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveDifferentCommonReadMessage(notification:)), name: NSNotification.Name.NCChatControllerDidReceiveDifferentCommonReadMessage, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveCallStartedMessage(notification:)), name: NSNotification.Name.NCChatControllerDidReceiveCallStartedMessage, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveCallEndedMessage(notification:)), name: NSNotification.Name.NCChatControllerDidReceiveCallEndedMessage, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveUpdateMessage(notification:)), name: NSNotification.Name.NCChatControllerDidReceiveUpdateMessage, object: nil)
@@ -1992,14 +1992,14 @@ import SwiftUI
         self.startObservingRoomLobbyFlag()
     }
 
-    func didReceiveNewerCommonReadMessage(notification: Notification) {
+    func didReceiveDifferentCommonReadMessage(notification: Notification) {
         if notification.object as? NCChatController != self.chatController {
             return
         }
 
         guard let lastCommonReadMessage = notification.userInfo?["lastCommonReadMessage"] as? Int else { return }
 
-        if lastCommonReadMessage > self.room.lastCommonReadMessage {
+        if lastCommonReadMessage != self.room.lastCommonReadMessage {
             self.room.lastCommonReadMessage = lastCommonReadMessage
         }
 

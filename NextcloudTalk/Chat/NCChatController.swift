@@ -12,7 +12,7 @@ public extension NSNotification.Name {
     static let NCChatControllerDidReceiveChatMessages = NSNotification.Name("NCChatControllerDidReceiveChatMessagesNotification")
     static let NCChatControllerDidSendChatMessage = NSNotification.Name("NCChatControllerDidSendChatMessageNotification")
     static let NCChatControllerDidReceiveChatBlocked = NSNotification.Name("NCChatControllerDidReceiveChatBlockedNotification")
-    static let NCChatControllerDidReceiveNewerCommonReadMessage = NSNotification.Name("NCChatControllerDidReceiveNewerCommonReadMessageNotification")
+    static let NCChatControllerDidReceiveDifferentCommonReadMessage = NSNotification.Name("NCChatControllerDidReceiveDifferentCommonReadMessageNotification")
     static let NCChatControllerDidReceiveUpdateMessage = NSNotification.Name("NCChatControllerDidReceiveUpdateMessageNotification")
     static let NCChatControllerDidReceiveHistoryCleared = NSNotification.Name("NCChatControllerDidReceiveHistoryClearedNotification")
     static let NCChatControllerDidReceiveCallStartedMessage = NSNotification.Name("NCChatControllerDidReceiveCallStartedMessageNotification")
@@ -1431,19 +1431,19 @@ public class NCChatController: NSObject {
         }
     }
 
-    private func checkLastCommonReadMessage(_ lastCommonReadMessage: Int) {
+    func checkLastCommonReadMessage(_ lastCommonReadMessage: Int) {
         guard lastCommonReadMessage > 0 else { return }
 
-        let newerCommonReadReceived = lastCommonReadMessage > self.room.lastCommonReadMessage
+        let differentCommonReadReceived = lastCommonReadMessage != self.room.lastCommonReadMessage
 
-        if newerCommonReadReceived {
+        if differentCommonReadReceived {
             self.room.lastCommonReadMessage = lastCommonReadMessage
             NCRoomsManager.shared.updateLastCommonReadMessage(lastCommonReadMessage, forRoom: self.room)
 
             var userInfo: [AnyHashable: Any] = [:]
             userInfo["room"] = self.room.token
             userInfo["lastCommonReadMessage"] = lastCommonReadMessage
-            NotificationCenter.default.post(name: .NCChatControllerDidReceiveNewerCommonReadMessage, object: self, userInfo: userInfo)
+            NotificationCenter.default.post(name: .NCChatControllerDidReceiveDifferentCommonReadMessage, object: self, userInfo: userInfo)
         }
     }
 
