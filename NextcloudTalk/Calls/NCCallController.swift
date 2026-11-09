@@ -107,6 +107,8 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
     private var connectionsDict = [PeerKey: NCPeerConnection]()
     private var pendingOffersDict = [PeerKey: Timer]()
     private var simulcastVideoQualities = [SessionId: SimulcastVideoQuality]()
+    // Lowered while the device is hot or in Low Power Mode, see CallPerformanceMonitor
+    private var maxSendVideoQuality: SimulcastVideoQuality = .high
     private var remoteVideoBlocked = [SessionId: Bool]()
 
     private var sessionsInCall = [String]()
@@ -1127,6 +1129,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
         peerConnectionWrapper?.delegate = self
         peerConnectionWrapper?.isOwnScreensharePeer = ownScreenshare
         peerConnectionWrapper?.preferredVideoCodec = self.preferredVideoCodec
+        peerConnectionWrapper?.maxSendVideoQuality = self.maxSendVideoQuality
         peerConnectionWrapper?.receiverKeyRing = self.callEncryption?.keyRing(forSessionId: sessionId)
 
         // Try to get displayName early
@@ -1210,6 +1213,19 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
 
             if let peerConnectionWrapper = self.getPeerConnectionWrapper(forSessionId: peerId, ofType: kRoomTypeVideo) {
                 self.selectSimulcastVideoQualityIfNeeded(for: peerConnectionWrapper)
+            }
+        }
+    }
+
+    func setMaxSendVideoQuality(_ quality: SimulcastVideoQuality) {
+        WebRTCCommon.shared.dispatch {
+            guard quality != self.maxSendVideoQuality else { return }
+
+            self.maxSendVideoQuality = quality
+
+            for (_, peerConnectionWrapper) in self.connectionsDict {
+                peerConnectionWrapper.maxSendVideoQuality = quality
+                peerConnectionWrapper.applyMaxSendVideoQuality()
             }
         }
     }
@@ -1319,6 +1335,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
         peerConnectionWrapper.roomType = kRoomTypeVideo
         peerConnectionWrapper.delegate = self
         peerConnectionWrapper.preferredVideoCodec = self.preferredVideoCodec
+        peerConnectionWrapper.maxSendVideoQuality = self.maxSendVideoQuality
 
         self.publisherPeerConnection = peerConnectionWrapper
 

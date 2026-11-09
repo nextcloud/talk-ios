@@ -14,6 +14,7 @@ on:
       - NotificationServiceExtension/**
       - ShareExtension/**
       - BroadcastUploadExtension/**
+      - TalkWidgets/**
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
