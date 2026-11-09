@@ -13,28 +13,10 @@ class TestBase: XCTestCase {
     var apiSessionManager: NCAPISessionManager?
 
     func setupAppToken() {
-        let appPasswordRoute = "\(TestConstants.server)/ocs/v2.php/core/getapppassword"
-
-        let credentialsString = "\(TestConstants.username):\(TestConstants.password)"
-        let authHeader = "Basic \(credentialsString.data(using: .utf8)!.base64EncodedString())"
-
-        let configuration = URLSessionConfiguration.default
-        let apiSessionManager = NCAPISessionManager(configuration: configuration)
-        apiSessionManager.setValue(authHeader, forHTTPHeaderField: "Authorization")
-
         let exp = expectation(description: "\(#function)\(#line)")
 
-        _ = apiSessionManager.get(appPasswordRoute, parameters: nil) { _, result in
-            if let resultDict = result as? [String: AnyObject],
-               let ocs = resultDict["ocs"] as? [String: AnyObject],
-               let data = ocs["data"] as? [String: AnyObject],
-               let apppassword = data["apppassword"] as? String {
-
-                self.appToken = apppassword
-                exp.fulfill()
-            }
-        } failure: { _, error in
-            print(error)
+        NCAPIController.sharedInstance().getAppPassword(forServer: TestConstants.server, withUsername: TestConstants.username, andPassword: TestConstants.password) { appToken in
+            self.appToken = appToken ?? ""
             exp.fulfill()
         }
 

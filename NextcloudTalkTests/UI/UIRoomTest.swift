@@ -3,16 +3,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
+import UniformTypeIdentifiers
 import XCTest
 
-final class UIRoomTest: XCTestCase {
+final class UIRoomTest: UITestCase {
 
-    override func setUpWithError() throws {
-        // In UI tests it is usually best to stop immediately when a failure occurs.
-        continueAfterFailure = false
-    }
-
-    func testCreateAndDeleteConversation() {
+    func testCreateAndDeleteConversation() throws {
         let app = launchAndLogin()
         let newConversationName = "Test conversation" + UUID().uuidString
 
@@ -47,9 +43,9 @@ final class UIRoomTest: XCTestCase {
         XCTAssert(conversationStaticText.waitForExistence(timeout: TestConstants.timeoutLong))
 
         // Try to delete the room
-        conversationStaticText.press(forDuration: 2.0)
+        openContextMenu(of: conversationStaticText)
         let deleteConversation = app.buttons["Delete conversation"]
-        XCTAssert(conversationStaticText.waitForExistence(timeout: TestConstants.timeoutShort))
+        XCTAssert(deleteConversation.waitForExistence(timeout: TestConstants.timeoutShort))
 
         deleteConversation.tap()
         let alert = app.alerts.element.staticTexts["Delete conversation"]
@@ -57,25 +53,30 @@ final class UIRoomTest: XCTestCase {
 
         app.buttons["Delete"].tap()
 
-        XCTAssert(conversationTextField.waitForNonExistence(timeout: TestConstants.timeoutShort))
+        // The cell is removed right away, before the server deleted the conversation
+        XCTAssert(conversationStaticText.waitForNonExistence(timeout: TestConstants.timeoutShort))
+
+        let deletedOnServer = try waitForServer {
+            try !UITestServer.roomNames(for: .admin).contains(newConversationName)
+        }
+        XCTAssert(deletedOnServer, "Server still lists the deleted conversation")
+
+        // Only a list loaded after deleting can contain a conversation created after deleting,
+        // so once it is shown, a reload has happened that must not bring the deleted conversation back
+        let markerRoom = try createRoom(named: uniqueName("RefreshMarker"))
+        app.tables.firstMatch.pullToRefresh()
+        XCTAssert(app.tables.cells.staticTexts[markerRoom.name].waitForExistence(timeout: TestConstants.timeoutShort))
+
+        XCTAssertFalse(conversationStaticText.exists, "Deleted conversation is still in the conversation list")
     }
 
-    func testJoinAndLeaveConversation() {
+    func testJoinAndLeaveConversation() throws {
+        // Created by another user, so we are not a participant yet
+        let room = try createRoom(named: uniqueName("OpenConversationTest"), as: .alice)
+        try UITestServer.setListable(.registeredUsers, for: room)
+
         let app = launchAndLogin()
-        let openConversationName = "OpenConversationTest"
-
-        // Check if the open conversation already exist in conversations list
-        let conversationStaticText = app.tables.cells.staticTexts[openConversationName]
-        let alreadyJoined = conversationStaticText.waitForExistence(timeout: 3.0)
-        if alreadyJoined {
-            // Try to leave the open conversation
-            conversationStaticText.press(forDuration: 2.0)
-            let leaveConversation = app.buttons["Leave conversation"]
-            XCTAssert(conversationStaticText.waitForExistence(timeout: TestConstants.timeoutShort))
-            leaveConversation.tap()
-
-            waitForReady(object: app.buttons["Leave"]).tap()
-        }
+        let openConversationName = room.name
 
         waitForReady(object: app.buttons["Create or join a conversation"]).tap()
         waitForReady(object: app.tables.cells.staticTexts["Join open conversations"]).tap()
@@ -112,85 +113,50 @@ final class UIRoomTest: XCTestCase {
         waitForReady(object: app.alerts.buttons["Leave"]).tap()
         waitForReady(object: app.buttons["Create or join a conversation"])
 
-        // Check that the conversation is no longer in conversations list
-        let conversationTextField = app.textFields[openConversationName]
-        let existsInitially = conversationTextField.waitForExistence(timeout: 0.5)
-        if existsInitially {
-            // If it is there initially → it must not be there after the timeout
-            XCTAssertTrue(conversationTextField.waitForNonExistence(timeout: TestConstants.timeoutShort))
-        } else {
-            // If it is not there initially → it must stay like this after timeout
-            XCTAssertFalse(conversationTextField.waitForExistence(timeout: TestConstants.timeoutShort))
-        }
+        // Closing the settings shows the chat again, which once joined the open conversation right away and made us a
+        // participant again (fixed in 27773173f). Depending on the list reload that is only visible later, so we wait for
+        // a list loaded after leaving: it is the first one that can contain a conversation created after leaving
+        let markerRoom = try createRoom(named: uniqueName("RefreshMarker"))
+        app.tables.firstMatch.pullToRefresh()
+        XCTAssert(app.tables.cells.staticTexts[markerRoom.name].waitForExistence(timeout: TestConstants.timeoutShort))
+
+        XCTAssertFalse(app.tables.cells.staticTexts[openConversationName].exists, "Left conversation is still in the conversation list")
+        XCTAssertFalse(try UITestServer.roomNames(for: .admin).contains(openConversationName), "Server still lists us as participant of the left conversation")
     }
 
-    func testDeallocation() {
+    func testMessageSearch() throws {
+        let supportsReactions = try UITestServer.hasTalkFeature("reactions")
+        let supportsMessageContext = try UITestServer.hasTalkFeature("chat-get-context")
+        let room = try createRoom(named: uniqueName("MessageSearchTest"))
+
         let app = launchAndLogin()
-        let newConversationName = "DeAllocTest"
+        openConversation(room, in: app)
 
-        // Create a new test conversion
-        self.createConversation(for: app, with: newConversationName)
-
-        // Check if we have one chat view controller allocated
+        // The tracker has to count the open chat, otherwise the deallocation check after every test would pass trivially
         let debugLabel = app.staticTexts.labelContains("ChatViewController\":1").firstMatch
         XCTAssert(debugLabel.waitForExistence(timeout: TestConstants.timeoutShort))
 
         // Send a test message. The message needs to be unique, because conversations of previous
-        // test runs are still on the server and would also be found when searching for it later.
-        let testMessage = "TestMessage - DeAlloc \(UUID().uuidString.prefix(8))"
-        let toolbar = app.otherElements["SLKTextInputbar"]
-        let textView = toolbar.textViews["Write message, @ to mention someone …"]
-        XCTAssert(textView.waitForExistence(timeout: TestConstants.timeoutShort))
-        textView.tap()
-        app.typeText(testMessage)
-        let sendMessageButton = toolbar.buttons["Send message"]
-        sendMessageButton.tap()
+        // test runs can still be on the server (failed cleanup) and would also be found when searching for it later.
+        let testMessage = "TestMessage - Search \(UUID().uuidString.prefix(8))"
+        sendMessage(testMessage, in: app)
 
         // Wait for temporary message to be replaced
         let messageSentCell = app.cells["CellMessageSent"]
         XCTAssert(messageSentCell.waitForExistence(timeout: TestConstants.timeoutShort))
 
-        // Open context menu
-        messageSentCell.press(forDuration: 2.0)
+        // Close the context menu again with a reaction, servers without reactions (< Talk 14) only offer a reply
+        openContextMenu(of: messageSentCell)
 
-        // Add a reaction to close the context menu
-        // In case we are testing against a nextcloud version that does not support reactions (<= NC 23)
-        // we simply tap the "Reply" button from the context menu
-        let reactionShortcut = app.descendants(matching: .any).labelContains("👍").firstMatch
-        let foundElement = waitForEitherElementToExist(reactionShortcut, app.buttons["Reply"], TestConstants.timeoutShort)
-        waitForReady(object: foundElement).tap()
-
-        // Start a call and hangup afterwards
-        let chatNavBar = app.navigationBars["NextcloudTalk.ChatView"]
-        let callOptionsButton = chatNavBar.buttons["Call options"]
-        waitForReady(object: callOptionsButton).tap()
-
-        waitForReady(object: app.buttons["Voice only call"]).tap()
-        waitForReady(object: app.buttons["Hang up"]).tap()
-
-        /*
-            // Disabled for now, as there are too many timeouts on CI.
-
-            // Share an image and open the media preview
-            waitForReady(object: app.buttons["shareButton"]).tap()
-            waitForReady(object: app.buttons["Photo Library"]).tap()
-
-            // All photos in simulator start with "Photo", use the first one
-            waitForReady(object: app.images.labelContains("Photo").firstMatch).tap()
-            app.buttons["Add"].tap()
-
-            // On old versions, we don't have an inputbar on the sharing dialog, therefore also check for the send button
-            let foundSendButton = waitForEitherElementToExist(sendMessageButton, app.buttons["Send"], TestConstants.timeoutShort)
-            waitForReady(object: foundSendButton).tap()
-
-            // Open the preview and close it again
-            waitForReady(object: app.images["filePreviewImageView"], timeout: TestConstants.timeoutLong + 60).tap()
-            waitForReady(object: app.buttons["Close"]).tap()
-        */
+        if supportsReactions {
+            waitForReady(object: contextMenuReaction("👍", in: app)).tap()
+        } else {
+            waitForReady(object: app.buttons["Reply"]).tap()
+        }
 
         // Go back to the main view controller
-        XCTAssert(callOptionsButton.waitForExistence(timeout: TestConstants.timeoutShort))
-        chatNavBar.buttons["Conversations"].tap()
+        let chatNavBar = app.navigationBars["NextcloudTalk.ChatView"]
+        waitForReady(object: chatNavBar.buttons["Conversations"]).tap()
 
         // Search for the message we just wrote and open its context
         waitForReady(object: app.searchFields.firstMatch).tap()
@@ -206,8 +172,9 @@ final class UIRoomTest: XCTestCase {
         // context of the message and open the conversation of the message instead
         let contextNavBar = app.navigationBars["NextcloudTalk.ContextChatView"]
 
-        if contextNavBar.waitForExistence(timeout: TestConstants.timeoutShort) {
+        if supportsMessageContext {
             // Check that the context of our message is shown
+            XCTAssert(contextNavBar.waitForExistence(timeout: TestConstants.timeoutShort))
             XCTAssert(app.tables.textViews.labelContains(testMessage).firstMatch.waitForExistence(timeout: TestConstants.timeoutShort))
 
             // Close the ContextChatViewController again
@@ -220,60 +187,88 @@ final class UIRoomTest: XCTestCase {
 
         // Close the SearchController
         app.buttons["close"].tap()
-
-        // Check if all controllers are deallocated
-        XCTAssert(app.staticTexts["{}"].waitForExistence(timeout: TestConstants.timeoutShort))
     }
 
-    func testMessageQuoting() {
+    func testShareImage() throws {
+        let supportsCaptions = try UITestServer.hasTalkFeature("media-caption")
+        let room = try createRoom(named: uniqueName("ShareTest"))
+
         let app = launchAndLogin()
-        let newConversationName = "QuoteTest"
+        openConversation(room, in: app)
 
-        // Create a new test conversion
-        self.createConversation(for: app, with: newConversationName)
+        // Pasting avoids the system photo picker
+        UIPasteboard.general.setData(generatedImagePNG(), forPasteboardType: UTType.png.identifier)
 
-        // Send a test message
-        let testMessage = "TestMessage"
-        let replyMessage = "ReplyMessage"
-
-        let toolbar = app.otherElements["SLKTextInputbar"]
-        let textView = toolbar.textViews["Write message, @ to mention someone …"]
+        let textView = messageTextView(in: app)
         XCTAssert(textView.waitForExistence(timeout: TestConstants.timeoutShort))
         textView.tap()
-        app.typeText(testMessage)
-        let sendMessageButton = toolbar.buttons["Send message"]
-        sendMessageButton.tap()
+
+        // Typing cmd+v is unreliable, it races with the keyboard focus
+        textView.press(forDuration: 1.0)
+        waitForReady(object: app.menuItems["Paste"]).tap()
+
+        let shareConfirmation = app.otherElements["ShareConfirmationView"]
+        XCTAssert(shareConfirmation.waitForExistence(timeout: TestConstants.timeoutShort))
+
+        // Without captions the send button is in the navigation bar
+        let sendButton = supportsCaptions ? shareConfirmation.otherElements["SLKTextInputbar"].buttons["Send message"] : app.navigationBars.buttons["Send"]
+        waitForReady(object: sendButton).tap()
+
+        // Skip the pending upload, which uses the same preview
+        let sentFilePreview = app.cells["CellMessageSent"].images["filePreviewImageView"]
+        waitForReady(object: sentFilePreview, timeout: TestConstants.timeoutLong).tap()
+
+        // Close the media viewer
+        waitForReady(object: app.buttons["Close"]).tap()
+    }
+
+    // Small, so upload and server preview stay fast
+    private func generatedImagePNG() -> Data {
+        let size = CGSize(width: 64, height: 64)
+
+        return UIGraphicsImageRenderer(size: size).pngData { context in
+            UIColor.systemBlue.setFill()
+            context.fill(CGRect(origin: .zero, size: size))
+        }
+    }
+
+    func testMessageQuoting() throws {
+        let room = try createRoom(named: uniqueName("QuoteTest"))
+
+        let app = launchAndLogin()
+        openConversation(room, in: app)
+
+        // Send a test message
+        sendMessage("TestMessage", in: app)
 
         // Wait for temporary message to be replaced
         let messageSentCell = app.cells["CellMessageSent"]
         XCTAssert(messageSentCell.waitForExistence(timeout: TestConstants.timeoutShort))
 
-        // Open context menu
-        messageSentCell.press(forDuration: 2.0)
-
         // Start a reply
-        XCTAssert(messageSentCell.waitForExistence(timeout: TestConstants.timeoutShort))
+        openContextMenu(of: messageSentCell)
         waitForReady(object: app.buttons["Reply"]).tap()
 
-        // Send message and check if temporary message is replaced
-        textView.tap()
-        app.typeText(replyMessage)
-        sendMessageButton.tap()
+        // Send the reply and check if the temporary message is replaced
+        sendMessage("ReplyMessage", in: app)
 
         // Two messages should now be in the sent state
         waitForCount(query: app.cells.matching(identifier: "CellMessageSent"), count: 2, timeout: TestConstants.timeoutShort)
     }
 
-    func testChatViewControllerMentions() {
-        let app = launchAndLogin()
-        let newConversationName = "MentionTest 🇨🇨"
+    func testChatViewControllerMentions() throws {
+        let canEditMessages = try UITestServer.hasTalkFeature("edit-messages")
 
-        // Create a new test conversion
-        self.createConversation(for: app, with: newConversationName)
+        // The conversation itself is offered as mention, so its name is what we type and check for
+        let room = try createRoom(named: uniqueName("MentionTest 🇨🇨"))
+        let newConversationName = room.name
+
+        let app = launchAndLogin()
+        openConversation(room, in: app)
 
         // Select a mention
-        let toolbar = app.otherElements["SLKTextInputbar"]
-        let textView = toolbar.textViews["Write message, @ to mention someone …"]
+        let toolbar = messageInputBar(in: app)
+        let textView = messageTextView(in: app)
         XCTAssert(textView.waitForExistence(timeout: TestConstants.timeoutShort))
         textView.tap()
         textView.typeText("@")
@@ -317,23 +312,15 @@ final class UIRoomTest: XCTestCase {
         var messageTextView = tables.textViews["@\(newConversationName)"]
         XCTAssert(messageTextView.waitForExistence(timeout: TestConstants.timeoutShort))
 
-        // Open context menu
-        messageTextView.descendants(matching: .any)["@\(newConversationName)"].press(forDuration: 2.0)
+        openContextMenu(of: messageTextView.descendants(matching: .any)["@\(newConversationName)"])
 
-        // Check if 'Edit' exists
-        let editButton = app.buttons["Edit"]
-        let editExists = editButton.waitForExistence(timeout: TestConstants.timeoutShort)
-
-        // Edit might not be supported by the server. Check for reply button to ensure context menu was correctly displayed
-        if !editExists {
-            if !app.buttons["Reply"].exists {
-                XCTFail("Neither edit, nor reply button exist")
-            }
-
+        // Editing the mention is only possible with "edit-messages" (Talk 18+). Otherwise the reply closes the context menu again
+        guard canEditMessages else {
+            waitForReady(object: app.buttons["Reply"]).tap()
             return
         }
 
-        editButton.tap()
+        waitForReady(object: app.buttons["Edit"]).tap()
 
         // Wait for the original text to be shown in the textView
         let textViewValue = toolbar.descendants(matching: .any).valueContains("@\(newConversationName)").firstMatch
@@ -349,13 +336,14 @@ final class UIRoomTest: XCTestCase {
         XCTAssert(messageTextView.waitForExistence(timeout: TestConstants.timeoutShort))
     }
 
-    func testLobbyView() {
+    func testLobbyView() throws {
+        // Created by another user, so we are a normal participant waiting in the lobby
+        let room = try createRoom(named: uniqueName("LobbyTest"), as: .alice)
+        try UITestServer.enableLobby(in: room)
+        try UITestServer.addParticipant(.admin, to: room)
+
         let app = launchAndLogin()
-
-        let lobbyCell = app.tables.cells.staticTexts["LobbyTest"]
-        XCTAssert(lobbyCell.waitForExistence(timeout: TestConstants.timeoutShort))
-
-        lobbyCell.tap()
+        openConversation(room, in: app)
 
         // Check that the lobby view is displayed
         let backgroundView = app.descendants(matching: .any)["Chat PlacerholderView"]
@@ -375,37 +363,29 @@ final class UIRoomTest: XCTestCase {
         let shareButton = app.buttons["Share a file from your Nextcloud"]
         XCTAssert(!shareButton.exists)
 
-        // Check that there's no inputbar
-        let toolbar = app.otherElements["SLKTextInputbar"]
-        let textView = toolbar.textViews["Write message, @ to mention someone …"]
-        XCTAssert(!textView.exists)
+        assertNoMessageInput(in: app)
     }
 
     func testReactOnlyPermission() throws {
+        try XCTSkipUnless(UITestServer.hasTalkFeature("react-permission"), "Requires the react-permission capability (Talk 24+)")
+
+        // Created by another user, we only get the default permissions, which allow to react but not to chat
+        let message = "React to this message!"
+        let room = try createRoom(named: uniqueName("ReactOnlyTest"), as: .alice)
+        try UITestServer.setDefaultPermissions(UITestServer.defaultPermissionsReactOnly, for: room)
+        try UITestServer.addParticipant(.admin, to: room)
+        try UITestServer.sendMessage(message, to: room, as: .alice)
+
         let app = launchAndLogin()
-
-        // ReactOnlyTest room is only created for Talk 24+ (main branch)
-        let reactOnlyCell = app.tables.cells.staticTexts["ReactOnlyTest"]
-
-        // Skip test if the room doesn't exist (older server versions)
-        try XCTSkipUnless(reactOnlyCell.waitForExistence(timeout: TestConstants.timeoutShort),
-                         "ReactOnlyTest room not found - skipping (requires Talk 24+)")
-
-        reactOnlyCell.tap()
-
-        let chatNavBar = app.navigationBars["NextcloudTalk.ChatView"]
-        XCTAssert(chatNavBar.waitForExistence(timeout: TestConstants.timeoutLong))
+        openConversation(room, in: app)
 
         // Find the message from alice that we should react to
-        let messageText = app.tables.textViews["React to this message!"].firstMatch
+        let messageText = app.tables.textViews[message].firstMatch
         XCTAssert(messageText.waitForExistence(timeout: TestConstants.timeoutShort))
 
-        // Open context menu by long-pressing on the message
-        messageText.press(forDuration: 2.0)
+        openContextMenu(of: messageText)
 
-        // Tap the thumbs up shortcut of the context menu. The emoji of those entries is drawn into an image,
-        // so match on the label instead of expecting a certain element type
-        let thumbsUpReaction = app.descendants(matching: .any).labelContains("👍").firstMatch
+        let thumbsUpReaction = contextMenuReaction("👍", in: app)
         XCTAssert(thumbsUpReaction.waitForExistence(timeout: TestConstants.timeoutShort))
         thumbsUpReaction.tap()
 
@@ -415,9 +395,6 @@ final class UIRoomTest: XCTestCase {
                  "Reaction should be visible after adding it")
 
         // Verify that we cannot send messages (no chat permission)
-        // The toolbar/text input should not be present when user cannot chat
-        let toolbar = app.otherElements["SLKTextInputbar"]
-        let textView = toolbar.textViews["Write message, @ to mention someone …"]
-        XCTAssertFalse(textView.exists, "Text input should not exist when user cannot chat")
+        assertNoMessageInput(in: app)
     }
 }

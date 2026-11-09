@@ -5,24 +5,13 @@
 
 import XCTest
 
-final class UICallTest: XCTestCase {
+final class UICallTest: UITestCase {
 
-    override func setUpWithError() throws {
-        // In UI tests it is usually best to stop immediately when a failure occurs.
-        continueAfterFailure = false
-    }
+    func testCallView() throws {
+        let room = try createRoom(named: uniqueName("CallTest"))
 
-    override func tearDownWithError() throws {
-        // Check if all controllers are deallocated -> that should be the case after every test
-        XCTAssert(XCUIApplication().staticTexts["{}"].waitForExistence(timeout: TestConstants.timeoutShort))
-    }
-
-    func testCallView() {
         let app = launchAndLogin()
-        let newConversationName = "CallTest"
-
-        // Create a new test conversion
-        self.createConversation(for: app, with: newConversationName)
+        openConversation(room, in: app)
 
         // Start a call
         let chatNavBar = app.navigationBars["NextcloudTalk.ChatView"]
@@ -69,11 +58,13 @@ final class UICallTest: XCTestCase {
         // Hangup the call
         hangupCallButton.tap()
 
+        // A voice only call is set up and torn down differently, so start and end one as well
+        waitForReady(object: callOptionsButton).tap()
+        waitForReady(object: app.buttons["Voice only call"]).tap()
+        waitForReady(object: hangupCallButton).tap()
+
         // Go back to the main view controller
         XCTAssert(callOptionsButton.waitForExistence(timeout: TestConstants.timeoutShort))
         chatNavBar.buttons["Conversations"].tap()
-
-        // Check if all call view controllers are deallocated
-        XCTAssert(app.staticTexts["{}"].waitForExistence(timeout: TestConstants.timeoutShort))
     }
 }

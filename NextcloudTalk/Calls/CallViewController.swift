@@ -2263,8 +2263,9 @@ class CallViewController: UIViewController,
                 raiseHandTitle = NSLocalizedString("Lower hand", comment: "")
             }
 
+            // Since iOS 27 UIKit keeps the last resolved menu items alive after the call ended, so the handlers must not capture the call controller
             items.append(UIAction(title: raiseHandTitle, image: .init(systemName: "hand.raised.fill"), handler: { [unowned self] _ in
-                callController.raiseHand(!self.isHandRaised)
+                self.callController?.raiseHand(!self.isHandRaised)
                 self.isHandRaised = !self.isHandRaised
                 self.adjustBars()
             }))
@@ -2293,6 +2294,7 @@ class CallViewController: UIViewController,
             }
 
             items.append(UIAction(title: blurActionTitle, image: blurActionImage, handler: { [unowned self] _ in
+                guard let callController = self.callController else { return }
                 callController.enableBackgroundBlur(!callController.isBackgroundBlurEnabled())
                 self.adjustBars()
             }))
@@ -2313,7 +2315,7 @@ class CallViewController: UIViewController,
             }))
         }
 
-        if NCUtils.isTestEnvironment {
+        if TestEnvironment.isEnabled {
             items.append(self.getDebugMenu())
         }
 

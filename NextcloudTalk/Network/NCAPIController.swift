@@ -1808,10 +1808,10 @@ class NCAPIController: NSObject, NKCommonDelegate {
     // MARK: - Core
 
     @nonobjc
-    func getAppPasswordOnetime(forServer server: String, withUsername username: String, andOnetimeToken onetimeToken: String, completionBlock: @escaping (_ permanentAppToken: String?) -> Void) {
-        let appPasswordRoute = "\(server)/ocs/v2.php/core/getapppassword-onetime"
+    func getAppPassword(forServer server: String, withUsername username: String, andPassword password: String, isOnetimeToken: Bool = false, completionBlock: @escaping (_ permanentAppToken: String?) -> Void) {
+        let appPasswordRoute = "\(server)/ocs/v2.php/core/getapppassword\(isOnetimeToken ? "-onetime" : "")"
 
-        let credentialsString = "\(username):\(onetimeToken)"
+        let credentialsString = "\(username):\(password)"
         let authHeader = "Basic \(credentialsString.data(using: .utf8)!.base64EncodedString())"
 
         let configuration = URLSessionConfiguration.default

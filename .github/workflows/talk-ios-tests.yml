@@ -241,10 +241,6 @@ jobs:
     - name: Check status.php
       run: curl -s --retry 5 --retry-delay 5 --retry-all-errors http://localhost:8080/status.php || true
 
-    - name: Setup test-specific rooms
-      run: |
-        source ./ci-setup-rooms.sh
-
     - name: Setup Xcode ${{ env.XCODE_VERSION }}
       uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
       with:

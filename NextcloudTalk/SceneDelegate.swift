@@ -19,7 +19,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         NCUserInterfaceController.sharedInstance().roomsTableViewController = NCUserInterfaceController.sharedInstance().mainViewController.viewControllers.first?.children.first as? RoomsTableViewController
         NCUserInterfaceController.sharedInstance().mainViewController.displayModeButtonVisibility = .never
 
-        if NCUtils.isTestEnvironment {
+        // Needs the main view controller, removing accounts can switch the active account and present the conversation list
+        TestEnvironment.shared.setUpIfNeeded()
+
+        if TestEnvironment.isEnabled {
             let mainView: UIView = NCUserInterfaceController.sharedInstance().mainViewController.view
 
             let debugLabel = UILabel(frame: CGRect(x: 20, y: 30, width: 200, height: 20))
