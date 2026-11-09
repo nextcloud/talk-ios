@@ -254,6 +254,54 @@ final class UnitChatViewControllerTest: TestBaseRealm {
         drainMainQueue()
     }
 
+    // #2760: a server read marker beyond every message (5101812 vs ~112k) ended up as the newest id of the chat block
+    func testMessageExistsOnlyForStoredMessages() throws {
+        let room = addRoom(withToken: "storedMessagesRoom")
+        let chatController = NCChatController(for: room)!
+
+        try? realm.transaction {
+            for id in 100...112 {
+                realm.add(NCChatMessage(dictionary: ["id": id, "token": room.token!], andAccountId: room.accountId)!)
+            }
+        }
+
+        XCTAssertTrue(chatController.messageExists(112))
+        XCTAssertFalse(chatController.messageExists(5101812))
+    }
+
+    func testInitialHistoryLowersChatBlockToNewestReceivedMessage() throws {
+        let room = addRoom(withToken: "initialBlockRoom")
+        let chatController = NCChatController(for: room)!
+
+        let block = NCChatBlock()
+        block.internalId = room.internalId
+        block.accountId = room.accountId
+        block.token = room.token
+        block.oldestMessageId = 50
+        block.newestMessageId = 5101812
+        try? realm.transaction { realm.add(block) }
+
+        // Initial history is requested from the read marker and merges into the existing block
+        let received = (100...105).map { ["id": $0, "token": room.token!] as [String: Any] }
+        chatController.updateChatBlocks(withReceivedMessages: received, newestKnown: 5101812, andLastKnown: 100)
+
+        let blocks = NCChatBlock.objects(where: "internalId = %@", room.internalId).compactMap { $0 as? NCChatBlock }
+        XCTAssertEqual(blocks.map { [$0.oldestMessageId, $0.newestMessageId] }, [[50, 105]])
+    }
+
+    // Polls sending a common read the server no longer has get an immediate empty 200, so a lower one must be accepted
+    func testLowerCommonReadMessageIsAccepted() throws {
+        let room = addRoom(withToken: "commonReadRoom") { $0.lastCommonReadMessage = 500000 }
+        let chatController = NCChatController(for: NCRoom(value: room))!
+
+        expectation(forNotification: .NCChatControllerDidReceiveDifferentCommonReadMessage, object: chatController)
+        chatController.checkLastCommonReadMessage(596)
+        waitForExpectations(timeout: TestConstants.timeoutShort)
+
+        XCTAssertEqual(chatController.room.lastCommonReadMessage, 596)
+        XCTAssertEqual((NCRoom.objects(where: "internalId = %@", room.internalId).firstObject() as? NCRoom)?.lastCommonReadMessage, 596)
+    }
+
     func testCatchUpDoesNotHandOverToTheRelayWhileTheRoomIsNotJoined() throws {
         let room = addRoom(withToken: "relayCatchUpRoom")
         let chatController = NCChatController(for: room)!
