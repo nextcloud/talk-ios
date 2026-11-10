@@ -37,6 +37,7 @@ enum AdvancedSectionOption: Int {
     case kAdvancedSectionOptionCachedImages
     case kAdvancedSectionOptionCachedFiles
     case kAdvancedSectionOptionCallFromOldAccount
+    case kAdvancedSectionOptionCertificates
 }
 
 enum AboutSection: Int {
@@ -44,7 +45,7 @@ enum AboutSection: Int {
     case kAboutSectionSourceCode
 }
 
-class SettingsTableViewController: UITableViewController, UITextFieldDelegate, UserStatusViewDelegate, CallsFromOldAccountViewControllerDelegate {
+class SettingsTableViewController: UITableViewController, UITextFieldDelegate, UserStatusViewDelegate, CallsFromOldAccountViewControllerDelegate, CertificatesTableViewControllerDelegate {
     let kPhoneTextFieldTag = 99
 
     let iconConfiguration = UIImage.SymbolConfiguration(pointSize: 18)
@@ -58,6 +59,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
 
     var totalImageCacheSize = 0
     var totalFileCacheSize = 0
+    var hasAcceptedCertificates = false
 
     var activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
     var inactiveAccounts = NCDatabaseManager.sharedInstance().inactiveAccounts()
@@ -117,6 +119,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
 
         self.updateTotalImageCacheSize()
         self.updateTotalFileCacheSize()
+        self.updateHasAcceptedCertificates()
 
         self.adaptInterfaceForAppState(appState: NCConnectionController.shared.appState)
     }
@@ -196,6 +199,11 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
 
         // Diagnostics
         options.append(AdvancedSectionOption.kAdvancedSectionOptionDiagnostics.rawValue)
+
+        // Certificates
+        if hasAcceptedCertificates {
+            options.append(AdvancedSectionOption.kAdvancedSectionOptionCertificates.rawValue)
+        }
 
         // Caches
         options.append(AdvancedSectionOption.kAdvancedSectionOptionCachedImages.rawValue)
@@ -580,6 +588,13 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
         self.present(clearCacheDialog, animated: true, completion: nil)
     }
 
+    func certificatesPressed() {
+        let certificatesVC = CertificatesTableViewController()
+        certificatesVC.delegate = self
+
+        self.navigationController?.pushViewController(certificatesVC, animated: true)
+    }
+
     func callsFromOldAccountPressed() {
         let vc = CallsFromOldAccountViewController()
         vc.delegate = self
@@ -588,6 +603,15 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
     }
 
     func callsFromOldAccountWarningAcknowledged() {
+        self.tableView.reloadData()
+    }
+
+    func updateHasAcceptedCertificates() {
+        hasAcceptedCertificates = !(CCCertificate.sharedManager()?.acceptedCertificateHosts().isEmpty ?? true)
+    }
+
+    func certificatesDidChange() {
+        self.updateHasAcceptedCertificates()
         self.tableView.reloadData()
     }
 
@@ -766,6 +790,8 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
             self.cachedFilesPressed()
         case AdvancedSectionOption.kAdvancedSectionOptionCallFromOldAccount.rawValue:
             self.callsFromOldAccountPressed()
+        case AdvancedSectionOption.kAdvancedSectionOptionCertificates.rawValue:
+            self.certificatesPressed()
         default:
             break
         }
@@ -938,6 +964,13 @@ extension SettingsTableViewController {
             let cell: SettingsTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: advancedCellIdentifier, style: .default)
             cell.textLabel?.text = NSLocalizedString("Diagnostics", comment: "")
             cell.setSettingsImage(image: UIImage(systemName: "gear")?.applyingSymbolConfiguration(iconConfiguration))
+            cell.accessoryType = .disclosureIndicator
+            return cell
+
+        case AdvancedSectionOption.kAdvancedSectionOptionCertificates.rawValue:
+            let cell: SettingsTableViewCell = tableView.dequeueOrCreateCell(withIdentifier: advancedCellIdentifier, style: .default)
+            cell.textLabel?.text = NSLocalizedString("Certificates", comment: "")
+            cell.setSettingsImage(image: UIImage(systemName: "checkmark.shield")?.applyingSymbolConfiguration(iconConfiguration))
             cell.accessoryType = .disclosureIndicator
             return cell
 

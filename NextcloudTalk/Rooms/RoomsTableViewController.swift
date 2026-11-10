@@ -366,7 +366,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
             if error.underlyingError.code == NSURLErrorServerCertificateUntrusted {
                 NSLog("Untrusted certificate")
                 DispatchQueue.main.async {
-                    CCCertificate.sharedManager().presentViewControllerCertificate(withTitle: error.underlyingError.localizedDescription, viewController: self, delegate: self)
+                    CCCertificate.sharedManager().presentViewControllerCertificate(withError: error.underlyingError, viewController: self, delegate: self)
                 }
             }
         }
