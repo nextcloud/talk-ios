@@ -13,6 +13,10 @@
 
 @end
 
+// Posted on the main queue after a certificate was accepted, userInfo contains the host
+extern NSString *const CCCertificateAcceptedNotification;
+extern NSString *const CCCertificateHostKey;
+
 @interface CCCertificate : NSObject
 
 + (CCCertificate *)sharedManager;

@@ -20,6 +20,9 @@
 
 NSString *const appCertificates = @"Library/Application Support/Certificates";
 
+NSString *const CCCertificateAcceptedNotification = @"CCCertificateAcceptedNotification";
+NSString *const CCCertificateHostKey = @"host";
+
 // Stored next to the certificate of a host, as the directory name is a hash of the host
 static NSString *const hostFileName = @"host";
 static NSString *const certificateFileName = @"certificate.der";
@@ -136,8 +139,11 @@ static SecCertificateRef SecTrustGetLeafCertificate(SecTrustRef trust)
         
         [alertController addAction: [UIAlertAction actionWithTitle:NSLocalizedString(@"Yes", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
             
-            [[CCCertificate sharedManager] acceptCertificate:certificateData forHost:host];
-            
+            if ([[CCCertificate sharedManager] acceptCertificate:certificateData forHost:host]) {
+                // Other connections to this host may have failed too, but only one alert is shown
+                [[NSNotificationCenter defaultCenter] postNotificationName:CCCertificateAcceptedNotification object:self userInfo:@{CCCertificateHostKey: host}];
+            }
+
             if([weakDelegate respondsToSelector:@selector(trustedCerticateAccepted)])
                 [weakDelegate trustedCerticateAccepted];
         }]];
@@ -148,7 +154,14 @@ static SecCertificateRef SecTrustGetLeafCertificate(SecTrustRef trust)
                 [weakDelegate trustedCerticateDenied];
         }]];
         
-        [viewController presentViewController:alertController animated:YES completion:nil];
+        // Presenting from a view controller that already presents one (e.g. a call) silently fails
+        UIViewController *presentingViewController = viewController;
+
+        while (presentingViewController.presentedViewController && !presentingViewController.presentedViewController.isBeingDismissed) {
+            presentingViewController = presentingViewController.presentedViewController;
+        }
+
+        [presentingViewController presentViewController:alertController animated:YES completion:nil];
     });
 }
 
