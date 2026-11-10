@@ -12,7 +12,7 @@ public extension NSNotification.Name {
     static let NCChatControllerDidReceiveChatMessages = NSNotification.Name("NCChatControllerDidReceiveChatMessagesNotification")
     static let NCChatControllerDidSendChatMessage = NSNotification.Name("NCChatControllerDidSendChatMessageNotification")
     static let NCChatControllerDidReceiveChatBlocked = NSNotification.Name("NCChatControllerDidReceiveChatBlockedNotification")
-    static let NCChatControllerDidReceiveNewerCommonReadMessage = NSNotification.Name("NCChatControllerDidReceiveNewerCommonReadMessageNotification")
+    static let NCChatControllerDidReceiveDifferentCommonReadMessage = NSNotification.Name("NCChatControllerDidReceiveDifferentCommonReadMessageNotification")
     static let NCChatControllerDidReceiveUpdateMessage = NSNotification.Name("NCChatControllerDidReceiveUpdateMessageNotification")
     static let NCChatControllerDidReceiveHistoryCleared = NSNotification.Name("NCChatControllerDidReceiveHistoryClearedNotification")
     static let NCChatControllerDidReceiveCallStartedMessage = NSNotification.Name("NCChatControllerDidReceiveCallStartedMessageNotification")
@@ -294,6 +294,10 @@ public class NCChatController: NSObject {
         }
     }
 
+    func messageExists(_ messageId: Int) -> Bool {
+        return NCChatMessage.object(forPrimaryKey: "\(account.accountId)@\(room.token ?? "")@\(messageId)") != nil
+    }
+
     private func updateChatBlocks(withLastKnown lastKnown: Int) {
         if lastKnown <= 0 {
             return
@@ -341,10 +345,11 @@ public class NCChatController: NSObject {
         }
     }
 
-    private func updateChatBlocks(withReceivedMessages messages: [[String: Any]]?, newestKnown: Int, andLastKnown lastKnown: Int) {
+    func updateChatBlocks(withReceivedMessages messages: [[String: Any]]?, newestKnown: Int, andLastKnown lastKnown: Int) {
         let sortedMessages = sortedMessages(fromMessageArray: messages)
         let newestMessageReceived = sortedMessages.last
-        let newestMessageKnown = newestKnown > 0 ? newestKnown : (newestMessageReceived?.messageId ?? 0)
+        // newestKnown is the server read marker, which older servers don't validate, so prefer what was actually received (#2760)
+        let newestMessageKnown = newestMessageReceived?.messageId ?? max(0, newestKnown)
         // Safety check: prevent storing a messageId older than the thread's first message as block's oldestMessageId when in a thread controller
         let oldestMessageKnown = (isThreadController && lastKnown < threadId) ? threadId : lastKnown
 
@@ -1060,7 +1065,9 @@ public class NCChatController: NSObject {
                 // For initial chat history: make sure messageId is inside the last chat block
                 canUseLocalStorage = lastChatBlock.newestMessageId > 0 &&
                                      messageId >= lastChatBlock.oldestMessageId &&
-                                     lastChatBlock.newestMessageId >= messageId
+                                     lastChatBlock.newestMessageId >= messageId &&
+                                     // A block ending beyond the stored messages (#2760) must be corrected by the server history
+                                     messageExists(lastChatBlock.newestMessageId)
             } else {
                 // For history batch: just make sure messageId is newer than last chat block's oldest message
                 canUseLocalStorage = lastChatBlock.newestMessageId > 0 &&
@@ -1385,19 +1392,19 @@ public class NCChatController: NSObject {
         }
     }
 
-    private func checkLastCommonReadMessage(_ lastCommonReadMessage: Int) {
+    func checkLastCommonReadMessage(_ lastCommonReadMessage: Int) {
         guard lastCommonReadMessage > 0 else { return }
 
-        let newerCommonReadReceived = lastCommonReadMessage > self.room.lastCommonReadMessage
+        let differentCommonReadReceived = lastCommonReadMessage != self.room.lastCommonReadMessage
 
-        if newerCommonReadReceived {
+        if differentCommonReadReceived {
             self.room.lastCommonReadMessage = lastCommonReadMessage
             NCRoomsManager.shared.updateLastCommonReadMessage(lastCommonReadMessage, forRoom: self.room)
 
             var userInfo: [AnyHashable: Any] = [:]
             userInfo["room"] = self.room.token
             userInfo["lastCommonReadMessage"] = lastCommonReadMessage
-            NotificationCenter.default.post(name: .NCChatControllerDidReceiveNewerCommonReadMessage, object: self, userInfo: userInfo)
+            NotificationCenter.default.post(name: .NCChatControllerDidReceiveDifferentCommonReadMessage, object: self, userInfo: userInfo)
         }
     }
 

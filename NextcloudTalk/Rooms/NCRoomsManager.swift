@@ -331,7 +331,7 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
 
     public func updateLastCommonReadMessage(_ messageId: Int, forRoom room: NCRoom) {
         self.updateRoom(room) { managedRoom in
-            if messageId > managedRoom.lastCommonReadMessage {
+            if messageId != managedRoom.lastCommonReadMessage {
                 managedRoom.lastCommonReadMessage = messageId
             }
         }
