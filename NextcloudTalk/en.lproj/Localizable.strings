@@ -992,6 +992,9 @@
 "Do you really want to log out from this account?" = "Do you really want to log out from this account?";
 
 /* No comment provided by engineer. */
+"Do you really want to remove the certificate for “%@”? It will remain trusted until the app is restarted." = "Do you really want to remove the certificate for “%@”? It will remain trusted until the app is restarted.";
+
+/* No comment provided by engineer. */
 "Do you really want to remove this account?" = "Do you really want to remove this account?";
 
 /* No comment provided by engineer. */
@@ -2069,6 +2072,9 @@
 
 /* No comment provided by engineer. */
 "Remove account" = "Remove account";
+
+/* No comment provided by engineer. */
+"Remove certificate" = "Remove certificate";
 
 /* No comment provided by engineer. */
 "Remove from favorites" = "Remove from favorites";

@@ -123,12 +123,29 @@ class CertificatesTableViewController: UITableViewController {
 
     override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let deleteAction = UIContextualAction(style: .destructive, title: nil) { _, _, completionHandler in
-            self.removeCertificate(at: indexPath)
-            completionHandler(true)
+            self.showRemoveCertificateConfirmation(at: indexPath, completionHandler: completionHandler)
         }
         deleteAction.image = UIImage(systemName: "trash")
 
         return UISwipeActionsConfiguration(actions: [deleteAction])
+    }
+
+    private func showRemoveCertificateConfirmation(at indexPath: IndexPath, completionHandler: @escaping (Bool) -> Void) {
+        let certificate = certificates[indexPath.row]
+        let messageFormat = NSLocalizedString("Do you really want to remove the certificate for “%@”? It will remain trusted until the app is restarted.", comment: "")
+        let confirmDialog = UIAlertController(title: NSLocalizedString("Remove certificate", comment: ""),
+                                              message: String(format: messageFormat, certificate.host),
+                                              preferredStyle: .alert)
+
+        confirmDialog.addAction(UIAlertAction(title: NSLocalizedString("Remove", comment: "Generic 'Remove' button label, e.g. an account or a date"), style: .destructive) { _ in
+            self.removeCertificate(at: indexPath)
+            completionHandler(true)
+        })
+        confirmDialog.addAction(UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel) { _ in
+            completionHandler(false)
+        })
+
+        self.present(confirmDialog, animated: true)
     }
 
     private func removeCertificate(at indexPath: IndexPath) {
