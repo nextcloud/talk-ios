@@ -88,7 +88,7 @@ public enum NCExternalSignalingSendMessageStatus {
 
         super.init()
 
-        NotificationCenter.default.addObserver(self, selector: #selector(certificateAccepted(notification:)), name: NSNotification.Name(CCCertificateAcceptedNotification), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(certificateAccepted(notification:)), name: .CCCertificateAccepted, object: nil)
 
         self.reconnectInterval = self.initialReconnectInterval
         self.connect()
