@@ -76,6 +76,7 @@ public enum NCExternalSignalingSendMessageStatus {
     private var reconnectInterval: Int = 0
     private var reconnectTimer: Timer?
     private var disconnectTime: TimeInterval?
+    private var waitingForCertificateAcceptance = false
 
     init(account: TalkAccount, serverUrl: String, ticket: String) {
         self.account = account
@@ -86,6 +87,8 @@ public enum NCExternalSignalingSendMessageStatus {
         self.serverUrl = NCExternalSignalingController.getWebSocketUrl(forServer: serverUrl)
 
         super.init()
+
+        NotificationCenter.default.addObserver(self, selector: #selector(certificateAccepted(notification:)), name: .CCCertificateAccepted, object: nil)
 
         self.reconnectInterval = self.initialReconnectInterval
         self.connect()
@@ -130,6 +133,7 @@ public enum NCExternalSignalingSendMessageStatus {
 
         self.invalidateReconnectionTimer()
 
+        self.waitingForCertificateAcceptance = false
         self.disconnected = false
         self.nextMessageId = 1
         self.messagesWithCompletionBlock = []
@@ -886,10 +890,22 @@ public enum NCExternalSignalingSendMessageStatus {
         }
     }
 
-    // MARK: - CCCertificateDelegate
+    // MARK: - Certificates
 
-    public func trustedCerticateAccepted() {
-        self.reconnect()
+    // Not CCCertificateDelegate, as the alert for this host may have been presented by someone else
+    func certificateAccepted(notification: Notification) {
+        guard let acceptedHost = notification.userInfo?[CCCertificateHostKey] as? String,
+              let host = URL(string: self.serverUrl)?.host,
+              host.caseInsensitiveCompare(acceptedHost) == .orderedSame
+        else { return }
+
+        DispatchQueue.main.async {
+            guard self.waitingForCertificateAcceptance else { return }
+
+            NCLog.log("Certificate accepted for \(host), connecting")
+            self.reconnectInterval = self.initialReconnectInterval
+            self.connect()
+        }
     }
 
     // MARK: - NSURLSessionWebSocketDelegate
@@ -919,6 +935,11 @@ public enum NCExternalSignalingSendMessageStatus {
 
             if let error = error as? URLError, error.code == .serverCertificateUntrusted {
                 NCLog.log("WebSocket session didCompleteWithError: \(error)")
+
+                // No automatic retry, but marked as disconnected so foregrounding or joining a call retries (and asks again)
+                self.invalidateReconnectionTimer()
+                self.resetWebSocket()
+                self.waitingForCertificateAcceptance = true
 
                 DispatchQueue.main.async {
                     CCCertificate.sharedManager()
