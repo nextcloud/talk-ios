@@ -68,7 +68,11 @@ import Foundation
 
     func handleTap() {
         if let url = url {
-            NCUtils.openLinkInBrowser(link: url)
+            if NCUtils.isNextcloudAppInstalled(), let fileId = NCUtils.instanceFileId(fromLink: url) {
+                NCUtils.openFileInNextcloudApp(fileId: fileId)
+            } else {
+                NCUtils.openLinkInBrowser(link: url)
+            }
         }
     }
 

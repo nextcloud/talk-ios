@@ -184,6 +184,11 @@ class MessageBodyTextView: UITextView, UITextViewDelegate, UIGestureRecognizerDe
             return false
         }
 
+        if NCUtils.isNextcloudAppInstalled(), let fileId = NCUtils.instanceFileId(fromLink: URL.absoluteString) {
+            NCUtils.openFileInNextcloudApp(fileId: fileId)
+            return false
+        }
+
         return true
     }
 
