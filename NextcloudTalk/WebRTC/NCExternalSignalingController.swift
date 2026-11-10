@@ -64,6 +64,7 @@ public enum NCExternalSignalingSendMessageStatus {
     private let webSocketTimeoutInterval = 15.0
 
     private var webSocket: URLSessionWebSocketTask?
+    private var webSocketSession: URLSession?
     private var serverUrl: String
     private var ticket: String
     private var resumeId: String?
@@ -156,6 +157,7 @@ public enum NCExternalSignalingSendMessageStatus {
         }
 
         let webSocket = wsSession.webSocketTask(with: wsRequest)
+        self.webSocketSession = wsSession
         self.webSocket = webSocket
 
         webSocket.resume()
@@ -245,6 +247,9 @@ public enum NCExternalSignalingSendMessageStatus {
 
         self.webSocket?.cancel()
         self.webSocket = nil
+        // The session retains its delegate until invalidated
+        self.webSocketSession?.invalidateAndCancel()
+        self.webSocketSession = nil
         self.helloResponseReceived = false
         self.joinedRoomToken = nil
         self.helloMessage?.ignoreCompletionBlock()
