@@ -13,7 +13,6 @@
 #import "TalkCapabilities.h"
 #import "ServerCapabilities.h"
 #import "FederatedCapabilities.h"
-#import "UIBarButtonItem+LegacyBadge.h"
 #import "TOCroppedImageAttributes.h"
 #import "TOCropViewController.h"
 #import "TOCropViewControllerTransitioning.h"
@@ -32,8 +31,6 @@
 #import "JDStatusBarNotificationPresenter.h"
 #import "UIResponder+SLKAdditions.h"
 
-#import "ShareViewController.h"
-#import "CCCertificate.h"
 
 #import "ScreenCapturer.h"
 #import "ScreenCaptureController.h"

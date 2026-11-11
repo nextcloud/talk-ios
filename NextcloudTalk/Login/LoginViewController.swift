@@ -11,7 +11,7 @@ import NextcloudKit
 }
 
 @objcMembers
-class LoginViewController: UIViewController, UITextFieldDelegate, CCCertificateDelegate, DetailedOptionsSelectorTableViewControllerDelegate, AuthenticationViewControllerDelegate, QRScannerViewControllerDelegate {
+class LoginViewController: UIViewController, UITextFieldDelegate, NCCertificateDelegate, DetailedOptionsSelectorTableViewControllerDelegate, AuthenticationViewControllerDelegate, QRScannerViewControllerDelegate {
 
     weak var delegate: LoginViewControllerDelegate?
 
@@ -123,7 +123,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, CCCertificateD
 
     // MARK: - Certificate delegate
 
-    func trustedCerticateAccepted() {
+    func trustedCertificateAccepted() {
         loginButtonPressed(self)
     }
 
@@ -192,7 +192,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, CCCertificateD
             if let error {
                 if error.underlyingError.code == NSURLErrorServerCertificateUntrusted {
                     DispatchQueue.main.async {
-                        CCCertificate.sharedManager()
+                        NCCertificate.shared
                             .presentViewControllerCertificate(
                                 withError: error.underlyingError,
                                 viewController: self,

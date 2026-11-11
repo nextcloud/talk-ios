@@ -3877,7 +3877,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
 
     public func authenticationChallenge(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         // The pinning check
-        if CCCertificate.sharedManager().checkTrustedChallenge(challenge) {
+        if NCCertificate.shared.checkTrustedChallenge(challenge) {
             completionHandler(.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
         } else {
             completionHandler(.performDefaultHandling, nil)

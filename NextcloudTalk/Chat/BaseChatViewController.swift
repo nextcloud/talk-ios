@@ -1861,7 +1861,7 @@ import Toast
 
     // MARK: - ShareViewController Delegate
 
-    public func shareViewControllerDidCancel(_ viewController: ShareViewController) {
+    func shareViewControllerDidCancel(_ viewController: ShareViewController) {
         self.dismiss(animated: true)
     }
 

@@ -778,7 +778,7 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
 
     func urlSession(_ session: URLSession, task: URLSessionTask, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust,
-           CCCertificate.sharedManager().checkTrustedChallenge(challenge),
+           NCCertificate.shared.checkTrustedChallenge(challenge),
            let serverTrust = challenge.protectionSpace.serverTrust {
             completionHandler(.useCredential, URLCredential(trust: serverTrust))
         } else {

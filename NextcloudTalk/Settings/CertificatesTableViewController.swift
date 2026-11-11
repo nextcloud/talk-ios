@@ -44,7 +44,7 @@ class CertificatesTableViewController: UITableViewController {
     }
 
     private func loadCertificates() {
-        guard let certificateManager = CCCertificate.sharedManager() else { return }
+        let certificateManager = NCCertificate.shared
 
         certificates = certificateManager.acceptedCertificateHosts().map { host in
             let certificateURL: URL? = certificateManager.acceptedCertificateURL(forHost: host)
@@ -151,7 +151,7 @@ class CertificatesTableViewController: UITableViewController {
     private func removeCertificate(at indexPath: IndexPath) {
         let certificate = certificates[indexPath.row]
 
-        guard CCCertificate.sharedManager()?.removeAcceptedCertificate(forHost: certificate.host) == true else { return }
+        guard NCCertificate.shared.removeAcceptedCertificate(forHost: certificate.host) else { return }
 
         certificates.remove(at: indexPath.row)
         tableView.deleteRows(at: [indexPath], with: .automatic)
