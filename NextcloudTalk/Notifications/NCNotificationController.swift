@@ -143,16 +143,16 @@ public class NCNotificationController: NSObject, UNUserNotificationCenterDelegat
         self.updateAppIconBadgeNumber()
     }
 
-    public func showIncomingCall(forPushNotification pushNotification: NCPushNotification) {
+    public func showIncomingCall(forPushNotification pushNotification: NCPushNotification, completion: @escaping () -> Void) {
         if CallKitManager.isCallKitAvailable() {
-            CallKitManager.sharedInstance().reportIncomingCall(pushNotification.roomToken, withDisplayName: NSLocalizedString("Incoming call", comment: ""), forAccountId: pushNotification.accountId)
+            CallKitManager.sharedInstance().reportIncomingCall(pushNotification.roomToken, withDisplayName: NSLocalizedString("Incoming call", comment: ""), forAccountId: pushNotification.accountId, completion: completion)
         } else {
-            CallKitManager.sharedInstance().reportIncomingCallForNonCallKitDevices(withPushNotification: pushNotification)
+            CallKitManager.sharedInstance().reportIncomingCallForNonCallKitDevices(withPushNotification: pushNotification, completion: completion)
         }
     }
 
-    public func showIncomingCallForOldAccount() {
-        CallKitManager.sharedInstance().reportIncomingCallForOldAccount()
+    public func showIncomingCallForOldAccount(completion: @escaping () -> Void) {
+        CallKitManager.sharedInstance().reportIncomingCallForOldAccount(completion: completion)
     }
 
     public func showLocalNotification(forChatNotification notification: NCNotification, forAccountId accountId: String) {

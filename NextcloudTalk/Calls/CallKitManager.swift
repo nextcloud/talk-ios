@@ -109,7 +109,7 @@ public class CallKitManager: NSObject, CXProviderDelegate {
         self.provider.configuration.includesCallsInRecents = value
     }
 
-    public func reportIncomingCall(_ token: String, withDisplayName displayName: String, forAccountId accountId: String) {
+    public func reportIncomingCall(_ token: String, withDisplayName displayName: String, forAccountId accountId: String, completion: @escaping () -> Void) {
         var protectedDataAvailable = "available"
 
         if !UIApplication.shared.isProtectedDataAvailable {
@@ -133,7 +133,7 @@ public class CallKitManager: NSObject, CXProviderDelegate {
         if activeAccount.accountId != accountId {
             if ongoingCalls {
                 // If there is an ongoing call then show a local notification
-                self.reportAndCancelIncomingCall(token, forAccountId: accountId, withLocalNotificationType: .cancelledCall)
+                self.reportAndCancelIncomingCall(token, forAccountId: accountId, withLocalNotificationType: .cancelledCall, completion: completion)
                 return
             } else {
                 // Change accounts if there are no ongoing calls
@@ -156,6 +156,8 @@ public class CallKitManager: NSObject, CXProviderDelegate {
         call.isRinging = true
 
         self.provider.reportNewIncomingCall(with: callUUID, update: update) { [weak self] error in
+            defer { completion() }
+
             guard let self else { return }
 
             if let error {
@@ -183,7 +185,7 @@ public class CallKitManager: NSObject, CXProviderDelegate {
         }
     }
 
-    private func reportAndCancelIncomingCall(_ token: String, forAccountId accountId: String, withLocalNotificationType notificationType: NCLocalNotificationType) {
+    private func reportAndCancelIncomingCall(_ token: String, forAccountId accountId: String, withLocalNotificationType notificationType: NCLocalNotificationType, completion: @escaping () -> Void) {
         NCLog.log("Report and cancel incoming call for token \(token) for account \(accountId).")
 
         let update = self.defaultCallUpdate()
@@ -195,6 +197,8 @@ public class CallKitManager: NSObject, CXProviderDelegate {
         call.update = update
 
         self.provider.reportNewIncomingCall(with: callUUID, update: update) { [weak self] error in
+            defer { completion() }
+
             guard let self else { return }
 
             if let error {
@@ -215,7 +219,7 @@ public class CallKitManager: NSObject, CXProviderDelegate {
         }
     }
 
-    public func reportIncomingCallForNonCallKitDevices(withPushNotification pushNotification: NCPushNotification) {
+    public func reportIncomingCallForNonCallKitDevices(withPushNotification pushNotification: NCPushNotification, completion: @escaping () -> Void) {
         NCLog.log("Report incoming call for non callkit device for token \(pushNotification.roomToken) for account \(pushNotification.accountId).")
 
         let update = self.defaultCallUpdate()
@@ -227,6 +231,8 @@ public class CallKitManager: NSObject, CXProviderDelegate {
         call.update = update
 
         self.provider.reportNewIncomingCall(with: callUUID, update: update) { [weak self] error in
+            defer { completion() }
+
             guard let self else { return }
 
             if let error {
@@ -240,7 +246,7 @@ public class CallKitManager: NSObject, CXProviderDelegate {
         }
     }
 
-    public func reportIncomingCallForOldAccount() {
+    public func reportIncomingCallForOldAccount(completion: @escaping () -> Void) {
         NCLog.log("Report incoming call for old account.")
 
         let update = self.defaultCallUpdate()
@@ -252,6 +258,8 @@ public class CallKitManager: NSObject, CXProviderDelegate {
         call.update = update
 
         self.provider.reportNewIncomingCall(with: callUUID, update: update) { [weak self] error in
+            defer { completion() }
+
             guard let self else { return }
 
             if let error {
