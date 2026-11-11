@@ -252,6 +252,43 @@ final class IntegrationChatTest: TestBase {
         await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
     }
 
+    func testReceiveMessagesAfterClearedHistory() async throws {
+        try skipWithoutCapability(capability: TalkCapability.clearHistory)
+        try skipWithoutCapability(capability: TalkCapability.chatReadStatus)
+
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+
+        let room = try await createUniqueRoom(prefix: "Cleared history receive room", withAccount: activeAccount)
+        try await sendMessage(message: "Before clear history Message", inRoom: room.token, withAccount: activeAccount)
+
+        let exp = expectation(description: "\(#function)\(#line)")
+
+        // Clearing resets every read marker to -2, so the server reports a negative common read marker
+        NCAPIController.sharedInstance().clearChatHistory(inRoom: room.token, forAccount: activeAccount) { message, error in
+            XCTAssertNil(error)
+            let historyClearedMessage = NCChatMessage(dictionary: message)!
+
+            NCAPIController.sharedInstance().getRooms(forAccount: activeAccount, updateStatus: false, modifiedSince: 0) { roomsDict, error in
+                XCTAssertNil(error)
+
+                let rooms = self.getRoomDict(from: roomsDict!, for: activeAccount)
+                let foundRoom = rooms.first(where: { $0.token == room.token })!
+
+                // Otherwise the request below passes without checking anything
+                XCTAssertLessThan(foundRoom.lastCommonReadMessage, 0)
+
+                // Passed on as the app does when polling, newer servers answer a negative value with 400 (#2720)
+                NCAPIController.sharedInstance().receiveChatMessages(ofRoom: room.token, fromLastMessageId: historyClearedMessage.messageId, inThread: 0, history: false, includeLastMessage: false, timeout: false, limit: 0, lastCommonReadMessage: foundRoom.lastCommonReadMessage, setReadMarker: false, markNotificationsAsRead: false, forAccount: activeAccount) { _, _, _, _, statusCode in
+                    XCTAssertEqual(statusCode, 304)
+
+                    exp.fulfill()
+                }
+            }
+        }
+
+        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
+    }
+
     func testShareRichObject() async throws {
         try skipWithoutCapability(capability: TalkCapability.locationSharing)
 
