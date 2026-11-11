@@ -45,6 +45,8 @@ class RoomsTableViewController: UITableViewController, NCCertificateDelegate, UI
     private var filterButton: UIBarButtonItem?
     private var settingsButton: UIBarButtonItem!
     private var profileButton: UIButton!
+    // Owned by profileButton, so it goes away whenever the button is rebuilt
+    private weak var legacyBadge: UILabel?
     private var activeUserStatus: NCUserStatus?
     private var refreshRoomsTimer: Timer?
     private var nextRoomWithMentionIndexPath: IndexPath?
@@ -1447,9 +1449,30 @@ class RoomsTableViewController: UITableViewController, NCCertificateDelegate, UI
             if #available(iOS 26.0, *) {
                 settingsButton.badge = .count(inactiveUnreadCount)
             } else {
-                settingsButton.legacyBadgeValue = "\(inactiveUnreadCount)"
+                setLegacyBadge(count: inactiveUnreadCount)
             }
         }
+    }
+
+    private func setLegacyBadge(count: Int) {
+        let badge = legacyBadge ?? UILabel()
+        badge.text = "\(count)"
+        badge.font = .systemFont(ofSize: 12)
+        badge.textColor = .white
+        badge.backgroundColor = .red
+        badge.textAlignment = .center
+        badge.sizeToFit()
+
+        let height = badge.frame.height + 6
+        let width = max(badge.frame.width, badge.frame.height) + 6
+        // Not above the button, the bar clips its custom views at the top
+        badge.frame = CGRect(x: profileButton.bounds.width - 10, y: 0, width: width, height: height)
+        badge.layer.cornerRadius = height / 2
+        badge.layer.masksToBounds = true
+
+        profileButton.clipsToBounds = false
+        profileButton.addSubview(badge)
+        legacyBadge = badge
     }
 
     // MARK: - Threads
