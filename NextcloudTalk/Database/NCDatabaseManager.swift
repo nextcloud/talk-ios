@@ -175,7 +175,11 @@ public extension Notification.Name {
 
         // Now that we've told Realm how to handle the schema change, opening the file
         // will automatically perform the migration
-        _ = RLMRealm.default()
+        do {
+            _ = try RLMRealm(configuration: configuration)
+        } catch {
+            Self.crashOnDatabaseOpenFailure(error as NSError)
+        }
 
 #if !APP_EXTENSION
         // Realm caches its instances weakly, so holding one keeps the database open instead of every access
@@ -195,6 +199,88 @@ public extension Notification.Name {
             try? FileManager.default.copyItem(at: databaseURL, to: dbCopyURL)
         }
 #endif
+    }
+
+    // MARK: - Database open failure
+
+    // Organizer reports carry neither the exception reason nor the fatalError message, only the stack,
+    // so every cause crashes in its own frame. Distinct messages keep the linker from folding the bodies.
+    private static func crashOnDatabaseOpenFailure(_ error: NSError) -> Never {
+        guard error.domain == RLMErrorDomain, let code = RLMError.Code(rawValue: error.code) else {
+            crashDatabaseOpenUnknownError(error)
+        }
+
+        switch code {
+        case .fileAccess: crashDatabaseOpenFileAccess(error)
+        case .filePermissionDenied: crashDatabaseOpenPermissionDenied(error)
+        case .fileNotFound: crashDatabaseOpenFileNotFound(error)
+        case .fileFormatUpgradeRequired: crashDatabaseOpenFormatUpgradeRequired(error)
+        case .unsupportedFileFormatVersion: crashDatabaseOpenUnsupportedFormat(error)
+        case .incompatibleLockFile: crashDatabaseOpenIncompatibleLockFile(error)
+        case .addressSpaceExhausted: crashDatabaseOpenAddressSpaceExhausted(error)
+        case .outOfDiskSpace: crashDatabaseOpenOutOfDiskSpace(error)
+        case .invalidDatabase: crashDatabaseOpenInvalidDatabase(error)
+        case .fileOperationFailed: crashDatabaseOpenFileOperationFailed(error)
+        case .schemaMismatch: crashDatabaseOpenSchemaMismatch(error)
+        case .fail: crashDatabaseOpenFail(error)
+        default: crashDatabaseOpenOtherRealmError(error)
+        }
+    }
+
+    @inline(never) private static func crashDatabaseOpenFileAccess(_ error: NSError) -> Never {
+        fatalError("Database open: file access \(error)")
+    }
+
+    @inline(never) private static func crashDatabaseOpenPermissionDenied(_ error: NSError) -> Never {
+        fatalError("Database open: permission denied \(error)")
+    }
+
+    @inline(never) private static func crashDatabaseOpenFileNotFound(_ error: NSError) -> Never {
+        fatalError("Database open: file not found \(error)")
+    }
+
+    @inline(never) private static func crashDatabaseOpenFormatUpgradeRequired(_ error: NSError) -> Never {
+        fatalError("Database open: format upgrade required \(error)")
+    }
+
+    @inline(never) private static func crashDatabaseOpenUnsupportedFormat(_ error: NSError) -> Never {
+        fatalError("Database open: unsupported file format \(error)")
+    }
+
+    @inline(never) private static func crashDatabaseOpenIncompatibleLockFile(_ error: NSError) -> Never {
+        fatalError("Database open: incompatible lock file \(error)")
+    }
+
+    @inline(never) private static func crashDatabaseOpenAddressSpaceExhausted(_ error: NSError) -> Never {
+        fatalError("Database open: address space exhausted \(error)")
+    }
+
+    @inline(never) private static func crashDatabaseOpenOutOfDiskSpace(_ error: NSError) -> Never {
+        fatalError("Database open: out of disk space \(error)")
+    }
+
+    @inline(never) private static func crashDatabaseOpenInvalidDatabase(_ error: NSError) -> Never {
+        fatalError("Database open: invalid database \(error)")
+    }
+
+    @inline(never) private static func crashDatabaseOpenFileOperationFailed(_ error: NSError) -> Never {
+        fatalError("Database open: file operation failed \(error)")
+    }
+
+    @inline(never) private static func crashDatabaseOpenSchemaMismatch(_ error: NSError) -> Never {
+        fatalError("Database open: schema mismatch \(error)")
+    }
+
+    @inline(never) private static func crashDatabaseOpenFail(_ error: NSError) -> Never {
+        fatalError("Database open: fail \(error)")
+    }
+
+    @inline(never) private static func crashDatabaseOpenOtherRealmError(_ error: NSError) -> Never {
+        fatalError("Database open: other realm error \(error)")
+    }
+
+    @inline(never) private static func crashDatabaseOpenUnknownError(_ error: NSError) -> Never {
+        fatalError("Database open: unknown error \(error)")
     }
 
     // MARK: - Talk accounts
