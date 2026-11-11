@@ -41,10 +41,10 @@ import Foundation
         }
     }
 
-    public func getFederationJoinDictionary() -> [String: String]? {
+    public func getFederationJoinDictionary() -> [String: Any]? {
         guard let federation, !federation.isEmpty else { return nil }
 
-        var result: [String: String] = [:]
+        var result: [String: Any] = [:]
 
         if let server = federation["server"] as? String {
             result["signaling"] = server
@@ -61,6 +61,14 @@ import Foundation
 
         if let helloAuthParams = federation["helloAuthParams"] as? [String: String], let token = helloAuthParams["token"] {
             result["token"] = token
+        }
+
+        // The HPB rejects federated joins without it once our server has the "federation-signaling-auth" capability
+        if let joinAuthParams = federation["joinAuthParams"] as? [String: Any], let token = joinAuthParams["token"] as? String, !token.isEmpty {
+            result["auth"] = [
+                "version": "1.0",
+                "token": token
+            ]
         }
 
         return result
