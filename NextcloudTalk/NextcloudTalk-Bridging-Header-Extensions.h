@@ -20,7 +20,6 @@
 #import "TalkAccount.h"
 
 #import "SLKTextViewController.h"
-#import "CCCertificate.h"
 
 #import "NCTypes.h"
 

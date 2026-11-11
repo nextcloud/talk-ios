@@ -32,8 +32,6 @@
 #import "JDStatusBarNotificationPresenter.h"
 #import "UIResponder+SLKAdditions.h"
 
-#import "ShareViewController.h"
-#import "CCCertificate.h"
 
 #import "ScreenCapturer.h"
 #import "ScreenCaptureController.h"

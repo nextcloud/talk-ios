@@ -10,7 +10,7 @@ import NextcloudKit
 import SwiftUI
 
 @objc(RoomsTableViewController)
-class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UISearchBarDelegate, UISearchControllerDelegate, UISearchResultsUpdating, UserStatusViewDelegate {
+class RoomsTableViewController: UITableViewController, NCCertificateDelegate, UISearchBarDelegate, UISearchControllerDelegate, UISearchResultsUpdating, UserStatusViewDelegate {
 
     private enum RoomsFilter: Int {
         case all = 0
@@ -366,7 +366,7 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
             if error.underlyingError.code == NSURLErrorServerCertificateUntrusted {
                 NSLog("Untrusted certificate")
                 DispatchQueue.main.async {
-                    CCCertificate.sharedManager().presentViewControllerCertificate(withError: error.underlyingError, viewController: self, delegate: self)
+                    NCCertificate.shared.presentViewControllerCertificate(withError: error.underlyingError, viewController: self, delegate: self)
                 }
             }
         }
@@ -1468,9 +1468,9 @@ class RoomsTableViewController: UITableViewController, CCCertificateDelegate, UI
         }
     }
 
-    // MARK: - CCCertificateDelegate
+    // MARK: - NCCertificateDelegate
 
-    func trustedCerticateAccepted() {
+    func trustedCertificateAccepted() {
         NCRoomsManager.shared.updateRooms(updatingUserStatus: false, onlyLastModified: false)
     }
 

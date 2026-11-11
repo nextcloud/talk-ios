@@ -37,7 +37,7 @@ public enum NCExternalSignalingSendMessageStatus {
     case applicationError
 }
 
-@objcMembers public class NCExternalSignalingController: NSObject, URLSessionWebSocketDelegate, CCCertificateDelegate {
+@objcMembers public class NCExternalSignalingController: NSObject, URLSessionWebSocketDelegate {
 
     public weak var delegate: NCExternalSignalingControllerDelegate?
 
@@ -89,7 +89,7 @@ public enum NCExternalSignalingSendMessageStatus {
 
         super.init()
 
-        NotificationCenter.default.addObserver(self, selector: #selector(certificateAccepted(notification:)), name: .CCCertificateAccepted, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(certificateAccepted(notification:)), name: .NCCertificateAccepted, object: nil)
 
         self.reconnectInterval = self.initialReconnectInterval
         self.connect()
@@ -897,9 +897,9 @@ public enum NCExternalSignalingSendMessageStatus {
 
     // MARK: - Certificates
 
-    // Not CCCertificateDelegate, as the alert for this host may have been presented by someone else
+    // Not a certificate delegate, as the alert for this host may have been presented by someone else
     func certificateAccepted(notification: Notification) {
-        guard let acceptedHost = notification.userInfo?[CCCertificateHostKey] as? String,
+        guard let acceptedHost = notification.userInfo?[NCCertificate.hostKey] as? String,
               let host = URL(string: self.serverUrl)?.host,
               host.caseInsensitiveCompare(acceptedHost) == .orderedSame
         else { return }
@@ -947,11 +947,11 @@ public enum NCExternalSignalingSendMessageStatus {
                 self.waitingForCertificateAcceptance = true
 
                 DispatchQueue.main.async {
-                    CCCertificate.sharedManager()
+                    NCCertificate.shared
                         .presentViewControllerCertificate(
                             withError: error as NSError,
                             viewController: NCUserInterfaceController.sharedInstance().mainViewController,
-                            delegate: self)
+                            delegate: nil)
                 }
 
                 return
@@ -966,7 +966,7 @@ public enum NCExternalSignalingSendMessageStatus {
 
     public func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         // The pinning check
-        if CCCertificate.sharedManager().checkTrustedChallenge(challenge) {
+        if NCCertificate.shared.checkTrustedChallenge(challenge) {
             completionHandler(.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
         } else {
             completionHandler(.performDefaultHandling, nil)

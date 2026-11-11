@@ -136,7 +136,7 @@ class AuthenticationViewController: UIViewController, WKNavigationDelegate {
     }
 
     func webView(_ webView: WKWebView, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
-        if CCCertificate.sharedManager().checkTrustedChallenge(challenge), let serverTrust = challenge.protectionSpace.serverTrust {
+        if NCCertificate.shared.checkTrustedChallenge(challenge), let serverTrust = challenge.protectionSpace.serverTrust {
             completionHandler(.useCredential, URLCredential(trust: serverTrust))
         } else {
             completionHandler(.performDefaultHandling, nil)

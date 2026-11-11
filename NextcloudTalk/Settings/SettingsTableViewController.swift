@@ -607,7 +607,7 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
     }
 
     func updateHasAcceptedCertificates() {
-        hasAcceptedCertificates = !(CCCertificate.sharedManager()?.acceptedCertificateHosts().isEmpty ?? true)
+        hasAcceptedCertificates = !NCCertificate.shared.acceptedCertificateHosts().isEmpty
     }
 
     func certificatesDidChange() {

@@ -154,7 +154,7 @@ private final class NCSessionDelegate: NSObject, URLSessionDelegate {
 
     func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         // The pinning check
-        if CCCertificate.sharedManager().checkTrustedChallenge(challenge), let serverTrust = challenge.protectionSpace.serverTrust {
+        if NCCertificate.shared.checkTrustedChallenge(challenge), let serverTrust = challenge.protectionSpace.serverTrust {
             completionHandler(.useCredential, URLCredential(trust: serverTrust))
         } else {
             completionHandler(.performDefaultHandling, nil)

@@ -6,7 +6,7 @@
 import XCTest
 @testable import NextcloudTalk
 
-final class UnitCCCertificateTest: XCTestCase {
+final class UnitNCCertificateTest: XCTestCase {
 
     // Self-signed certificates for cert-a.invalid and cert-b.invalid
     private let certificateA = Data(base64Encoded: "MIIBiTCCAS+gAwIBAgIUa2LPCJqcqwry8zE6eaiKvkqAZVcwCgYIKoZIzj0EAwIwGTEXMBUGA1UEAwwOY2VydC1hLmludmFsaWQwIBcNMjYxMDMwMDkzNDU3WhgPMjEyNjEwMDYwOTM0NTdaMBkxFzAVBgNVBAMMDmNlcnQtYS5pbnZhbGlkMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEGT0owUBm8qCxott0v4iPQ54asQ2MMqBdWtmmWKVUWcCMoZCTkfIz3/rVr3UmcYDtD9LXz3BRwoPCt3vsqDmKl6NTMFEwHQYDVR0OBBYEFL1+Xp63fYrq1fk3CbnIhv5dIGfyMB8GA1UdIwQYMBaAFL1+Xp63fYrq1fk3CbnIhv5dIGfyMA8GA1UdEwEB/wQFMAMBAf8wCgYIKoZIzj0EAwIDSAAwRQIhAN4Cxjlg0QptBiib/+hFml06qXxmeqD7ym8pmU0D5AWfAiA1ULXT+pmj4ONG2c3PKWEVoSlwPgpZUpPnhJmeQVpTgg==")!
@@ -35,7 +35,7 @@ final class UnitCCCertificateTest: XCTestCase {
     }
 
     func testAcceptedCertificateIsBoundToHost() throws {
-        let manager = CCCertificate.sharedManager()!
+        let manager = NCCertificate.shared
 
         XCTAssertFalse(manager.checkTrustedChallenge(try challenge(host: hostA, certificate: certificateA)))
 
@@ -48,7 +48,7 @@ final class UnitCCCertificateTest: XCTestCase {
     }
 
     func testSameCertificateAcceptedForMultipleHosts() throws {
-        let manager = CCCertificate.sharedManager()!
+        let manager = NCCertificate.shared
 
         XCTAssertTrue(manager.acceptCertificate(certificateA, forHost: hostA))
         XCTAssertFalse(manager.checkTrustedChallenge(try challenge(host: hostB, certificate: certificateA)))
@@ -60,7 +60,7 @@ final class UnitCCCertificateTest: XCTestCase {
     }
 
     func testNewCertificateReplacesPreviousOne() throws {
-        let manager = CCCertificate.sharedManager()!
+        let manager = NCCertificate.shared
 
         XCTAssertTrue(manager.acceptCertificate(certificateA, forHost: hostA))
         XCTAssertTrue(manager.acceptCertificate(certificateB, forHost: hostA))
@@ -70,7 +70,7 @@ final class UnitCCCertificateTest: XCTestCase {
     }
 
     func testListAndRemoveAcceptedCertificates() throws {
-        let manager = CCCertificate.sharedManager()!
+        let manager = NCCertificate.shared
 
         XCTAssertTrue(manager.acceptCertificate(certificateA, forHost: hostA))
         XCTAssertTrue(manager.acceptedCertificateHosts().contains(hostA))
