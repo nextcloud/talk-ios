@@ -557,19 +557,33 @@ final class IntegrationRoomTest: TestBase {
         try skipWithoutCapability(capability: TalkCapability.tempUserAvatarAPI)
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        let exp = expectation(description: "\(#function)\(#line)")
+        let image = squareTestImage()
 
-        // Multipart upload with the file in a part named "files[]", removed again to leave the account unchanged
-        NCAPIController.sharedInstance().setUserProfileImage(squareTestImage(), forAccount: activeAccount) { error in
-            XCTAssertNil(error)
+        // Both calls update the system address book, which the SQLite CI server sometimes rejects with "database is locked"
+        func withRetry(_ request: (@escaping (Error?) -> Void) -> Void) async -> Error? {
+            var lastError: Error?
 
-            NCAPIController.sharedInstance().removeUserProfileImage(forAccount: activeAccount) { error in
-                XCTAssertNil(error)
-                exp.fulfill()
+            for _ in 0..<3 {
+                lastError = await withCheckedContinuation { continuation in
+                    request { continuation.resume(returning: $0) }
+                }
+
+                if lastError == nil { break }
             }
+
+            return lastError
         }
 
-        await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
+        // Multipart upload with the file in a part named "files[]", removed again to leave the account unchanged
+        let uploadError = await withRetry { completion in
+            NCAPIController.sharedInstance().setUserProfileImage(image, forAccount: activeAccount, completionBlock: completion)
+        }
+        XCTAssertNil(uploadError)
+
+        let removeError = await withRetry { completion in
+            NCAPIController.sharedInstance().removeUserProfileImage(forAccount: activeAccount, completionBlock: completion)
+        }
+        XCTAssertNil(removeError)
     }
 
     func testConversationTags() async throws {
