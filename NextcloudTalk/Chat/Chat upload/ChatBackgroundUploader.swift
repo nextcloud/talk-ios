@@ -495,7 +495,7 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
                         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: job.accountId),
                               let authHeader = NCAPIController.sharedInstance().authHeader(forAccount: account)
                         else {
-                            self.drop(job, reason: "its account is gone")
+                            self.discardJobOfRemovedAccount(job)
                             continue
                         }
 
@@ -561,7 +561,7 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
     @MainActor
     private func post(_ job: ChatBackgroundUploadJob) async -> Bool {
         guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: job.accountId) else {
-            self.drop(job, reason: "its account is gone")
+            self.discardJobOfRemovedAccount(job)
             return true
         }
 
@@ -681,6 +681,14 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
             return
         }
 
+        // Checked before the status, a revoked account fails with 401
+        guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: job.accountId) else {
+            self.discardJobOfRemovedAccount(job)
+            self.shareFiles(of: job.sessionIdentifier)
+            self.startUploadTurns(in: session)
+            return
+        }
+
         // Retrying all of them together would time out again, and waiting for its turn does not use up its retry
         if statusCode == 408, job.uploadTurn == nil {
             NCLog.log("Sending the files of the share of \(job.fileName) in turns")
@@ -698,8 +706,7 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
             dropReason = "the server rejected it"
         } else if job.uploadRetryDate != nil {
             dropReason = "its retry failed as well"
-        } else if let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: job.accountId),
-                  let authHeader = NCAPIController.sharedInstance().authHeader(forAccount: account) {
+        } else if let authHeader = NCAPIController.sharedInstance().authHeader(forAccount: account) {
             let retryDate = Date(timeIntervalSinceNow: Self.uploadRetryDelay)
 
             job.uploadRetryDate = retryDate
@@ -710,7 +717,7 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
             self.startUploadTask(for: job, in: session, authHeader: authHeader, earliestBeginDate: retryDate)
             return
         } else {
-            dropReason = "its account is gone"
+            dropReason = "its credentials are missing"
         }
 
         self.drop(job, reason: dropReason)
@@ -755,7 +762,7 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
                     guard let account = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: job.accountId),
                           let authHeader = NCAPIController.sharedInstance().authHeader(forAccount: account)
                     else {
-                        self.drop(job, reason: "its account is gone")
+                        self.discardJobOfRemovedAccount(job)
                         self.shareFiles(of: identifier)
                         continue
                     }
@@ -873,7 +880,55 @@ final class ChatBackgroundUploader: NSObject, URLSessionTaskDelegate {
         }
     }
 
+    // The user removed the account, so nothing is reported or kept
+    private func discardJobOfRemovedAccount(_ job: ChatBackgroundUploadJob) {
+        NCLog.log("Discarding background upload of \(job.fileName), its account is gone")
+        self.removeJob(job)
+    }
+
 #if !APP_EXTENSION
+    /// Stops and deletes the pending and failed files of an account that is being removed. Files that are being
+    /// posted can't be stopped anymore.
+    func removeJobs(forAccountId accountId: String) {
+        let pendingJobs = self.loadAllJobs().filter { $0.accountId == accountId }
+        let failedJobs = self.loadFailedUploads().map { $0.job }.filter { $0.accountId == accountId }
+
+        guard !pendingJobs.isEmpty || !failedJobs.isEmpty else { return }
+
+        NCLog.log("Removing \(pendingJobs.count) pending and \(failedJobs.count) failed background uploads of a removed account")
+
+        let jobIds = Set(pendingJobs.map { $0.id })
+
+        for job in pendingJobs {
+            if let jobDirectory = self.jobDirectory(forJobId: job.id) {
+                try? FileManager.default.removeItem(at: jobDirectory)
+            }
+
+            self.uploadProgress.removeValue(forKey: job.id)
+        }
+
+        if let failedJobsDirectory = Self.failedJobsDirectory {
+            for job in failedJobs {
+                try? FileManager.default.removeItem(at: failedJobsDirectory.appendingPathComponent(job.id, isDirectory: true))
+            }
+        }
+
+        // Tasks can only be cancelled through a connected session, otherwise the system would still send them
+        for identifier in Set(pendingJobs.map { $0.sessionIdentifier }) {
+            let session = self.session(withIdentifier: identifier)
+
+            session.getAllTasks { tasks in
+                tasks.filter { jobIds.contains($0.taskDescription ?? "") }.forEach { $0.cancel() }
+
+                DispatchQueue.main.async {
+                    self.finishSessionIfDone(identifier)
+                }
+            }
+        }
+
+        self.notifyUploadsChanged()
+    }
+
     /// The failed files of the share the given job belongs to, in their original order.
     func failedJobs(sharedWith jobId: String) -> [(job: ChatBackgroundUploadJob, fileURL: URL)] {
         let failedUploads = self.loadFailedUploads()

@@ -427,6 +427,8 @@ public class NCSettingsController: NSObject {
         extSignalingController?.disconnect()
         NCAPIController.sharedInstance().removeProfileImage(forAccount: removingAccount)
         NCAPIController.sharedInstance().removeAPISessionManager(forAccount: removingAccount)
+        ChatBackgroundUploader.shared.removeJobs(forAccountId: removingAccount.accountId)
+        NCNotificationController.sharedInstance().removeAllNotifications(forAccountId: removingAccount.accountId)
         NCDatabaseManager.sharedInstance().removeAccount(withAccountId: removingAccount.accountId)
         NCChatFileController(account: removingAccount).deleteDownloadDirectory()
         NCRoomsManager.shared.chatViewController?.leaveChat()
