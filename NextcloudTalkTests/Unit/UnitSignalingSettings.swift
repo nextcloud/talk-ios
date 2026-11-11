@@ -92,6 +92,9 @@ final class UnitSignalingSettings: XCTestCase {
                     "helloAuthParams": {
                         "token": "federation:token"
                     },
+                    "joinAuthParams": {
+                        "token": "federation:joinToken"
+                    },
                     "roomId": "federation:roomId"
                 },
                 "stunservers": [
@@ -121,10 +124,30 @@ final class UnitSignalingSettings: XCTestCase {
 
         let federation = signalingSettings?.getFederationJoinDictionary()
 
-        XCTAssertEqual(federation?["signaling"], "https://domain2.invalid/standalone-signaling")
-        XCTAssertEqual(federation?["roomid"], "federation:roomId")
-        XCTAssertEqual(federation?["url"], "https://nextcloud.domain2.invalid/ocs/v2.php/apps/spreed/api/v3/signaling/backend")
-        XCTAssertEqual(federation?["token"], "federation:token")
+        XCTAssertEqual(federation?["signaling"] as? String, "https://domain2.invalid/standalone-signaling")
+        XCTAssertEqual(federation?["roomid"] as? String, "federation:roomId")
+        XCTAssertEqual(federation?["url"] as? String, "https://nextcloud.domain2.invalid/ocs/v2.php/apps/spreed/api/v3/signaling/backend")
+        XCTAssertEqual(federation?["token"] as? String, "federation:token")
+
+        let auth = federation?["auth"] as? [String: String]
+        XCTAssertEqual(auth?["version"], "1.0")
+        XCTAssertEqual(auth?["token"], "federation:joinToken")
+    }
+
+    func testSignalingSettingsFederationWithoutJoinAuth() throws {
+        let signalingDict: [String: Any] = [
+            "federation": [
+                "server": "https://domain2.invalid/standalone-signaling",
+                "nextcloudServer": "https://nextcloud.domain2.invalid",
+                "helloAuthParams": ["token": "federation:token"],
+                "roomId": "federation:roomId"
+            ]
+        ]
+
+        let federation = SignalingSettings(dictionary: signalingDict)?.getFederationJoinDictionary()
+
+        XCTAssertEqual(federation?["token"] as? String, "federation:token")
+        XCTAssertNil(federation?["auth"])
     }
 
 }
