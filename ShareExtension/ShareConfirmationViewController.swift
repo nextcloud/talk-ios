@@ -4,7 +4,6 @@
 //
 
 import Foundation
-import NextcloudKit
 import QuickLook
 import SwiftyAttributes
 import TOCropViewController
@@ -20,7 +19,6 @@ private let kShareConfirmationOptionsViewHeight: CGFloat = 44
 }
 
 @objcMembers public class ShareConfirmationViewController: InputbarViewController,
-                                                           NKCommonDelegate,
                                                            ShareItemControllerDelegate,
                                                            UIImagePickerControllerDelegate,
                                                            UIDocumentPickerDelegate,
@@ -510,17 +508,8 @@ private let kShareConfirmationOptionsViewHeight: CGFloat = 44
         self.shareCollectionView.delegate = self
 
         // Configure communication lib
-        guard let userToken = NCKeyChainController.sharedInstance().token(forAccountId: self.account.accountId) else { return }
-        let userAgent = "Mozilla/5.0 (iOS) Nextcloud-Talk v\(Bundle.main.infoDictionary?["CFBundleShortVersionString"] ?? "Unknown")"
-
-        NextcloudKit.shared.setup(account: self.account.accountId,
-                                  user: self.account.user,
-                                  userId: self.account.userId,
-                                  password: userToken,
-                                  urlBase: self.account.server,
-                                  userAgent: userAgent,
-                                  nextcloudVersion: self.serverCapabilities.versionMajor,
-                                  delegate: self)
+        guard NCKeyChainController.sharedInstance().token(forAccountId: self.account.accountId) != nil else { return }
+        NCAPIController.sharedInstance().setupNCCommunication(forAccount: self.account)
 
         if #unavailable(iOS 26) {
             let localizedToString = NSLocalizedString("To:", comment: "TRANSLATORS this is for sending something 'to' a user. E.g. 'To: John Doe'")
@@ -1284,17 +1273,6 @@ private let kShareConfirmationOptionsViewHeight: CGFloat = 44
         // Fixes weird iOS 13 bug: https://github.com/TimOliver/TOCropViewController/issues/365
         cropViewController.transitioningDelegate = nil
         cropViewController.dismiss(animated: true)
-    }
-
-    // MARK: - NKCommon Delegate
-
-    public func authenticationChallenge(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
-        // The pinning check
-        if NCCertificate.shared.checkTrustedChallenge(challenge) {
-            completionHandler(.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
-        } else {
-            completionHandler(.performDefaultHandling, nil)
-        }
     }
 
 }
