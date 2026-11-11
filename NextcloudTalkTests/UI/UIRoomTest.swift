@@ -150,6 +150,7 @@ final class UIRoomTest: UITestCase {
 
         if supportsReactions {
             waitForReady(object: contextMenuReaction("👍", in: app)).tap()
+            XCTAssert(app.staticTexts["👍 1"].waitForExistence(timeout: TestConstants.timeoutShort), "Reaction should be visible after adding it")
         } else {
             waitForReady(object: app.buttons["Reply"]).tap()
         }
@@ -254,6 +255,10 @@ final class UIRoomTest: UITestCase {
 
         // Two messages should now be in the sent state
         waitForCount(query: app.cells.matching(identifier: "CellMessageSent"), count: 2, timeout: TestConstants.timeoutShort)
+
+        // The reply shows the quoted parent message
+        let replyCell = app.cells.containing(NSPredicate(format: "label == %@", "ReplyMessage")).firstMatch
+        XCTAssert(replyCell.staticTexts["TestMessage"].waitForExistence(timeout: TestConstants.timeoutShort), "Reply does not show the quoted message")
     }
 
     func testChatViewControllerMentions() throws {

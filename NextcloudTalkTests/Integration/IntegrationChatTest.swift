@@ -255,6 +255,8 @@ final class IntegrationChatTest: TestBase {
     func testReceiveMessagesAfterClearedHistory() async throws {
         try skipWithoutCapability(capability: TalkCapability.clearHistory)
         try skipWithoutCapability(capability: TalkCapability.chatReadStatus)
+        // Talk 20 is when clearing started resetting read markers to -2 instead of 0, no dedicated capability
+        try skipWithoutCapability(capability: TalkCapability.archivedConversationsV2)
 
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
