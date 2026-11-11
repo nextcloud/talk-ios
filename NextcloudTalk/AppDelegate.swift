@@ -326,16 +326,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PKPushRegistryDelegate {
                 let pushNotification = NCPushNotification(fromDecryptedString: decryptedMessage, withAccountId: account.accountId)
 
                 if let pushNotification, pushNotification.type == .call {
-                    NCNotificationController.sharedInstance().showIncomingCall(forPushNotification: pushNotification)
-                    completion()
+                    // reportNewIncomingCall sends asynchronously, completing before CallKit received it gets us killed (0xbaadca11)
+                    NCNotificationController.sharedInstance().showIncomingCall(forPushNotification: pushNotification, completion: completion)
                     return
                 }
             }
         }
 
-        NCNotificationController.sharedInstance().showIncomingCallForOldAccount()
         NCSettingsController.sharedInstance().setDidReceiveCallsFromOldAccount(true)
-        completion()
+        NCNotificationController.sharedInstance().showIncomingCallForOldAccount(completion: completion)
     }
 
     private func string(withDeviceToken deviceToken: Data) -> String {
