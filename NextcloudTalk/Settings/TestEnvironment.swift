@@ -15,6 +15,9 @@ class TestEnvironment {
 
     static let isEnabled = ProcessInfo.processInfo.arguments.contains("-TestEnvironment")
 
+    // UI tests pass -TestEnvironment, unit and integration tests load XCTest into the host app
+    static let isRunningTests = isEnabled || NSClassFromString("XCTestCase") != nil
+
     static let shared = TestEnvironment()
 
     // While set, NCConnectionController must not evaluate the app state, it would present the login screen

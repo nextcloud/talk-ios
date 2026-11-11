@@ -47,6 +47,10 @@ final class IntegrationNCNotificationControllerTest: TestBase {
 
         await fulfillment(of: [exp], timeout: TestConstants.timeoutShort)
 
+        // Without authorization the notification is silently dropped, under tests the app requests provisional authorization
+        let authorizationStatus = await UNUserNotificationCenter.current().notificationSettings().authorizationStatus
+        XCTAssertTrue([.authorized, .provisional].contains(authorizationStatus), "Notifications not authorized, status \(authorizationStatus.rawValue)")
+
         // Use our own delegate, as we would otherwise immediately remove the notification in NCNotificationController
         let notificationCenterDelegate = UNNotificationCenterDelegateMock()
         UNUserNotificationCenter.current().delegate = notificationCenterDelegate
@@ -62,17 +66,22 @@ final class IntegrationNCNotificationControllerTest: TestBase {
         let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
         try await UNUserNotificationCenter.current().add(request)
 
-        // Check that the notification was correctly delivered
-        var deliveredNotifications = await UNUserNotificationCenter.current().deliveredNotifications()
-        XCTAssertTrue(deliveredNotifications.contains(where: { $0.request.content.userInfo[intForKey: "notificationId"] == notificationId }))
+        // Check that the notification was correctly delivered, add() only enqueues the request
+        let delivered = await waitUntil {
+            await UNUserNotificationCenter.current().deliveredNotifications()
+                .contains(where: { $0.request.content.userInfo[intForKey: "notificationId"] == notificationId })
+        }
+        XCTAssertTrue(delivered)
 
         // Remove the notification from the server
         try await NCAPIController.sharedInstance().deleteServerNotification(withId: notificationId, forAccount: activeAccount)
 
         // Check if we remove the notification correctly (e.g. in a background-fetch)
         try await NCNotificationController.sharedInstance().checkNotificationExistance()
-        deliveredNotifications = await UNUserNotificationCenter.current().deliveredNotifications()
-        XCTAssertEqual(deliveredNotifications.count, 0)
+        let removed = await waitUntil {
+            await UNUserNotificationCenter.current().deliveredNotifications().isEmpty
+        }
+        XCTAssertTrue(removed)
     }
 
 }
