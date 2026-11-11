@@ -11,11 +11,18 @@ import NextcloudKit
 }
 
 @objcMembers
-class LoginViewController: UIViewController, UITextFieldDelegate, NCCertificateDelegate, DetailedOptionsSelectorTableViewControllerDelegate, AuthenticationViewControllerDelegate, QRScannerViewControllerDelegate {
+class LoginViewController: UIViewController, UITextFieldDelegate, NCCertificateDelegate, DetailedOptionsSelectorTableViewControllerDelegate, QRScannerViewControllerDelegate {
 
     weak var delegate: LoginViewControllerDelegate?
 
-    var authenticationViewController: AuthenticationViewController?
+    private var loginFlowController: LoginFlowController?
+    private var pendingOnetimeLogin: OnetimeLogin?
+
+    private struct OnetimeLogin {
+        let serverURL: String
+        let user: String
+        let onetimeToken: String
+    }
     var importedNextcloudFilesAccounts: [NKShareAccounts.DataAccounts] = []
 
     @IBOutlet weak var appLogoImageView: UIImageView!
@@ -107,6 +114,24 @@ class LoginViewController: UIViewController, UITextFieldDelegate, NCCertificateD
         // Check for Nextcloud Files app accounts
         checkFilesAppAccounts()
 
+        // A forced domain can't be changed
+        if forceDomain.boolValue {
+            serverTextField.text = domain
+            serverTextField.isHidden = true
+            serverLabel.isHidden = true
+            loginButton.setTitleColor(NCAppBranding.brandTextColor().withAlphaComponent(0.5), for: .disabled)
+
+            // Without the server field, the spinner moves into the login button
+            let spinner: UIActivityIndicatorView = activityIndicatorView
+            spinner.removeFromSuperview()
+            spinner.translatesAutoresizingMaskIntoConstraints = false
+            loginButton.addSubview(spinner)
+            NSLayoutConstraint.activate([
+                spinner.trailingAnchor.constraint(equalTo: loginButton.trailingAnchor, constant: -16),
+                spinner.centerYAnchor.constraint(equalTo: loginButton.centerYAnchor)
+            ])
+        }
+
         // Add tap gesture recognizer to dismiss keyboard
         view.addGestureRecognizer(
             UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
@@ -124,7 +149,16 @@ class LoginViewController: UIViewController, UITextFieldDelegate, NCCertificateD
     // MARK: - Certificate delegate
 
     func trustedCertificateAccepted() {
-        loginButtonPressed(self)
+        if let pendingOnetimeLogin {
+            self.pendingOnetimeLogin = nil
+            loginWithOnetimeToken(serverURL: pendingOnetimeLogin.serverURL, user: pendingOnetimeLogin.user, onetimeToken: pendingOnetimeLogin.onetimeToken)
+        } else {
+            loginButtonPressed(self)
+        }
+    }
+
+    func trustedCertificateDenied() {
+        pendingOnetimeLogin = nil
     }
 
     // MARK: - UITextField delegate
@@ -180,14 +214,11 @@ class LoginViewController: UIViewController, UITextFieldDelegate, NCCertificateD
             HTTPCookieStorage.shared.deleteCookie(cookie)
         }
 
-        // Start animating activity indicator
-        activityIndicatorView.startAnimating()
-        activityIndicatorView.isHidden = false
+        showLoginActivity(true)
 
         // Check if valid Nextcloud server
         NCAPIController.sharedInstance().getServerCapabilities(forServer: normalizedServerURL) { serverCapabilities, error in
-            self.activityIndicatorView.stopAnimating()
-            self.activityIndicatorView.isHidden = true
+            self.showLoginActivity(false)
 
             if let error {
                 if error.underlyingError.code == NSURLErrorServerCertificateUntrusted {
@@ -205,7 +236,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, NCCertificateD
                 if let serverCapabilities = serverCapabilities as? [String: Any], let capabilities = serverCapabilities["capabilities"] as? [String: Any] {
                     if let talk = capabilities["spreed"] as? [String: Any], let features = talk["features"] as? [String], !features.isEmpty {
                         if features.contains(TalkCapability.minimumRequired.rawValue) {
-                            self.presentAuthenticationViewController(serverURL: normalizedServerURL, user: nil)
+                            self.startLoginFlow(serverURL: normalizedServerURL, user: nil)
                         } else {
                             self.showAlert(
                                 title: String(format: NSLocalizedString("%@ version not supported", comment: "{app name} version not supported"), talkAppName),
@@ -223,14 +254,52 @@ class LoginViewController: UIViewController, UITextFieldDelegate, NCCertificateD
         }
     }
 
-    func presentAuthenticationViewController(serverURL: String, user: String?) {
-        let authenticationVC = AuthenticationViewController(serverUrl: serverURL)
-        authenticationVC.delegate = self
-        authenticationVC.user = user
-        authenticationViewController = authenticationVC
+    func startLoginFlow(serverURL: String, user: String?) {
+        guard loginFlowController == nil else { return }
 
-        let authenticationNC = UINavigationController(rootViewController: authenticationVC)
-        present(authenticationNC, animated: true)
+        showLoginActivity(true)
+
+        let loginFlowController = LoginFlowController(serverUrl: serverURL, user: user, presentingViewController: self) { [weak self] outcome in
+            guard let self else { return }
+
+            self.loginFlowController = nil
+            self.showLoginActivity(false)
+
+            switch outcome {
+            case .loggedIn:
+                self.delegate?.loginViewControllerDidFinish()
+            case .failed:
+                self.showAlert(
+                    title: NSLocalizedString("Could not start login", comment: ""),
+                    message: NSLocalizedString("Please check your connection and try again.", comment: ""))
+            case .cancelled:
+                break
+            }
+        }
+
+        self.loginFlowController = loginFlowController
+        loginFlowController.start()
+    }
+
+    private func showLoginActivity(_ active: Bool) {
+        // With a forced domain the spinner is inside the login button, which can't be pressed again meanwhile
+        if forceDomain.boolValue {
+            loginButton.isEnabled = !active
+        }
+
+        activityIndicatorView.isHidden = !active
+        if active {
+            activityIndicatorView.startAnimating()
+        } else {
+            activityIndicatorView.stopAnimating()
+        }
+    }
+
+    private func isAllowedServer(_ serverURL: String) -> Bool {
+        guard forceDomain.boolValue else { return true }
+
+        let normalize = { (url: String) in url.lowercased().trimmingCharacters(in: CharacterSet(charactersIn: "/")) }
+        return normalize(serverURL) == normalize(domain)
     }
 
     // MARK: - Files app accounts
@@ -253,7 +322,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, NCCertificateD
                     accountAlreadyIncluded = true
                 }
             }
-            if !accountAlreadyIncluded {
+            if !accountAlreadyIncluded, isAllowedServer(fileAccount.url) {
                 importedNextcloudFilesAccounts.append(fileAccount)
             }
         }
@@ -288,7 +357,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate, NCCertificateD
 
     func detailedOptionsSelector(_ viewController: DetailedOptionsSelectorTableViewController, didSelectOptionWithIdentifier option: DetailedOption) {
         dismiss(animated: true) {
-            self.presentAuthenticationViewController(serverURL: option.subtitle, user: option.identifier)
+            self.startLoginFlow(serverURL: option.subtitle, user: option.identifier)
         }
     }
 
@@ -301,9 +370,25 @@ class LoginViewController: UIViewController, UITextFieldDelegate, NCCertificateD
     func showAlert(title: String, message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default, handler: {[weak self] _ in
+            guard !forceDomain.boolValue else { return }
             self?.serverTextField.becomeFirstResponder()
         }))
         self.present(alert, animated: true)
+    }
+
+    func showQRCodeForOtherServerAlert() {
+        let showAlert = { [weak self] in
+            self?.showAlert(
+                title: NSLocalizedString("Could not login with QR code", comment: ""),
+                message: NSLocalizedString("This QR code can't be used with this app.", comment: ""))
+        }
+
+        // The scanner is still being dismissed, an alert can't be presented before that finishes
+        if let transitionCoordinator {
+            transitionCoordinator.animate(alongsideTransition: nil) { _ in showAlert() }
+        } else {
+            showAlert()
+        }
     }
 
     func showServerNotFoundAlert(withError error: String?) {
@@ -332,39 +417,61 @@ class LoginViewController: UIViewController, UITextFieldDelegate, NCCertificateD
         }
     }
 
-    // MARK: - AuthenticationViewController delegate
-
-    func authenticationViewControllerDidFinish(_ viewController: AuthenticationViewController) {
-        if viewController == authenticationViewController {
-            delegate?.loginViewControllerDidFinish()
-        }
-    }
-
     // MARK: - QRScannerViewControllerDelegate
 
     func qrScanner(_ scanner: QRScannerViewController, didScanNextcloudLogin serverURL: String, user: String, password: String) {
+        guard isAllowedServer(serverURL) else {
+            showQRCodeForOtherServerAlert()
+            return
+        }
+
         NCSettingsController.sharedInstance().addNewAccount(forUser: user, withToken: password, inServer: serverURL)
         delegate?.loginViewControllerDidFinish()
     }
 
     func qrScanner(_ scanner: QRScannerViewController, didScanNextcloudOnetimeLogin serverURL: String, user: String, onetimeToken: String) {
+        guard isAllowedServer(serverURL) else {
+            showQRCodeForOtherServerAlert()
+            return
+        }
+
+        loginWithOnetimeToken(serverURL: serverURL, user: user, onetimeToken: onetimeToken)
+    }
+
+    private func loginWithOnetimeToken(serverURL: String, user: String, onetimeToken: String) {
         NotificationPresenter.shared().present(text: NSLocalizedString("Trying to login…", comment: "Waiting message when trying to login with QR code"))
         NotificationPresenter.shared().displayActivityIndicator(true)
 
-        // We received a onetime login token and need to convert it to a permanent one. The token only allows to retrieve a permanent one, no other routes allowed
-        NCAPIController.sharedInstance().getAppPassword(forServer: serverURL, withUsername: user, andPassword: onetimeToken, isOnetimeToken: true) { [weak self] permanentAppToken in
-            NotificationPresenter.shared().dismiss()
+        // Checked first, because a failed token exchange can't tell an untrusted certificate apart from a used token
+        NCAPIController.sharedInstance().getServerCapabilities(forServer: serverURL) { [weak self] _, error in
+            guard let self else { return }
 
-            guard let permanentAppToken else {
-                self?.showAlert(
-                    title: NSLocalizedString("Could not login with QR code", comment: ""),
-                    message: NSLocalizedString("The token might be used already or is expired. Please generate a new QR code and retry.", comment: ""))
+            if let error, error.underlyingError.code == NSURLErrorServerCertificateUntrusted {
+                NotificationPresenter.shared().dismiss()
+                self.pendingOnetimeLogin = OnetimeLogin(serverURL: serverURL, user: user, onetimeToken: onetimeToken)
+
+                DispatchQueue.main.async {
+                    NCCertificate.shared.presentViewControllerCertificate(withError: error.underlyingError, viewController: self, delegate: self)
+                }
 
                 return
             }
 
-            NCSettingsController.sharedInstance().addNewAccount(forUser: user, withToken: permanentAppToken, inServer: serverURL)
-            self?.delegate?.loginViewControllerDidFinish()
+            // We received a onetime login token and need to convert it to a permanent one. The token only allows to retrieve a permanent one, no other routes allowed
+            NCAPIController.sharedInstance().getAppPassword(forServer: serverURL, withUsername: user, andPassword: onetimeToken, isOnetimeToken: true) { [weak self] permanentAppToken in
+                NotificationPresenter.shared().dismiss()
+
+                guard let permanentAppToken else {
+                    self?.showAlert(
+                        title: NSLocalizedString("Could not login with QR code", comment: ""),
+                        message: NSLocalizedString("The token might be used already or is expired. Please generate a new QR code and retry.", comment: ""))
+
+                    return
+                }
+
+                NCSettingsController.sharedInstance().addNewAccount(forUser: user, withToken: permanentAppToken, inServer: serverURL)
+                self?.delegate?.loginViewControllerDidFinish()
+            }
         }
     }
 }

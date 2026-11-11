@@ -860,6 +860,9 @@
 "Could not start group conversation" = "Could not start group conversation";
 
 /* No comment provided by engineer. */
+"Could not start login" = "Could not start login";
+
+/* No comment provided by engineer. */
 "Could not update tags" = "Could not update tags";
 
 /* Generic 'Create' button label (e.g. new conversation, new tag) */
@@ -1957,6 +1960,9 @@
 "Please check that you entered the correct server address." = "Please check that you entered the correct server address.";
 
 /* No comment provided by engineer. */
+"Please check your connection and try again." = "Please check your connection and try again.";
+
+/* No comment provided by engineer. */
 "Please contact your system administrator." = "Please contact your system administrator.";
 
 /* Please update your server with the latest {app name} version available. */
@@ -2505,6 +2511,9 @@
 
 /* No comment provided by engineer. */
 "This might take a moment" = "This might take a moment";
+
+/* No comment provided by engineer. */
+"This QR code can't be used with this app." = "This QR code can't be used with this app.";
 
 /* No comment provided by engineer. */
 "This summary is AI generated and may contain mistakes." = "This summary is AI generated and may contain mistakes.";

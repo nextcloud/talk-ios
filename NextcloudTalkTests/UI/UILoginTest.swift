@@ -19,7 +19,8 @@ final class UILoginTest: UITestCase {
         XCTAssert(loginButton.waitForExistence(timeout: TestConstants.timeoutLong))
         loginButton.tap()
 
-        let loginWebview = app.webViews["interactiveWebLoginView"]
+        // The authentication session shows the login page out of process
+        let loginWebview = XCUIApplication(bundleIdentifier: "com.apple.SafariViewService").webViews.firstMatch
         waitForReady(object: loginWebview, timeout: TestConstants.timeoutLong)
 
         // Wait for the login button to be available and to get enabled/hittable

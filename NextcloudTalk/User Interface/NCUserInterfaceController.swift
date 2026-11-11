@@ -9,13 +9,12 @@ import JDStatusBarNotification
 
 public typealias PresentCallControllerCompletionBlock = () -> Void
 
-@objcMembers class NCUserInterfaceController: NSObject, LoginViewControllerDelegate, AuthenticationViewControllerDelegate {
+@objcMembers class NCUserInterfaceController: NSObject, LoginViewControllerDelegate {
 
     var mainViewController: NCSplitViewController!
     var roomsTableViewController: RoomsTableViewController!
 
     private var loginViewController: LoginViewController?
-    private var authViewController: AuthenticationViewController?
     private var pendingPushNotification: NCPushNotification?
     private var pendingCallKitCall: [String: Any]?
     private var pendingLocalNotification: [AnyHashable: Any]?
@@ -48,29 +47,21 @@ public typealias PresentCallControllerCompletionBlock = () -> Void
     }
 
     func presentLoginViewController(forServerURL serverURL: String?, withUser user: String?) {
-        if forceDomain.boolValue {
-            let authViewController = AuthenticationViewController(serverUrl: domain)
-            authViewController.delegate = self
-            authViewController.modalPresentationStyle = NCDatabaseManager.sharedInstance().numberOfAccounts() == 0 ? .fullScreen : .automatic
-            self.authViewController = authViewController
-            mainViewController.present(authViewController, animated: true)
-        } else {
-            // Don't open a login if we're in a call
-            if NCRoomsManager.shared.callViewController != nil {
-                return
-            }
+        // Don't open a login if we're in a call
+        if NCRoomsManager.shared.callViewController != nil {
+            return
+        }
 
-            // Leave chat if we're currently in one. Wait for the dismissal to finish before
-            // presenting the login, otherwise UIKit refuses the presentation while the
-            // dismiss animation is still in progress
-            if NCRoomsManager.shared.chatViewController != nil {
-                mainViewController.dismiss(animated: true) { [weak self] in
-                    self?.popToConversationsList()
-                    self?.presentLoginModally(forServerURL: serverURL, withUser: user)
-                }
-            } else {
-                presentLoginModally(forServerURL: serverURL, withUser: user)
+        // Leave chat if we're currently in one. Wait for the dismissal to finish before
+        // presenting the login, otherwise UIKit refuses the presentation while the
+        // dismiss animation is still in progress
+        if NCRoomsManager.shared.chatViewController != nil {
+            mainViewController.dismiss(animated: true) { [weak self] in
+                self?.popToConversationsList()
+                self?.presentLoginModally(forServerURL: serverURL, withUser: user)
             }
+        } else {
+            presentLoginModally(forServerURL: serverURL, withUser: user)
         }
     }
 
@@ -494,17 +485,6 @@ public typealias PresentCallControllerCompletionBlock = () -> Void
     // MARK: - LoginViewControllerDelegate
 
     func loginViewControllerDidFinish() {
-        mainViewController.dismiss(animated: true) {
-            NCConnectionController.shared.checkAppState()
-            // Get server capabilities again to check if user is allowed to use Nextcloud Talk
-            let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-            NCSettingsController.sharedInstance().getCapabilitiesForAccountId(activeAccount.accountId, withCompletionBlock: nil)
-        }
-    }
-
-    // MARK: - AuthenticationViewControllerDelegate
-
-    func authenticationViewControllerDidFinish(_ viewController: AuthenticationViewController) {
         mainViewController.dismiss(animated: true) {
             NCConnectionController.shared.checkAppState()
             // Get server capabilities again to check if user is allowed to use Nextcloud Talk
