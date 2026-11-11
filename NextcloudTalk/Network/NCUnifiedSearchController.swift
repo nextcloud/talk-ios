@@ -23,13 +23,14 @@ import NextcloudKit
     func searchMessages(completionHandler: @escaping ([NKSearchEntry]?) -> Void) {
         NCAPIController.sharedInstance().setupNCCommunication(forAccount: account)
 
-        NextcloudKit.shared.searchProvider("talk-message",
-                                           account: account.accountId,
-                                           term: searchTerm,
-                                           limit: limit,
-                                           cursor: cursor,
-                                           options: NKRequestOptions(),
-                                           timeout: 30) { _, searchResult, _, _ in
+        Task { @MainActor in
+            let (searchResult, _) = await NextcloudKit.shared.unifiedSearch(providerId: "talk-message",
+                                                                            term: searchTerm,
+                                                                            limit: limit,
+                                                                            cursor: cursor,
+                                                                            timeout: 30,
+                                                                            account: account.accountId,
+                                                                            options: .defaultRequestOptions())
             guard let searchResult = searchResult else {
                 completionHandler(nil)
                 return

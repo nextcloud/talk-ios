@@ -156,8 +156,9 @@ struct UserStatusMessageSwiftUIView: View {
 
     func getStatus() {
         isLoading = true
-        NCAPIController.sharedInstance().setupNCCommunication(forAccount: .activeAccount)
-        NextcloudKit.shared.getUserStatus { _, clearAt, icon, message, messageId, _, _, _, _, _, error in
+        let account = TalkAccount.activeAccount
+        NCAPIController.sharedInstance().setupNCCommunication(forAccount: account)
+        NextcloudKit.shared.getUserStatus(account: account.accountId, options: .defaultRequestOptions()) { _, clearAt, icon, message, messageId, _, _, _, _, _, error in
             if error.errorCode == 0 {
                 userHasStatusSet = !(icon?.isEmpty ?? true) || !(message?.isEmpty ?? true)
                 selectedIcon = icon ?? ""
@@ -167,7 +168,7 @@ struct UserStatusMessageSwiftUIView: View {
                 selectedClearAtString = getPredefinedClearStatusText(clearAt: clearAt, clearAtTime: nil, clearAtType: nil)
             }
         }
-        NextcloudKit.shared.getUserStatusPredefinedStatuses { _, userStatuses, _, error in
+        NextcloudKit.shared.getUserStatusPredefinedStatuses(account: account.accountId, options: .defaultRequestOptions()) { _, userStatuses, _, error in
             if error.errorCode == 0 {
                 predefinedStatuses = userStatuses ?? []
                 withAnimation {
@@ -179,7 +180,7 @@ struct UserStatusMessageSwiftUIView: View {
 
     func setActiveUserStatus() {
         if let selectedPredefinedMessageId {
-            NextcloudKit.shared.setCustomMessagePredefined(messageId: selectedPredefinedMessageId, clearAt: selectedClearAt) { _, error in
+            NextcloudKit.shared.setCustomMessagePredefined(messageId: selectedPredefinedMessageId, clearAt: selectedClearAt, account: TalkAccount.activeAccount.accountId, options: .defaultRequestOptions()) { _, _, error in
                 if error.errorCode == 0 {
                     dismiss()
                     changed.toggle()
@@ -191,7 +192,7 @@ struct UserStatusMessageSwiftUIView: View {
             }
         } else {
             let statusIcon = selectedIcon.isEmpty ? nil : selectedIcon
-            NextcloudKit.shared.setCustomMessageUserDefined(statusIcon: statusIcon, message: selectedMessage, clearAt: selectedClearAt) { _, error in
+            NextcloudKit.shared.setCustomMessageUserDefined(statusIcon: statusIcon, message: selectedMessage, clearAt: selectedClearAt, account: TalkAccount.activeAccount.accountId, options: .defaultRequestOptions()) { _, _, error in
                 if error.errorCode == 0 {
                     dismiss()
                     changed.toggle()
@@ -205,7 +206,7 @@ struct UserStatusMessageSwiftUIView: View {
     }
 
     func clearActiveUserStatus() {
-        NextcloudKit.shared.clearMessage { _, error in
+        NextcloudKit.shared.clearMessage(account: TalkAccount.activeAccount.accountId, options: .defaultRequestOptions()) { _, _, error in
             if error.errorCode == 0 {
                 dismiss()
                 changed.toggle()
@@ -257,10 +258,9 @@ struct UserStatusMessageSwiftUIView: View {
         selectedClearAtString = clearAt
     }
 
-    func getPredefinedClearStatusText(clearAt: NSDate?, clearAtTime: String?, clearAtType: String?) -> String {
-        if clearAt != nil {
+    func getPredefinedClearStatusText(clearAt: Date?, clearAtTime: String?, clearAtType: String?) -> String {
+        if let to = clearAt {
             let from = Date()
-            let to = clearAt! as Date
 
             let day = Calendar.current.dateComponents([.day], from: from, to: to).day ?? 0
             let hour = Calendar.current.dateComponents([.hour], from: from, to: to).hour ?? 0
