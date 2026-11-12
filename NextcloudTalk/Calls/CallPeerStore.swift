@@ -12,7 +12,7 @@ final class CallPeerStore {
     typealias PeerId = String
     typealias PeerIdentifier = String
 
-    // Participants shown in the collection view, in the order of the current snapshot
+    // Participants in the call in the order they joined, the order they are shown in is up to the collection view
     private(set) var peers: [NCPeerConnection] = []
 
     // Screen shares in the order they were started, one per peerId
@@ -128,16 +128,6 @@ final class CallPeerStore {
         batchTimer = Timer.scheduledTimer(withTimeInterval: batchDelay, repeats: false) { [weak self] _ in
             self?.flushPendingChanges()
         }
-    }
-
-    // Not inout, so the closure can safely read from the store while sorting
-    func reorder(_ body: ([NCPeerConnection]) -> [NCPeerConnection]) {
-        dispatchPrecondition(condition: .onQueue(.main))
-
-        let reordered = body(peers)
-        assert(Set(reordered.map { $0.peerIdentifier }) == Set(peers.map { $0.peerIdentifier }), "Reordering must not add or remove peers")
-
-        peers = reordered
     }
 
     // MARK: - Lookups

@@ -655,10 +655,11 @@ class CallViewController: UIViewController,
         dataSource.apply(snapshot, animatingDifferences: false)
     }
 
+    // Sorts the participants and shows them in the collection view
     func updateSnapshot(crossfade: Bool = false) {
         var snapshot = NSDiffableDataSourceSnapshot<CallViewSection, NCPeerConnection>()
         snapshot.appendSections([.main])
-        snapshot.appendItems(peerStore.peers)
+        snapshot.appendItems(self.sortedPeers(self.displayedPeers()))
 
         if crossfade {
             // Fade to the new arrangement instead of animating tiles between the
@@ -680,6 +681,16 @@ class CallViewController: UIViewController,
 
         // The presenter might have been a pending insert until now
         self.updatePresenterView()
+    }
+
+    // The participants of the store in the order currently shown, participants that are not shown yet come last
+    private func displayedPeers() -> [NCPeerConnection] {
+        var notShownYet = Dictionary(peerStore.peers.map { ($0.peerIdentifier, $0) }, uniquingKeysWith: { first, _ in first })
+
+        // Taken from the store, so a peer that was replaced for the same participant is not shown anymore
+        let shown = dataSource.snapshot().itemIdentifiers.compactMap { notShownYet.removeValue(forKey: $0.peerIdentifier) }
+
+        return shown + peerStore.peers.filter { notShownYet[$0.peerIdentifier] != nil }
     }
 
     func priority(for peerConnection: NCPeerConnection) -> (Int, Int) {
@@ -706,28 +717,28 @@ class CallViewController: UIViewController,
         return (4, peerConnection.addedTime)
     }
 
-    func sortPeersInCall() {
+    private func sortedPeers(_ peers: [NCPeerConnection]) -> [NCPeerConnection] {
         // In speaker view the promoted participant is always the first item, the order
         // of the other participants in the stripe is kept stable
         if callViewMode == .speaker {
+            var peers = peers
+
             // Swap instead of moving to the front, so the demoted participant takes
             // the stripe slot the promoted one vacated and all other stripe tiles keep
             // their position
-            if let index = peerStore.peers.firstIndex(where: { $0.peerIdentifier == promotedPeerIdentifier }), index != 0 {
-                peerStore.reorder { peers in
-                    var peers = peers
-                    peers.swapAt(0, index)
-                    return peers
-                }
+            if let index = peers.firstIndex(where: { $0.peerIdentifier == promotedPeerIdentifier }), index != 0 {
+                peers.swapAt(0, index)
             }
 
-            return
+            return peers
         }
 
         // Only sort participants if the collection view is scrollable (not all participants fit in the screen)
         if collectionView.contentSize.height > collectionView.bounds.height {
-            peerStore.reorder { peers in peers.sorted { priority(for: $0) < priority(for: $1) } }
+            return peers.sorted { priority(for: $0) < priority(for: $1) }
         }
+
+        return peers
     }
 
     // MARK: - Call view mode
@@ -785,7 +796,6 @@ class CallViewController: UIViewController,
                 }
 
                 self.speakerLayout.isStripeHidden = self.isStripeHiddenInSpeakerView
-                self.sortPeersInCall()
                 self.updateSnapshot()
                 self.collectionView.setCollectionViewLayout(self.speakerLayout, animated: true)
             } else {
@@ -812,9 +822,11 @@ class CallViewController: UIViewController,
     }
 
     private func initialPromotedPeer() -> NCPeerConnection? {
-        return peerStore.peers.first(where: { $0.isPeerSpeaking })
+        let peers = displayedPeers()
+
+        return peers.first(where: { $0.isPeerSpeaking })
             ?? peerStore.speakers.first(where: { peerStore.contains($0) })
-            ?? peerStore.peers.first
+            ?? peers.first
     }
 
     func promotePeerInSpeakerView(_ peer: NCPeerConnection) {
@@ -826,7 +838,6 @@ class CallViewController: UIViewController,
             // The peer might not be added to the collection view yet,
             // in that case it is pinned when the pending insert is processed
             if self.peerStore.contains(peer) {
-                self.sortPeersInCall()
                 self.updateSnapshot(crossfade: true)
             }
         }
@@ -856,7 +867,6 @@ class CallViewController: UIViewController,
             // Skip reordering if already the most recent speaker
             guard self.peerStore.addSpeaker(peerConnection) else { return }
 
-            self.sortPeersInCall()
             self.updateSnapshot()
         }
     }
@@ -1373,9 +1383,10 @@ class CallViewController: UIViewController,
     }
 
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        guard let participantCell = cell as? CallParticipantViewCell else { return }
+        guard let participantCell = cell as? CallParticipantViewCell,
+              let peerConnection = dataSource.itemIdentifier(for: indexPath)
+        else { return }
 
-        let peerConnection = peerStore.peers[indexPath.row]
         self.updateParticipantCell(cell: participantCell, withPeerConnection: peerConnection)
         self.setNeedsRemoteVideoVisibilityUpdate()
     }
@@ -1550,7 +1561,6 @@ class CallViewController: UIViewController,
                     cell.screenShared = true
                 }
 
-                self.sortPeersInCall()
                 self.updateSnapshot()
             }
         }
@@ -3432,7 +3442,7 @@ class CallViewController: UIViewController,
 
     @nonobjc
     private func indexPathAndPeer(with predicate: (NCPeerConnection) -> Bool) -> (indexPath: IndexPath, peer: NCPeerConnection)? {
-        for (peerIndex, peer) in peerStore.peers.enumerated() where predicate(peer) {
+        for (peerIndex, peer) in dataSource.snapshot().itemIdentifiers.enumerated() where predicate(peer) {
             return (IndexPath(row: peerIndex, section: 0), peer)
         }
 
@@ -3488,7 +3498,6 @@ class CallViewController: UIViewController,
         self.updatePiPPeerIfNeeded()
         self.recreatePictureInPictureIfNeeded()
 
-        self.sortPeersInCall()
         self.updateSnapshot()
 
         // Updates of peers that still have no item are dropped, a cell is configured from its peer when it is displayed anyway
