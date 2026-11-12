@@ -46,7 +46,13 @@ public class NCNotificationController: NSObject, UNUserNotificationCenterDelegat
     }
 
     public func requestAuthorization() {
-        let authOptions: UNAuthorizationOptions = [.alert, .sound, .badge]
+        var authOptions: UNAuthorizationOptions = [.alert, .sound, .badge]
+
+        // Granted without a prompt, nobody can answer one on CI and the default UI test handler denies it
+        if TestEnvironment.isRunningTests {
+            authOptions.insert(.provisional)
+        }
+
         self.notificationCenter.requestAuthorization(options: authOptions) { granted, _ in
             if granted {
                 NSLog("User notifications permission granted.")
