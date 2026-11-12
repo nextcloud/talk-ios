@@ -3607,8 +3607,8 @@ class CallViewController: UIViewController,
         // Update collection view snapshot
         self.updateSnapshot()
 
-        // Process pending updates
-        for pendingUpdate in pendingPeerUpdates {
+        // Updates of peers that still have no item are dropped, a cell is configured from its peer when it is displayed anyway
+        for pendingUpdate in pendingPeerUpdates where self.indexPath(forPeerId: pendingUpdate.peer.peerId) != nil {
             self.updatePeer(pendingUpdate.peer, block: pendingUpdate.block)
         }
 
