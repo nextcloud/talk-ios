@@ -87,7 +87,7 @@ import UIKit
     }
 
     private func observeGlassAppearance() {
-        guard #available(iOS 17.0, *), let contentView = self.backgroundView?.contentView else { return }
+        guard let contentView = self.backgroundView?.contentView else { return }
 
         _ = contentView.registerForTraitChanges([UITraitUserInterfaceStyle.self]) { [weak self] (_: UIView, _: UITraitCollection) in
             self?.updateForegroundColor()

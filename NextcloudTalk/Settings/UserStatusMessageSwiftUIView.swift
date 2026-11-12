@@ -40,13 +40,13 @@ struct UserStatusMessageSwiftUIView: View {
                             SingleEmojiTextFieldWrapper(placeholder: "😀", text: $selectedIcon)
                                 .frame(maxWidth: 23)
                                 .opacity(selectedIcon.isEmpty ? 0.5 : 1.0)
-                                .onChange(of: selectedIcon) { _ in
+                                .onChange(of: selectedIcon) {
                                     selectedPredefinedMessageId = nil
                                 }
                                 .focused($textFieldIsFocused)
                             Divider()
                             TextField(NSLocalizedString("What is your status?", comment: ""), text: $selectedMessage)
-                                .onChange(of: selectedMessage) { _ in
+                                .onChange(of: selectedMessage) {
                                     selectedPredefinedMessageId = nil
                                 }
                                 .focused($textFieldIsFocused)

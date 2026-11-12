@@ -106,10 +106,8 @@ class SettingsTableViewController: UITableViewController, UITextFieldDelegate, U
         typingIndicatorSwitch.addTarget(self, action: #selector(typingIndicatorValueChanged(_:)), for: .valueChanged)
 
         // Account images are rendered at the display scale, so they have to be regenerated when it changes
-        if #available(iOS 17.0, *) {
-            registerForTraitChanges([UITraitDisplayScale.self]) { (self: SettingsTableViewController, _) in
-                self.tableView.reloadData()
-            }
+        registerForTraitChanges([UITraitDisplayScale.self]) { (self: SettingsTableViewController, _) in
+            self.tableView.reloadData()
         }
 
         NotificationCenter.default.addObserver(self, selector: #selector(appStateHasChanged(notification:)), name: NSNotification.Name.NCAppStateHasChangedNotification, object: nil)

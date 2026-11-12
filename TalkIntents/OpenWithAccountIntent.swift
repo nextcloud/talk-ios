@@ -5,7 +5,6 @@
 
 import AppIntents
 
-@available(iOS 17, *)
 struct OpenWithAccountIntent: AppIntent {
     static var title: LocalizedStringResource = "Open with account"
     static var openAppWhenRun: Bool = true

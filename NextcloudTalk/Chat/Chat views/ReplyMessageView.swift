@@ -67,6 +67,11 @@ import UIKit
     override init(frame: CGRect) {
         super.init(frame: frame)
         configureSubviews()
+
+        // We use a CGColor so we loose the automatic color changing of dynamic colors -> update manually
+        registerForTraitChanges(UITraitCollection.systemTraitsAffectingColorAppearance) { (self: Self, _: UITraitCollection) in
+            self.topBorder.backgroundColor = UIColor.quaternarySystemFill.resolvedColor(with: self.traitCollection).cgColor
+        }
     }
 
     required init?(coder: NSCoder) {
@@ -150,15 +155,6 @@ import UIKit
         // This will indicate the size of the view when calling systemLayoutSizeFittingSize in SLKTextViewController
         // QuoteMessageView(60) + 2*Padding(8)
         return CGSize(width: UIView.noIntrinsicMetric, height: 76)
-    }
-
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-
-        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-            // We use a CGColor so we loose the automatic color changing of dynamic colors -> update manually
-            topBorder.backgroundColor = UIColor.quaternarySystemFill.cgColor
-        }
     }
 
     // MARK: - SLKReplyViewProtocol

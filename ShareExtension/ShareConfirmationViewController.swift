@@ -495,10 +495,8 @@ private let kShareConfirmationOptionsViewHeight: CGFloat = 44
 
         // Thumbnails are generated at the display scale, so they have to be regenerated when it changes.
         // Registered before the token guard below, which can return early.
-        if #available(iOS 17.0, *) {
-            registerForTraitChanges([UITraitDisplayScale.self]) { (self: ShareConfirmationViewController, _) in
-                self.shareCollectionView.reloadData()
-            }
+        registerForTraitChanges([UITraitDisplayScale.self]) { (self: ShareConfirmationViewController, _) in
+            self.shareCollectionView.reloadData()
         }
 
         // Set up before the token guard below, which can return early: without the cell registered,

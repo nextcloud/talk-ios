@@ -360,6 +360,10 @@ class SharedLocationCell: SharedItemTableViewCell {
             labelStack.trailingAnchor.constraint(equalTo: self.mapImageView.trailingAnchor),
             labelStack.bottomAnchor.constraint(equalTo: self.contentView.bottomAnchor, constant: -12)
         ])
+
+        registerForTraitChanges(UITraitCollection.systemTraitsAffectingColorAppearance + [UITraitDisplayScale.self]) { (self: Self, _: UITraitCollection) in
+            self.updateSnapshotIfNeeded()
+        }
     }
 
     required init?(coder: NSCoder) {
@@ -396,15 +400,6 @@ class SharedLocationCell: SharedItemTableViewCell {
 
         // The snapshot needs the final width, which is only known here
         self.updateSnapshotIfNeeded()
-    }
-
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-
-        if self.traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) ||
-            self.traitCollection.displayScale != previousTraitCollection?.displayScale {
-            self.updateSnapshotIfNeeded()
-        }
     }
 
     private func updateSnapshotIfNeeded() {
