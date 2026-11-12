@@ -470,7 +470,7 @@ class CallViewController: UIViewController,
             return
         }
 
-        super.pressesBegan(presses, with: event)
+        super.pressesEnded(presses, with: event)
     }
 
     // MARK: - App lifecycle notifications
