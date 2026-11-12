@@ -48,9 +48,7 @@ final class UILoginTest: UITestCase {
         let grantAccessButton = loginWebview.buttons["Grant access"]
         waitForReady(object: grantAccessButton, timeout: TestConstants.timeoutLong)
 
-        // Wait again for the webview to be ready
-        waitForReady(object: loginWebview)
-
+        // Tapping lets XCTest dismiss the "Save Password?" prompt that might cover the page
         grantAccessButton.tap()
 
         // When the account switcher gets enabled, we have atleast 1 account in the app and are online
