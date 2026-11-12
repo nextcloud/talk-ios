@@ -2067,27 +2067,7 @@ class CallViewController: UIViewController,
                 self.setHangUpButtonWithTitle(true)
             }
 
-            if !self.reactionButton.isHidden {
-                // Need to update the layout again, if we changed it here
-                self.bottomBarView.setNeedsLayout()
-                self.bottomBarView.layoutIfNeeded()
-
-                if self.bottomBarButtonStackView.frame.origin.x < 0 {
-                    self.reactionButton.isHidden = true
-                }
-            }
-
-            if !self.speakerButton.isHidden {
-                // Need to update the layout again, if we changed it here
-                self.bottomBarView.setNeedsLayout()
-                self.bottomBarView.layoutIfNeeded()
-
-                // Hide the speaker button to make some more room for higher priority buttons
-                // This should only be the case for iPhone SE (1st Gen) when recording is active and/or hand is raised
-                if self.bottomBarButtonStackView.frame.origin.x < 0 {
-                    self.speakerButton.isHidden = true
-                }
-            }
+            self.hideOverflowingBottomBarButtons()
 
             if (self.room.canModerate || self.room.type == .oneToOne),
                NCDatabaseManager.sharedInstance().serverHasTalkCapability(.publishingPermissions) {
@@ -2108,6 +2088,35 @@ class CallViewController: UIViewController,
 
                 self.hangUpButton.menu = UIMenu(children: [alternativeHangUpAction])
             }
+        }
+    }
+
+    // Hidden in this order when the bottom bar is too narrow, the more menu offers each of them instead
+    private var bottomBarOverflowButtons: [UIButton] {
+        return [reactionButton, speakerButton, lowerHandButton]
+    }
+
+    // Computed instead of measured, so it doesn't depend on a layout pass having happened yet
+    private func hideOverflowingBottomBarButtons() {
+        let barWidth = bottomBarView.bounds.width
+        guard barWidth > 0 else { return }
+
+        // Matches the width constraints of the buttons in the xib
+        let buttonWidth: CGFloat = 44
+        let margin: CGFloat = 8
+        let spacing = bottomBarButtonStackView.spacing
+        let hangUpButtonWidth = max(hangUpButton.intrinsicContentSize.width, 48)
+
+        // The stack view may move from the center up to the leading edge, but must keep its gap to the hang up button
+        let availableWidth = barWidth - hangUpButtonWidth - 2 * margin
+        var visibleButtonCount = bottomBarButtonStackView.arrangedSubviews.filter { !$0.isHidden }.count
+
+        for button in bottomBarOverflowButtons where !button.isHidden {
+            let requiredWidth = CGFloat(visibleButtonCount) * buttonWidth + CGFloat(max(visibleButtonCount - 1, 0)) * spacing
+            guard requiredWidth > availableWidth else { break }
+
+            button.isHidden = true
+            visibleButtonCount -= 1
         }
     }
 
@@ -2445,10 +2454,6 @@ class CallViewController: UIViewController,
             self.callTimeLabel.text = String(format: "%lu:%02lu:%02lu", hours, minutes, seconds)
         } else {
             self.callTimeLabel.text = String(format: "%02lu:%02lu", minutes, seconds)
-        }
-
-        if self.bottomBarButtonStackView.frame.origin.x < 0 {
-            self.adjustBars()
         }
 
         if callDuration == oneHourInSeconds {
