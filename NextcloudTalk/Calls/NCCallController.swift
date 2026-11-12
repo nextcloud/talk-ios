@@ -123,7 +123,6 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
     private var localAudioTrack: RTCAudioTrack?
     private var localVideoTrack: RTCVideoTrack?
     private var localScreenTrack: RTCVideoTrack?
-    private var localVideoCaptureController: ARDCaptureController?
     private var videoDisabledDueToInterruption = false
 
     private let screensharingController = NCScreensharingController()
@@ -645,11 +644,15 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
 
     public func enableVideo(_ enable: Bool) {
         WebRTCCommon.shared.dispatch {
+            self.cameraController?.setCaptureEnabled(enable)
+
+            #if targetEnvironment(simulator)
             if enable {
-                self.localVideoCaptureController?.startCapture()
+                self.simulatorVideoCapturer?.startCapture()
             } else {
-                self.localVideoCaptureController?.stopCapture()
+                self.simulatorVideoCapturer?.stopCapture()
             }
+            #endif
 
             self.localVideoTrack?.isEnabled = enable
             self.sendMessageToAll(ofType: enable ? "videoOn" : "videoOff", withPayload: nil)
@@ -1035,7 +1038,7 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
 
         self.delegate?.callController(self, didCreateLocalVideoTrack: self.localVideoTrack)
 
-        let newCameraController = NCCameraController(videoSource: videoSource, videoCapturer: videoCapturer)
+        let newCameraController = NCCameraController(videoSource: videoSource, videoCapturer: videoCapturer, captureEnabled: !self.disableVideoAtStart)
         newCameraController.delegate = self
         self.cameraController = newCameraController
 
