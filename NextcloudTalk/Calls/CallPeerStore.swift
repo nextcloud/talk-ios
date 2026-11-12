@@ -24,6 +24,22 @@ final class CallPeerStore {
     private var videoRenderers: [PeerIdentifier: RTCMTLVideoView] = [:]
     private var screenRenderers: [PeerId: RTCMTLVideoView] = [:]
 
+    typealias RemovedRenderer = (peer: NCPeerConnection, renderer: RTCMTLVideoView)
+
+    // Called once per applied change of peers, the caller removes the renderers from their video tracks
+    var onPeersChanged: ((_ removedRenderers: [RemovedRenderer]) -> Void)?
+
+    // Joins and leaves are collected for a moment, so many participants joining at once cause a single update
+    var batchDelay: TimeInterval = 0.5
+
+    private var pendingInserts: [NCPeerConnection] = []
+    private var pendingDeletions: [NCPeerConnection] = []
+    private var batchTimer: Timer?
+
+    deinit {
+        batchTimer?.invalidate()
+    }
+
     // MARK: - Peers
 
     func contains(_ peer: NCPeerConnection) -> Bool {
@@ -35,23 +51,83 @@ final class CallPeerStore {
         return peers.contains { $0.peerIdentifier == peerIdentifier }
     }
 
-    func append(_ peer: NCPeerConnection) {
-        self.append(contentsOf: [peer])
-    }
-
-    func append(contentsOf newPeers: [NCPeerConnection]) {
+    func add(_ peer: NCPeerConnection) {
         dispatchPrecondition(condition: .onQueue(.main))
-        peers.append(contentsOf: newPeers)
+
+        // A peer can be added from both peerJoined and didAddStream, a duplicate would crash the diffable data source
+        let isPendingInsert = pendingInserts.contains { $0.peerIdentifier == peer.peerIdentifier }
+        guard !self.contains(peer), !isPendingInsert else { return }
+
+        if peer.addedTime == 0 {
+            peer.addedTime = Int(Date().timeIntervalSince1970 * 1000)
+        }
+
+        if peers.isEmpty {
+            // Don't delay the first participant
+            peers.append(peer)
+            onPeersChanged?([])
+        } else {
+            pendingInserts.append(peer)
+            self.scheduleBatch()
+        }
     }
 
     func remove(_ peer: NCPeerConnection) {
         dispatchPrecondition(condition: .onQueue(.main))
-        peers.removeAll { $0.peerIdentifier == peer.peerIdentifier }
+
+        if pendingInserts.contains(where: { $0.peerIdentifier == peer.peerIdentifier }) {
+            // Never shown, so there is nothing to update
+            pendingInserts.removeAll { $0.peerIdentifier == peer.peerIdentifier }
+        } else {
+            pendingDeletions.append(peer)
+            self.scheduleBatch()
+        }
     }
 
+    // Applies pending joins and leaves right away
+    func flushPendingChanges() {
+        dispatchPrecondition(condition: .onQueue(.main))
+
+        batchTimer?.invalidate()
+        batchTimer = nil
+
+        guard !pendingInserts.isEmpty || !pendingDeletions.isEmpty else { return }
+
+        var removedRenderers: [RemovedRenderer] = []
+
+        for peer in pendingDeletions {
+            if let renderer = videoRenderers.removeValue(forKey: peer.peerIdentifier) {
+                removedRenderers.append((peer, renderer))
+            }
+
+            peers.removeAll { $0.peerIdentifier == peer.peerIdentifier }
+        }
+
+        peers.append(contentsOf: pendingInserts)
+
+        pendingInserts = []
+        pendingDeletions = []
+
+        onPeersChanged?(removedRenderers)
+    }
+
+    // Forgets all participants and pending changes without notifying, e.g. when reconnecting
     func removeAllPeers() {
         dispatchPrecondition(condition: .onQueue(.main))
+
+        batchTimer?.invalidate()
+        batchTimer = nil
+        pendingInserts = []
+        pendingDeletions = []
         peers = []
+    }
+
+    private func scheduleBatch() {
+        guard batchTimer == nil else { return }
+
+        batchTimer = Timer.scheduledTimer(withTimeInterval: batchDelay, repeats: false) { [weak self] _ in
+            self?.flushPendingChanges()
+        }
     }
 
     // Not inout, so the closure can safely read from the store while sorting
@@ -163,10 +239,10 @@ final class CallPeerStore {
     }
 
     // Renderers of all shown participants and screen shares, the caller removes them from their video tracks
-    func removeAllRenderers() -> [(peer: NCPeerConnection, renderer: RTCMTLVideoView)] {
+    func removeAllRenderers() -> [RemovedRenderer] {
         dispatchPrecondition(condition: .onQueue(.main))
 
-        var removed: [(peer: NCPeerConnection, renderer: RTCMTLVideoView)] = []
+        var removed: [RemovedRenderer] = []
 
         for peer in peers {
             if let renderer = videoRenderers.removeValue(forKey: peer.peerIdentifier) {

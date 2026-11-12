@@ -158,10 +158,7 @@ class CallViewController: UIViewController,
     private var buttonFeedbackGenerator = UIImpactFeedbackGenerator(style: .light)
     private var localVideoDragStartingPoint: CGPoint?
     private var airplayView = AVRoutePickerView(frame: .init(x: 0, y: 0, width: 48, height: 32))
-    private var pendingPeerInserts: [NCPeerConnection] = []
-    private var pendingPeerDeletions: [NCPeerConnection] = []
     private var pendingPeerUpdates: [PendingCellUpdate] = []
-    private var batchUpdateTimer: Timer?
     private var barButtonsConfiguration = UIImage.SymbolConfiguration(pointSize: 20)
     private var lastScheduledReaction: CGFloat = 0
     private var callDurationTimer: Timer?
@@ -223,6 +220,10 @@ class CallViewController: UIViewController,
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        self.peerStore.onPeersChanged = { [weak self] removedRenderers in
+            self?.peerStoreDidChangePeers(removedRenderers: removedRenderers)
+        }
 
         self.setCallState(.joining)
 
@@ -1662,15 +1663,9 @@ class CallViewController: UIViewController,
     func callControllerIsReconnectingCall(_ callController: NCCallController) {
         DispatchQueue.main.async {
             // Cancel any pending operations
-            self.pendingPeerInserts = []
-            self.pendingPeerDeletions = []
             self.pendingPeerUpdates = []
             self.peerStore.removeAllPeers()
             self.promotedPeerIdentifier = nil
-
-            // Reset a potential queued batch update
-            self.batchUpdateTimer?.invalidate()
-            self.batchUpdateTimer = nil
 
             // Force the collectionView to reload all data
             self.applyInitialSnapshot()
@@ -3454,43 +3449,13 @@ class CallViewController: UIViewController,
 
     func addPeer(_ peer: NCPeerConnection) {
         DispatchQueue.main.async {
-            // A peer can reach this method from both `peerJoined` and `didAddStream`. Deduplicate against
-            // the store as well as the pending inserts, by peerIdentifier, otherwise
-            // the same peer can be appended twice and crash the diffable data source on a duplicate item.
-            let alreadyAdded = self.peerStore.contains(peer)
-            let alreadyPending = self.pendingPeerInserts.contains { $0.peerIdentifier == peer.peerIdentifier }
-
-            guard !alreadyAdded, !alreadyPending else { return }
-
-            // Store added time
-            if peer.addedTime == 0 {
-                peer.addedTime = Int(Date().timeIntervalSince1970 * 1000)
-            }
-            // Add peer to collection view
-            if self.peerStore.peers.isEmpty {
-                // Don't delay adding the first peer
-                self.peerStore.append(peer)
-                self.updateSnapshot()
-                self.updatePiPPeerIfNeeded()
-                self.recreatePictureInPictureIfNeeded()
-            } else {
-                // Delay updating the collection view a bit to allow batch updating
-                self.pendingPeerInserts.append(peer)
-                self.scheduleBatchCollectionViewUpdate()
-            }
+            self.peerStore.add(peer)
         }
     }
 
     func removePeer(_ peer: NCPeerConnection) {
         DispatchQueue.main.async {
-            if self.pendingPeerInserts.contains(peer) {
-                // The peer is a pending insert, but was removed before the batch update
-                // In this case we can just remove the pending insert
-                self.pendingPeerInserts.removeAll(where: { $0 == peer })
-            } else {
-                self.pendingPeerDeletions.append(peer)
-                self.scheduleBatchCollectionViewUpdate()
-            }
+            self.peerStore.remove(peer)
         }
     }
 
@@ -3508,36 +3473,12 @@ class CallViewController: UIViewController,
         }
     }
 
-    func scheduleBatchCollectionViewUpdate() {
-        dispatchPrecondition(condition: .onQueue(.main))
-
-        if self.batchUpdateTimer == nil {
-            self.batchUpdateTimer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(self.batchCollectionViewUpdate), userInfo: nil, repeats: false)
-        }
-    }
-
-    func batchCollectionViewUpdate() {
-        self.batchUpdateTimer = nil
-
-        // Pending updates are only added when the peer was not found in the collection view (e.g wasn't added yet)
-        // Therefore we only check for inserts and deletions here, as an update is probably linked to an insert anyway
-        if pendingPeerInserts.isEmpty, pendingPeerDeletions.isEmpty {
-            return
-        }
-
-        // Remove peer and renderers
-        for peer in pendingPeerDeletions {
-            if let videoRenderer = self.peerStore.removeVideoRenderer(forPeerIdentifier: peer.peerIdentifier) {
-                WebRTCCommon.shared.dispatch {
-                    peer.getRemoteStream()?.videoTracks.first?.remove(videoRenderer)
-                }
+    private func peerStoreDidChangePeers(removedRenderers: [CallPeerStore.RemovedRenderer]) {
+        for (peer, renderer) in removedRenderers {
+            WebRTCCommon.shared.dispatch {
+                peer.getRemoteStream()?.videoTracks.first?.remove(renderer)
             }
-            // Remove peer
-            self.peerStore.remove(peer)
         }
-
-        // Add all new peers
-        self.peerStore.append(contentsOf: pendingPeerInserts)
 
         // Make sure the promoted participant in speaker view is still in the call
         if callViewMode == .speaker, !peerStore.contains(peerIdentifier: promotedPeerIdentifier) {
@@ -3547,10 +3488,7 @@ class CallViewController: UIViewController,
         self.updatePiPPeerIfNeeded()
         self.recreatePictureInPictureIfNeeded()
 
-        // Sort peers in call
         self.sortPeersInCall()
-
-        // Update collection view snapshot
         self.updateSnapshot()
 
         // Updates of peers that still have no item are dropped, a cell is configured from its peer when it is displayed anyway
@@ -3558,8 +3496,6 @@ class CallViewController: UIViewController,
             self.updatePeer(pendingUpdate.peer, block: pendingUpdate.block)
         }
 
-        pendingPeerInserts = []
-        pendingPeerDeletions = []
         pendingPeerUpdates = []
     }
 
