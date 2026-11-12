@@ -257,6 +257,10 @@ jobs:
       run: |
         xcrun simctl privacy booted grant camera com.nextcloud.Talk
 
+        xcrun simctl spawn booted log stream --style compact \
+        --predicate 'process == "NextcloudTalk" AND (messageType >= 16 OR category IN {"Presentation", "AuthenticationSession"}) AND NOT category IN {"UIKBFeedbackGenerator", "Default"} AND NOT sender == "CoreHaptics"' \
+        > simulator.log 2>&1 &
+
         set -o pipefail && \
         xcodebuild test-without-building \
         -xctestrun $(find . -type f -name '*.xctestrun') \
@@ -286,6 +290,7 @@ jobs:
       run: |
         cat server/data/nextcloud.log
         cat server/data/php-server.log
+        cat simulator.log
 
     - name: Upload test results
       uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
