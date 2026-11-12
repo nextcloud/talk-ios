@@ -1727,7 +1727,14 @@ class CallViewController: UIViewController,
         NCRoomsManager.shared.updateRoom(token, forAccount: self.account) { roomDict, error in
             guard error == nil, let newRoom = NCRoom(dictionary: roomDict, andAccountId: self.room.accountId)
             else {
-                print("Error getting room to switch")
+                DispatchQueue.main.async {
+                    // The current call was already left at this point, so there is nothing to go back to
+                    self.callController = nil
+                    self.showChatAfterRoomSwitch = false
+                    NotificationPresenter.shared().present(text: NSLocalizedString("Could not switch to the other conversation", comment: ""), dismissAfterDelay: 7.0, includedStyle: .error)
+                    self.hangup(forAll: false)
+                }
+
                 return
             }
 
