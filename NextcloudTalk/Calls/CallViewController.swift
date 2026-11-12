@@ -1703,7 +1703,10 @@ class CallViewController: UIViewController,
                 notificationText = NSLocalizedString("Call recording is starting", comment: "")
             } else if self.room.callRecording == .videoRunning || self.room.callRecording == .audioRunning {
                 notificationText = NSLocalizedString("Call recording started", comment: "")
-            } else if self.room.callRecording == .failed && self.room.isUserOwnerOrModerator {
+            } else if self.room.callRecording == .failed {
+                // Only moderators can act on a failed recording, for everyone else it never started
+                guard self.room.isUserOwnerOrModerator else { return }
+
                 notificationText = NSLocalizedString("Call recording failed. Please contact your administrator", comment: "")
             }
 
