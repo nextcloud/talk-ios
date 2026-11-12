@@ -81,8 +81,12 @@ class LoginFlowController: NSObject, ASWebAuthenticationPresentationContextProvi
         self.completion = nil
 
         loginTask?.cancel()
-        authSession?.cancel()
-        authSession = nil
+
+        // After logging in the login screen is dismissed together with the session, a separate dismissal can block it
+        if outcome != .loggedIn {
+            authSession?.cancel()
+            authSession = nil
+        }
 
         completion(outcome)
     }
