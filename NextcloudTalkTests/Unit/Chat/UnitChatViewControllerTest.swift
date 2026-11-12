@@ -806,9 +806,7 @@ final class UnitChatViewControllerTest: TestBaseRealm {
         try XCTSkipUnless(ProcessInfo.processInfo.isOperatingSystemAtLeast(OperatingSystemVersion(majorVersion: 17, minorVersion: 0, patchVersion: 0)))
 
         try receiveMessageAfterInvalidatingTableView(token: "traitContentSize") { tableView in
-            if #available(iOS 17.0, *) {
-                tableView.traitOverrides.preferredContentSizeCategory = .accessibilityLarge
-            }
+            tableView.traitOverrides.preferredContentSizeCategory = .accessibilityLarge
         }
     }
 }

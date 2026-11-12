@@ -178,18 +178,22 @@ class MessageBodyTextView: UITextView, UITextViewDelegate, UIGestureRecognizerDe
 
     // MARK: - UITextView delegate
 
-    func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
-        if NCUtils.isInstanceRoomLink(link: URL.absoluteString) {
-            NCRoomsManager.shared.startChat(withRoomToken: URL.lastPathComponent)
-            return false
+    func textView(_ textView: UITextView, primaryActionFor textItem: UITextItem, defaultAction: UIAction) -> UIAction? {
+        guard case .link(let url) = textItem.content else { return defaultAction }
+
+        if NCUtils.isInstanceRoomLink(link: url.absoluteString) {
+            return UIAction { _ in
+                NCRoomsManager.shared.startChat(withRoomToken: url.lastPathComponent)
+            }
         }
 
-        if NCUtils.isNextcloudAppInstalled(), let fileId = NCUtils.instanceFileId(fromLink: URL.absoluteString) {
-            NCUtils.openFileInNextcloudApp(fileId: fileId)
-            return false
+        if NCUtils.isNextcloudAppInstalled(), let fileId = NCUtils.instanceFileId(fromLink: url.absoluteString) {
+            return UIAction { _ in
+                NCUtils.openFileInNextcloudApp(fileId: fileId)
+            }
         }
 
-        return true
+        return defaultAction
     }
 
     func textViewDidChangeSelection(_ textView: UITextView) {

@@ -5,7 +5,6 @@
 
 import AppIntents
 
-@available(iOS 17, *)
 enum TalkIntentError: Swift.Error, CustomLocalizedStringResourceConvertible {
     case unknown
     case message(_ message: String)

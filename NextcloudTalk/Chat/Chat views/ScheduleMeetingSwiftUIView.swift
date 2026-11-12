@@ -78,14 +78,14 @@ struct ScheduleMeetingSwiftUIView: View {
                     ) {
                         Toggle(NSLocalizedString("Invite all users and emails", comment: "Invitation for a meeting"), isOn: $isSwitchEnabled)
                             .tint(Color(NCAppBranding.elementColor()))
-                            .onChange(of: isSwitchEnabled) { enabled in
+                            .onChange(of: isSwitchEnabled) { _, enabled in
                                 if !enabled && areAllParticipantsSelected {
                                     selectedParticipants = []
                                 } else if enabled && !areAllParticipantsSelected {
                                     selectedParticipants = roomParticipants
                                 }
                             }
-                            .onChange(of: selectedParticipants) { _ in
+                            .onChange(of: selectedParticipants) {
                                 isSwitchEnabled = areAllParticipantsSelected
                             }
                             .onAppear {

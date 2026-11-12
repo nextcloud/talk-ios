@@ -5,7 +5,6 @@
 
 import AppIntents
 
-@available(iOS 17, *)
 struct AccountEntity: AppEntity {
     var id: String
     var userDisplayName: String
@@ -41,7 +40,6 @@ struct AccountEntity: AppEntity {
     }
 }
 
-@available(iOS 17, *)
 struct AccountEntityQuery: EntityStringQuery {
     func entities(matching string: String) async throws -> [AccountEntity] {
         NCDatabaseManager.sharedInstance().allAccounts().filter({

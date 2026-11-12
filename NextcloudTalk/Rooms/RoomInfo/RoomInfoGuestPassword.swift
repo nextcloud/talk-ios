@@ -25,7 +25,7 @@ struct RoomInfoGuestPassword: View {
         .onAppear {
             toggleValue = room.hasPassword
         }
-        .onChange(of: room.hasPassword) { newValue in
+        .onChange(of: room.hasPassword) { _, newValue in
             toggleValue = newValue
         }
         .disabled(isActionRunning)

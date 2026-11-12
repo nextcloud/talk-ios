@@ -184,7 +184,7 @@ public class NCNotificationController: NSObject, UNUserNotificationCenterDelegat
 
     private func updateAppIconBadgeNumber() {
         DispatchQueue.main.async {
-            UIApplication.shared.applicationIconBadgeNumber = NCDatabaseManager.sharedInstance().numberOfUnreadNotifications()
+            UNUserNotificationCenter.current().setBadgeCount(NCDatabaseManager.sharedInstance().numberOfUnreadNotifications())
         }
     }
 
