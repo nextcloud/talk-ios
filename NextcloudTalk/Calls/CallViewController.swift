@@ -1762,6 +1762,9 @@ class CallViewController: UIViewController,
                 // A force mute only applies to the call we are leaving
                 self.forceMutedUntil = .distantPast
 
+                // The raised hand belongs to the call we are leaving as well
+                self.isHandRaised = false
+
                 // Forget current call controller
                 self.callController = nil
 
@@ -2106,6 +2109,7 @@ class CallViewController: UIViewController,
                 self.titleView.isHidden = true
             } else {
                 self.setHangUpButtonWithTitle(true)
+                self.titleView.isHidden = false
             }
 
             self.hideOverflowingBottomBarButtons()
