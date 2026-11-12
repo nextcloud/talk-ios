@@ -133,6 +133,9 @@ class CallViewController: UIViewController,
     private var localSimulatorRenderView: RTCMTLVideoView?
     #endif
     private var presentedScreenPeerId: String?
+    private let presenterView = CallPresenterView()
+    private weak var presenterRendererAttachedPeer: NCPeerConnection?
+    private let screenshareSwitchButton = UIButton(type: .custom)
     private var callController: NCCallController?
     private var chatViewController: ChatViewController?
     private var chatNavigationController: UINavigationController?
@@ -229,6 +232,7 @@ class CallViewController: UIViewController,
 
         self.tapGestureForDetailedView = UITapGestureRecognizer(target: self, action: #selector(showDetailedViewWithTimer))
         self.tapGestureForDetailedView?.numberOfTapsRequired = 1
+        self.tapGestureForDetailedView?.delegate = self
 
         let pushToTalkRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(handlePushToTalk))
         self.audioMuteButton.addGestureRecognizer(pushToTalkRecognizer)
@@ -240,6 +244,7 @@ class CallViewController: UIViewController,
 
         self.screensharingView.isHidden = true
         self.screensharingView.clipsToBounds = true
+        self.setupScreensharingOverlays()
 
         self.hangUpButton.layer.cornerRadius = self.hangUpButton.frame.height / 2
         self.closeScreensharingButton.layer.cornerRadius = 16
@@ -675,6 +680,9 @@ class CallViewController: UIViewController,
         self.setCallStateForPeersInCall()
         self.updateSimulcastVideoQualities()
         self.setNeedsRemoteVideoVisibilityUpdate()
+
+        // The presenter might have been a pending insert until now
+        self.updatePresenterView()
     }
 
     func priority(for peerConnection: NCPeerConnection) -> (Int, Int) {
@@ -870,6 +878,11 @@ class CallViewController: UIViewController,
             return .low
         }
 
+        if !screensharingView.isHidden {
+            // Only the presenter is visible, in a small tile
+            return .low
+        }
+
         if callViewMode == .speaker {
             return peer.peerIdentifier == promotedPeerIdentifier ? .high : .low
         }
@@ -906,8 +919,14 @@ class CallViewController: UIViewController,
             return [pipPeer.peerId]
         }
 
-        // A presented screen share covers all participants
-        guard UIApplication.shared.applicationState != .background, screensharingView.isHidden else { return [] }
+        guard UIApplication.shared.applicationState != .background else { return [] }
+
+        // A presented screen share covers all participants except the presenter tile
+        if !screensharingView.isHidden {
+            guard !presenterView.isHidden, !presenterView.isCollapsed, let presenter = presentedScreenPresenter else { return [] }
+
+            return [presenter.peerId]
+        }
 
         return Set(collectionView.indexPathsForVisibleItems.compactMap { dataSource.itemIdentifier(for: $0)?.peerId })
     }
@@ -1520,8 +1539,16 @@ class CallViewController: UIViewController,
                 }
 
                 self.reattachPiPRendererIfNeeded(for: remotePeer)
+
+                if self.presenterRendererAttachedPeer === remotePeer {
+                    // The renderer needs to be attached to the new video track
+                    self.detachPresenterRenderer()
+                    self.updatePresenterView()
+                }
             } else if remotePeer.roomType == kRoomTypeScreen {
                 self.screenRenderersDict[remotePeer.peerId] = renderView
+                // didAddStream can be called more than once for the same screen share
+                self.screenPeersInCall.removeAll { $0.peerId == remotePeer.peerId }
                 self.screenPeersInCall.append(remotePeer)
                 self.showScreenOfPeer(remotePeer)
 
@@ -1572,8 +1599,11 @@ class CallViewController: UIViewController,
                 }
 
                 self.updatePiPContentIfNeeded(for: peer)
+                self.updatePresenterViewIfNeeded(for: peer)
             }
         case "speaking", "stoppedSpeaking":
+            self.updatePresenterViewIfNeeded(for: peer)
+
             if peersInCall.count > 1 {
                 self.updatePeer(peer) { cell in
                     cell.setSpeaking(peer.isPeerSpeaking)
@@ -1603,10 +1633,10 @@ class CallViewController: UIViewController,
         }
 
         self.updatePiPContentIfNeeded(for: peer)
-
-        if peer.peerId == self.presentedScreenPeerId {
-            DispatchQueue.main.async {
-                self.screenshareLabel.text = nick
+        DispatchQueue.main.async {
+            if peer.peerId == self.presentedScreenPeerId {
+                self.updateScreenshareLabel()
+                self.updatePresenterAvatar()
             }
         }
     }
@@ -1651,6 +1681,7 @@ class CallViewController: UIViewController,
 
             // Force the collectionView to reload all data
             self.applyInitialSnapshot()
+            self.updatePresenterView()
 
             self.setCallState(.reconnecting)
         }
@@ -2741,6 +2772,8 @@ class CallViewController: UIViewController,
                 }
             }
 
+            self.detachPresenterRenderer()
+
             self.callDurationTimer?.invalidate()
             self.connectionStatsTimer?.invalidate()
         }
@@ -2812,6 +2845,7 @@ class CallViewController: UIViewController,
 
         callController.upgradeToVideoCall()
         self.adjustBars()
+        self.updatePresenterView()
     }
 
     func switchToVoiceOnlyCall() {
@@ -2833,6 +2867,8 @@ class CallViewController: UIViewController,
                     cell.videoDisabled = true
                 }
             }
+
+            self.updatePresenterView()
         }
 
         self.adjustBars()
@@ -3143,36 +3179,184 @@ class CallViewController: UIViewController,
 
     // MARK: - Screensharing
 
+    private func setupScreensharingOverlays() {
+        presenterView.isHidden = true
+        presenterView.onCollapsedChanged = { [weak self] _ in
+            self?.setNeedsRemoteVideoVisibilityUpdate()
+        }
+
+        screensharingView.addSubview(presenterView)
+
+        let guide = screensharingView.safeAreaLayoutGuide
+        NSLayoutConstraint.activate([
+            presenterView.leadingAnchor.constraint(equalTo: guide.leadingAnchor, constant: 12),
+            presenterView.topAnchor.constraint(equalTo: guide.topAnchor, constant: 12)
+        ])
+
+        // Covers the presenter name, only shown while more than one participant shares their screen
+        screenshareSwitchButton.isHidden = true
+        screenshareSwitchButton.translatesAutoresizingMaskIntoConstraints = false
+        screenshareSwitchButton.showsMenuAsPrimaryAction = true
+        screenshareSwitchButton.menu = UIMenu(children: [UIDeferredMenuElement.uncached { [unowned self] completion in
+            completion(self.getScreenshareMenuItems())
+        }])
+        screenshareSwitchButton.accessibilityHint = NSLocalizedString("Double tap to choose which screen share is shown", comment: "")
+
+        screenshareLabelContainer.addSubview(screenshareSwitchButton)
+
+        NSLayoutConstraint.activate([
+            screenshareSwitchButton.leadingAnchor.constraint(equalTo: screenshareLabelContainer.leadingAnchor),
+            screenshareSwitchButton.trailingAnchor.constraint(equalTo: screenshareLabelContainer.trailingAnchor),
+            screenshareSwitchButton.topAnchor.constraint(equalTo: screenshareLabelContainer.topAnchor),
+            screenshareSwitchButton.bottomAnchor.constraint(equalTo: screenshareLabelContainer.bottomAnchor)
+        ])
+    }
+
+    // The participant whose screen share is presented, the screen peer itself has no name or camera
+    private var presentedScreenPresenter: NCPeerConnection? {
+        guard let presentedScreenPeerId else { return nil }
+
+        return self.peerConnection(forPeerId: presentedScreenPeerId)
+    }
+
+    private func screenshareDisplayName(forPeerId peerId: String) -> String {
+        if let presenter = self.peerConnection(forPeerId: peerId), let peerName = presenter.peerName, !peerName.isEmpty {
+            return peerName
+        }
+
+        return NSLocalizedString("Guest", comment: "")
+    }
+
+    private func getScreenshareMenuItems() -> [UIMenuElement] {
+        // Only the peer id is captured, since iOS 27 UIKit keeps the last resolved menu items alive
+        return screenPeersInCall.map { screenPeer in
+            let peerId = screenPeer.peerId
+            let action = UIAction(title: self.screenshareDisplayName(forPeerId: peerId), image: .init(systemName: "rectangle.inset.filled.on.rectangle")) { [unowned self] _ in
+                if let screenPeer = self.screenPeerConnection(forPeerId: peerId) {
+                    self.showScreenOfPeer(screenPeer)
+                }
+            }
+
+            action.state = peerId == presentedScreenPeerId ? .on : .off
+
+            return action
+        }
+    }
+
+    private func updateScreenshareLabel() {
+        guard let presentedScreenPeerId else { return }
+
+        let displayName = self.screenshareDisplayName(forPeerId: presentedScreenPeerId)
+        let canSwitch = screenPeersInCall.count > 1
+
+        screenshareSwitchButton.isHidden = !canSwitch
+        screenshareSwitchButton.accessibilityLabel = String(format: NSLocalizedString("Screen share of %@", comment: ""), displayName)
+
+        guard canSwitch, let chevronImage = UIImage(systemName: "chevron.up.chevron.down", withConfiguration: UIImage.SymbolConfiguration(font: screenshareLabel.font, scale: .small))
+        else {
+            screenshareLabel.text = displayName
+            return
+        }
+
+        let labelText = NSMutableAttributedString(string: displayName + " ", attributes: [.font: screenshareLabel.font as UIFont, .foregroundColor: screenshareLabel.textColor as UIColor])
+        labelText.append(NSAttributedString(attachment: NSTextAttachment(image: chevronImage.withTintColor(screenshareLabel.textColor, renderingMode: .alwaysOriginal))))
+        screenshareLabel.attributedText = labelText
+    }
+
+    private func updatePresenterView() {
+        guard !screensharingView.isHidden, let presenter = presentedScreenPresenter else {
+            presenterView.isHidden = true
+            self.detachPresenterRenderer()
+            return
+        }
+
+        presenterView.isHidden = false
+        screensharingView.bringSubviewToFront(presenterView)
+
+        if presenterRendererAttachedPeer !== presenter {
+            self.detachPresenterRenderer()
+            self.presenterRendererAttachedPeer = presenter
+
+            let renderView = presenterView.videoRenderView
+
+            WebRTCCommon.shared.dispatch {
+                presenter.getRemoteStream()?.videoTracks.first?.add(renderView)
+            }
+
+            self.updatePresenterAvatar()
+        }
+
+        presenterView.setVideoDisabled(isAudioOnly || presenter.isRemoteVideoDisabled || !presenter.hasRemoteStream())
+        presenterView.setSpeaking(presenter.isPeerSpeaking)
+
+        self.setNeedsRemoteVideoVisibilityUpdate()
+    }
+
+    private func updatePresenterAvatar() {
+        guard let presenter = presenterRendererAttachedPeer else { return }
+
+        WebRTCCommon.shared.dispatch {
+            let actor = self.callController?.getActor(fromSessionId: presenter.peerId) ?? TalkActor()
+
+            if actor.rawDisplayName.isEmpty, let peerName = presenter.peerName, !peerName.isEmpty {
+                actor.rawDisplayName = peerName
+            }
+
+            DispatchQueue.main.async {
+                guard self.presenterRendererAttachedPeer === presenter else { return }
+
+                self.presenterView.setAvatar(for: actor, using: self.account)
+            }
+        }
+    }
+
+    private func updatePresenterViewIfNeeded(for peer: NCPeerConnection) {
+        DispatchQueue.main.async {
+            guard peer.peerId == self.presentedScreenPeerId else { return }
+
+            self.updatePresenterView()
+        }
+    }
+
+    private func detachPresenterRenderer() {
+        if let attachedPeer = presenterRendererAttachedPeer {
+            let renderView = presenterView.videoRenderView
+
+            WebRTCCommon.shared.dispatch {
+                attachedPeer.getRemoteStream()?.videoTracks.first?.remove(renderView)
+            }
+        }
+
+        self.presenterRendererAttachedPeer = nil
+    }
+
     func showScreenOfPeer(_ peer: NCPeerConnection) {
         DispatchQueue.main.async {
             guard let renderView = self.screenRenderersDict[peer.peerId] else { return }
 
+            let wasHidden = self.screensharingView.isHidden
+
             self.screensharingView.replaceContentView(renderView)
             self.screensharingView.bringSubviewToFront(self.closeScreensharingButton)
-
-            // The screenPeer does not have a name associated to it, try to get the nonScreenPeer
-            var peerDisplayName = NSLocalizedString("Guest", comment: "")
-
-            if let nonScreenPeer = self.peerConnection(forPeerId: peer.peerId), let peerName = nonScreenPeer.peerName, !peerName.isEmpty {
-                peerDisplayName = peerName
-            }
+            self.screensharingView.bringSubviewToFront(self.screenshareLabelContainer)
 
             self.presentedScreenPeerId = peer.peerId
-            self.screenshareLabel.text = peerDisplayName
-            self.screensharingView.bringSubviewToFront(self.screenshareLabelContainer)
+            self.updateScreenshareLabel()
 
             UIView.transition(with: self.screensharingView, duration: 0.4, options: .transitionCrossDissolve) {
                 self.screensharingView.isHidden = false
             }
 
+            self.updatePresenterView()
+            self.updateSimulcastVideoQualities()
             self.setNeedsRemoteVideoVisibilityUpdate()
-        }
 
-        // Enable/Disable detailed view with tap gesture
-        // in voice only call when screensharing is enabled
-        if isAudioOnly {
-            self.addTapGestureForDetailedView()
-            self.showDetailedViewWithTimer()
+            // Enable/Disable detailed view with tap gesture
+            // in voice only call when screensharing is enabled
+            if wasHidden, self.isAudioOnly {
+                self.addTapGestureForDetailedView()
+                self.showDetailedViewWithTimer()
+            }
         }
     }
 
@@ -3182,31 +3366,40 @@ class CallViewController: UIViewController,
                   let screenPeerConnection = self.screenPeerConnection(forPeerId: peer.peerId)
             else { return }
 
-            self.presentedScreenPeerId = nil
-
             self.screenRenderersDict.removeValue(forKey: peer.peerId)
+            // By peer id, as this is also called with the video peer of the presenter
+            self.screenPeersInCall.removeAll { $0.peerId == peer.peerId }
+
             self.updatePeer(peer) { cell in
                 cell.screenShared = false
             }
 
-            if self.screensharingView.contentView == screenRenderer {
-                self.closeScreensharingButtonPressed(self)
+            if self.presentedScreenPeerId == peer.peerId {
+                if let nextScreenPeer = self.screenPeersInCall.last {
+                    self.showScreenOfPeer(nextScreenPeer)
+                } else {
+                    self.closeScreensharingButtonPressed(self)
+                }
+            } else {
+                self.updateScreenshareLabel()
             }
 
             WebRTCCommon.shared.dispatch {
                 screenPeerConnection.getRemoteStream()?.videoTracks.first?.remove(screenRenderer)
             }
-
-            self.screenPeersInCall.removeAll { $0 == peer }
         }
     }
 
     @IBAction func closeScreensharingButtonPressed(_ sender: Any) {
         DispatchQueue.main.async {
+            self.presentedScreenPeerId = nil
+
             UIView.transition(with: self.screensharingView, duration: 0.4, options: .transitionCrossDissolve) {
                 self.screensharingView.isHidden = true
             }
 
+            self.updatePresenterView()
+            self.updateSimulcastVideoQualities()
             self.setNeedsRemoteVideoVisibilityUpdate()
         }
 
@@ -3433,6 +3626,17 @@ class CallViewController: UIViewController,
                 }
             }
         }
+    }
+
+    // MARK: - UIGestureRecognizerDelegate
+
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        // A tap on the presenter tile only collapses or expands the tile
+        if gestureRecognizer == tapGestureForDetailedView, let touchedView = touch.view, touchedView.isDescendant(of: presenterView) {
+            return false
+        }
+
+        return true
     }
 
     // MARK: - NCChatTitleViewDelegate
