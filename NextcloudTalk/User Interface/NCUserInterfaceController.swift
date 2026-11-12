@@ -485,7 +485,9 @@ public typealias PresentCallControllerCompletionBlock = () -> Void
     // MARK: - LoginViewControllerDelegate
 
     func loginViewControllerDidFinish() {
+        loginDebugLog.error("dismiss start, presented: \(String(describing: self.mainViewController.presentedViewController)) -> \(String(describing: self.mainViewController.presentedViewController?.presentedViewController))")
         mainViewController.dismiss(animated: true) {
+            loginDebugLog.error("dismiss completed")
             NCConnectionController.shared.checkAppState()
             // Get server capabilities again to check if user is allowed to use Nextcloud Talk
             let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()

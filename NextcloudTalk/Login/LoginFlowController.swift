@@ -4,7 +4,17 @@
 //
 
 import AuthenticationServices
+import os
 import UIKit
+
+// TEMP CI debugging
+let loginDebugLog = Logger(subsystem: "com.nextcloud.Talk", category: "LoginDebug")
+
+private func startMainQueueHeartbeat(remaining: Int = 180) {
+    guard remaining > 0 else { return }
+    loginDebugLog.error("main queue alive")
+    DispatchQueue.main.asyncAfter(deadline: .now() + 2) { startMainQueueHeartbeat(remaining: remaining - 1) }
+}
 
 /// Logs in with login flow v2, showing the server's login page in an authentication session
 @MainActor
@@ -32,6 +42,7 @@ class LoginFlowController: NSObject, ASWebAuthenticationPresentationContextProvi
     }
 
     func start() {
+        startMainQueueHeartbeat()
         loginTask = Task { [weak self] in
             await self?.login()
         }
@@ -63,19 +74,25 @@ class LoginFlowController: NSObject, ASWebAuthenticationPresentationContextProvi
         }
 
         while !Task.isCancelled {
+            loginDebugLog.error("poll start")
             if let credentials = await NCAPIController.shared.pollLoginFlowV2(withToken: flow.token, atEndpoint: flow.endpoint) {
+                loginDebugLog.error("poll got credentials")
                 guard !Task.isCancelled else { return }
 
                 NCSettingsController.sharedInstance().addNewAccount(forUser: credentials.loginName, withToken: credentials.appPassword, inServer: serverUrl)
+                loginDebugLog.error("account added")
                 finish(.loggedIn)
                 return
             }
 
+            loginDebugLog.error("poll no credentials")
             try? await Task.sleep(for: .seconds(1))
         }
+        loginDebugLog.error("poll loop cancelled")
     }
 
     private func finish(_ outcome: Outcome) {
+        loginDebugLog.error("finish \(String(describing: outcome))")
         // Closing the session calls its completion handler again
         guard let completion else { return }
         self.completion = nil
