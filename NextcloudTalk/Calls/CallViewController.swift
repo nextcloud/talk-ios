@@ -49,7 +49,9 @@ class CallViewController: UIViewController,
 
     public weak var delegate: CallViewControllerDelegate?
 
-    public var room: NCRoom
+    public var room: NCRoom {
+        didSet { self.pipCoordinator.room = self.room }
+    }
     public var account: TalkAccount
     public var audioDisabledAtStart = false
     public var videoDisabledAtStart = false
@@ -58,27 +60,26 @@ class CallViewController: UIViewController,
     public var silentCall = false
     public var recordingConsent = false
 
-    private var speakers: [NCPeerConnection] = []
     private var callViewMode = CallViewMode(rawValue: NCUserDefaults.preferredCallViewMode() ?? "") ?? .grid
     private var promotedPeerIdentifier: String?
     private var isStripeHiddenInSpeakerView = NCUserDefaults.speakerViewStripeHidden()
     private let speakerLayout = CallSpeakerLayout()
     private var gridLayout: UICollectionViewLayout?
 
-    private var pipController: AVPictureInPictureController?
-    private var pipViewController: CallPiPViewController?
-    private var pipPeerIdentifier: String?
-    private weak var pipRendererAttachedPeer: NCPeerConnection?
-    private var pipLocalRendererAttached = false
-    private var isPiPActive = false
+    private lazy var pipCoordinator: CallPiPCoordinator = {
+        let coordinator = CallPiPCoordinator(peerStore: peerStore, room: room, account: account)
+        coordinator.delegate = self
+        return coordinator
+    }()
 
-    private var simulcastDebugQuality: SimulcastVideoQuality?
-    private var remoteVideoBlockedDebugOverride: Bool?
+    private lazy var debugController: CallDebugController = {
+        let controller = CallDebugController(peerStore: peerStore)
+        controller.delegate = self
+        return controller
+    }()
+
     private var remoteVideoBlockWorkItems = [PeerId: DispatchWorkItem]() // Kept after executing, while the video stays blocked
     private var isRemoteVideoVisibilityUpdateScheduled = false
-    private var connectionStatsTimer: Timer?
-    private var connectionStatsReports = [String: RTCStatisticsReport]() // peerIdentifier -> last report
-    private var connectionStatsTexts = [String: String]() // peerIdentifier -> tile summary
 
     @IBOutlet public var localVideoView: MTKView!
     @IBOutlet public var localVideoViewWrapper: UIView!
@@ -124,16 +125,21 @@ class CallViewController: UIViewController,
     private var localVideoOriginPosition: CGPoint = .zero
     private var lastLocalVideoContainerSize: CGSize = .zero
     private var lastBarsContainerSize: CGSize = .zero
-    private var peersInCall: [NCPeerConnection] = []
-    private var screenPeersInCall: [NCPeerConnection] = []
-    private var videoRenderersDict: [String: RTCMTLVideoView] = [:] // peerIdentifier -> renderer
-    private var screenRenderersDict: [String: RTCMTLVideoView] = [:] // peerId -> renderer
+    private let peerStore = CallPeerStore()
 
     #if targetEnvironment(simulator)
     private var localSimulatorRenderView: RTCMTLVideoView?
     #endif
     private var presentedScreenPeerId: String?
-    private var callController: NCCallController?
+    private let presenterView = CallPresenterView()
+    private weak var presenterRendererAttachedPeer: NCPeerConnection?
+    private let screenshareSwitchButton = UIButton(type: .custom)
+    private var callController: NCCallController? {
+        didSet {
+            self.pipCoordinator.callController = self.callController
+            self.debugController.callController = self.callController
+        }
+    }
     private var chatViewController: ChatViewController?
     private var chatNavigationController: UINavigationController?
     private var screensharingSize: CGSize?
@@ -159,10 +165,7 @@ class CallViewController: UIViewController,
     private var buttonFeedbackGenerator = UIImpactFeedbackGenerator(style: .light)
     private var localVideoDragStartingPoint: CGPoint?
     private var airplayView = AVRoutePickerView(frame: .init(x: 0, y: 0, width: 48, height: 32))
-    private var pendingPeerInserts: [NCPeerConnection] = []
-    private var pendingPeerDeletions: [NCPeerConnection] = []
     private var pendingPeerUpdates: [PendingCellUpdate] = []
-    private var batchUpdateTimer: Timer?
     private var barButtonsConfiguration = UIImage.SymbolConfiguration(pointSize: 20)
     private var lastScheduledReaction: CGFloat = 0
     private var callDurationTimer: Timer?
@@ -225,10 +228,15 @@ class CallViewController: UIViewController,
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        self.peerStore.onPeersChanged = { [weak self] removedRenderers in
+            self?.peerStoreDidChangePeers(removedRenderers: removedRenderers)
+        }
+
         self.setCallState(.joining)
 
         self.tapGestureForDetailedView = UITapGestureRecognizer(target: self, action: #selector(showDetailedViewWithTimer))
         self.tapGestureForDetailedView?.numberOfTapsRequired = 1
+        self.tapGestureForDetailedView?.delegate = self
 
         let pushToTalkRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(handlePushToTalk))
         self.audioMuteButton.addGestureRecognizer(pushToTalkRecognizer)
@@ -240,6 +248,7 @@ class CallViewController: UIViewController,
 
         self.screensharingView.isHidden = true
         self.screensharingView.clipsToBounds = true
+        self.setupScreensharingOverlays()
 
         self.hangUpButton.layer.cornerRadius = self.hangUpButton.frame.height / 2
         self.closeScreensharingButton.layer.cornerRadius = 16
@@ -465,7 +474,7 @@ class CallViewController: UIViewController,
             return
         }
 
-        super.pressesBegan(presses, with: event)
+        super.pressesEnded(presses, with: event)
     }
 
     // MARK: - App lifecycle notifications
@@ -476,9 +485,7 @@ class CallViewController: UIViewController,
         // via the app switcher or the app icon it needs to be stopped manually.
         // This can't happen earlier (e.g. willEnterForeground), as AVKit ignores the
         // stop request while the app is not active yet
-        if let pipController, pipController.isPictureInPictureActive {
-            pipController.stopPictureInPicture()
-        }
+        self.pipCoordinator.stopIfShown()
 
         if let callController, !isAudioOnly, !userDisabledVideo, !callController.isCameraUsableWhileInBackground() {
             // Only enabled video if it was not disabled by the user
@@ -621,13 +628,13 @@ class CallViewController: UIViewController,
     // MARK: - CallParticipantViewCell delegate
 
     func cellWants(toPresentScreenSharing participantCell: CallParticipantViewCell) {
-        if let peerIdentifier = participantCell.peerIdentifier, let peerConnection = self.peerConnection(forPeerIdentifier: peerIdentifier) {
+        if let peerIdentifier = participantCell.peerIdentifier, let peerConnection = self.peerStore.peer(forPeerIdentifier: peerIdentifier) {
             self.showScreenOfPeer(peerConnection)
         }
     }
 
     func cellWants(toChangeZoom participantCell: CallParticipantViewCell, showOriginalSize: Bool) {
-        if let peerIdentifier = participantCell.peerIdentifier, let peerConnection = self.peerConnection(forPeerIdentifier: peerIdentifier) {
+        if let peerIdentifier = participantCell.peerIdentifier, let peerConnection = self.peerStore.peer(forPeerIdentifier: peerIdentifier) {
             peerConnection.showRemoteVideoInOriginalSize = showOriginalSize
         }
     }
@@ -653,10 +660,11 @@ class CallViewController: UIViewController,
         dataSource.apply(snapshot, animatingDifferences: false)
     }
 
+    // Sorts the participants and shows them in the collection view
     func updateSnapshot(crossfade: Bool = false) {
         var snapshot = NSDiffableDataSourceSnapshot<CallViewSection, NCPeerConnection>()
         snapshot.appendSections([.main])
-        snapshot.appendItems(peersInCall)
+        snapshot.appendItems(self.sortedPeers())
 
         if crossfade {
             // Fade to the new arrangement instead of animating tiles between the
@@ -670,21 +678,34 @@ class CallViewController: UIViewController,
         }
 
         // Switching the view mode is only useful when not all participants can be promoted anyway
-        self.viewModeButton.isHidden = peersInCall.count <= 1
+        self.viewModeButton.isHidden = peerStore.peers.count <= 1
 
         self.setCallStateForPeersInCall()
         self.updateSimulcastVideoQualities()
         self.setNeedsRemoteVideoVisibilityUpdate()
+
+        // The presenter might have been a pending insert until now
+        self.updatePresenterView()
+    }
+
+    // The participants of the store in the order currently shown, participants that are not shown yet come last
+    private func displayedPeers() -> [NCPeerConnection] {
+        var notShownYet = Dictionary(uniqueKeysWithValues: peerStore.peers.map { ($0.peerIdentifier, $0) })
+
+        // Taken from the store, so a peer that was replaced for the same participant is not shown anymore
+        let shown = dataSource.snapshot().itemIdentifiers.compactMap { notShownYet.removeValue(forKey: $0.peerIdentifier) }
+
+        return shown + peerStore.peers.filter { notShownYet[$0.peerIdentifier] != nil }
     }
 
     func priority(for peerConnection: NCPeerConnection) -> (Int, Int) {
         // 1. Screen sharers
-        if screenRenderersDict[peerConnection.peerId] != nil {
+        if peerStore.isSharingScreen(peerConnection) {
             return (0, peerConnection.addedTime)
         }
 
         // 2. Speakers (respecting order in speakers array)
-        if let speakerIndex = speakers.firstIndex(of: peerConnection) {
+        if let speakerIndex = peerStore.speakers.firstIndex(of: peerConnection) {
             return (1, speakerIndex)
         }
 
@@ -701,24 +722,28 @@ class CallViewController: UIViewController,
         return (4, peerConnection.addedTime)
     }
 
-    func sortPeersInCall() {
+    private func sortedPeers() -> [NCPeerConnection] {
+        var peers = self.displayedPeers()
+
         // In speaker view the promoted participant is always the first item, the order
         // of the other participants in the stripe is kept stable
         if callViewMode == .speaker {
             // Swap instead of moving to the front, so the demoted participant takes
             // the stripe slot the promoted one vacated and all other stripe tiles keep
             // their position
-            if let index = peersInCall.firstIndex(where: { $0.peerIdentifier == promotedPeerIdentifier }), index != 0 {
-                peersInCall.swapAt(0, index)
+            if let index = peers.firstIndex(where: { $0.peerIdentifier == promotedPeerIdentifier }), index != 0 {
+                peers.swapAt(0, index)
             }
 
-            return
+            return peers
         }
 
         // Only sort participants if the collection view is scrollable (not all participants fit in the screen)
         if collectionView.contentSize.height > collectionView.bounds.height {
-            peersInCall.sort { priority(for: $0) < priority(for: $1) }
+            return peers.sorted { priority(for: $0) < priority(for: $1) }
         }
+
+        return peers
     }
 
     // MARK: - Call view mode
@@ -771,12 +796,11 @@ class CallViewController: UIViewController,
 
             if mode == .speaker {
                 // Promote the current or last known speaker, otherwise the first participant
-                if !self.peersInCall.contains(where: { $0.peerIdentifier == self.promotedPeerIdentifier }) {
+                if !self.peerStore.contains(peerIdentifier: self.promotedPeerIdentifier) {
                     self.promotedPeerIdentifier = self.initialPromotedPeer()?.peerIdentifier
                 }
 
                 self.speakerLayout.isStripeHidden = self.isStripeHiddenInSpeakerView
-                self.sortPeersInCall()
                 self.updateSnapshot()
                 self.collectionView.setCollectionViewLayout(self.speakerLayout, animated: true)
             } else {
@@ -803,9 +827,11 @@ class CallViewController: UIViewController,
     }
 
     private func initialPromotedPeer() -> NCPeerConnection? {
-        return peersInCall.first(where: { $0.isPeerSpeaking })
-            ?? speakers.first(where: { peersInCall.contains($0) })
-            ?? peersInCall.first
+        let peers = displayedPeers()
+
+        return peers.first(where: { $0.isPeerSpeaking })
+            ?? peerStore.speakers.first(where: { peerStore.contains($0) })
+            ?? peers.first
     }
 
     func promotePeerInSpeakerView(_ peer: NCPeerConnection) {
@@ -816,8 +842,7 @@ class CallViewController: UIViewController,
 
             // The peer might not be added to the collection view yet,
             // in that case it is pinned when the pending insert is processed
-            if self.peersInCall.contains(peer) {
-                self.sortPeersInCall()
+            if self.peerStore.contains(peer) {
                 self.updateSnapshot(crossfade: true)
             }
         }
@@ -828,7 +853,7 @@ class CallViewController: UIViewController,
             // When the promoted participant stops speaking, hand the promotion over to a
             // participant that is still speaking (see _setSpeaking in CallView.vue of the web client)
             guard self.callViewMode == .speaker, self.promotedPeerIdentifier == peer.peerIdentifier,
-                  let nextSpeaker = self.peersInCall.first(where: { $0.isPeerSpeaking && $0.peerIdentifier != peer.peerIdentifier })
+                  let nextSpeaker = self.displayedPeers().first(where: { $0.isPeerSpeaking && $0.peerIdentifier != peer.peerIdentifier })
             else { return }
 
             self.promotePeerInSpeakerView(nextSpeaker)
@@ -844,15 +869,9 @@ class CallViewController: UIViewController,
             // Do not add to speakers or resort if participant is already visible.
             if isVisible { return }
 
-            // If already in speakers and not visible, promote to the first position.
-            // Skip reordering if already at the top.
-            if let index = self.speakers.firstIndex(of: peerConnection) {
-                guard index != 0 else { return }
-                self.speakers.remove(at: index)
-            }
-            self.speakers.insert(peerConnection, at: 0)
+            // Skip reordering if already the most recent speaker
+            guard self.peerStore.addSpeaker(peerConnection) else { return }
 
-            self.sortPeersInCall()
             self.updateSnapshot()
         }
     }
@@ -861,12 +880,17 @@ class CallViewController: UIViewController,
 
     // Based on adjustSimulcastQualityForParticipant in CallView.vue of the web client
     private func simulcastVideoQuality(for peer: NCPeerConnection) -> SimulcastVideoQuality {
-        if let simulcastDebugQuality {
+        if let simulcastDebugQuality = debugController.simulcastQualityOverride {
             return simulcastDebugQuality
         }
 
-        if isPiPActive {
+        if pipCoordinator.isActive {
             // Only the small Picture in Picture window is visible
+            return .low
+        }
+
+        if !screensharingView.isHidden {
+            // Only the presenter is visible, in a small tile
             return .low
         }
 
@@ -875,13 +899,13 @@ class CallViewController: UIViewController,
         }
 
         // Unlike web, a single participant is shown fullscreen in the grid
-        return peersInCall.count == 1 ? .high : .medium
+        return peerStore.peers.count == 1 ? .high : .medium
     }
 
     private func updateSimulcastVideoQualities() {
         guard let callController else { return }
 
-        for peer in peersInCall {
+        for peer in peerStore.peers {
             callController.setSimulcastVideoQuality(simulcastVideoQuality(for: peer), forPeerId: peer.peerId)
         }
     }
@@ -900,14 +924,20 @@ class CallViewController: UIViewController,
     }
 
     private func visibleVideoPeerIds() -> Set<String> {
-        if isPiPActive {
-            guard let pipPeerIdentifier, let pipPeer = self.peerConnection(forPeerIdentifier: pipPeerIdentifier) else { return [] }
+        if pipCoordinator.isActive {
+            guard let pipPeer = self.pipCoordinator.shownPeer else { return [] }
 
             return [pipPeer.peerId]
         }
 
-        // A presented screen share covers all participants
-        guard UIApplication.shared.applicationState != .background, screensharingView.isHidden else { return [] }
+        guard UIApplication.shared.applicationState != .background else { return [] }
+
+        // A presented screen share covers all participants except the presenter tile
+        if !screensharingView.isHidden {
+            guard !presenterView.isHidden, !presenterView.isCollapsed, let presenter = presentedScreenPresenter else { return [] }
+
+            return [presenter.peerId]
+        }
 
         return Set(collectionView.indexPathsForVisibleItems.compactMap { dataSource.itemIdentifier(for: $0)?.peerId })
     }
@@ -916,14 +946,14 @@ class CallViewController: UIViewController,
     private func updateRemoteVideoVisibility() {
         guard let callController else { return }
 
-        let peerIds = Set(peersInCall.map { $0.peerId })
+        let peerIds = Set(peerStore.peers.map { $0.peerId })
         let visiblePeerIds = self.visibleVideoPeerIds()
 
         for peerId in remoteVideoBlockWorkItems.keys where !peerIds.contains(peerId) {
             remoteVideoBlockWorkItems.removeValue(forKey: peerId)?.cancel()
         }
 
-        if let remoteVideoBlockedDebugOverride {
+        if let remoteVideoBlockedDebugOverride = debugController.remoteVideoBlockedOverride {
             for peerId in peerIds {
                 remoteVideoBlockWorkItems.removeValue(forKey: peerId)?.cancel()
                 callController.setRemoteVideoBlocked(remoteVideoBlockedDebugOverride, forPeerId: peerId)
@@ -948,366 +978,12 @@ class CallViewController: UIViewController,
         }
     }
 
-    // MARK: - Debug menu
-
-    private func getDebugMenu() -> UIMenu {
-        let qualityOptions: [(String, SimulcastVideoQuality?)] = [("Automatic", nil), ("Low", .low), ("Medium", .medium), ("High", .high)]
-        let qualityActions = qualityOptions.map { title, quality in
-            let action = UIAction(title: title) { [unowned self] _ in
-                self.simulcastDebugQuality = quality
-                self.updateSimulcastVideoQualities()
-            }
-            action.state = quality == simulcastDebugQuality ? .on : .off
-            return action
-        }
-
-        let blockingOptions: [(String, Bool?)] = [("Automatic", nil), ("Block all", true), ("Block none", false)]
-        let blockingActions = blockingOptions.map { title, blocked in
-            let action = UIAction(title: title) { [unowned self] _ in
-                self.remoteVideoBlockedDebugOverride = blocked
-                self.updateRemoteVideoVisibility()
-            }
-            action.state = blocked == remoteVideoBlockedDebugOverride ? .on : .off
-            return action
-        }
-
-        let statsAction = UIAction(title: "Connection stats", image: .init(systemName: "chart.bar.xaxis")) { [unowned self] _ in
-            self.setConnectionStatsVisible(self.connectionStatsTimer == nil)
-        }
-        statsAction.state = connectionStatsTimer != nil ? .on : .off
-
-        let debugInfoAction = UIAction(title: "Show debug info", image: .init(systemName: "doc.text.magnifyingglass")) { [unowned self] _ in
-            self.showDebugInfo()
-        }
-
-        var connectionActions: [UIMenuElement] = []
-
-        // The ICE transport policy is set when a peer connection is created, so reconnect to apply it
-        let relayOnlyAction = UIAction(title: "Relay only (TURN)", subtitle: "Reconnects the call") { [unowned self] _ in
-            CallDebugSettings.relayOnlyIceCandidates.toggle()
-            self.callController?.forceReconnect()
-        }
-        relayOnlyAction.state = CallDebugSettings.relayOnlyIceCandidates ? .on : .off
-        connectionActions.append(relayOnlyAction)
-
-        if callController?.usesExternalSignaling == true {
-            connectionActions.append(UIAction(title: "Drop signaling connection", subtitle: "Like a network loss", attributes: .destructive) { [unowned self] _ in
-                self.callController?.simulateSignalingConnectionLoss()
-            })
-        }
-
-        connectionActions.append(UIAction(title: "Force reconnect", attributes: .destructive) { [unowned self] _ in
-            self.callController?.forceReconnect()
-        })
-
-        return UIMenu(title: "Debug", image: .init(systemName: "ladybug"), children: [
-            UIMenu(title: "", options: .displayInline, children: [statsAction, debugInfoAction]),
-            UIMenu(title: "Connection", options: .displayInline, children: connectionActions),
-            UIMenu(title: "Simulcast quality", subtitle: qualityOptions.first(where: { $0.1 == simulcastDebugQuality })?.0, image: .init(systemName: "square.3.layers.3d"), children: qualityActions),
-            UIMenu(title: "Remote video", subtitle: blockingOptions.first(where: { $0.1 == remoteVideoBlockedDebugOverride })?.0, image: .init(systemName: "video.slash"), children: blockingActions)
-        ])
-    }
-
-    private func setConnectionStatsVisible(_ visible: Bool) {
-        connectionStatsTimer?.invalidate()
-        connectionStatsTimer = nil
-        connectionStatsReports = [:]
-        connectionStatsTexts = [:]
-
-        for case let cell as CallParticipantViewCell in collectionView.visibleCells {
-            cell.debugStatsText = nil
-        }
-
-        guard visible else { return }
-
-        connectionStatsTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
-            self?.updateConnectionStats()
-        }
-
-        updateConnectionStats()
-    }
-
-    private func updateConnectionStats() {
-        let peers = peersInCall
-
-        WebRTCCommon.shared.dispatch {
-            CallDebugInfo.statistics(of: peers) { reports in
-                DispatchQueue.main.async { [weak self] in
-                    guard let self, self.connectionStatsTimer != nil else { return }
-
-                    var newReports = [String: RTCStatisticsReport]()
-                    var newTexts = [String: String]()
-
-                    for peer in peers {
-                        guard let report = reports[ObjectIdentifier(peer)] else { continue }
-
-                        let text = CallStatsReport(report: report, previous: self.connectionStatsReports[peer.peerIdentifier]).tileSummary
-                        newReports[peer.peerIdentifier] = report
-                        newTexts[peer.peerIdentifier] = text
-
-                        if let indexPath = self.indexPath(forPeerIdentifier: peer.peerIdentifier),
-                           let cell = self.collectionView.cellForItem(at: indexPath) as? CallParticipantViewCell {
-                            cell.debugStatsText = text
-                        }
-                    }
-
-                    self.connectionStatsReports = newReports
-                    self.connectionStatsTexts = newTexts
-                }
-            }
-        }
-    }
-
-    private func showDebugInfo() {
-        guard let callController else { return }
-
-        let bundleInfo = Bundle.main.infoDictionary
-        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId)
-        let talkCapabilities = NCDatabaseManager.sharedInstance().roomTalkCapabilities(for: room)
-
-        var lines = [
-            "== Talk iOS call debug info ==",
-            "Date: \(ISO8601DateFormatter().string(from: Date()))",
-            "App: \(bundleInfo?["CFBundleShortVersionString"] ?? "?") (\(bundleInfo?["CFBundleVersion"] ?? "?")), iOS \(UIDevice.current.systemVersion)",
-            "Server: \(account.server), Nextcloud \(serverCapabilities?.version ?? "?"), Talk \(talkCapabilities?.talkVersion ?? "?")",
-            "HPB version: \(serverCapabilities?.externalSignalingServerVersion ?? "?")",
-            "Room: \(room.token), type \(room.type.rawValue), participant flags \(room.participantFlags.rawValue)",
-            "",
-            "== View ==",
-            "Audio only: \(isAudioOnly), view mode: \(callViewMode.rawValue), promoted: \(promotedPeerIdentifier ?? "none"), PiP: \(isPiPActive)",
-            "Participants shown: \(peersInCall.count), screens: \(screenPeersInCall.count)",
-            "Debug overrides: simulcast \(simulcastDebugQuality.map { "\($0)" } ?? "automatic"), remote video blocked \(remoteVideoBlockedDebugOverride.map { "\($0)" } ?? "automatic")",
-            ""
-        ]
-
-        NotificationPresenter.shared().present(text: "Collecting debug info…", dismissAfterDelay: 1.0, includedStyle: .dark)
-
-        callController.collectDebugInfo { [weak self] callInfo in
-            guard let self else { return }
-
-            lines.append(callInfo)
-            let debugInfo = lines.joined(separator: "\n")
-
-            let textViewController = MessageTextViewController(messageText: debugInfo)
-            textViewController.loadViewIfNeeded()
-            textViewController.messageTextView.font = .monospacedSystemFont(ofSize: 12, weight: .regular)
-            textViewController.navigationItem.rightBarButtonItem = UIBarButtonItem(title: NSLocalizedString("Copy", comment: ""), primaryAction: UIAction { _ in
-                UIPasteboard.general.string = debugInfo
-                NotificationPresenter.shared().present(text: "Debug info copied", dismissAfterDelay: 3.0, includedStyle: .dark)
-            })
-
-            self.present(NCNavigationController(rootViewController: textViewController), animated: true)
-        }
-    }
-
     // MARK: - Picture in Picture
 
     func setupPictureInPicture() {
-        guard !isAudioOnly, AVPictureInPictureController.isPictureInPictureSupported() else { return }
+        guard !isAudioOnly else { return }
 
-        self.createPictureInPicture(withInitialContentSize: CallPiPViewController.defaultContentSize)
-    }
-
-    private func createPictureInPicture(withInitialContentSize contentSize: CGSize) {
-        // The initial window scale is determined from the preferred content size the
-        // content view controller was created with (see CallPiPViewController.init),
-        // so both the view controller and the controller need to be recreated when the
-        // expected video size changes before Picture in Picture is started
-        self.pipController?.contentSource = nil
-
-        let pipViewController = CallPiPViewController(initialContentSize: contentSize)
-        let contentSource = AVPictureInPictureController.ContentSource(activeVideoCallSourceView: self.collectionView, contentViewController: pipViewController)
-        let pipController = AVPictureInPictureController(contentSource: contentSource)
-
-        // Start Picture in Picture automatically when the app is moved to the background during a call
-        pipController.canStartPictureInPictureAutomaticallyFromInline = true
-        pipController.delegate = self
-
-        self.pipViewController = pipViewController
-        self.pipController = pipController
-    }
-
-    // Recreate Picture in Picture when the video size of the expected initial participant
-    // does not match the current content size, so the window has the correct scale and
-    // aspect on the very first start (see createPictureInPicture). Called when a video
-    // size changes, but also when peers are added: a size reported while its peer was
-    // still a pending insert is skipped here, because initialPiPPeer can't return it yet
-    private func recreatePictureInPictureIfNeeded() {
-        guard !isPiPActive, UIApplication.shared.applicationState == .active,
-              let pipViewController,
-              let initialPeerIdentifier = initialPiPPeer()?.peerIdentifier,
-              let rendererView = videoRenderersDict[initialPeerIdentifier],
-              let expectedContentSize = CallPiPViewController.normalizedContentSize(for: rendererView.frame.size),
-              expectedContentSize != pipViewController.preferredContentSize
-        else { return }
-
-        self.createPictureInPicture(withInitialContentSize: expectedContentSize)
-    }
-
-    private func stopPictureInPicture() {
-        guard let pipController else { return }
-
-        self.isPiPActive = false
-        self.pipPeerIdentifier = nil
-        self.detachPiPRenderer()
-        self.detachPiPLocalRenderer()
-        self.updateSimulcastVideoQualities()
-        self.setNeedsRemoteVideoVisibilityUpdate()
-
-        if pipController.isPictureInPictureActive {
-            pipController.stopPictureInPicture()
-        }
-
-        pipController.contentSource = nil
-        self.pipController = nil
-        self.pipViewController = nil
-    }
-
-    private func initialPiPPeer() -> NCPeerConnection? {
-        // In speaker view the participant shown in Picture in Picture follows the promoted one,
-        // otherwise it is determined like the initially promoted participant in speaker view
-        if callViewMode == .speaker, let promotedPeer = peersInCall.first(where: { $0.peerIdentifier == promotedPeerIdentifier }) {
-            return promotedPeer
-        }
-
-        return initialPromotedPeer()
-    }
-
-    func promotePeerInPiP(_ peer: NCPeerConnection) {
-        DispatchQueue.main.async {
-            guard self.isPiPActive, self.pipPeerIdentifier != peer.peerIdentifier else { return }
-
-            self.pipPeerIdentifier = peer.peerIdentifier
-            self.updatePiPContent()
-        }
-    }
-
-    func promoteNextSpeakerInPiPIfNeeded(_ peer: NCPeerConnection) {
-        DispatchQueue.main.async {
-            // When the participant shown in Picture in Picture stops speaking, hand the
-            // promotion over to a participant that is still speaking (same as in speaker view)
-            guard self.isPiPActive, self.pipPeerIdentifier == peer.peerIdentifier,
-                  let nextSpeaker = self.peersInCall.first(where: { $0.isPeerSpeaking && $0.peerIdentifier != peer.peerIdentifier })
-            else { return }
-
-            self.promotePeerInPiP(nextSpeaker)
-        }
-    }
-
-    private func updatePiPPeerIfNeeded() {
-        guard isPiPActive else { return }
-
-        // Make sure the participant shown in Picture in Picture is still in the call
-        if !peersInCall.contains(where: { $0.peerIdentifier == pipPeerIdentifier }) {
-            pipPeerIdentifier = initialPiPPeer()?.peerIdentifier
-        }
-
-        self.updatePiPContent()
-    }
-
-    private func updatePiPContentIfNeeded(for peer: NCPeerConnection) {
-        DispatchQueue.main.async {
-            guard self.isPiPActive, self.pipPeerIdentifier == peer.peerIdentifier else { return }
-
-            self.updatePiPContent()
-        }
-    }
-
-    private func reattachPiPRendererIfNeeded(for peer: NCPeerConnection) {
-        DispatchQueue.main.async {
-            guard self.isPiPActive, self.pipPeerIdentifier == peer.peerIdentifier else { return }
-
-            // A new remote stream was added for the shown participant,
-            // so the renderer needs to be attached to the new video track
-            self.detachPiPRenderer()
-            self.updatePiPContent()
-        }
-    }
-
-    private func updatePiPContent() {
-        self.setNeedsRemoteVideoVisibilityUpdate()
-
-        guard isPiPActive, let pipViewController else { return }
-
-        guard let peer = peersInCall.first(where: { $0.peerIdentifier == pipPeerIdentifier }) else {
-            if peersInCall.isEmpty {
-                // No other participant in the call, show the conversation avatar and name
-                self.detachPiPRenderer()
-                pipViewController.showPlaceholder(for: self.room)
-            }
-
-            // Otherwise the participant was not added to the collection view yet,
-            // in that case the content is updated when the pending insert is processed
-
-            return
-        }
-
-        if pipRendererAttachedPeer !== peer {
-            self.detachPiPRenderer()
-            self.pipRendererAttachedPeer = peer
-
-            WebRTCCommon.shared.dispatch {
-                peer.getRemoteStream()?.videoTracks.first?.add(pipViewController.videoRenderView)
-            }
-        }
-
-        pipViewController.setVideoDisabled(peer.isRemoteVideoDisabled || !peer.hasRemoteStream())
-
-        WebRTCCommon.shared.dispatch {
-            let actor = self.callController?.getActor(fromSessionId: peer.peerId) ?? TalkActor()
-
-            if actor.rawDisplayName.isEmpty, let peerName = peer.peerName, !peerName.isEmpty {
-                actor.rawDisplayName = peerName
-            }
-
-            DispatchQueue.main.async {
-                pipViewController.setAvatar(for: actor, using: self.account)
-            }
-        }
-    }
-
-    private func detachPiPRenderer() {
-        guard let pipViewController else { return }
-
-        if let attachedPeer = pipRendererAttachedPeer {
-            WebRTCCommon.shared.dispatch {
-                attachedPeer.getRemoteStream()?.videoTracks.first?.remove(pipViewController.videoRenderView)
-            }
-        }
-
-        self.pipRendererAttachedPeer = nil
-        pipViewController.videoRenderView.flush()
-    }
-
-    private func attachPiPLocalRendererIfNeeded() {
-        guard isPiPActive, let callController, let pipViewController,
-              callController.isCameraUsableWhileInBackground()
-        else { return }
-
-        self.pipLocalRendererAttached = true
-
-        pipViewController.localVideoRenderView.isMirrored = callController.isUsingFrontCamera()
-        callController.attachRenderer(toLocalVideoTrack: pipViewController.localVideoRenderView)
-
-        callController.getVideoEnabledState { isEnabled in
-            DispatchQueue.main.async {
-                guard self.pipLocalRendererAttached else { return }
-
-                pipViewController.setLocalVideoHidden(!isEnabled)
-            }
-        }
-    }
-
-    private func detachPiPLocalRenderer() {
-        guard let pipViewController else { return }
-
-        if pipLocalRendererAttached {
-            callController?.detachRenderer(fromLocalVideoTrack: pipViewController.localVideoRenderView)
-        }
-
-        self.pipLocalRendererAttached = false
-        pipViewController.setLocalVideoHidden(true)
-        pipViewController.localVideoRenderView.flush()
+        self.pipCoordinator.setup(sourceView: self.collectionView)
     }
 
     func updateParticipantCell(cell: CallParticipantViewCell, withPeerConnection peerConnection: NCPeerConnection) {
@@ -1317,7 +993,7 @@ class CallViewController: UIViewController,
             isVideoDisabled = true
         }
 
-        if let videoView = videoRenderersDict[peerConnection.peerIdentifier] {
+        if let videoView = peerStore.videoRenderer(forPeerIdentifier: peerConnection.peerIdentifier) {
             cell.setVideoView(videoView)
 
             // It is possible that we receive a `didChangeVideoSize` call, while the participant cell was not yet shown,
@@ -1333,20 +1009,16 @@ class CallViewController: UIViewController,
 
         cell.displayName = peerConnection.peerName
         cell.audioDisabled = peerConnection.isRemoteAudioDisabled
-        cell.screenShared = screenRenderersDict[peerConnection.peerId] != nil
+        cell.screenShared = peerStore.isSharingScreen(peerConnection)
         cell.videoDisabled = isVideoDisabled
         cell.showOriginalSize = peerConnection.showRemoteVideoInOriginalSize
         cell.setRaiseHand(peerConnection.isHandRaised)
-        cell.debugStatsText = connectionStatsTexts[peerConnection.peerIdentifier]
+        cell.debugStatsText = debugController.connectionStatsText(forPeerIdentifier: peerConnection.peerIdentifier)
         cell.peerNameLabel.alpha = isDetailedViewVisible ? 1.0 : 0.0
         cell.audioOffIndicator.alpha = isDetailedViewVisible ? 1.0 : 0.0
 
         WebRTCCommon.shared.dispatch {
-            let actor = self.callController?.getActor(fromSessionId: peerConnection.peerId) ?? TalkActor()
-
-            if actor.rawDisplayName.isEmpty, let peerName = peerConnection.peerName, !peerName.isEmpty {
-                actor.rawDisplayName = peerName
-            }
+            let actor = NCCallController.actor(for: peerConnection, using: self.callController)
 
             let connectionState: RTCIceConnectionState = peerConnection.isDummyPeer ? .connected : peerConnection.getPeerConnection()?.iceConnectionState ?? .new
 
@@ -1358,9 +1030,10 @@ class CallViewController: UIViewController,
     }
 
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        guard let participantCell = cell as? CallParticipantViewCell else { return }
+        guard let participantCell = cell as? CallParticipantViewCell,
+              let peerConnection = dataSource.itemIdentifier(for: indexPath)
+        else { return }
 
-        let peerConnection = peersInCall[indexPath.row]
         self.updateParticipantCell(cell: participantCell, withPeerConnection: peerConnection)
         self.setNeedsRemoteVideoVisibilityUpdate()
     }
@@ -1459,12 +1132,7 @@ class CallViewController: UIViewController,
                 self.disableLocalVideo()
             }
 
-            // The local video track might have been recreated while in Picture in Picture
-            // (e.g. when reconnecting a call), so the renderer needs to be attached to the new track
-            if self.pipLocalRendererAttached {
-                self.detachPiPLocalRenderer()
-                self.attachPiPLocalRendererIfNeeded()
-            }
+            self.pipCoordinator.reattachLocalRendererIfNeeded()
         }
 
         #if targetEnvironment(simulator)
@@ -1504,7 +1172,7 @@ class CallViewController: UIViewController,
             }
 
             if remotePeer.roomType == kRoomTypeVideo {
-                self.videoRenderersDict[remotePeer.peerIdentifier] = renderView
+                self.peerStore.setVideoRenderer(renderView, forPeerIdentifier: remotePeer.peerIdentifier)
 
                 if self.indexPath(forPeerIdentifier: remotePeer.peerIdentifier) != nil {
                     // This peer already exists in the collection view, so we can just update its cell
@@ -1519,17 +1187,22 @@ class CallViewController: UIViewController,
                     self.addPeer(remotePeer)
                 }
 
-                self.reattachPiPRendererIfNeeded(for: remotePeer)
+                self.pipCoordinator.reattachRendererIfNeeded(for: remotePeer)
+
+                if self.presenterRendererAttachedPeer === remotePeer {
+                    // The renderer needs to be attached to the new video track
+                    self.detachPresenterRenderer()
+                    self.updatePresenterView()
+                }
             } else if remotePeer.roomType == kRoomTypeScreen {
-                self.screenRenderersDict[remotePeer.peerId] = renderView
-                self.screenPeersInCall.append(remotePeer)
+                self.peerStore.setScreenRenderer(renderView, forPeerId: remotePeer.peerId)
+                self.peerStore.addScreenPeer(remotePeer)
                 self.showScreenOfPeer(remotePeer)
 
                 self.updatePeer(remotePeer) { cell in
                     cell.screenShared = true
                 }
 
-                self.sortPeersInCall()
                 self.updateSnapshot()
             }
         }
@@ -1571,21 +1244,24 @@ class CallViewController: UIViewController,
                     cell.videoDisabled = peer.isRemoteVideoDisabled
                 }
 
-                self.updatePiPContentIfNeeded(for: peer)
+                self.pipCoordinator.updateContentIfNeeded(for: peer)
+                self.updatePresenterViewIfNeeded(for: peer)
             }
         case "speaking", "stoppedSpeaking":
-            if peersInCall.count > 1 {
+            self.updatePresenterViewIfNeeded(for: peer)
+
+            if peerStore.peers.count > 1 {
                 self.updatePeer(peer) { cell in
                     cell.setSpeaking(peer.isPeerSpeaking)
                 }
                 // Add to speakers and sort participants if needed
                 if message == "speaking" {
                     self.promotePeerInSpeakerView(peer)
-                    self.promotePeerInPiP(peer)
+                    self.pipCoordinator.promote(peer)
                     self.addSpeakerAndPromoteIfNeeded(peer)
                 } else {
                     self.promoteNextSpeakerInSpeakerViewIfNeeded(peer)
-                    self.promoteNextSpeakerInPiPIfNeeded(peer)
+                    self.pipCoordinator.promoteNextSpeakerIfNeeded(after: peer)
                 }
             }
         case "raiseHand":
@@ -1602,11 +1278,11 @@ class CallViewController: UIViewController,
             cell.displayName = nick
         }
 
-        self.updatePiPContentIfNeeded(for: peer)
-
-        if peer.peerId == self.presentedScreenPeerId {
-            DispatchQueue.main.async {
-                self.screenshareLabel.text = nick
+        self.pipCoordinator.updateContentIfNeeded(for: peer)
+        DispatchQueue.main.async {
+            if peer.peerId == self.presentedScreenPeerId {
+                self.updateScreenshareLabel()
+                self.updatePresenterAvatar()
             }
         }
     }
@@ -1639,18 +1315,13 @@ class CallViewController: UIViewController,
     func callControllerIsReconnectingCall(_ callController: NCCallController) {
         DispatchQueue.main.async {
             // Cancel any pending operations
-            self.pendingPeerInserts = []
-            self.pendingPeerDeletions = []
             self.pendingPeerUpdates = []
-            self.peersInCall = []
+            self.peerStore.removeAllPeers()
             self.promotedPeerIdentifier = nil
-
-            // Reset a potential queued batch update
-            self.batchUpdateTimer?.invalidate()
-            self.batchUpdateTimer = nil
 
             // Force the collectionView to reload all data
             self.applyInitialSnapshot()
+            self.updatePresenterView()
 
             self.setCallState(.reconnecting)
         }
@@ -1672,7 +1343,10 @@ class CallViewController: UIViewController,
                 notificationText = NSLocalizedString("Call recording is starting", comment: "")
             } else if self.room.callRecording == .videoRunning || self.room.callRecording == .audioRunning {
                 notificationText = NSLocalizedString("Call recording started", comment: "")
-            } else if self.room.callRecording == .failed && self.room.isUserOwnerOrModerator {
+            } else if self.room.callRecording == .failed {
+                // Only moderators can act on a failed recording, for everyone else it never started
+                guard self.room.isUserOwnerOrModerator else { return }
+
                 notificationText = NSLocalizedString("Call recording failed. Please contact your administrator", comment: "")
             }
 
@@ -1693,7 +1367,14 @@ class CallViewController: UIViewController,
         NCRoomsManager.shared.updateRoom(token, forAccount: self.account) { roomDict, error in
             guard error == nil, let newRoom = NCRoom(dictionary: roomDict, andAccountId: self.room.accountId)
             else {
-                print("Error getting room to switch")
+                DispatchQueue.main.async {
+                    // The current call was already left at this point, so there is nothing to go back to
+                    self.callController = nil
+                    self.showChatAfterRoomSwitch = false
+                    NotificationPresenter.shared().present(text: NSLocalizedString("Could not switch to the other conversation", comment: ""), dismissAfterDelay: 7.0, includedStyle: .error)
+                    self.hangup(forAll: false)
+                }
+
                 return
             }
 
@@ -1720,6 +1401,9 @@ class CallViewController: UIViewController,
 
                 // A force mute only applies to the call we are leaving
                 self.forceMutedUntil = .distantPast
+
+                // The raised hand belongs to the call we are leaving as well
+                self.isHandRaised = false
 
                 // Forget current call controller
                 self.callController = nil
@@ -1879,7 +1563,7 @@ class CallViewController: UIViewController,
     // MARK: - User Interface
 
     public func setCallStateForPeersInCall() {
-        if self.peersInCall.isEmpty {
+        if self.peerStore.peers.isEmpty {
             if self.currentCallState == .inCall {
                 self.setCallState(.waitingParticipants)
             }
@@ -1891,10 +1575,12 @@ class CallViewController: UIViewController,
 
         guard self.room.type != .oneToOne, let personImage = UIImage(systemName: "person.2") else { return }
 
+        let peers = self.peerStore.peers
+
         WebRTCCommon.shared.dispatch {
             var participantsInCall: [TalkActor] = []
 
-            self.peersInCall.forEach { peerConnection in
+            peers.forEach { peerConnection in
                 if let actor = self.callController?.getActor(fromSessionId: peerConnection.peerId) {
                     participantsInCall.append(actor)
                 }
@@ -2065,29 +1751,10 @@ class CallViewController: UIViewController,
                 self.titleView.isHidden = true
             } else {
                 self.setHangUpButtonWithTitle(true)
+                self.titleView.isHidden = false
             }
 
-            if !self.reactionButton.isHidden {
-                // Need to update the layout again, if we changed it here
-                self.bottomBarView.setNeedsLayout()
-                self.bottomBarView.layoutIfNeeded()
-
-                if self.bottomBarButtonStackView.frame.origin.x < 0 {
-                    self.reactionButton.isHidden = true
-                }
-            }
-
-            if !self.speakerButton.isHidden {
-                // Need to update the layout again, if we changed it here
-                self.bottomBarView.setNeedsLayout()
-                self.bottomBarView.layoutIfNeeded()
-
-                // Hide the speaker button to make some more room for higher priority buttons
-                // This should only be the case for iPhone SE (1st Gen) when recording is active and/or hand is raised
-                if self.bottomBarButtonStackView.frame.origin.x < 0 {
-                    self.speakerButton.isHidden = true
-                }
-            }
+            self.hideOverflowingBottomBarButtons()
 
             if (self.room.canModerate || self.room.type == .oneToOne),
                NCDatabaseManager.sharedInstance().serverHasTalkCapability(.publishingPermissions) {
@@ -2108,6 +1775,35 @@ class CallViewController: UIViewController,
 
                 self.hangUpButton.menu = UIMenu(children: [alternativeHangUpAction])
             }
+        }
+    }
+
+    // Hidden in this order when the bottom bar is too narrow, the more menu offers each of them instead
+    private var bottomBarOverflowButtons: [UIButton] {
+        return [reactionButton, speakerButton, lowerHandButton]
+    }
+
+    // Computed instead of measured, so it doesn't depend on a layout pass having happened yet
+    private func hideOverflowingBottomBarButtons() {
+        let barWidth = bottomBarView.bounds.width
+        guard barWidth > 0 else { return }
+
+        // Matches the width constraints of the buttons in the xib
+        let buttonWidth: CGFloat = 44
+        let margin: CGFloat = 8
+        let spacing = bottomBarButtonStackView.spacing
+        let hangUpButtonWidth = max(hangUpButton.intrinsicContentSize.width, 48)
+
+        // The stack view may move from the center up to the leading edge, but must keep its gap to the hang up button
+        let availableWidth = barWidth - hangUpButtonWidth - 2 * margin
+        var visibleButtonCount = bottomBarButtonStackView.arrangedSubviews.filter { !$0.isHidden }.count
+
+        for button in bottomBarOverflowButtons where !button.isHidden {
+            let requiredWidth = CGFloat(visibleButtonCount) * buttonWidth + CGFloat(max(visibleButtonCount - 1, 0)) * spacing
+            guard requiredWidth > availableWidth else { break }
+
+            button.isHidden = true
+            visibleButtonCount -= 1
         }
     }
 
@@ -2316,7 +2012,7 @@ class CallViewController: UIViewController,
         }
 
         if TestEnvironment.isEnabled {
-            items.append(self.getDebugMenu())
+            items.append(self.debugController.menu())
         }
 
         return items
@@ -2445,10 +2141,6 @@ class CallViewController: UIViewController,
             self.callTimeLabel.text = String(format: "%lu:%02lu:%02lu", hours, minutes, seconds)
         } else {
             self.callTimeLabel.text = String(format: "%02lu:%02lu", minutes, seconds)
-        }
-
-        if self.bottomBarButtonStackView.frame.origin.x < 0 {
-            self.adjustBars()
         }
 
         if callDuration == oneHourInSeconds {
@@ -2608,9 +2300,7 @@ class CallViewController: UIViewController,
         self.setVideoDisableButtonActive(enabled)
 
         DispatchQueue.main.async {
-            if self.pipLocalRendererAttached {
-                self.pipViewController?.setLocalVideoHidden(!enabled)
-            }
+            self.pipCoordinator.setLocalVideoHidden(!enabled)
         }
     }
 
@@ -2706,7 +2396,7 @@ class CallViewController: UIViewController,
         self.moreMenuButton?.contextMenuInteraction?.dismissMenu()
         self.hangUpButton?.contextMenuInteraction?.dismissMenu()
 
-        self.stopPictureInPicture()
+        self.pipCoordinator.stop()
 
         self.delegate?.callViewControllerWantsToBeDismissed(self)
 
@@ -2714,30 +2404,16 @@ class CallViewController: UIViewController,
         localVideoViewWrapper.isHidden = true
 
         DispatchQueue.main.async {
-            for peerConnection in self.peersInCall {
-                let videoRenderer = self.videoRenderersDict[peerConnection.peerIdentifier]
-                self.videoRenderersDict.removeValue(forKey: peerConnection.peerIdentifier)
-
-                guard let videoRenderer else { continue }
-
+            for (peerConnection, renderer) in self.peerStore.removeAllRenderers() {
                 WebRTCCommon.shared.dispatch {
-                    peerConnection.getRemoteStream()?.videoTracks.first?.remove(videoRenderer)
+                    peerConnection.getRemoteStream()?.videoTracks.first?.remove(renderer)
                 }
             }
 
-            for peerConnection in self.screenPeersInCall {
-                let screenRenderer = self.screenRenderersDict[peerConnection.peerId]
-                self.screenRenderersDict.removeValue(forKey: peerConnection.peerId)
-
-                guard let screenRenderer else { continue }
-
-                WebRTCCommon.shared.dispatch {
-                    peerConnection.getRemoteStream()?.videoTracks.first?.remove(screenRenderer)
-                }
-            }
+            self.detachPresenterRenderer()
 
             self.callDurationTimer?.invalidate()
-            self.connectionStatsTimer?.invalidate()
+            self.debugController.stopConnectionStats()
         }
 
         if callController != nil {
@@ -2807,6 +2483,7 @@ class CallViewController: UIViewController,
 
         callController.upgradeToVideoCall()
         self.adjustBars()
+        self.updatePresenterView()
     }
 
     func switchToVoiceOnlyCall() {
@@ -2817,17 +2494,19 @@ class CallViewController: UIViewController,
 
         callController.downgradeToVoiceOnlyCall()
 
-        self.stopPictureInPicture()
+        self.pipCoordinator.stop()
 
         self.setLocalVideoViewWrapperHidden(true)
 
         // Remote videos are no longer received, so show the avatars of all participants again
         DispatchQueue.main.async {
-            for peer in self.peersInCall where peer.roomType == kRoomTypeVideo {
+            for peer in self.peerStore.peers where peer.roomType == kRoomTypeVideo {
                 self.updatePeer(peer) { cell in
                     cell.videoDisabled = true
                 }
             }
+
+            self.updatePresenterView()
         }
 
         self.adjustBars()
@@ -3034,7 +2713,7 @@ class CallViewController: UIViewController,
         callController = nil
 
         DispatchQueue.main.async {
-            self.stopPictureInPicture()
+            self.pipCoordinator.stop()
         }
 
         if videoCallUpgrade {
@@ -3138,70 +2817,225 @@ class CallViewController: UIViewController,
 
     // MARK: - Screensharing
 
+    private func setupScreensharingOverlays() {
+        presenterView.isHidden = true
+        presenterView.onCollapsedChanged = { [weak self] in
+            self?.setNeedsRemoteVideoVisibilityUpdate()
+        }
+
+        screensharingView.addSubview(presenterView)
+
+        let guide = screensharingView.safeAreaLayoutGuide
+        NSLayoutConstraint.activate([
+            presenterView.leadingAnchor.constraint(equalTo: guide.leadingAnchor, constant: 12),
+            presenterView.topAnchor.constraint(equalTo: guide.topAnchor, constant: 12)
+        ])
+
+        // Covers the presenter name, only shown while more than one participant shares their screen
+        screenshareSwitchButton.isHidden = true
+        screenshareSwitchButton.translatesAutoresizingMaskIntoConstraints = false
+        screenshareSwitchButton.showsMenuAsPrimaryAction = true
+        screenshareSwitchButton.menu = UIMenu(children: [UIDeferredMenuElement.uncached { [unowned self] completion in
+            completion(self.getScreenshareMenuItems())
+        }])
+        screenshareSwitchButton.accessibilityHint = NSLocalizedString("Double tap to choose which screen share is shown", comment: "")
+
+        screenshareLabelContainer.addSubview(screenshareSwitchButton)
+
+        NSLayoutConstraint.activate([
+            screenshareSwitchButton.leadingAnchor.constraint(equalTo: screenshareLabelContainer.leadingAnchor),
+            screenshareSwitchButton.trailingAnchor.constraint(equalTo: screenshareLabelContainer.trailingAnchor),
+            screenshareSwitchButton.topAnchor.constraint(equalTo: screenshareLabelContainer.topAnchor),
+            screenshareSwitchButton.bottomAnchor.constraint(equalTo: screenshareLabelContainer.bottomAnchor)
+        ])
+    }
+
+    // The participant whose screen share is presented, the screen peer itself has no name or camera
+    private var presentedScreenPresenter: NCPeerConnection? {
+        guard let presentedScreenPeerId else { return nil }
+
+        return self.peerStore.peer(forPeerId: presentedScreenPeerId)
+    }
+
+    private func screenshareDisplayName(forPeerId peerId: String) -> String {
+        if let presenter = self.peerStore.peer(forPeerId: peerId), let peerName = presenter.peerName, !peerName.isEmpty {
+            return peerName
+        }
+
+        return NSLocalizedString("Guest", comment: "")
+    }
+
+    private func getScreenshareMenuItems() -> [UIMenuElement] {
+        // Only the peer id is captured, since iOS 27 UIKit keeps the last resolved menu items alive
+        return peerStore.screenPeers.map { screenPeer in
+            let peerId = screenPeer.peerId
+            let action = UIAction(title: self.screenshareDisplayName(forPeerId: peerId), image: .init(systemName: "rectangle.inset.filled.on.rectangle")) { [unowned self] _ in
+                if let screenPeer = self.peerStore.screenPeer(forPeerId: peerId) {
+                    self.showScreenOfPeer(screenPeer)
+                }
+            }
+
+            action.state = peerId == presentedScreenPeerId ? .on : .off
+
+            return action
+        }
+    }
+
+    private func updateScreenshareLabel() {
+        guard let presentedScreenPeerId else { return }
+
+        let displayName = self.screenshareDisplayName(forPeerId: presentedScreenPeerId)
+        let canSwitch = peerStore.screenPeers.count > 1
+
+        screenshareSwitchButton.isHidden = !canSwitch
+        screenshareSwitchButton.accessibilityLabel = String(format: NSLocalizedString("Screen share of %@", comment: ""), displayName)
+
+        guard canSwitch, let chevronImage = UIImage(systemName: "chevron.up.chevron.down", withConfiguration: UIImage.SymbolConfiguration(font: screenshareLabel.font, scale: .small))
+        else {
+            screenshareLabel.text = displayName
+            return
+        }
+
+        let labelText = NSMutableAttributedString(string: displayName + " ", attributes: [.font: screenshareLabel.font as UIFont, .foregroundColor: screenshareLabel.textColor as UIColor])
+        labelText.append(NSAttributedString(attachment: NSTextAttachment(image: chevronImage.withTintColor(screenshareLabel.textColor, renderingMode: .alwaysOriginal))))
+        screenshareLabel.attributedText = labelText
+    }
+
+    private func updatePresenterView() {
+        guard !screensharingView.isHidden, let presenter = presentedScreenPresenter else {
+            presenterView.isHidden = true
+            self.detachPresenterRenderer()
+            presenterView.setPresenter(peerId: nil)
+            return
+        }
+
+        presenterView.isHidden = false
+        screensharingView.bringSubviewToFront(presenterView)
+
+        if presenterRendererAttachedPeer !== presenter {
+            self.detachPresenterRenderer()
+            self.presenterRendererAttachedPeer = presenter
+
+            // Does nothing when only the stream of the same presenter was replaced
+            presenterView.setPresenter(peerId: presenter.peerId)
+
+            let renderView = presenterView.videoRenderView
+
+            WebRTCCommon.shared.dispatch {
+                presenter.getRemoteStream()?.videoTracks.first?.add(renderView)
+            }
+
+            self.updatePresenterAvatar()
+        }
+
+        presenterView.setVideoDisabled(isAudioOnly || presenter.isRemoteVideoDisabled || !presenter.hasRemoteStream())
+        presenterView.setSpeaking(presenter.isPeerSpeaking)
+
+        self.setNeedsRemoteVideoVisibilityUpdate()
+    }
+
+    private func updatePresenterAvatar() {
+        guard let presenter = presenterRendererAttachedPeer else { return }
+
+        WebRTCCommon.shared.dispatch {
+            let actor = NCCallController.actor(for: presenter, using: self.callController)
+
+            DispatchQueue.main.async {
+                guard self.presenterRendererAttachedPeer === presenter else { return }
+
+                self.presenterView.setAvatar(for: actor, using: self.account)
+            }
+        }
+    }
+
+    private func updatePresenterViewIfNeeded(for peer: NCPeerConnection) {
+        DispatchQueue.main.async {
+            guard peer.peerId == self.presentedScreenPeerId else { return }
+
+            self.updatePresenterView()
+        }
+    }
+
+    private func detachPresenterRenderer() {
+        if let attachedPeer = presenterRendererAttachedPeer {
+            let renderView = presenterView.videoRenderView
+
+            WebRTCCommon.shared.dispatch {
+                attachedPeer.getRemoteStream()?.videoTracks.first?.remove(renderView)
+            }
+        }
+
+        self.presenterRendererAttachedPeer = nil
+    }
+
     func showScreenOfPeer(_ peer: NCPeerConnection) {
         DispatchQueue.main.async {
-            guard let renderView = self.screenRenderersDict[peer.peerId] else { return }
+            guard let renderView = self.peerStore.screenRenderer(forPeerId: peer.peerId) else { return }
+
+            let wasHidden = self.screensharingView.isHidden
 
             self.screensharingView.replaceContentView(renderView)
             self.screensharingView.bringSubviewToFront(self.closeScreensharingButton)
-
-            // The screenPeer does not have a name associated to it, try to get the nonScreenPeer
-            var peerDisplayName = NSLocalizedString("Guest", comment: "")
-
-            if let nonScreenPeer = self.peerConnection(forPeerId: peer.peerId), let peerName = nonScreenPeer.peerName, !peerName.isEmpty {
-                peerDisplayName = peerName
-            }
+            self.screensharingView.bringSubviewToFront(self.screenshareLabelContainer)
 
             self.presentedScreenPeerId = peer.peerId
-            self.screenshareLabel.text = peerDisplayName
-            self.screensharingView.bringSubviewToFront(self.screenshareLabelContainer)
+            self.updateScreenshareLabel()
 
             UIView.transition(with: self.screensharingView, duration: 0.4, options: .transitionCrossDissolve) {
                 self.screensharingView.isHidden = false
             }
 
+            self.updatePresenterView()
+            self.updateSimulcastVideoQualities()
             self.setNeedsRemoteVideoVisibilityUpdate()
-        }
 
-        // Enable/Disable detailed view with tap gesture
-        // in voice only call when screensharing is enabled
-        if isAudioOnly {
-            self.addTapGestureForDetailedView()
-            self.showDetailedViewWithTimer()
+            // Enable/Disable detailed view with tap gesture
+            // in voice only call when screensharing is enabled
+            if wasHidden, self.isAudioOnly {
+                self.addTapGestureForDetailedView()
+                self.showDetailedViewWithTimer()
+            }
         }
     }
 
     func removeScreensharingOfPeer(_ peer: NCPeerConnection) {
         DispatchQueue.main.async {
-            guard let screenRenderer = self.screenRenderersDict[peer.peerId],
-                  let screenPeerConnection = self.screenPeerConnection(forPeerId: peer.peerId)
+            guard let screenPeerConnection = self.peerStore.screenPeer(forPeerId: peer.peerId),
+                  let screenRenderer = self.peerStore.removeScreenRenderer(forPeerId: peer.peerId)
             else { return }
 
-            self.presentedScreenPeerId = nil
+            self.peerStore.removeScreenPeer(forPeerId: peer.peerId)
 
-            self.screenRenderersDict.removeValue(forKey: peer.peerId)
             self.updatePeer(peer) { cell in
                 cell.screenShared = false
             }
 
-            if self.screensharingView.contentView == screenRenderer {
-                self.closeScreensharingButtonPressed(self)
+            if self.presentedScreenPeerId == peer.peerId {
+                if let nextScreenPeer = self.peerStore.screenPeers.last {
+                    self.showScreenOfPeer(nextScreenPeer)
+                } else {
+                    self.closeScreensharingButtonPressed(self)
+                }
+            } else {
+                self.updateScreenshareLabel()
             }
 
             WebRTCCommon.shared.dispatch {
                 screenPeerConnection.getRemoteStream()?.videoTracks.first?.remove(screenRenderer)
             }
-
-            self.screenPeersInCall.removeAll { $0 == peer }
         }
     }
 
     @IBAction func closeScreensharingButtonPressed(_ sender: Any) {
         DispatchQueue.main.async {
+            self.presentedScreenPeerId = nil
+
             UIView.transition(with: self.screensharingView, duration: 0.4, options: .transitionCrossDissolve) {
                 self.screensharingView.isHidden = true
             }
 
+            self.updatePresenterView()
+            self.updateSimulcastVideoQualities()
             self.setNeedsRemoteVideoVisibilityUpdate()
         }
 
@@ -3219,8 +3053,8 @@ class CallViewController: UIViewController,
         guard let mtlVideoView = videoView as? RTCMTLVideoView else { return }
 
         DispatchQueue.main.async {
-            for (peerIdentifier, rendererView) in self.videoRenderersDict.filter({ $0.value == mtlVideoView }) {
-                rendererView.frame = CGRect(origin: .zero, size: size)
+            if let peerIdentifier = self.peerStore.peerIdentifier(usingVideoRenderer: mtlVideoView) {
+                mtlVideoView.frame = CGRect(origin: .zero, size: size)
 
                 if let indexPath = self.indexPath(forPeerIdentifier: peerIdentifier),
                    let participantCell = self.collectionView.cellForItem(at: indexPath) as? CallParticipantViewCell {
@@ -3228,15 +3062,15 @@ class CallViewController: UIViewController,
                     participantCell.remoteVideoSize = size
                 }
 
-                self.recreatePictureInPictureIfNeeded()
+                self.pipCoordinator.recreateIfNeeded()
             }
 
-            for (_, rendererView) in self.screenRenderersDict.filter({ $0.value == mtlVideoView }) {
-                rendererView.frame = CGRect(origin: .zero, size: size)
+            if self.peerStore.isScreenRenderer(mtlVideoView) {
+                mtlVideoView.frame = CGRect(origin: .zero, size: size)
 
-                if self.screensharingView.contentView == rendererView {
-                    self.screensharingSize = rendererView.frame.size
-                    self.screensharingView.contentViewSize = rendererView.frame.size
+                if self.screensharingView.contentView == mtlVideoView {
+                    self.screensharingSize = mtlVideoView.frame.size
+                    self.screensharingView.contentViewSize = mtlVideoView.frame.size
                     self.screensharingView.resizeContentView()
                 }
             }
@@ -3247,24 +3081,8 @@ class CallViewController: UIViewController,
 
     @nonobjc
     private func indexPathAndPeer(with predicate: (NCPeerConnection) -> Bool) -> (indexPath: IndexPath, peer: NCPeerConnection)? {
-        for peerIndex in peersInCall.indices {
-            let peer = peersInCall[peerIndex]
-
-            if predicate(peer) {
-                return (IndexPath(row: peerIndex, section: 0), peer)
-            }
-        }
-
-        return nil
-    }
-
-    private func peerConnection(with predicate: (NCPeerConnection) -> Bool) -> NCPeerConnection? {
-        for peer in peersInCall where predicate(peer) {
-            return peer
-        }
-
-        for peer in screenPeersInCall where predicate(peer) {
-            return peer
+        for (peerIndex, peer) in dataSource.snapshot().itemIdentifiers.enumerated() where predicate(peer) {
+            return (IndexPath(row: peerIndex, section: 0), peer)
         }
 
         return nil
@@ -3278,57 +3096,15 @@ class CallViewController: UIViewController,
         return self.indexPathAndPeer(with: { $0.peerId == peerId })?.indexPath
     }
 
-    internal func peerConnection(forPeerIdentifier peerIdentifier: String) -> NCPeerConnection? {
-        return self.peerConnection(with: { $0.peerIdentifier == peerIdentifier })
-    }
-
-    internal func peerConnection(forPeerId peerId: String) -> NCPeerConnection? {
-        return self.peerConnection(with: { $0.peerId == peerId && $0.roomType == kRoomTypeVideo })
-    }
-
-    internal func screenPeerConnection(forPeerId peerId: String) -> NCPeerConnection? {
-        return self.peerConnection(with: { $0.peerId == peerId && $0.roomType == kRoomTypeScreen })
-    }
-
     func addPeer(_ peer: NCPeerConnection) {
         DispatchQueue.main.async {
-            // A peer can reach this method from both `peerJoined` and `didAddStream`. Deduplicate against
-            // the authoritative `peersInCall` as well as the pending inserts, by peerIdentifier, otherwise
-            // the same peer can be appended twice and crash the diffable data source on a duplicate item.
-            let alreadyAdded = self.peersInCall.contains { $0.peerIdentifier == peer.peerIdentifier }
-            let alreadyPending = self.pendingPeerInserts.contains { $0.peerIdentifier == peer.peerIdentifier }
-
-            guard !alreadyAdded, !alreadyPending else { return }
-
-            // Store added time
-            if peer.addedTime == 0 {
-                peer.addedTime = Int(Date().timeIntervalSince1970 * 1000)
-            }
-            // Add peer to collection view
-            if self.peersInCall.isEmpty {
-                // Don't delay adding the first peer
-                self.peersInCall.append(peer)
-                self.updateSnapshot()
-                self.updatePiPPeerIfNeeded()
-                self.recreatePictureInPictureIfNeeded()
-            } else {
-                // Delay updating the collection view a bit to allow batch updating
-                self.pendingPeerInserts.append(peer)
-                self.scheduleBatchCollectionViewUpdate()
-            }
+            self.peerStore.add(peer)
         }
     }
 
     func removePeer(_ peer: NCPeerConnection) {
         DispatchQueue.main.async {
-            if self.pendingPeerInserts.contains(peer) {
-                // The peer is a pending insert, but was removed before the batch update
-                // In this case we can just remove the pending insert
-                self.pendingPeerInserts.removeAll(where: { $0 == peer })
-            } else {
-                self.pendingPeerDeletions.append(peer)
-                self.scheduleBatchCollectionViewUpdate()
-            }
+            self.peerStore.remove(peer)
         }
     }
 
@@ -3346,62 +3122,28 @@ class CallViewController: UIViewController,
         }
     }
 
-    func scheduleBatchCollectionViewUpdate() {
-        dispatchPrecondition(condition: .onQueue(.main))
-
-        if self.batchUpdateTimer == nil {
-            self.batchUpdateTimer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(self.batchCollectionViewUpdate), userInfo: nil, repeats: false)
-        }
-    }
-
-    func batchCollectionViewUpdate() {
-        self.batchUpdateTimer = nil
-
-        // Pending updates are only added when the peer was not found in the collection view (e.g wasn't added yet)
-        // Therefore we only check for inserts and deletions here, as an update is probably linked to an insert anyway
-        if pendingPeerInserts.isEmpty, pendingPeerDeletions.isEmpty {
-            return
-        }
-
-        // Remove peer and renderers
-        for peer in pendingPeerDeletions {
-            // Video renderers
-            let videoRenderer = self.videoRenderersDict[peer.peerIdentifier]
-            self.videoRenderersDict.removeValue(forKey: peer.peerIdentifier)
-
-            if let videoRenderer {
-                WebRTCCommon.shared.dispatch {
-                    peer.getRemoteStream()?.videoTracks.first?.remove(videoRenderer)
-                }
+    private func peerStoreDidChangePeers(removedRenderers: [CallPeerStore.RemovedRenderer]) {
+        for (peer, renderer) in removedRenderers {
+            WebRTCCommon.shared.dispatch {
+                peer.getRemoteStream()?.videoTracks.first?.remove(renderer)
             }
-            // Remove peer
-            self.peersInCall.removeAll { $0.peerIdentifier == peer.peerIdentifier }
         }
-
-        // Add all new peers
-        self.peersInCall.append(contentsOf: pendingPeerInserts)
 
         // Make sure the promoted participant in speaker view is still in the call
-        if callViewMode == .speaker, !peersInCall.contains(where: { $0.peerIdentifier == promotedPeerIdentifier }) {
+        if callViewMode == .speaker, !peerStore.contains(peerIdentifier: promotedPeerIdentifier) {
             promotedPeerIdentifier = initialPromotedPeer()?.peerIdentifier
         }
 
-        self.updatePiPPeerIfNeeded()
-        self.recreatePictureInPictureIfNeeded()
+        self.pipCoordinator.updateShownPeerIfNeeded()
+        self.pipCoordinator.recreateIfNeeded()
 
-        // Sort peers in call
-        self.sortPeersInCall()
-
-        // Update collection view snapshot
         self.updateSnapshot()
 
-        // Process pending updates
-        for pendingUpdate in pendingPeerUpdates {
+        // Updates of peers that still have no item are dropped, a cell is configured from its peer when it is displayed anyway
+        for pendingUpdate in pendingPeerUpdates where self.indexPath(forPeerId: pendingUpdate.peer.peerId) != nil {
             self.updatePeer(pendingUpdate.peer, block: pendingUpdate.block)
         }
 
-        pendingPeerInserts = []
-        pendingPeerDeletions = []
         pendingPeerUpdates = []
     }
 
@@ -3430,6 +3172,17 @@ class CallViewController: UIViewController,
         }
     }
 
+    // MARK: - UIGestureRecognizerDelegate
+
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        // A tap on the presenter tile only collapses or expands the tile
+        if gestureRecognizer == tapGestureForDetailedView, let touchedView = touch.view, touchedView.isDescendant(of: presenterView) {
+            return false
+        }
+
+        return true
+    }
+
     // MARK: - NCChatTitleViewDelegate
 
     func chatTitleViewTapped(_ chatTitleView: NCChatTitleView) {
@@ -3437,54 +3190,71 @@ class CallViewController: UIViewController,
     }
 }
 
-// MARK: - AVPictureInPictureControllerDelegate
+// MARK: - CallPiPCoordinatorDelegate
 
-extension CallViewController: AVPictureInPictureControllerDelegate {
+extension CallViewController: CallPiPCoordinatorDelegate {
 
-    func pictureInPictureControllerWillStartPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
-        self.isPiPActive = true
-        self.pipPeerIdentifier = self.initialPiPPeer()?.peerIdentifier
-        self.updatePiPContent()
-        self.attachPiPLocalRendererIfNeeded()
-        self.updateSimulcastVideoQualities()
-    }
-
-    func pictureInPictureControllerDidStartPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
-        // When quickly switching back to the app while Picture in Picture is still
-        // animating in, the stop in appDidBecomeActive is missed, because the
-        // controller was not marked as active there yet. Stop it here instead
-        if UIApplication.shared.applicationState == .active {
-            pictureInPictureController.stopPictureInPicture()
-            return
+    func initialPeer(for coordinator: CallPiPCoordinator) -> NCPeerConnection? {
+        // In speaker view the participant shown in Picture in Picture follows the promoted one,
+        // otherwise it is determined like the initially promoted participant in speaker view
+        if callViewMode == .speaker, let promotedPeer = peerStore.peers.first(where: { $0.peerIdentifier == promotedPeerIdentifier }) {
+            return promotedPeer
         }
 
-        // A size change that happened while the window was animating in was ignored
-        // by AVKit, so assert the current size again now that the window is shown
-        self.pipViewController?.reassertContentSize()
+        return initialPromotedPeer()
     }
 
-    func pictureInPictureControllerDidStopPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
-        self.isPiPActive = false
-        self.pipPeerIdentifier = nil
-        self.detachPiPRenderer()
-        self.detachPiPLocalRenderer()
+    func displayedPeers(for coordinator: CallPiPCoordinator) -> [NCPeerConnection] {
+        return self.displayedPeers()
+    }
+
+    func pipCoordinatorDidChangeActiveState(_ coordinator: CallPiPCoordinator) {
         self.updateSimulcastVideoQualities()
         self.setNeedsRemoteVideoVisibilityUpdate()
     }
 
-    func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, failedToStartPictureInPictureWithError error: Error) {
-        print("Failed to start Picture in Picture: \(error)")
-
-        self.isPiPActive = false
-        self.pipPeerIdentifier = nil
-        self.detachPiPRenderer()
-        self.detachPiPLocalRenderer()
-        self.updateSimulcastVideoQualities()
+    func pipCoordinatorDidChangeShownPeer(_ coordinator: CallPiPCoordinator) {
         self.setNeedsRemoteVideoVisibilityUpdate()
     }
+}
 
-    func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void) {
-        // The call view is still presented fullscreen, nothing to restore
-        completionHandler(true)
+// MARK: - CallDebugControllerDelegate
+
+extension CallViewController: CallDebugControllerDelegate {
+
+    func callDebugControllerDidChangeOverrides(_ controller: CallDebugController) {
+        self.updateSimulcastVideoQualities()
+        self.updateRemoteVideoVisibility()
+    }
+
+    func callDebugControllerDidUpdateConnectionStats(_ controller: CallDebugController) {
+        for case let cell as CallParticipantViewCell in collectionView.visibleCells {
+            guard let peerIdentifier = cell.peerIdentifier else { continue }
+
+            cell.debugStatsText = controller.connectionStatsText(forPeerIdentifier: peerIdentifier)
+        }
+    }
+
+    func debugInfoLines(for controller: CallDebugController) -> [String] {
+        let bundleInfo = Bundle.main.infoDictionary
+        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId)
+        let talkCapabilities = NCDatabaseManager.sharedInstance().roomTalkCapabilities(for: room)
+
+        return [
+            "== Talk iOS call debug info ==",
+            "Date: \(ISO8601DateFormatter().string(from: Date()))",
+            "App: \(bundleInfo?["CFBundleShortVersionString"] ?? "?") (\(bundleInfo?["CFBundleVersion"] ?? "?")), iOS \(UIDevice.current.systemVersion)",
+            "Server: \(account.server), Nextcloud \(serverCapabilities?.version ?? "?"), Talk \(talkCapabilities?.talkVersion ?? "?")",
+            "HPB version: \(serverCapabilities?.externalSignalingServerVersion ?? "?")",
+            "Room: \(room.token), type \(room.type.rawValue), participant flags \(room.participantFlags.rawValue)",
+            "",
+            "== View ==",
+            "Audio only: \(isAudioOnly), view mode: \(callViewMode.rawValue), promoted: \(promotedPeerIdentifier ?? "none"), PiP: \(pipCoordinator.isActive)",
+            "Participants shown: \(peerStore.peers.count), screens: \(peerStore.screenPeers.count)"
+        ]
+    }
+
+    func callDebugController(_ controller: CallDebugController, present viewController: UIViewController) {
+        self.present(viewController, animated: true)
     }
 }

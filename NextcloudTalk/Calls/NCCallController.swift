@@ -2183,6 +2183,19 @@ internal class NCCallController: NSObject, NCPeerConnectionDelegate, NCSignaling
         return sessions
     }
 
+    // Static, so the name the peer sent is used even while there is no call controller
+    static func actor(for peer: NCPeerConnection, using callController: NCCallController?) -> TalkActor {
+        WebRTCCommon.shared.assertQueue()
+
+        let actor = callController?.getActor(fromSessionId: peer.peerId) ?? TalkActor()
+
+        if actor.rawDisplayName.isEmpty, let peerName = peer.peerName, !peerName.isEmpty {
+            actor.rawDisplayName = peerName
+        }
+
+        return actor
+    }
+
     public func getActor(fromSessionId sessionId: String) -> TalkActor? {
         WebRTCCommon.shared.assertQueue()
 
