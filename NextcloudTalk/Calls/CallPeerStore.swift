@@ -67,6 +67,9 @@ final class CallPeerStore {
                 }
 
                 peers[index] = peer
+
+                // The snapshot needs the new connection as well, cells are configured from it
+                onPeersChanged?([])
             }
 
             return
@@ -212,15 +215,9 @@ final class CallPeerStore {
         videoRenderers[peerIdentifier] = renderer
     }
 
-    // The caller still needs to remove the returned renderer from its video track
-    func removeVideoRenderer(forPeerIdentifier peerIdentifier: String) -> RTCMTLVideoView? {
+    func peerIdentifier(usingVideoRenderer renderer: RTCMTLVideoView) -> PeerIdentifier? {
         dispatchPrecondition(condition: .onQueue(.main))
-        return videoRenderers.removeValue(forKey: peerIdentifier)
-    }
-
-    func peerIdentifiers(usingVideoRenderer renderer: RTCMTLVideoView) -> [PeerIdentifier] {
-        dispatchPrecondition(condition: .onQueue(.main))
-        return videoRenderers.filter { $0.value == renderer }.map { $0.key }
+        return videoRenderers.first { $0.value == renderer }?.key
     }
 
     func screenRenderer(forPeerId peerId: String) -> RTCMTLVideoView? {

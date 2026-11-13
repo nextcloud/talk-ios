@@ -9,11 +9,13 @@ import WebRTC
 // Video of the participant sharing their screen, shown on top of the presented screen share
 class CallPresenterView: UIView {
 
-    let videoRenderView = RTCMTLVideoView(frame: .zero)
+    // Replaced for every presenter, as it would keep showing the last frame of the previous one
+    private(set) var videoRenderView = CallPresenterView.makeVideoRenderView()
 
-    var onCollapsedChanged: ((Bool) -> Void)?
+    var onCollapsedChanged: (() -> Void)?
 
     private(set) var isCollapsed = false
+    private(set) var presenterPeerId: String?
 
     private let avatarImageView = AvatarImageView(frame: .zero)
     private var isVideoDisabled = true
@@ -48,21 +50,14 @@ class CallPresenterView: UIView {
         avatarImageView.setContentHuggingPriority(.defaultLow, for: .vertical)
         self.addSubview(avatarImageView)
 
-        // Above the avatar, which then shows through until the first video frame is rendered
-        videoRenderView.videoContentMode = .scaleAspectFill
-        videoRenderView.translatesAutoresizingMaskIntoConstraints = false
-        self.addSubview(videoRenderView)
-
         NSLayoutConstraint.activate([
             avatarImageView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             avatarImageView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
             avatarImageView.topAnchor.constraint(equalTo: self.topAnchor),
-            avatarImageView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
-            videoRenderView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            videoRenderView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            videoRenderView.topAnchor.constraint(equalTo: self.topAnchor),
-            videoRenderView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
+            avatarImageView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
         ])
+
+        self.installVideoRenderView()
 
         self.isAccessibilityElement = true
         self.accessibilityTraits = .button
@@ -73,6 +68,26 @@ class CallPresenterView: UIView {
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    private static func makeVideoRenderView() -> RTCMTLVideoView {
+        let videoRenderView = RTCMTLVideoView(frame: .zero)
+        videoRenderView.videoContentMode = .scaleAspectFill
+        videoRenderView.translatesAutoresizingMaskIntoConstraints = false
+
+        return videoRenderView
+    }
+
+    // Above the avatar, which then shows through until the first video frame is rendered
+    private func installVideoRenderView() {
+        self.addSubview(videoRenderView)
+
+        NSLayoutConstraint.activate([
+            videoRenderView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+            videoRenderView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+            videoRenderView.topAnchor.constraint(equalTo: self.topAnchor),
+            videoRenderView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
+        ])
     }
 
     override func didMoveToSuperview() {
@@ -114,30 +129,40 @@ class CallPresenterView: UIView {
         self.updateAutoCollapse()
     }
 
-    // Called for a new presenter, who is shown expanded again unless the user collapsed the view
-    func resetAutoCollapse() {
-        autoCollapseWorkItem?.cancel()
-        autoCollapseWorkItem = nil
+    // A new presenter is shown expanded again unless the user collapsed the view, nil while hidden.
+    // The caller needs to remove the previous videoRenderView from its video track before.
+    func setPresenter(peerId: String?) {
+        guard peerId != presenterPeerId else { return }
+
+        presenterPeerId = peerId
         hasUserToggled = false
+        self.cancelAutoCollapse()
 
         if isAutoCollapsed {
             isAutoCollapsed = false
             self.setCollapsed(false, animated: false)
-            onCollapsedChanged?(isCollapsed)
         }
+
+        videoRenderView.removeFromSuperview()
+        videoRenderView = CallPresenterView.makeVideoRenderView()
+        self.installVideoRenderView()
+        self.updateContent()
+    }
+
+    private func cancelAutoCollapse() {
+        autoCollapseWorkItem?.cancel()
+        autoCollapseWorkItem = nil
     }
 
     private func updateAutoCollapse() {
-        guard !hasUserToggled else { return }
+        guard !hasUserToggled, presenterPeerId != nil else { return }
 
         if !isVideoDisabled {
-            autoCollapseWorkItem?.cancel()
-            autoCollapseWorkItem = nil
+            self.cancelAutoCollapse()
 
             if isAutoCollapsed {
                 isAutoCollapsed = false
                 self.setCollapsed(false, animated: true)
-                onCollapsedChanged?(isCollapsed)
             }
 
             return
@@ -154,7 +179,6 @@ class CallPresenterView: UIView {
 
             self.isAutoCollapsed = true
             self.setCollapsed(true, animated: true)
-            self.onCollapsedChanged?(self.isCollapsed)
         }
 
         autoCollapseWorkItem = workItem
@@ -171,7 +195,7 @@ class CallPresenterView: UIView {
         self.accessibilityLabel = String(format: NSLocalizedString("Video of %@", comment: "Accessibility label of the presenter video shown during a screen share"), actor.displayName)
     }
 
-    func setCollapsed(_ collapsed: Bool, animated: Bool) {
+    private func setCollapsed(_ collapsed: Bool, animated: Bool) {
         guard collapsed != isCollapsed else { return }
 
         isCollapsed = collapsed
@@ -182,6 +206,7 @@ class CallPresenterView: UIView {
         }
 
         self.updateContent()
+        onCollapsedChanged?()
 
         guard animated else { return }
 
@@ -192,13 +217,11 @@ class CallPresenterView: UIView {
 
     @objc private func toggleCollapsed() {
         // From now on the user decides for this presenter
-        autoCollapseWorkItem?.cancel()
-        autoCollapseWorkItem = nil
+        self.cancelAutoCollapse()
         hasUserToggled = true
         isAutoCollapsed = false
 
         self.setCollapsed(!isCollapsed, animated: true)
-        onCollapsedChanged?(isCollapsed)
     }
 
     private func updateContent() {

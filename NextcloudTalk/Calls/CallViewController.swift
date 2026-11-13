@@ -133,7 +133,6 @@ class CallViewController: UIViewController,
     private var presentedScreenPeerId: String?
     private let presenterView = CallPresenterView()
     private weak var presenterRendererAttachedPeer: NCPeerConnection?
-    private var presenterAutoCollapsePeerId: String?
     private let screenshareSwitchButton = UIButton(type: .custom)
     private var callController: NCCallController? {
         didSet {
@@ -665,7 +664,7 @@ class CallViewController: UIViewController,
     func updateSnapshot(crossfade: Bool = false) {
         var snapshot = NSDiffableDataSourceSnapshot<CallViewSection, NCPeerConnection>()
         snapshot.appendSections([.main])
-        snapshot.appendItems(self.sortedPeers(self.displayedPeers()))
+        snapshot.appendItems(self.sortedPeers())
 
         if crossfade {
             // Fade to the new arrangement instead of animating tiles between the
@@ -691,7 +690,7 @@ class CallViewController: UIViewController,
 
     // The participants of the store in the order currently shown, participants that are not shown yet come last
     private func displayedPeers() -> [NCPeerConnection] {
-        var notShownYet = Dictionary(peerStore.peers.map { ($0.peerIdentifier, $0) }, uniquingKeysWith: { first, _ in first })
+        var notShownYet = Dictionary(uniqueKeysWithValues: peerStore.peers.map { ($0.peerIdentifier, $0) })
 
         // Taken from the store, so a peer that was replaced for the same participant is not shown anymore
         let shown = dataSource.snapshot().itemIdentifiers.compactMap { notShownYet.removeValue(forKey: $0.peerIdentifier) }
@@ -723,12 +722,12 @@ class CallViewController: UIViewController,
         return (4, peerConnection.addedTime)
     }
 
-    private func sortedPeers(_ peers: [NCPeerConnection]) -> [NCPeerConnection] {
+    private func sortedPeers() -> [NCPeerConnection] {
+        var peers = self.displayedPeers()
+
         // In speaker view the promoted participant is always the first item, the order
         // of the other participants in the stripe is kept stable
         if callViewMode == .speaker {
-            var peers = peers
-
             // Swap instead of moving to the front, so the demoted participant takes
             // the stripe slot the promoted one vacated and all other stripe tiles keep
             // their position
@@ -1019,11 +1018,7 @@ class CallViewController: UIViewController,
         cell.audioOffIndicator.alpha = isDetailedViewVisible ? 1.0 : 0.0
 
         WebRTCCommon.shared.dispatch {
-            let actor = self.callController?.getActor(fromSessionId: peerConnection.peerId) ?? TalkActor()
-
-            if actor.rawDisplayName.isEmpty, let peerName = peerConnection.peerName, !peerName.isEmpty {
-                actor.rawDisplayName = peerName
-            }
+            let actor = NCCallController.actor(for: peerConnection, using: self.callController)
 
             let connectionState: RTCIceConnectionState = peerConnection.isDummyPeer ? .connected : peerConnection.getPeerConnection()?.iceConnectionState ?? .new
 
@@ -2824,7 +2819,7 @@ class CallViewController: UIViewController,
 
     private func setupScreensharingOverlays() {
         presenterView.isHidden = true
-        presenterView.onCollapsedChanged = { [weak self] _ in
+        presenterView.onCollapsedChanged = { [weak self] in
             self?.setNeedsRemoteVideoVisibilityUpdate()
         }
 
@@ -2910,6 +2905,7 @@ class CallViewController: UIViewController,
         guard !screensharingView.isHidden, let presenter = presentedScreenPresenter else {
             presenterView.isHidden = true
             self.detachPresenterRenderer()
+            presenterView.setPresenter(peerId: nil)
             return
         }
 
@@ -2920,11 +2916,8 @@ class CallViewController: UIViewController,
             self.detachPresenterRenderer()
             self.presenterRendererAttachedPeer = presenter
 
-            // Not when only the stream of the same presenter was replaced
-            if presenterAutoCollapsePeerId != presenter.peerId {
-                presenterAutoCollapsePeerId = presenter.peerId
-                self.presenterView.resetAutoCollapse()
-            }
+            // Does nothing when only the stream of the same presenter was replaced
+            presenterView.setPresenter(peerId: presenter.peerId)
 
             let renderView = presenterView.videoRenderView
 
@@ -2945,11 +2938,7 @@ class CallViewController: UIViewController,
         guard let presenter = presenterRendererAttachedPeer else { return }
 
         WebRTCCommon.shared.dispatch {
-            let actor = self.callController?.getActor(fromSessionId: presenter.peerId) ?? TalkActor()
-
-            if actor.rawDisplayName.isEmpty, let peerName = presenter.peerName, !peerName.isEmpty {
-                actor.rawDisplayName = peerName
-            }
+            let actor = NCCallController.actor(for: presenter, using: self.callController)
 
             DispatchQueue.main.async {
                 guard self.presenterRendererAttachedPeer === presenter else { return }
@@ -3011,11 +3000,10 @@ class CallViewController: UIViewController,
 
     func removeScreensharingOfPeer(_ peer: NCPeerConnection) {
         DispatchQueue.main.async {
-            guard let screenRenderer = self.peerStore.screenRenderer(forPeerId: peer.peerId),
-                  let screenPeerConnection = self.peerStore.screenPeer(forPeerId: peer.peerId)
+            guard let screenPeerConnection = self.peerStore.screenPeer(forPeerId: peer.peerId),
+                  let screenRenderer = self.peerStore.removeScreenRenderer(forPeerId: peer.peerId)
             else { return }
 
-            _ = self.peerStore.removeScreenRenderer(forPeerId: peer.peerId)
             self.peerStore.removeScreenPeer(forPeerId: peer.peerId)
 
             self.updatePeer(peer) { cell in
@@ -3065,7 +3053,7 @@ class CallViewController: UIViewController,
         guard let mtlVideoView = videoView as? RTCMTLVideoView else { return }
 
         DispatchQueue.main.async {
-            for peerIdentifier in self.peerStore.peerIdentifiers(usingVideoRenderer: mtlVideoView) {
+            if let peerIdentifier = self.peerStore.peerIdentifier(usingVideoRenderer: mtlVideoView) {
                 mtlVideoView.frame = CGRect(origin: .zero, size: size)
 
                 if let indexPath = self.indexPath(forPeerIdentifier: peerIdentifier),

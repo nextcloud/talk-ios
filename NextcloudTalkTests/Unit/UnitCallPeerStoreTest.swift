@@ -141,6 +141,7 @@ final class UnitCallPeerStoreTest: XCTestCase {
 
         XCTAssertEqual(peerIdentifiers(), ["a-1"])
         XCTAssertTrue(store.peer(forPeerIdentifier: "a-1") === rejoined)
+        XCTAssertEqual(changes.count, 2, "The view needs to show the new connection as well")
         XCTAssertEqual(rejoined.addedTime, leaving.addedTime, "Keeps its position when sorted")
     }
 

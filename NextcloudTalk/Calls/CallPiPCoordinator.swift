@@ -218,11 +218,7 @@ final class CallPiPCoordinator: NSObject {
         let account = self.account
 
         WebRTCCommon.shared.dispatch {
-            let actor = callController?.getActor(fromSessionId: peer.peerId) ?? TalkActor()
-
-            if actor.rawDisplayName.isEmpty, let peerName = peer.peerName, !peerName.isEmpty {
-                actor.rawDisplayName = peerName
-            }
+            let actor = NCCallController.actor(for: peer, using: callController)
 
             DispatchQueue.main.async {
                 pipViewController.setAvatar(for: actor, using: account)
