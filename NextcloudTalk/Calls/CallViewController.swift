@@ -72,13 +72,14 @@ class CallViewController: UIViewController,
         return coordinator
     }()
 
-    private var simulcastDebugQuality: SimulcastVideoQuality?
-    private var remoteVideoBlockedDebugOverride: Bool?
+    private lazy var debugController: CallDebugController = {
+        let controller = CallDebugController(peerStore: peerStore)
+        controller.delegate = self
+        return controller
+    }()
+
     private var remoteVideoBlockWorkItems = [PeerId: DispatchWorkItem]() // Kept after executing, while the video stays blocked
     private var isRemoteVideoVisibilityUpdateScheduled = false
-    private var connectionStatsTimer: Timer?
-    private var connectionStatsReports = [String: RTCStatisticsReport]() // peerIdentifier -> last report
-    private var connectionStatsTexts = [String: String]() // peerIdentifier -> tile summary
 
     @IBOutlet public var localVideoView: MTKView!
     @IBOutlet public var localVideoViewWrapper: UIView!
@@ -134,7 +135,10 @@ class CallViewController: UIViewController,
     private weak var presenterRendererAttachedPeer: NCPeerConnection?
     private let screenshareSwitchButton = UIButton(type: .custom)
     private var callController: NCCallController? {
-        didSet { self.pipCoordinator.callController = self.callController }
+        didSet {
+            self.pipCoordinator.callController = self.callController
+            self.debugController.callController = self.callController
+        }
     }
     private var chatViewController: ChatViewController?
     private var chatNavigationController: UINavigationController?
@@ -876,7 +880,7 @@ class CallViewController: UIViewController,
 
     // Based on adjustSimulcastQualityForParticipant in CallView.vue of the web client
     private func simulcastVideoQuality(for peer: NCPeerConnection) -> SimulcastVideoQuality {
-        if let simulcastDebugQuality {
+        if let simulcastDebugQuality = debugController.simulcastQualityOverride {
             return simulcastDebugQuality
         }
 
@@ -949,7 +953,7 @@ class CallViewController: UIViewController,
             remoteVideoBlockWorkItems.removeValue(forKey: peerId)?.cancel()
         }
 
-        if let remoteVideoBlockedDebugOverride {
+        if let remoteVideoBlockedDebugOverride = debugController.remoteVideoBlockedOverride {
             for peerId in peerIds {
                 remoteVideoBlockWorkItems.removeValue(forKey: peerId)?.cancel()
                 callController.setRemoteVideoBlocked(remoteVideoBlockedDebugOverride, forPeerId: peerId)
@@ -971,158 +975,6 @@ class CallViewController: UIViewController,
                 remoteVideoBlockWorkItems[peerId] = workItem
                 DispatchQueue.main.asyncAfter(deadline: .now() + 5, execute: workItem)
             }
-        }
-    }
-
-    // MARK: - Debug menu
-
-    private func getDebugMenu() -> UIMenu {
-        let qualityOptions: [(String, SimulcastVideoQuality?)] = [("Automatic", nil), ("Low", .low), ("Medium", .medium), ("High", .high)]
-        let qualityActions = qualityOptions.map { title, quality in
-            let action = UIAction(title: title) { [unowned self] _ in
-                self.simulcastDebugQuality = quality
-                self.updateSimulcastVideoQualities()
-            }
-            action.state = quality == simulcastDebugQuality ? .on : .off
-            return action
-        }
-
-        let blockingOptions: [(String, Bool?)] = [("Automatic", nil), ("Block all", true), ("Block none", false)]
-        let blockingActions = blockingOptions.map { title, blocked in
-            let action = UIAction(title: title) { [unowned self] _ in
-                self.remoteVideoBlockedDebugOverride = blocked
-                self.updateRemoteVideoVisibility()
-            }
-            action.state = blocked == remoteVideoBlockedDebugOverride ? .on : .off
-            return action
-        }
-
-        let statsAction = UIAction(title: "Connection stats", image: .init(systemName: "chart.bar.xaxis")) { [unowned self] _ in
-            self.setConnectionStatsVisible(self.connectionStatsTimer == nil)
-        }
-        statsAction.state = connectionStatsTimer != nil ? .on : .off
-
-        let debugInfoAction = UIAction(title: "Show debug info", image: .init(systemName: "doc.text.magnifyingglass")) { [unowned self] _ in
-            self.showDebugInfo()
-        }
-
-        var connectionActions: [UIMenuElement] = []
-
-        // The ICE transport policy is set when a peer connection is created, so reconnect to apply it
-        let relayOnlyAction = UIAction(title: "Relay only (TURN)", subtitle: "Reconnects the call") { [unowned self] _ in
-            CallDebugSettings.relayOnlyIceCandidates.toggle()
-            self.callController?.forceReconnect()
-        }
-        relayOnlyAction.state = CallDebugSettings.relayOnlyIceCandidates ? .on : .off
-        connectionActions.append(relayOnlyAction)
-
-        if callController?.usesExternalSignaling == true {
-            connectionActions.append(UIAction(title: "Drop signaling connection", subtitle: "Like a network loss", attributes: .destructive) { [unowned self] _ in
-                self.callController?.simulateSignalingConnectionLoss()
-            })
-        }
-
-        connectionActions.append(UIAction(title: "Force reconnect", attributes: .destructive) { [unowned self] _ in
-            self.callController?.forceReconnect()
-        })
-
-        return UIMenu(title: "Debug", image: .init(systemName: "ladybug"), children: [
-            UIMenu(title: "", options: .displayInline, children: [statsAction, debugInfoAction]),
-            UIMenu(title: "Connection", options: .displayInline, children: connectionActions),
-            UIMenu(title: "Simulcast quality", subtitle: qualityOptions.first(where: { $0.1 == simulcastDebugQuality })?.0, image: .init(systemName: "square.3.layers.3d"), children: qualityActions),
-            UIMenu(title: "Remote video", subtitle: blockingOptions.first(where: { $0.1 == remoteVideoBlockedDebugOverride })?.0, image: .init(systemName: "video.slash"), children: blockingActions)
-        ])
-    }
-
-    private func setConnectionStatsVisible(_ visible: Bool) {
-        connectionStatsTimer?.invalidate()
-        connectionStatsTimer = nil
-        connectionStatsReports = [:]
-        connectionStatsTexts = [:]
-
-        for case let cell as CallParticipantViewCell in collectionView.visibleCells {
-            cell.debugStatsText = nil
-        }
-
-        guard visible else { return }
-
-        connectionStatsTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
-            self?.updateConnectionStats()
-        }
-
-        updateConnectionStats()
-    }
-
-    private func updateConnectionStats() {
-        let peers = peerStore.peers
-
-        WebRTCCommon.shared.dispatch {
-            CallDebugInfo.statistics(of: peers) { reports in
-                DispatchQueue.main.async { [weak self] in
-                    guard let self, self.connectionStatsTimer != nil else { return }
-
-                    var newReports = [String: RTCStatisticsReport]()
-                    var newTexts = [String: String]()
-
-                    for peer in peers {
-                        guard let report = reports[ObjectIdentifier(peer)] else { continue }
-
-                        let text = CallStatsReport(report: report, previous: self.connectionStatsReports[peer.peerIdentifier]).tileSummary
-                        newReports[peer.peerIdentifier] = report
-                        newTexts[peer.peerIdentifier] = text
-
-                        if let indexPath = self.indexPath(forPeerIdentifier: peer.peerIdentifier),
-                           let cell = self.collectionView.cellForItem(at: indexPath) as? CallParticipantViewCell {
-                            cell.debugStatsText = text
-                        }
-                    }
-
-                    self.connectionStatsReports = newReports
-                    self.connectionStatsTexts = newTexts
-                }
-            }
-        }
-    }
-
-    private func showDebugInfo() {
-        guard let callController else { return }
-
-        let bundleInfo = Bundle.main.infoDictionary
-        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId)
-        let talkCapabilities = NCDatabaseManager.sharedInstance().roomTalkCapabilities(for: room)
-
-        var lines = [
-            "== Talk iOS call debug info ==",
-            "Date: \(ISO8601DateFormatter().string(from: Date()))",
-            "App: \(bundleInfo?["CFBundleShortVersionString"] ?? "?") (\(bundleInfo?["CFBundleVersion"] ?? "?")), iOS \(UIDevice.current.systemVersion)",
-            "Server: \(account.server), Nextcloud \(serverCapabilities?.version ?? "?"), Talk \(talkCapabilities?.talkVersion ?? "?")",
-            "HPB version: \(serverCapabilities?.externalSignalingServerVersion ?? "?")",
-            "Room: \(room.token), type \(room.type.rawValue), participant flags \(room.participantFlags.rawValue)",
-            "",
-            "== View ==",
-            "Audio only: \(isAudioOnly), view mode: \(callViewMode.rawValue), promoted: \(promotedPeerIdentifier ?? "none"), PiP: \(pipCoordinator.isActive)",
-            "Participants shown: \(peerStore.peers.count), screens: \(peerStore.screenPeers.count)",
-            "Debug overrides: simulcast \(simulcastDebugQuality.map { "\($0)" } ?? "automatic"), remote video blocked \(remoteVideoBlockedDebugOverride.map { "\($0)" } ?? "automatic")",
-            ""
-        ]
-
-        NotificationPresenter.shared().present(text: "Collecting debug info…", dismissAfterDelay: 1.0, includedStyle: .dark)
-
-        callController.collectDebugInfo { [weak self] callInfo in
-            guard let self else { return }
-
-            lines.append(callInfo)
-            let debugInfo = lines.joined(separator: "\n")
-
-            let textViewController = MessageTextViewController(messageText: debugInfo)
-            textViewController.loadViewIfNeeded()
-            textViewController.messageTextView.font = .monospacedSystemFont(ofSize: 12, weight: .regular)
-            textViewController.navigationItem.rightBarButtonItem = UIBarButtonItem(title: NSLocalizedString("Copy", comment: ""), primaryAction: UIAction { _ in
-                UIPasteboard.general.string = debugInfo
-                NotificationPresenter.shared().present(text: "Debug info copied", dismissAfterDelay: 3.0, includedStyle: .dark)
-            })
-
-            self.present(NCNavigationController(rootViewController: textViewController), animated: true)
         }
     }
 
@@ -1161,7 +1013,7 @@ class CallViewController: UIViewController,
         cell.videoDisabled = isVideoDisabled
         cell.showOriginalSize = peerConnection.showRemoteVideoInOriginalSize
         cell.setRaiseHand(peerConnection.isHandRaised)
-        cell.debugStatsText = connectionStatsTexts[peerConnection.peerIdentifier]
+        cell.debugStatsText = debugController.connectionStatsText(forPeerIdentifier: peerConnection.peerIdentifier)
         cell.peerNameLabel.alpha = isDetailedViewVisible ? 1.0 : 0.0
         cell.audioOffIndicator.alpha = isDetailedViewVisible ? 1.0 : 0.0
 
@@ -2164,7 +2016,7 @@ class CallViewController: UIViewController,
         }
 
         if TestEnvironment.isEnabled {
-            items.append(self.getDebugMenu())
+            items.append(self.debugController.menu())
         }
 
         return items
@@ -2565,7 +2417,7 @@ class CallViewController: UIViewController,
             self.detachPresenterRenderer()
 
             self.callDurationTimer?.invalidate()
-            self.connectionStatsTimer?.invalidate()
+            self.debugController.stopConnectionStats()
         }
 
         if callController != nil {
@@ -3364,5 +3216,46 @@ extension CallViewController: CallPiPCoordinatorDelegate {
 
     func pipCoordinatorDidChangeShownPeer(_ coordinator: CallPiPCoordinator) {
         self.setNeedsRemoteVideoVisibilityUpdate()
+    }
+}
+
+// MARK: - CallDebugControllerDelegate
+
+extension CallViewController: CallDebugControllerDelegate {
+
+    func callDebugControllerDidChangeOverrides(_ controller: CallDebugController) {
+        self.updateSimulcastVideoQualities()
+        self.updateRemoteVideoVisibility()
+    }
+
+    func callDebugControllerDidUpdateConnectionStats(_ controller: CallDebugController) {
+        for case let cell as CallParticipantViewCell in collectionView.visibleCells {
+            guard let peerIdentifier = cell.peerIdentifier else { continue }
+
+            cell.debugStatsText = controller.connectionStatsText(forPeerIdentifier: peerIdentifier)
+        }
+    }
+
+    func debugInfoLines(for controller: CallDebugController) -> [String] {
+        let bundleInfo = Bundle.main.infoDictionary
+        let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId)
+        let talkCapabilities = NCDatabaseManager.sharedInstance().roomTalkCapabilities(for: room)
+
+        return [
+            "== Talk iOS call debug info ==",
+            "Date: \(ISO8601DateFormatter().string(from: Date()))",
+            "App: \(bundleInfo?["CFBundleShortVersionString"] ?? "?") (\(bundleInfo?["CFBundleVersion"] ?? "?")), iOS \(UIDevice.current.systemVersion)",
+            "Server: \(account.server), Nextcloud \(serverCapabilities?.version ?? "?"), Talk \(talkCapabilities?.talkVersion ?? "?")",
+            "HPB version: \(serverCapabilities?.externalSignalingServerVersion ?? "?")",
+            "Room: \(room.token), type \(room.type.rawValue), participant flags \(room.participantFlags.rawValue)",
+            "",
+            "== View ==",
+            "Audio only: \(isAudioOnly), view mode: \(callViewMode.rawValue), promoted: \(promotedPeerIdentifier ?? "none"), PiP: \(pipCoordinator.isActive)",
+            "Participants shown: \(peerStore.peers.count), screens: \(peerStore.screenPeers.count)"
+        ]
+    }
+
+    func callDebugController(_ controller: CallDebugController, present viewController: UIViewController) {
+        self.present(viewController, animated: true)
     }
 }
