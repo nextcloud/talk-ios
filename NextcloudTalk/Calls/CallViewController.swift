@@ -49,7 +49,9 @@ class CallViewController: UIViewController,
 
     public weak var delegate: CallViewControllerDelegate?
 
-    public var room: NCRoom
+    public var room: NCRoom {
+        didSet { self.pipCoordinator.room = self.room }
+    }
     public var account: TalkAccount
     public var audioDisabledAtStart = false
     public var videoDisabledAtStart = false
@@ -64,12 +66,11 @@ class CallViewController: UIViewController,
     private let speakerLayout = CallSpeakerLayout()
     private var gridLayout: UICollectionViewLayout?
 
-    private var pipController: AVPictureInPictureController?
-    private var pipViewController: CallPiPViewController?
-    private var pipPeerIdentifier: String?
-    private weak var pipRendererAttachedPeer: NCPeerConnection?
-    private var pipLocalRendererAttached = false
-    private var isPiPActive = false
+    private lazy var pipCoordinator: CallPiPCoordinator = {
+        let coordinator = CallPiPCoordinator(peerStore: peerStore, room: room, account: account)
+        coordinator.delegate = self
+        return coordinator
+    }()
 
     private var simulcastDebugQuality: SimulcastVideoQuality?
     private var remoteVideoBlockedDebugOverride: Bool?
@@ -132,7 +133,9 @@ class CallViewController: UIViewController,
     private let presenterView = CallPresenterView()
     private weak var presenterRendererAttachedPeer: NCPeerConnection?
     private let screenshareSwitchButton = UIButton(type: .custom)
-    private var callController: NCCallController?
+    private var callController: NCCallController? {
+        didSet { self.pipCoordinator.callController = self.callController }
+    }
     private var chatViewController: ChatViewController?
     private var chatNavigationController: UINavigationController?
     private var screensharingSize: CGSize?
@@ -478,9 +481,7 @@ class CallViewController: UIViewController,
         // via the app switcher or the app icon it needs to be stopped manually.
         // This can't happen earlier (e.g. willEnterForeground), as AVKit ignores the
         // stop request while the app is not active yet
-        if let pipController, pipController.isPictureInPictureActive {
-            pipController.stopPictureInPicture()
-        }
+        self.pipCoordinator.stopIfShown()
 
         if let callController, !isAudioOnly, !userDisabledVideo, !callController.isCameraUsableWhileInBackground() {
             // Only enabled video if it was not disabled by the user
@@ -879,7 +880,7 @@ class CallViewController: UIViewController,
             return simulcastDebugQuality
         }
 
-        if isPiPActive {
+        if pipCoordinator.isActive {
             // Only the small Picture in Picture window is visible
             return .low
         }
@@ -919,8 +920,8 @@ class CallViewController: UIViewController,
     }
 
     private func visibleVideoPeerIds() -> Set<String> {
-        if isPiPActive {
-            guard let pipPeerIdentifier, let pipPeer = self.peerStore.peer(forPeerIdentifier: pipPeerIdentifier) else { return [] }
+        if pipCoordinator.isActive {
+            guard let pipPeer = self.pipCoordinator.shownPeer else { return [] }
 
             return [pipPeer.peerId]
         }
@@ -1099,7 +1100,7 @@ class CallViewController: UIViewController,
             "Room: \(room.token), type \(room.type.rawValue), participant flags \(room.participantFlags.rawValue)",
             "",
             "== View ==",
-            "Audio only: \(isAudioOnly), view mode: \(callViewMode.rawValue), promoted: \(promotedPeerIdentifier ?? "none"), PiP: \(isPiPActive)",
+            "Audio only: \(isAudioOnly), view mode: \(callViewMode.rawValue), promoted: \(promotedPeerIdentifier ?? "none"), PiP: \(pipCoordinator.isActive)",
             "Participants shown: \(peerStore.peers.count), screens: \(peerStore.screenPeers.count)",
             "Debug overrides: simulcast \(simulcastDebugQuality.map { "\($0)" } ?? "automatic"), remote video blocked \(remoteVideoBlockedDebugOverride.map { "\($0)" } ?? "automatic")",
             ""
@@ -1128,211 +1129,9 @@ class CallViewController: UIViewController,
     // MARK: - Picture in Picture
 
     func setupPictureInPicture() {
-        guard !isAudioOnly, AVPictureInPictureController.isPictureInPictureSupported() else { return }
+        guard !isAudioOnly else { return }
 
-        self.createPictureInPicture(withInitialContentSize: CallPiPViewController.defaultContentSize)
-    }
-
-    private func createPictureInPicture(withInitialContentSize contentSize: CGSize) {
-        // The initial window scale is determined from the preferred content size the
-        // content view controller was created with (see CallPiPViewController.init),
-        // so both the view controller and the controller need to be recreated when the
-        // expected video size changes before Picture in Picture is started
-        self.pipController?.contentSource = nil
-
-        let pipViewController = CallPiPViewController(initialContentSize: contentSize)
-        let contentSource = AVPictureInPictureController.ContentSource(activeVideoCallSourceView: self.collectionView, contentViewController: pipViewController)
-        let pipController = AVPictureInPictureController(contentSource: contentSource)
-
-        // Start Picture in Picture automatically when the app is moved to the background during a call
-        pipController.canStartPictureInPictureAutomaticallyFromInline = true
-        pipController.delegate = self
-
-        self.pipViewController = pipViewController
-        self.pipController = pipController
-    }
-
-    // Recreate Picture in Picture when the video size of the expected initial participant
-    // does not match the current content size, so the window has the correct scale and
-    // aspect on the very first start (see createPictureInPicture). Called when a video
-    // size changes, but also when peers are added: a size reported while its peer was
-    // still a pending insert is skipped here, because initialPiPPeer can't return it yet
-    private func recreatePictureInPictureIfNeeded() {
-        guard !isPiPActive, UIApplication.shared.applicationState == .active,
-              let pipViewController,
-              let initialPeerIdentifier = initialPiPPeer()?.peerIdentifier,
-              let rendererView = peerStore.videoRenderer(forPeerIdentifier: initialPeerIdentifier),
-              let expectedContentSize = CallPiPViewController.normalizedContentSize(for: rendererView.frame.size),
-              expectedContentSize != pipViewController.preferredContentSize
-        else { return }
-
-        self.createPictureInPicture(withInitialContentSize: expectedContentSize)
-    }
-
-    private func stopPictureInPicture() {
-        guard let pipController else { return }
-
-        self.isPiPActive = false
-        self.pipPeerIdentifier = nil
-        self.detachPiPRenderer()
-        self.detachPiPLocalRenderer()
-        self.updateSimulcastVideoQualities()
-        self.setNeedsRemoteVideoVisibilityUpdate()
-
-        if pipController.isPictureInPictureActive {
-            pipController.stopPictureInPicture()
-        }
-
-        pipController.contentSource = nil
-        self.pipController = nil
-        self.pipViewController = nil
-    }
-
-    private func initialPiPPeer() -> NCPeerConnection? {
-        // In speaker view the participant shown in Picture in Picture follows the promoted one,
-        // otherwise it is determined like the initially promoted participant in speaker view
-        if callViewMode == .speaker, let promotedPeer = peerStore.peers.first(where: { $0.peerIdentifier == promotedPeerIdentifier }) {
-            return promotedPeer
-        }
-
-        return initialPromotedPeer()
-    }
-
-    func promotePeerInPiP(_ peer: NCPeerConnection) {
-        DispatchQueue.main.async {
-            guard self.isPiPActive, self.pipPeerIdentifier != peer.peerIdentifier else { return }
-
-            self.pipPeerIdentifier = peer.peerIdentifier
-            self.updatePiPContent()
-        }
-    }
-
-    func promoteNextSpeakerInPiPIfNeeded(_ peer: NCPeerConnection) {
-        DispatchQueue.main.async {
-            // When the participant shown in Picture in Picture stops speaking, hand the
-            // promotion over to a participant that is still speaking (same as in speaker view)
-            guard self.isPiPActive, self.pipPeerIdentifier == peer.peerIdentifier,
-                  let nextSpeaker = self.peerStore.peers.first(where: { $0.isPeerSpeaking && $0.peerIdentifier != peer.peerIdentifier })
-            else { return }
-
-            self.promotePeerInPiP(nextSpeaker)
-        }
-    }
-
-    private func updatePiPPeerIfNeeded() {
-        guard isPiPActive else { return }
-
-        // Make sure the participant shown in Picture in Picture is still in the call
-        if !peerStore.contains(peerIdentifier: pipPeerIdentifier) {
-            pipPeerIdentifier = initialPiPPeer()?.peerIdentifier
-        }
-
-        self.updatePiPContent()
-    }
-
-    private func updatePiPContentIfNeeded(for peer: NCPeerConnection) {
-        DispatchQueue.main.async {
-            guard self.isPiPActive, self.pipPeerIdentifier == peer.peerIdentifier else { return }
-
-            self.updatePiPContent()
-        }
-    }
-
-    private func reattachPiPRendererIfNeeded(for peer: NCPeerConnection) {
-        DispatchQueue.main.async {
-            guard self.isPiPActive, self.pipPeerIdentifier == peer.peerIdentifier else { return }
-
-            // A new remote stream was added for the shown participant,
-            // so the renderer needs to be attached to the new video track
-            self.detachPiPRenderer()
-            self.updatePiPContent()
-        }
-    }
-
-    private func updatePiPContent() {
-        self.setNeedsRemoteVideoVisibilityUpdate()
-
-        guard isPiPActive, let pipViewController else { return }
-
-        guard let peer = peerStore.peers.first(where: { $0.peerIdentifier == pipPeerIdentifier }) else {
-            if peerStore.peers.isEmpty {
-                // No other participant in the call, show the conversation avatar and name
-                self.detachPiPRenderer()
-                pipViewController.showPlaceholder(for: self.room)
-            }
-
-            // Otherwise the participant was not added to the collection view yet,
-            // in that case the content is updated when the pending insert is processed
-
-            return
-        }
-
-        if pipRendererAttachedPeer !== peer {
-            self.detachPiPRenderer()
-            self.pipRendererAttachedPeer = peer
-
-            WebRTCCommon.shared.dispatch {
-                peer.getRemoteStream()?.videoTracks.first?.add(pipViewController.videoRenderView)
-            }
-        }
-
-        pipViewController.setVideoDisabled(peer.isRemoteVideoDisabled || !peer.hasRemoteStream())
-
-        WebRTCCommon.shared.dispatch {
-            let actor = self.callController?.getActor(fromSessionId: peer.peerId) ?? TalkActor()
-
-            if actor.rawDisplayName.isEmpty, let peerName = peer.peerName, !peerName.isEmpty {
-                actor.rawDisplayName = peerName
-            }
-
-            DispatchQueue.main.async {
-                pipViewController.setAvatar(for: actor, using: self.account)
-            }
-        }
-    }
-
-    private func detachPiPRenderer() {
-        guard let pipViewController else { return }
-
-        if let attachedPeer = pipRendererAttachedPeer {
-            WebRTCCommon.shared.dispatch {
-                attachedPeer.getRemoteStream()?.videoTracks.first?.remove(pipViewController.videoRenderView)
-            }
-        }
-
-        self.pipRendererAttachedPeer = nil
-        pipViewController.videoRenderView.flush()
-    }
-
-    private func attachPiPLocalRendererIfNeeded() {
-        guard isPiPActive, let callController, let pipViewController,
-              callController.isCameraUsableWhileInBackground()
-        else { return }
-
-        self.pipLocalRendererAttached = true
-
-        pipViewController.localVideoRenderView.isMirrored = callController.isUsingFrontCamera()
-        callController.attachRenderer(toLocalVideoTrack: pipViewController.localVideoRenderView)
-
-        callController.getVideoEnabledState { isEnabled in
-            DispatchQueue.main.async {
-                guard self.pipLocalRendererAttached else { return }
-
-                pipViewController.setLocalVideoHidden(!isEnabled)
-            }
-        }
-    }
-
-    private func detachPiPLocalRenderer() {
-        guard let pipViewController else { return }
-
-        if pipLocalRendererAttached {
-            callController?.detachRenderer(fromLocalVideoTrack: pipViewController.localVideoRenderView)
-        }
-
-        self.pipLocalRendererAttached = false
-        pipViewController.setLocalVideoHidden(true)
-        pipViewController.localVideoRenderView.flush()
+        self.pipCoordinator.setup(sourceView: self.collectionView)
     }
 
     func updateParticipantCell(cell: CallParticipantViewCell, withPeerConnection peerConnection: NCPeerConnection) {
@@ -1485,12 +1284,7 @@ class CallViewController: UIViewController,
                 self.disableLocalVideo()
             }
 
-            // The local video track might have been recreated while in Picture in Picture
-            // (e.g. when reconnecting a call), so the renderer needs to be attached to the new track
-            if self.pipLocalRendererAttached {
-                self.detachPiPLocalRenderer()
-                self.attachPiPLocalRendererIfNeeded()
-            }
+            self.pipCoordinator.reattachLocalRendererIfNeeded()
         }
 
         #if targetEnvironment(simulator)
@@ -1545,7 +1339,7 @@ class CallViewController: UIViewController,
                     self.addPeer(remotePeer)
                 }
 
-                self.reattachPiPRendererIfNeeded(for: remotePeer)
+                self.pipCoordinator.reattachRendererIfNeeded(for: remotePeer)
 
                 if self.presenterRendererAttachedPeer === remotePeer {
                     // The renderer needs to be attached to the new video track
@@ -1602,7 +1396,7 @@ class CallViewController: UIViewController,
                     cell.videoDisabled = peer.isRemoteVideoDisabled
                 }
 
-                self.updatePiPContentIfNeeded(for: peer)
+                self.pipCoordinator.updateContentIfNeeded(for: peer)
                 self.updatePresenterViewIfNeeded(for: peer)
             }
         case "speaking", "stoppedSpeaking":
@@ -1615,11 +1409,11 @@ class CallViewController: UIViewController,
                 // Add to speakers and sort participants if needed
                 if message == "speaking" {
                     self.promotePeerInSpeakerView(peer)
-                    self.promotePeerInPiP(peer)
+                    self.pipCoordinator.promote(peer)
                     self.addSpeakerAndPromoteIfNeeded(peer)
                 } else {
                     self.promoteNextSpeakerInSpeakerViewIfNeeded(peer)
-                    self.promoteNextSpeakerInPiPIfNeeded(peer)
+                    self.pipCoordinator.promoteNextSpeakerIfNeeded(after: peer)
                 }
             }
         case "raiseHand":
@@ -1636,7 +1430,7 @@ class CallViewController: UIViewController,
             cell.displayName = nick
         }
 
-        self.updatePiPContentIfNeeded(for: peer)
+        self.pipCoordinator.updateContentIfNeeded(for: peer)
         DispatchQueue.main.async {
             if peer.peerId == self.presentedScreenPeerId {
                 self.updateScreenshareLabel()
@@ -2658,9 +2452,7 @@ class CallViewController: UIViewController,
         self.setVideoDisableButtonActive(enabled)
 
         DispatchQueue.main.async {
-            if self.pipLocalRendererAttached {
-                self.pipViewController?.setLocalVideoHidden(!enabled)
-            }
+            self.pipCoordinator.setLocalVideoHidden(!enabled)
         }
     }
 
@@ -2756,7 +2548,7 @@ class CallViewController: UIViewController,
         self.moreMenuButton?.contextMenuInteraction?.dismissMenu()
         self.hangUpButton?.contextMenuInteraction?.dismissMenu()
 
-        self.stopPictureInPicture()
+        self.pipCoordinator.stop()
 
         self.delegate?.callViewControllerWantsToBeDismissed(self)
 
@@ -2854,7 +2646,7 @@ class CallViewController: UIViewController,
 
         callController.downgradeToVoiceOnlyCall()
 
-        self.stopPictureInPicture()
+        self.pipCoordinator.stop()
 
         self.setLocalVideoViewWrapperHidden(true)
 
@@ -3073,7 +2865,7 @@ class CallViewController: UIViewController,
         callController = nil
 
         DispatchQueue.main.async {
-            self.stopPictureInPicture()
+            self.pipCoordinator.stop()
         }
 
         if videoCallUpgrade {
@@ -3423,7 +3215,7 @@ class CallViewController: UIViewController,
                     participantCell.remoteVideoSize = size
                 }
 
-                self.recreatePictureInPictureIfNeeded()
+                self.pipCoordinator.recreateIfNeeded()
             }
 
             if self.peerStore.isScreenRenderer(mtlVideoView) {
@@ -3495,8 +3287,8 @@ class CallViewController: UIViewController,
             promotedPeerIdentifier = initialPromotedPeer()?.peerIdentifier
         }
 
-        self.updatePiPPeerIfNeeded()
-        self.recreatePictureInPictureIfNeeded()
+        self.pipCoordinator.updateShownPeerIfNeeded()
+        self.pipCoordinator.recreateIfNeeded()
 
         self.updateSnapshot()
 
@@ -3551,54 +3343,26 @@ class CallViewController: UIViewController,
     }
 }
 
-// MARK: - AVPictureInPictureControllerDelegate
+// MARK: - CallPiPCoordinatorDelegate
 
-extension CallViewController: AVPictureInPictureControllerDelegate {
+extension CallViewController: CallPiPCoordinatorDelegate {
 
-    func pictureInPictureControllerWillStartPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
-        self.isPiPActive = true
-        self.pipPeerIdentifier = self.initialPiPPeer()?.peerIdentifier
-        self.updatePiPContent()
-        self.attachPiPLocalRendererIfNeeded()
-        self.updateSimulcastVideoQualities()
-    }
-
-    func pictureInPictureControllerDidStartPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
-        // When quickly switching back to the app while Picture in Picture is still
-        // animating in, the stop in appDidBecomeActive is missed, because the
-        // controller was not marked as active there yet. Stop it here instead
-        if UIApplication.shared.applicationState == .active {
-            pictureInPictureController.stopPictureInPicture()
-            return
+    func initialPeer(for coordinator: CallPiPCoordinator) -> NCPeerConnection? {
+        // In speaker view the participant shown in Picture in Picture follows the promoted one,
+        // otherwise it is determined like the initially promoted participant in speaker view
+        if callViewMode == .speaker, let promotedPeer = peerStore.peers.first(where: { $0.peerIdentifier == promotedPeerIdentifier }) {
+            return promotedPeer
         }
 
-        // A size change that happened while the window was animating in was ignored
-        // by AVKit, so assert the current size again now that the window is shown
-        self.pipViewController?.reassertContentSize()
+        return initialPromotedPeer()
     }
 
-    func pictureInPictureControllerDidStopPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
-        self.isPiPActive = false
-        self.pipPeerIdentifier = nil
-        self.detachPiPRenderer()
-        self.detachPiPLocalRenderer()
+    func pipCoordinatorDidChangeActiveState(_ coordinator: CallPiPCoordinator) {
         self.updateSimulcastVideoQualities()
         self.setNeedsRemoteVideoVisibilityUpdate()
     }
 
-    func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, failedToStartPictureInPictureWithError error: Error) {
-        print("Failed to start Picture in Picture: \(error)")
-
-        self.isPiPActive = false
-        self.pipPeerIdentifier = nil
-        self.detachPiPRenderer()
-        self.detachPiPLocalRenderer()
-        self.updateSimulcastVideoQualities()
+    func pipCoordinatorDidChangeShownPeer(_ coordinator: CallPiPCoordinator) {
         self.setNeedsRemoteVideoVisibilityUpdate()
-    }
-
-    func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void) {
-        // The call view is still presented fullscreen, nothing to restore
-        completionHandler(true)
     }
 }
