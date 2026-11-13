@@ -23,6 +23,12 @@ class CallPresenterView: UIView {
     private let collapsedSize: CGFloat = 44
     private var isSpeaking = false
 
+    // Without video only the avatar is shown, which is collapsed after a moment to free the screen share
+    private let autoCollapseDelay: TimeInterval = 3
+    private var autoCollapseWorkItem: DispatchWorkItem?
+    private var isAutoCollapsed = false
+    private var hasUserToggled = false
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
@@ -105,6 +111,54 @@ class CallPresenterView: UIView {
     func setVideoDisabled(_ disabled: Bool) {
         isVideoDisabled = disabled
         self.updateContent()
+        self.updateAutoCollapse()
+    }
+
+    // Called for a new presenter, who is shown expanded again unless the user collapsed the view
+    func resetAutoCollapse() {
+        autoCollapseWorkItem?.cancel()
+        autoCollapseWorkItem = nil
+        hasUserToggled = false
+
+        if isAutoCollapsed {
+            isAutoCollapsed = false
+            self.setCollapsed(false, animated: false)
+            onCollapsedChanged?(isCollapsed)
+        }
+    }
+
+    private func updateAutoCollapse() {
+        guard !hasUserToggled else { return }
+
+        if !isVideoDisabled {
+            autoCollapseWorkItem?.cancel()
+            autoCollapseWorkItem = nil
+
+            if isAutoCollapsed {
+                isAutoCollapsed = false
+                self.setCollapsed(false, animated: true)
+                onCollapsedChanged?(isCollapsed)
+            }
+
+            return
+        }
+
+        guard !isCollapsed, autoCollapseWorkItem == nil else { return }
+
+        let workItem = DispatchWorkItem { [weak self] in
+            guard let self else { return }
+
+            self.autoCollapseWorkItem = nil
+
+            guard self.isVideoDisabled, !self.isCollapsed, !self.hasUserToggled else { return }
+
+            self.isAutoCollapsed = true
+            self.setCollapsed(true, animated: true)
+            self.onCollapsedChanged?(self.isCollapsed)
+        }
+
+        autoCollapseWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + autoCollapseDelay, execute: workItem)
     }
 
     func setSpeaking(_ speaking: Bool) {
@@ -137,6 +191,12 @@ class CallPresenterView: UIView {
     }
 
     @objc private func toggleCollapsed() {
+        // From now on the user decides for this presenter
+        autoCollapseWorkItem?.cancel()
+        autoCollapseWorkItem = nil
+        hasUserToggled = true
+        isAutoCollapsed = false
+
         self.setCollapsed(!isCollapsed, animated: true)
         onCollapsedChanged?(isCollapsed)
     }

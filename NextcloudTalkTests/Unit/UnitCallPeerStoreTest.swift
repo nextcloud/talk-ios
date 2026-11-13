@@ -129,6 +129,34 @@ final class UnitCallPeerStoreTest: XCTestCase {
         XCTAssertNil(store.videoRenderer(forPeerIdentifier: peer.peerIdentifier))
     }
 
+    func testPeerJoiningAgainBeforeLeavingIsAppliedStays() {
+        let leaving = makePeer("a")
+        store.add(leaving)
+        store.remove(leaving)
+
+        // A new connection for the same participant
+        let rejoined = makePeer("a")
+        store.add(rejoined)
+        store.flushPendingChanges()
+
+        XCTAssertEqual(peerIdentifiers(), ["a-1"])
+        XCTAssertTrue(store.peer(forPeerIdentifier: "a-1") === rejoined)
+        XCTAssertEqual(rejoined.addedTime, leaving.addedTime, "Keeps its position when sorted")
+    }
+
+    func testLateLeaveAfterReconnectDoesNotRemoveRejoinedPeer() {
+        let peer = makePeer("a")
+        store.add(peer)
+        store.removeAllPeers()
+
+        // The leave of the call before reconnecting arrives late
+        store.remove(peer)
+        store.add(peer)
+        store.flushPendingChanges()
+
+        XCTAssertEqual(peerIdentifiers(), ["a-1"])
+    }
+
     func testRemoveAllPeersDropsPendingChanges() {
         store.add(makePeer("a"))
         store.add(makePeer("b"))

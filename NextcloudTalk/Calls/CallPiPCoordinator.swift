@@ -10,6 +10,9 @@ protocol CallPiPCoordinatorDelegate: AnyObject {
     // The participant to show when Picture in Picture starts or the shown one left
     func initialPeer(for coordinator: CallPiPCoordinator) -> NCPeerConnection?
 
+    // The participants in the order they are shown, to pick the next speaker like the call view does
+    func displayedPeers(for coordinator: CallPiPCoordinator) -> [NCPeerConnection]
+
     // Simulcast qualities depend on whether Picture in Picture is active
     func pipCoordinatorDidChangeActiveState(_ coordinator: CallPiPCoordinator)
 
@@ -145,7 +148,7 @@ final class CallPiPCoordinator: NSObject {
             // When the participant shown in Picture in Picture stops speaking, hand the
             // promotion over to a participant that is still speaking (same as in speaker view)
             guard self.isActive, self.shownPeerIdentifier == peer.peerIdentifier,
-                  let nextSpeaker = self.peerStore.peers.first(where: { $0.isPeerSpeaking && $0.peerIdentifier != peer.peerIdentifier })
+                  let nextSpeaker = self.delegate?.displayedPeers(for: self).first(where: { $0.isPeerSpeaking && $0.peerIdentifier != peer.peerIdentifier })
             else { return }
 
             self.promote(nextSpeaker)

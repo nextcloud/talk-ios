@@ -54,9 +54,25 @@ final class CallPeerStore {
     func add(_ peer: NCPeerConnection) {
         dispatchPrecondition(condition: .onQueue(.main))
 
+        // Joined again before leaving was applied, otherwise the pending leave would remove it again
+        let wasLeaving = pendingDeletions.contains { $0.peerIdentifier == peer.peerIdentifier }
+        pendingDeletions.removeAll { $0.peerIdentifier == peer.peerIdentifier }
+
         // A peer can be added from both peerJoined and didAddStream, a duplicate would crash the diffable data source
-        let isPendingInsert = pendingInserts.contains { $0.peerIdentifier == peer.peerIdentifier }
-        guard !self.contains(peer), !isPendingInsert else { return }
+        if let index = peers.firstIndex(where: { $0.peerIdentifier == peer.peerIdentifier }) {
+            if wasLeaving {
+                // Keeps its position, but lookups need to return the new connection
+                if peer.addedTime == 0 {
+                    peer.addedTime = peers[index].addedTime
+                }
+
+                peers[index] = peer
+            }
+
+            return
+        }
+
+        guard !pendingInserts.contains(where: { $0.peerIdentifier == peer.peerIdentifier }) else { return }
 
         if peer.addedTime == 0 {
             peer.addedTime = Int(Date().timeIntervalSince1970 * 1000)

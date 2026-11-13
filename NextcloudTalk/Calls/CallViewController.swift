@@ -133,6 +133,7 @@ class CallViewController: UIViewController,
     private var presentedScreenPeerId: String?
     private let presenterView = CallPresenterView()
     private weak var presenterRendererAttachedPeer: NCPeerConnection?
+    private var presenterAutoCollapsePeerId: String?
     private let screenshareSwitchButton = UIButton(type: .custom)
     private var callController: NCCallController? {
         didSet {
@@ -853,7 +854,7 @@ class CallViewController: UIViewController,
             // When the promoted participant stops speaking, hand the promotion over to a
             // participant that is still speaking (see _setSpeaking in CallView.vue of the web client)
             guard self.callViewMode == .speaker, self.promotedPeerIdentifier == peer.peerIdentifier,
-                  let nextSpeaker = self.peerStore.peers.first(where: { $0.isPeerSpeaking && $0.peerIdentifier != peer.peerIdentifier })
+                  let nextSpeaker = self.displayedPeers().first(where: { $0.isPeerSpeaking && $0.peerIdentifier != peer.peerIdentifier })
             else { return }
 
             self.promotePeerInSpeakerView(nextSpeaker)
@@ -2919,6 +2920,12 @@ class CallViewController: UIViewController,
             self.detachPresenterRenderer()
             self.presenterRendererAttachedPeer = presenter
 
+            // Not when only the stream of the same presenter was replaced
+            if presenterAutoCollapsePeerId != presenter.peerId {
+                presenterAutoCollapsePeerId = presenter.peerId
+                self.presenterView.resetAutoCollapse()
+            }
+
             let renderView = presenterView.videoRenderView
 
             WebRTCCommon.shared.dispatch {
@@ -3207,6 +3214,10 @@ extension CallViewController: CallPiPCoordinatorDelegate {
         }
 
         return initialPromotedPeer()
+    }
+
+    func displayedPeers(for coordinator: CallPiPCoordinator) -> [NCPeerConnection] {
+        return self.displayedPeers()
     }
 
     func pipCoordinatorDidChangeActiveState(_ coordinator: CallPiPCoordinator) {
