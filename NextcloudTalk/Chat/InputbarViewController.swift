@@ -121,11 +121,9 @@ import UIKit
         self.textView.layer.cornerRadius = self.textView.frame.size.height / 2
 
         // Need a compile-time check here for old xcode version on CI
-#if swift(>=5.9)
-        if #available(iOS 17.0, *), NCUtils.isiOSAppOnMac() {
+        if NCUtils.isiOSAppOnMac() {
             self.textView.inlinePredictionType = .no
         }
-#endif
 
         self.textView.allowsEditingTextAttributes = false
         if #available(iOS 18.0, *) {

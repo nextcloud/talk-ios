@@ -19,7 +19,8 @@ final class UILoginTest: UITestCase {
         XCTAssert(loginButton.waitForExistence(timeout: TestConstants.timeoutLong))
         loginButton.tap()
 
-        let loginWebview = app.webViews["interactiveWebLoginView"]
+        // The authentication session shows the login page out of process
+        let loginWebview = XCUIApplication(bundleIdentifier: "com.apple.SafariViewService").webViews.firstMatch
         waitForReady(object: loginWebview, timeout: TestConstants.timeoutLong)
 
         // Wait for the login button to be available and to get enabled/hittable
@@ -47,9 +48,7 @@ final class UILoginTest: UITestCase {
         let grantAccessButton = loginWebview.buttons["Grant access"]
         waitForReady(object: grantAccessButton, timeout: TestConstants.timeoutLong)
 
-        // Wait again for the webview to be ready
-        waitForReady(object: loginWebview)
-
+        // Tapping lets XCTest dismiss the "Save Password?" prompt that might cover the page
         grantAccessButton.tap()
 
         // When the account switcher gets enabled, we have atleast 1 account in the app and are online

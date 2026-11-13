@@ -220,11 +220,13 @@ public class NCChatFileController: NSObject {
                 return
             }
 
-            NextcloudKit.shared.download(serverUrlFileName: serverUrlFileName, fileNameLocalPath: fileLocalPath, queue: .main) { request in
-                self.cancelDownloadHandler = { _ = request.cancel() }
+            NextcloudKit.shared.download(serverUrlFileName: serverUrlFileName, fileNameLocalPath: fileLocalPath, account: self.account.accountId, options: .defaultRequestOptions()) { _ in
+            } taskHandler: { task in
+                // Cancelling through the request would need Alamofire, which isn't linked directly
+                self.cancelDownloadHandler = { task.cancel() }
             } progressHandler: { progress in
                 self.didChangeDownloadProgressNotification(progress: progress)
-            } completionHandler: { _, _, _, _, _, error in
+            } completionHandler: { _, _, error in
                 self.cancelDownloadHandler = nil
 
                 guard !self.isCancelled else { return }

@@ -84,7 +84,7 @@ struct UserStatusSwiftUIView: View {
             getUserStatus()
             getAbsenceStatus()
         }
-        .onChange(of: changed) { newValue in
+        .onChange(of: changed) { _, newValue in
             if newValue == true {
                 getUserStatus()
                 getAbsenceStatus()

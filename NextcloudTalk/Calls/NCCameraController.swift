@@ -122,7 +122,7 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
             }
 
             // We need to set the orientation again, because otherweise after switching the video is turned
-            session.outputs.first?.connections.first?.videoOrientation = .portrait
+            session.outputs.first?.connections.first?.videoRotationAngle = 90
             session.startRunning()
 
             self.updateVideoRotationBasedOnDeviceOrientation()
@@ -233,7 +233,7 @@ class NCCameraController: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
             output.setSampleBufferDelegate(self, queue: .global(qos: .userInteractive))
 
             self.session?.addOutput(output)
-            output.connections.first?.videoOrientation = .portrait
+            output.connections.first?.videoRotationAngle = 90
             self.session?.startRunning()
         }
     }

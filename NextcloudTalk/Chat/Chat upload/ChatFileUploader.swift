@@ -197,9 +197,11 @@ enum ChatFileUploader {
         return try await withCheckedThrowingContinuation { continuation in
             NextcloudKit.shared.upload(serverUrlFileName: destination.serverURL,
                                        fileNameLocalPath: upload.localPath,
+                                       account: upload.account.accountId,
+                                       options: .defaultRequestOptions(),
                                        progressHandler: { uploadProgress in
                 progress?(uploadProgress.fractionCompleted)
-            }, completionHandler: { _, _, _, _, _, _, error in
+            }, completionHandler: { _, _, error in
                 switch error.errorCode {
                 case 0:
                     continuation.resume()

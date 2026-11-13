@@ -231,7 +231,7 @@ jobs:
         ./server/occ background:cron
         ./server/occ talk:bot:install TestBot secret123456789123456789qwertzuiop1234567890 https://domain.invalid "New description" || true
         OC_PASS=alice ./server/occ user:add --password-from-env alice
-        PHP_CLI_SERVER_WORKERS=10 php -S localhost:8080 -t server/ &
+        PHP_CLI_SERVER_WORKERS=10 php -S localhost:8080 -t server/ > server/data/php-server.log 2>&1 &
 
     - name: Download test-build
       uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
@@ -256,6 +256,10 @@ jobs:
     - name: Test NextcloudTalk iOS
       run: |
         xcrun simctl privacy booted grant camera com.nextcloud.Talk
+
+        xcrun simctl spawn booted log stream --style compact \
+        --predicate 'process == "NextcloudTalk" AND ((messageType >= 16 OR category IN {"Presentation", "AuthenticationSession"}) AND NOT category IN {"UIKBFeedbackGenerator", "Default"} AND NOT sender == "CoreHaptics" OR subsystem == "com.apple.CFNetwork" AND category == "Summary")' \
+        > simulator.log 2>&1 &
 
         set -o pipefail && \
         xcodebuild test-without-building \
@@ -285,6 +289,8 @@ jobs:
       if: ${{ !cancelled() }}
       run: |
         cat server/data/nextcloud.log
+        cat server/data/php-server.log
+        cat simulator.log
 
     - name: Upload test results
       uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
