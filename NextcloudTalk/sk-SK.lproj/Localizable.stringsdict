@@ -37,9 +37,9 @@
 			<key>few</key>
 			<string>%d hlasy</string>
 			<key>many</key>
-			<string>%d hlasov</string>
+			<string>%d hlasu</string>
 			<key>other</key>
-			<string>%d hlasy</string>
+			<string>%d hlasov</string>
 		</dict>
 	</dict>
 	<key>%ld files failed to send</key>
@@ -77,9 +77,9 @@
 			<key>few</key>
 			<string>%ld účastníci</string>
 			<key>many</key>
-			<string>%ld účastníkov</string>
+			<string>Počet účastníkov: %ld</string>
 			<key>other</key>
-			<string>%ld účastníci</string>
+			<string>%ld účastníkov</string>
 		</dict>
 	</dict>
 	<key>%ld participants in this call</key>
@@ -95,9 +95,9 @@
 			<key>one</key>
 			<string>%ld účastník v tomto hovore</string>
 			<key>few</key>
-			<string>%ld účastníkov v tomto hovore</string>
+			<string>%ld účastníci v tomto hovore</string>
 			<key>many</key>
-			<string>%ld účastníkov v tomto hovore</string>
+			<string>Počet účastníkov v tomto hovore: %ld</string>
 			<key>other</key>
 			<string>%ld účastníkov v tomto hovore</string>
 		</dict>
@@ -177,7 +177,7 @@
 			<key>few</key>
 			<string>%ld oznámenia</string>
 			<key>many</key>
-			<string>%ld oznámení</string>
+			<string>%ld oznámenia</string>
 			<key>other</key>
 			<string>%ld oznámení</string>
 		</dict>
@@ -197,7 +197,7 @@
 			<key>few</key>
 			<string>Máte %ld čakajúce pozvánky</string>
 			<key>many</key>
-			<string>Máte %ld čakajúcich pozvánok</string>
+			<string>Máte %ld čakajúcej pozvánky</string>
 			<key>other</key>
 			<string>Máte %ld čakajúcich pozvánok</string>
 		</dict>
@@ -217,7 +217,7 @@
 			<key>few</key>
 			<string>%d možnosti</string>
 			<key>many</key>
-			<string>%d možností</string>
+			<string>%d možnosti</string>
 			<key>other</key>
 			<string>%d možností</string>
 		</dict>
@@ -275,9 +275,9 @@
 			<key>one</key>
 			<string>Heslo musí mať aspoň %d znak</string>
 			<key>few</key>
-			<string>Heslo musí mať aspoň %d znakov</string>
+			<string>Heslo musí mať aspoň %d znaky</string>
 			<key>many</key>
-			<string>Heslo musí mať aspoň %d znakov</string>
+			<string>Heslo musí mať aspoň %d znaku</string>
 			<key>other</key>
 			<string>Heslo musí mať aspoň %d znakov</string>
 		</dict>
@@ -335,9 +335,9 @@
 			<key>one</key>
 			<string>%ld deň</string>
 			<key>few</key>
-			<string>%ld dní</string>
+			<string>%ld dni</string>
 			<key>many</key>
-			<string>%ld dní</string>
+			<string>%ld dňa</string>
 			<key>other</key>
 			<string>%ld dní</string>
 		</dict>
@@ -375,9 +375,9 @@
 			<key>one</key>
 			<string>%ld minúta</string>
 			<key>few</key>
-			<string>%ld minút</string>
+			<string>%ld minúty</string>
 			<key>many</key>
-			<string>%ld minút</string>
+			<string>%ld minúty</string>
 			<key>other</key>
 			<string>%ld minút</string>
 		</dict>
@@ -393,11 +393,11 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%4$ld ďalší dostane pozvánku</string>
+			<string>Pozvánky dostane ešte %4$ld osoba</string>
 			<key>few</key>
 			<string>%4$ld ďalší dostanú pozvánky</string>
 			<key>many</key>
-			<string>%4$ld ďalších dostane pozvánky</string>
+			<string>Pozvánky dostane ďalší počet osôb: %4$ld</string>
 			<key>other</key>
 			<string>%4$ld ďalších dostane pozvánky</string>
 		</dict>
@@ -437,7 +437,7 @@
 			<key>few</key>
 			<string>Pridali ste {user0} a %ld ďalších účastníkov</string>
 			<key>many</key>
-			<string>Pridali ste {user0} a %ld ďalších účastníkov</string>
+			<string>Pridali ste {user0} a ďalších účastníkov v počte %ld</string>
 			<key>other</key>
 			<string>Pridali ste {user0} a %ld ďalších účastníkov</string>
 		</dict>
@@ -453,13 +453,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>Správca vás pridal a %ld ďalšieho účastníka</string>
+			<string>Pridanie vás a %ld ďalšieho účastníka správcom</string>
 			<key>few</key>
-			<string>Správca vás pridal a %ld ďalších účastníkov</string>
+			<string>Pridanie vás a %ld ďalších účastníkov správcom</string>
 			<key>many</key>
-			<string>Správca vás pridal a %ld ďalších účastníkov</string>
+			<string>Pridanie vás a ďalších účastníkov v počte %ld správcom</string>
 			<key>other</key>
-			<string>Správca vás pridal a %ld ďalších účastníkov</string>
+			<string>Pridanie vás a %ld ďalších účastníkov správcom</string>
 		</dict>
 	</dict>
 	<key>An administrator added {user0} and %ld more participants</key>
@@ -513,13 +513,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} pridal(a) {user0} a %ld ďalšieho účastníka</string>
+			<string>Pridanie používateľa {user0} a %ld ďalšieho účastníka používateľom {actor0}</string>
 			<key>few</key>
-			<string>{actor0} pridal(a) {user0} a %ld ďalších účastníkov</string>
+			<string>Pridanie používateľa {user0} a %ld ďalších účastníkov používateľom {actor0}</string>
 			<key>many</key>
-			<string>{actor0} pridal(a) {user0} a %ld ďalších účastníkov</string>
+			<string>Pridanie používateľa {user0} a ďalších účastníkov v počte %ld používateľom {actor0}</string>
 			<key>other</key>
-			<string>{actor0} pridal(a) {user0} a %ld ďalších účastníkov</string>
+			<string>Pridanie používateľa {user0} a %ld ďalších účastníkov používateľom {actor0}</string>
 		</dict>
 	</dict>
 	<key>You removed {user0} and %ld more participants</key>
@@ -537,7 +537,7 @@
 			<key>few</key>
 			<string>Odstránili ste {user0} a %ld ďalších účastníkov</string>
 			<key>many</key>
-			<string>Odstránili ste {user0} a %ld ďalších účastníkov</string>
+			<string>Odstránili ste {user0} a ďalších účastníkov v počte %ld</string>
 			<key>other</key>
 			<string>Odstránili ste {user0} a %ld ďalších účastníkov</string>
 		</dict>
@@ -593,13 +593,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} vás odstránil(a) a %ld ďalšieho účastníka</string>
+			<string>Odstránenie vás a %ld ďalšieho účastníka používateľom {actor0}</string>
 			<key>few</key>
-			<string>{actor0} vás odstránil(a) a %ld ďalších účastníkov</string>
+			<string>Odstránenie vás a %ld ďalších účastníkov používateľom {actor0}</string>
 			<key>many</key>
-			<string>{actor0} vás odstránil(a) a %ld ďalších účastníkov</string>
+			<string>Odstránenie vás a ďalších účastníkov v počte %ld používateľom {actor0}</string>
 			<key>other</key>
-			<string>{actor0} vás odstránil(a) a %ld ďalších účastníkov</string>
+			<string>Odstránenie vás a %ld ďalších účastníkov používateľom {actor0}</string>
 		</dict>
 	</dict>
 	<key>{actor0} removed {user0} and %ld more participants</key>
@@ -613,13 +613,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} odstránil(a) {user0} a %ld ďalšieho účastníka</string>
+			<string>Odstránenie používateľa {user0} a %ld ďalšieho účastníka používateľom {actor0}</string>
 			<key>few</key>
-			<string>{actor0} odstránil(a) {user0} a %ld ďalších účastníkov</string>
+			<string>Odstránenie používateľa {user0} a ďalších účastníkov v počte %ld používateľom {actor0}</string>
 			<key>many</key>
-			<string>{actor0} odstránil(a) {user0} a %ld ďalších účastníkov</string>
+			<string>Odstránenie používateľa {user0} a ďalších účastníkov v počte %ld používateľom {actor0}</string>
 			<key>other</key>
-			<string>{actor0} odstránil(a) {user0} a %ld ďalších účastníkov</string>
+			<string>Odstránenie používateľa {user0} a %ld ďalších účastníkov používateľom {actor0}</string>
 		</dict>
 	</dict>
 	<key>You promoted {user0} and %ld more participants to moderators</key>
@@ -637,7 +637,7 @@
 			<key>few</key>
 			<string>Povýšili ste {user0} a %ld ďalších účastníkov na moderátorov</string>
 			<key>many</key>
-			<string>Povýšili ste {user0} a %ld ďalších účastníkov na moderátorov</string>
+			<string>Povýšili ste {user0} a ďalších účastníkov v počte %ld na moderátorov</string>
 			<key>other</key>
 			<string>Povýšili ste {user0} a %ld ďalších účastníkov na moderátorov</string>
 		</dict>
@@ -653,13 +653,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>Správca vás povýšil a %ld ďalšieho účastníka na moderátora</string>
+			<string>Povýšenie vás a %ld ďalšieho účastníka na moderátorov správcom</string>
 			<key>few</key>
-			<string>Správca vás povýšil a %ld ďalších účastníkov na moderátorov</string>
+			<string>Povýšenie vás a %ld ďalších účastníkov na moderátorov správcom</string>
 			<key>many</key>
-			<string>Správca vás povýšil a %ld ďalších účastníkov na moderátorov</string>
+			<string>Povýšenie vás a ďalších účastníkov v počte %ld na moderátorov správcom</string>
 			<key>other</key>
-			<string>Správca vás povýšil a %ld ďalších účastníkov na moderátorov</string>
+			<string>Povýšenie vás a %ld ďalších účastníkov na moderátorov správcom</string>
 		</dict>
 	</dict>
 	<key>An administrator promoted {user0} and %ld more participants to moderators</key>
@@ -673,13 +673,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>Správca povýšil {user0} a %ld ďalšieho účastníka na moderátora</string>
+			<string>Povýšenie {user0} a %ld ďalšieho účastníka na moderátorov správcom</string>
 			<key>few</key>
-			<string>Správca povýšil {user0} a %ld ďalších účastníkov na moderátorov</string>
+			<string>Povýšenie {user0} a %ld ďalších účastníkov na moderátorov správcom</string>
 			<key>many</key>
-			<string>Správca povýšil {user0} a %ld ďalších účastníkov na moderátorov</string>
+			<string>Povýšenie {user0} a ďalších účastníkov v počte %ld na moderátorov správcom</string>
 			<key>other</key>
-			<string>Správca povýšil {user0} a %ld ďalších účastníkov na moderátorov</string>
+			<string>Povýšenie {user0} a %ld ďalších účastníkov na moderátorov správcom</string>
 		</dict>
 	</dict>
 	<key>{actor0} promoted you and %ld more participants to moderators</key>
@@ -693,13 +693,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} vás povýšil(a) a %ld ďalšieho účastníka na moderátora</string>
+			<string>Povýšenie vás a %ld ďalšieho účastníka na moderátorov používateľom {actor0}</string>
 			<key>few</key>
-			<string>{actor0} vás povýšil(a) a %ld ďalších účastníkov na moderátorov</string>
+			<string>Povýšenie vás a %ld ďalších účastníkov na moderátorov používateľom {actor0}</string>
 			<key>many</key>
-			<string>{actor0} vás povýšil(a) a %ld ďalších účastníkov na moderátorov</string>
+			<string>Povýšenie vás a ďalších účastníkov v počte %ld na moderátorov používateľom {actor0}</string>
 			<key>other</key>
-			<string>{actor0} vás povýšil(a) a %ld ďalších účastníkov na moderátorov</string>
+			<string>Povýšenie vás a %ld ďalších účastníkov na moderátorov používateľom {actor0}</string>
 		</dict>
 	</dict>
 	<key>{actor0} promoted {user0} and %ld more participants to moderators</key>
@@ -713,13 +713,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} povýšil(a) {user0} a %ld ďalšieho účastníka na moderátora</string>
+			<string>Povýšenie {user0} a %ld ďalšieho účastníka na moderátorov používateľom {actor0}</string>
 			<key>few</key>
-			<string>{actor0} povýšil(a) {user0} a %ld ďalších účastníkov na moderátorov</string>
+			<string>Povýšenie {user0} a %ld ďalších účastníkov na moderátorov používateľom {actor0}</string>
 			<key>many</key>
-			<string>{actor0} povýšil(a) {user0} a %ld ďalších účastníkov na moderátorov</string>
+			<string>Povýšenie {user0} a ďalších účastníkov v počte %ld na moderátorov používateľom {actor0}</string>
 			<key>other</key>
-			<string>{actor0} povýšil(a) {user0} a %ld ďalších účastníkov na moderátorov</string>
+			<string>Povýšenie {user0} a %ld ďalších účastníkov na moderátorov používateľom {actor0}</string>
 		</dict>
 	</dict>
 	<key>You demoted {user0} and %ld more participants from moderators</key>
@@ -737,7 +737,7 @@
 			<key>few</key>
 			<string>Odvolali ste {user0} a %ld ďalších účastníkov z funkcie moderátorov</string>
 			<key>many</key>
-			<string>Odvolali ste {user0} a %ld ďalších účastníkov z funkcie moderátorov</string>
+			<string>Odvolali ste {user0} a ďalších účastníkov v počte %ld z funkcie moderátorov</string>
 			<key>other</key>
 			<string>Odvolali ste {user0} a %ld ďalších účastníkov z funkcie moderátorov</string>
 		</dict>
@@ -753,13 +753,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>Správca vás a %ld ďalšieho účastníka odvolal z funkcie moderátora</string>
+			<string>Vaše odvolanie a odvolanie %ld ďalšieho účastníka z funkcie moderátora správcom</string>
 			<key>few</key>
-			<string>Správca vás a %ld ďalších účastníkov odvolal z funkcie moderátorov</string>
+			<string>Vaše odvolanie a odvolanie %ld ďalších účastníkov z funkcie moderátorov správcom</string>
 			<key>many</key>
-			<string>Správca vás a %ld ďalších účastníkov odvolal z funkcie moderátorov</string>
+			<string>Vaše odvolanie a odvolanie ďalších účastníkov v počte %ld z funkcie moderátorov správcom</string>
 			<key>other</key>
-			<string>Správca vás a %ld ďalších účastníkov odvolal z funkcie moderátorov</string>
+			<string>Vaše odvolanie a odvolanie %ld ďalších účastníkov z funkcie moderátorov správcom</string>
 		</dict>
 	</dict>
 	<key>An administrator demoted {user0} and %ld more participants from moderators</key>
@@ -773,13 +773,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>Správca odvolal {user0} a %ld ďalšieho účastníka z funkcie moderátora</string>
+			<string>Odvolanie používateľa {user0} a %ld ďalšieho účastníka z funkcie moderátora správcom</string>
 			<key>few</key>
-			<string>Správca odvolal {user0} a %ld ďalších účastníkov z funkcie moderátorov</string>
+			<string>Odvolanie používateľa {user0} a %ld ďalších účastníkov z funkcie moderátorov správcom</string>
 			<key>many</key>
-			<string>Správca odvolal {user0} a %ld ďalších účastníkov z funkcie moderátorov</string>
+			<string>Odvolanie používateľa {user0} a ďalších účastníkov v počte %ld z funkcie moderátorov správcom</string>
 			<key>other</key>
-			<string>Správca odvolal {user0} a %ld ďalších účastníkov z funkcie moderátorov</string>
+			<string>Odvolanie používateľa {user0} a %ld ďalších účastníkov z funkcie moderátorov správcom</string>
 		</dict>
 	</dict>
 	<key>{actor0} demoted you and %ld more participants from moderators</key>
@@ -793,13 +793,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} vás a %ld ďalšieho účastníka odvolal(a) z funkcie moderátora</string>
+			<string>Vaše odvolanie a odvolanie %ld ďalšieho účastníka z funkcie moderátora používateľom {actor0}</string>
 			<key>few</key>
-			<string>{actor0} vás a %ld ďalších účastníkov odvolal(a) z funkcie moderátorov</string>
+			<string>Vaše odvolanie a odvolanie %ld ďalších účastníkov z funkcie moderátorov používateľom {actor0}</string>
 			<key>many</key>
-			<string>{actor0} vás a %ld ďalších účastníkov odvolal(a) z funkcie moderátorov</string>
+			<string>Vaše odvolanie a odvolanie ďalších účastníkov v počte %ld z funkcie moderátorov používateľom {actor0}</string>
 			<key>other</key>
-			<string>{actor0} vás a %ld ďalších účastníkov odvolal(a) z funkcie moderátorov</string>
+			<string>Vaše odvolanie a odvolanie %ld ďalších účastníkov z funkcie moderátorov používateľom {actor0}</string>
 		</dict>
 	</dict>
 	<key>{actor0} demoted {user0} and %ld more participants from moderators</key>
@@ -813,13 +813,13 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} odvolal(a) {user0} a %ld ďalšieho účastníka z funkcie moderátora</string>
+			<string>Odvolanie používateľa {user0} a %ld ďalšieho účastníka z funkcie moderátora používateľom {actor0}</string>
 			<key>few</key>
-			<string>{actor0} odvolal(a) {user0} a %ld ďalších účastníkov z funkcie moderátorov</string>
+			<string>Odvolanie používateľa {user0} a %ld ďalších účastníkov z funkcie moderátorov používateľom {actor0}</string>
 			<key>many</key>
-			<string>{actor0} odvolal(a) {user0} a %ld ďalších účastníkov z funkcie moderátorov</string>
+			<string>Odvolanie používateľa {user0} a ďalších účastníkov v počte %ld z funkcie moderátorov používateľom {actor0}</string>
 			<key>other</key>
-			<string>{actor0} odvolal(a) {user0} a %ld ďalších účastníkov z funkcie moderátorov</string>
+			<string>Odvolanie používateľa {user0} a %ld ďalších účastníkov z funkcie moderátorov používateľom {actor0}</string>
 		</dict>
 	</dict>
 	<key>You and %ld more participants joined the call</key>
@@ -857,7 +857,7 @@
 			<key>few</key>
 			<string>{actor0} a %ld ďalší účastníci sa pripojili do hovoru</string>
 			<key>many</key>
-			<string>{actor0} a %ld ďalších účastníkov sa pripojili do hovoru</string>
+			<string>Do hovoru sa pripojili {actor0} a ďalší účastníci v počte %ld</string>
 			<key>other</key>
 			<string>{actor0} a %ld ďalších účastníkov sa pripojili do hovoru</string>
 		</dict>
@@ -877,7 +877,7 @@
 			<key>few</key>
 			<string>Vy a %ld ďalší účastníci ste opustili hovor</string>
 			<key>many</key>
-			<string>Vy a %ld ďalších účastníkov ste opustili hovor</string>
+			<string>Vy a ďalší účastníci v počte %ld ste opustili hovor</string>
 			<key>other</key>
 			<string>Vy a %ld ďalších účastníkov ste opustili hovor</string>
 		</dict>
