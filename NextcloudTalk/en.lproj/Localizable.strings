@@ -860,6 +860,9 @@
 "Could not start group conversation" = "Could not start group conversation";
 
 /* No comment provided by engineer. */
+"Could not switch to the other conversation" = "Could not switch to the other conversation";
+
+/* No comment provided by engineer. */
 "Could not update tags" = "Could not update tags";
 
 /* Generic 'Create' button label (e.g. new conversation, new tag) */
