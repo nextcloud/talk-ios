@@ -485,7 +485,7 @@ public typealias PresentCallControllerCompletionBlock = () -> Void
     // MARK: - LoginViewControllerDelegate
 
     func loginViewControllerDidFinish() {
-        loginDebugLog.error("dismiss start, presented: \(String(describing: self.mainViewController.presentedViewController)) -> \(String(describing: self.mainViewController.presentedViewController?.presentedViewController))")
+        loginDebugLog.error("dismiss start, presented: \(String(describing: self.mainViewController.presentedViewController), privacy: .public) -> \(String(describing: self.mainViewController.presentedViewController?.presentedViewController), privacy: .public)")
         mainViewController.dismiss(animated: true) {
             loginDebugLog.error("dismiss completed")
             NCConnectionController.shared.checkAppState()

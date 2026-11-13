@@ -92,7 +92,7 @@ class LoginFlowController: NSObject, ASWebAuthenticationPresentationContextProvi
     }
 
     private func finish(_ outcome: Outcome) {
-        loginDebugLog.error("finish \(String(describing: outcome))")
+        loginDebugLog.error("finish \(String(describing: outcome), privacy: .public)")
         // Closing the session calls its completion handler again
         guard let completion else { return }
         self.completion = nil

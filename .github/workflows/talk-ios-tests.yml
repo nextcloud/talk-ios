@@ -258,7 +258,7 @@ jobs:
         xcrun simctl privacy booted grant camera com.nextcloud.Talk
 
         xcrun simctl spawn booted log stream --style compact \
-        --predicate 'process == "NextcloudTalk" AND (messageType >= 16 OR category IN {"Presentation", "AuthenticationSession"}) AND NOT category IN {"UIKBFeedbackGenerator", "Default"} AND NOT sender == "CoreHaptics"' \
+        --predicate 'process == "NextcloudTalk" AND ((messageType >= 16 OR category IN {"Presentation", "AuthenticationSession"}) AND NOT category IN {"UIKBFeedbackGenerator", "Default"} AND NOT sender == "CoreHaptics" OR subsystem == "com.apple.CFNetwork" AND category == "Summary")' \
         > simulator.log 2>&1 &
 
         set -o pipefail && \
