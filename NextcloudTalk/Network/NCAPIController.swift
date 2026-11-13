@@ -1836,10 +1836,15 @@ class NCAPIController: NSObject, NextcloudKitDelegate, @unchecked Sendable {
 
     // MARK: - Login flow v2
 
-    /// The user agent names the app password that the server creates for this login
-    private var loginFlowV2Options: NKRequestOptions {
-        return NKRequestOptions(customUserAgent: NCAppBranding.userAgentForLogin(), checkInterceptor: false)
-    }
+    // NextcloudKit delivers these responses on a background QoS queue, which can be starved for minutes while the login page renders
+    private lazy var loginFlowV2SessionManager: NCAPISessionManager = {
+        let configuration = URLSessionConfiguration.default
+        configuration.httpCookieStorage = nil
+        let sessionManager = NCAPISessionManager(configuration: configuration)
+        // The user agent names the app password that the server creates for this login
+        sessionManager.setValue(NCAppBranding.userAgentForLogin(), forHTTPHeaderField: "User-Agent")
+        return sessionManager
+    }()
 
     struct LoginFlowV2 {
         let login: URL
@@ -1849,23 +1854,36 @@ class NCAPIController: NSObject, NextcloudKitDelegate, @unchecked Sendable {
 
     @nonobjc
     func startLoginFlowV2(forServer server: String) async -> LoginFlowV2? {
-        guard let flow = try? await NextcloudKit.shared.getLoginFlowV2(serverUrl: server, options: loginFlowV2Options) else { return nil }
+        let responseDict = await postLoginFlowV2("\(server)/index.php/login/v2", parameters: nil)
 
-        return LoginFlowV2(login: flow.login, endpoint: flow.endpoint.absoluteString, token: flow.token)
+        guard let poll = responseDict?["poll"] as? [String: Any],
+              let token = poll["token"] as? String,
+              let endpoint = poll["endpoint"] as? String,
+              let loginString = responseDict?["login"] as? String,
+              let login = URL(string: loginString)
+        else { return nil }
+
+        return LoginFlowV2(login: login, endpoint: endpoint, token: token)
     }
 
     /// Returns nil until the user granted access in the browser
     @nonobjc
     func pollLoginFlowV2(withToken token: String, atEndpoint endpoint: String) async -> (loginName: String, appPassword: String)? {
-        // The async variant returns Alamofire types, which the extensions don't link
-        return await withCheckedContinuation { continuation in
-            NextcloudKit.shared.getLoginFlowV2Poll(token: token, endpoint: endpoint, options: loginFlowV2Options) { _, loginName, appPassword, _, _ in
-                guard let loginName, let appPassword else {
-                    continuation.resume(returning: nil)
-                    return
-                }
+        let responseDict = await postLoginFlowV2(endpoint, parameters: ["token": token])
 
-                continuation.resume(returning: (loginName, appPassword))
+        guard let loginName = responseDict?["loginName"] as? String,
+              let appPassword = responseDict?["appPassword"] as? String
+        else { return nil }
+
+        return (loginName, appPassword)
+    }
+
+    private func postLoginFlowV2(_ urlString: String, parameters: [String: String]?) async -> [String: Any]? {
+        return await withCheckedContinuation { continuation in
+            loginFlowV2SessionManager.post(urlString, parameters: parameters) { _, responseObject in
+                continuation.resume(returning: responseObject as? [String: Any])
+            } failure: { _, _ in
+                continuation.resume(returning: nil)
             }
         }
     }
