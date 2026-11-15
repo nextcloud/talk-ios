@@ -56,6 +56,8 @@ import MobileVLCKit
 
         self.timeObserver = self.mediaPlayer?.observe(\.time, changeHandler: { _, _ in
             self.updateInformation()
+            // The size is often still unknown when the state switches to playing
+            self.updateVideoSize()
         })
 
         self.remainingTimeObserver = self.mediaPlayer?.observe(\.remainingTime, changeHandler: { _, _ in
@@ -93,21 +95,14 @@ import MobileVLCKit
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
-        // Set the inital frame size when the view appeared
-        self.videoView.frame = self.videoViewContainer.frame
-        self.videoViewContainer.replaceContentView(self.videoView)
+        // A zero size fills the container until VLC reports the video size
+        self.videoViewContainer.setContent(self.videoView, size: self.mediaPlayer?.videoSize ?? .zero)
         self.mediaPlayer?.drawable = self.videoView
 
-        // Allow toggle of controls
+        // Toggles the controls, on the container because the video view does not cover the letterbox
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(toggleControls))
-        self.view.isUserInteractionEnabled = true
-        self.view.addGestureRecognizer(tapGesture)
-        self.videoView.addGestureRecognizer(tapGesture)
-
-        // Make sure our singel tap recognizer does not interfere with the double tap recognizer of NCZoomableView
-        if let doubleTapGestureRecognizer = self.videoViewContainer.doubleTapGestureRecoginzer {
-            tapGesture.require(toFail: doubleTapGestureRecognizer)
-        }
+        self.videoViewContainer.addGestureRecognizer(tapGesture)
+        tapGesture.require(toFail: self.videoViewContainer.doubleTapGestureRecognizer)
 
         self.resetMedia(drawFirstFrame: true)
     }
@@ -138,12 +133,13 @@ import MobileVLCKit
         if !mediaPlayer.isPlaying, self.mediaReachedEnd() {
             self.videoViewContainer.isHidden = true
         }
+    }
 
-        coordinator.animate(alongsideTransition: nil) { _ in
-            self.videoView.frame = self.videoViewContainer.frame
-            self.videoViewContainer.contentViewSize = self.videoViewContainer.frame.size
-            self.videoViewContainer.resizeContentView()
-        }
+    // VLC letterboxes the video inside its drawable, so the zoomable content needs the video's shape or zooming pans into the black bars
+    private func updateVideoSize() {
+        guard let size = self.mediaPlayer?.videoSize, size.width > 0, size.height > 0 else { return }
+
+        self.videoViewContainer.contentViewSize = size
     }
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -315,6 +311,8 @@ import MobileVLCKit
 
     func mediaPlayerStateChanged(_ aNotification: Notification!) {
         guard let mediaPlayer = self.mediaPlayer else { return }
+
+        self.updateVideoSize()
 
         if mediaPlayer.isPlaying {
             // When state changed to playing because we reseted the stream and
