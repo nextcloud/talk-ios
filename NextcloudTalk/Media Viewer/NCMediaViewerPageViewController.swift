@@ -11,11 +11,11 @@ import UIKit
 import SwiftyGif
 
 @objc protocol NCMediaViewerPageViewControllerDelegate {
-    @objc func mediaViewerPageZoomDidChange(_ controller: NCMediaViewerPageViewController, _ scale: Double)
+    @objc func mediaViewerPageZoomDidChange(_ controller: NCMediaViewerPageViewController)
     @objc func mediaViewerPageStateDidChange(_ controller: NCMediaViewerPageViewController)
 }
 
-@objcMembers class NCMediaViewerPageViewController: UIViewController, NCZoomableViewDelegate {
+@objcMembers class NCMediaViewerPageViewController: UIViewController {
 
     // What the user is looking at. Never goes back to a lower quality state on its own.
     private enum MediaState {
@@ -48,7 +48,6 @@ import SwiftyGif
     private var downloadDidFail = false
     private var displayedFileIsValidated = false
     private var displayedFileFingerprint: String?
-    private var lastLaidOutBounds: CGRect?
     private var previewRequest: SDWebImageCombinedOperation?
     private var pendingDownload: DispatchWorkItem?
     private var pendingIndicatorReveal: DispatchWorkItem?
@@ -74,8 +73,7 @@ import SwiftyGif
     private lazy var zoomableView = {
         let zoomableView = NCZoomableView()
         zoomableView.translatesAutoresizingMaskIntoConstraints = false
-        zoomableView.disablePanningOnInitialZoom = true
-        zoomableView.delegate = self
+        zoomableView.bouncesWhenNotZoomed = false
 
         return zoomableView
     }()
@@ -193,7 +191,11 @@ import SwiftyGif
             self.downloadIndicator.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor, constant: -16)
         ])
 
-        self.zoomableView.replaceContentView(self.imageView)
+        self.zoomableView.setContent(self.imageView, size: .zero)
+        self.zoomableView.onZoomChange = { [weak self] in
+            guard let self else { return }
+            self.delegate?.mediaViewerPageZoomDidChange(self)
+        }
 
         self.navigationItem.title = self.message.file()?.name
 
@@ -218,19 +220,11 @@ import SwiftyGif
         self.playerViewController?.player?.pause()
     }
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-
-        // Only re-fit when our bounds actually changed. Assigning a new image invalidates the image
-        // view's intrinsic content size, which can trigger a layout pass, and resizing here
-        // unconditionally would throw away the zoom and pan the user set.
-        guard self.zoomableView.bounds != self.lastLaidOutBounds else { return }
-
-        self.lastLaidOutBounds = self.zoomableView.bounds
-        self.zoomableView.resizeContentView()
-    }
-
     // MARK: - Page state
+
+    var isZoomed: Bool {
+        return self.isViewLoaded && self.zoomableView.isZoomed
+    }
 
     func didBecomeCurrentPage() {
         self.isCurrentPage = true
@@ -482,7 +476,7 @@ import SwiftyGif
                 self.displayedFileIsValidated = isValidated
                 self.displayedImage = sizeReference
                 self.imageView.setGifImage(gifImage)
-                self.applyContentSize(sizeReference.size)
+                self.zoomableView.contentViewSize = sizeReference.size
                 self.showContent()
                 self.setState(.full)
             }
@@ -500,29 +494,8 @@ import SwiftyGif
             self.imageView.image = image
         }
 
-        self.applyContentSize(contentSize)
-        self.showContent()
-    }
-
-    ///
-    /// Adopts a new content size, keeping what the user is looking at.
-    ///
-    /// Only the aspect ratio matters for the layout, so replacing a preview with the original of the
-    /// same shape needs no geometry change at all and the zoom and pan simply stay as they are.
-    ///
-    private func applyContentSize(_ contentSize: CGSize) {
-        guard !self.aspectMatches(self.zoomableView.contentViewSize, contentSize) else { return }
-
-        let restoreRect = self.zoomableView.isZoomed ? self.zoomableView.normalizedVisibleRect : nil
-
         self.zoomableView.contentViewSize = contentSize
-        self.lastLaidOutBounds = self.zoomableView.bounds
-
-        if let restoreRect {
-            self.zoomableView.restoreVisibleRect(restoreRect)
-        } else {
-            self.zoomableView.resizeContentView()
-        }
+        self.showContent()
     }
 
     // Identifies the file we loaded. NCChatFileController replaces a stale cached file, which
@@ -534,12 +507,6 @@ import SwiftyGif
         else { return nil }
 
         return "\(modificationDate.timeIntervalSince1970)-\(size)"
-    }
-
-    private func aspectMatches(_ lhs: CGSize, _ rhs: CGSize) -> Bool {
-        guard lhs.width > 0, lhs.height > 0, rhs.width > 0, rhs.height > 0 else { return false }
-
-        return abs((lhs.width / lhs.height) - (rhs.width / rhs.height)) < 0.01
     }
 
     private func showContent() {
@@ -709,12 +676,6 @@ import SwiftyGif
         self.handleFailure()
     }
 
-    // MARK: - NCZoomableView delegate
-
-    func contentViewZoomDidChange(_ view: NCZoomableView, _ scale: Double) {
-        self.delegate?.mediaViewerPageZoomDidChange(self, scale)
-    }
-
     // MARK: - Video
 
     private func playVideo(from videoURL: URL) {
@@ -740,9 +701,8 @@ import SwiftyGif
         player.isMuted = true
         player.play()
 
-        // The player is not the still image, so there is no zoom to preserve here
-        self.zoomableView.contentViewSize = playerViewController.view.bounds.size
-        self.zoomableView.resizeContentView()
+        // The hidden image must not stay zoomed, that would keep swipe to dismiss disabled
+        self.zoomableView.resetZoom()
         self.zoomableView.isHidden = false
         self.imageView.isHidden = true
 

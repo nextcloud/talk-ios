@@ -136,7 +136,6 @@ class CallViewController: UIViewController,
     private var callController: NCCallController?
     private var chatViewController: ChatViewController?
     private var chatNavigationController: UINavigationController?
-    private var screensharingSize: CGSize?
     private var tapGestureForDetailedView: UITapGestureRecognizer?
     private var detailedViewTimer: Timer?
     private var proximityTimer: Timer?
@@ -409,7 +408,6 @@ class CallViewController: UIViewController,
 
         coordinator.animate { _ in
             // No setLocalVideoRect here: viewDidLayoutSubviews already ran inside this transition
-            self.screensharingView.resizeContentView()
             self.adjustBars()
         }
     }
@@ -2865,8 +2863,6 @@ class CallViewController: UIViewController,
             self.titleView.layoutIfNeeded()
             self.view.layoutIfNeeded()
             self.adjustLocalVideoPositionFromOriginPosition(localVideoViewOrigin)
-            self.screensharingView.resizeContentView()
-            self.screensharingView.layoutIfNeeded()
         }
 
         let afterAnimations = {
@@ -3142,8 +3138,7 @@ class CallViewController: UIViewController,
         DispatchQueue.main.async {
             guard let renderView = self.screenRenderersDict[peer.peerId] else { return }
 
-            self.screensharingView.replaceContentView(renderView)
-            self.screensharingView.bringSubviewToFront(self.closeScreensharingButton)
+            self.screensharingView.setContent(renderView, size: renderView.frame.size)
 
             // The screenPeer does not have a name associated to it, try to get the nonScreenPeer
             var peerDisplayName = NSLocalizedString("Guest", comment: "")
@@ -3154,7 +3149,6 @@ class CallViewController: UIViewController,
 
             self.presentedScreenPeerId = peer.peerId
             self.screenshareLabel.text = peerDisplayName
-            self.screensharingView.bringSubviewToFront(self.screenshareLabelContainer)
 
             UIView.transition(with: self.screensharingView, duration: 0.4, options: .transitionCrossDissolve) {
                 self.screensharingView.isHidden = false
@@ -3232,12 +3226,11 @@ class CallViewController: UIViewController,
             }
 
             for (_, rendererView) in self.screenRenderersDict.filter({ $0.value == mtlVideoView }) {
-                rendererView.frame = CGRect(origin: .zero, size: size)
-
                 if self.screensharingView.contentView == rendererView {
-                    self.screensharingSize = rendererView.frame.size
-                    self.screensharingView.contentViewSize = rendererView.frame.size
-                    self.screensharingView.resizeContentView()
+                    self.screensharingView.contentViewSize = size
+                } else {
+                    // Remembers the size for when this screen is shown, the current renderer belongs to the zoomable view
+                    rendererView.frame = CGRect(origin: .zero, size: size)
                 }
             }
         }
