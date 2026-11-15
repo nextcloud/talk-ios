@@ -3,37 +3,67 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 
-import Foundation
+import AVFoundation
+import UIKit
 
-@objc protocol NCZoomableViewDelegate {
-    @objc func contentViewZoomDidChange(_ view: NCZoomableView, _ scale: Double)
-}
+// A UIView wrapping the scroll view, so overlays added as our subviews do not scroll with the content
+class NCZoomableView: UIView, UIScrollViewDelegate {
 
-@objcMembers class NCZoomableView: UIView, UIGestureRecognizerDelegate {
+    var onZoomChange: (() -> Void)?
 
-    public weak var delegate: NCZoomableViewDelegate?
-
-    public var disablePanningOnInitialZoom = false
-
-    var pinchGestureRecognizer: UIPinchGestureRecognizer?
-    var panGestureRecognizer: UIPanGestureRecognizer?
-    var doubleTapGestureRecoginzer: UITapGestureRecognizer?
-
-    private(set) var contentView = UIView()
-    var contentViewSize = CGSize()
-
-    public var isZoomed: Bool {
-        let scaleFactor = self.contentView.transform.a
-        return scaleFactor != 1
+    // Panning the unzoomed content hints that zooming is possible, but it steals swipes from an enclosing page view controller
+    var bouncesWhenNotZoomed = true {
+        didSet {
+            self.scrollView.alwaysBounceHorizontal = self.bouncesWhenNotZoomed
+            self.scrollView.alwaysBounceVertical = self.bouncesWhenNotZoomed
+        }
     }
 
+    // Only the aspect ratio is used, zero fills the viewport
+    var contentViewSize: CGSize {
+        get { self.mediaSize }
+        set {
+            let needsRefit = !Self.aspectMatches(self.mediaSize, newValue)
+            let visibleRect = self.isZoomed ? self.normalizedVisibleRect : nil
+
+            self.mediaSize = newValue
+
+            guard needsRefit else { return }
+
+            self.withoutZoomReports {
+                self.resetZoom()
+
+                if let visibleRect {
+                    self.zoom(toNormalizedRect: visibleRect)
+                }
+            }
+        }
+    }
+
+    var isZoomed: Bool {
+        // Below the minimum is only the bounce of a pinch
+        return self.scrollView.zoomScale > self.scrollView.minimumZoomScale + 0.001
+    }
+
+    let scrollView = UIScrollView()
+    let doubleTapGestureRecognizer = UITapGestureRecognizer()
+    private(set) var contentView = UIView()
+
+    private var mediaSize = CGSize.zero
+    private var reportedIsZoomed = false
+    private var isRefitting = false
+
+    // The viewport size the content was last fitted to, and the normalized content point shown at its center
+    private var fittedViewportSize = CGSize.zero
+    private var normalizedCenter = CGPoint(x: 0.5, y: 0.5)
+
     // The visible part of the content, in normalized content coordinates
-    public var normalizedVisibleRect: CGRect {
+    var normalizedVisibleRect: CGRect {
         let contentBounds = self.contentView.bounds
 
         guard contentBounds.width > 0, contentBounds.height > 0 else { return .init(x: 0, y: 0, width: 1, height: 1) }
 
-        let visibleRect = self.convert(self.bounds, to: self.contentView)
+        let visibleRect = self.scrollView.convert(self.scrollView.bounds, to: self.contentView)
 
         return CGRect(x: visibleRect.minX / contentBounds.width,
                       y: visibleRect.minY / contentBounds.height,
@@ -43,241 +73,207 @@ import Foundation
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-
-        self.addSubview(self.contentView)
-        self.initGestureRecognizers()
+        self.commonInit()
     }
 
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-
-        self.addSubview(self.contentView)
-        self.initGestureRecognizers()
+        self.commonInit()
     }
 
-    func initGestureRecognizers() {
-        self.pinchGestureRecognizer = UIPinchGestureRecognizer(target: self, action: #selector(handlePinch(_:)))
-        self.pinchGestureRecognizer?.delegate = self
-        self.addGestureRecognizer(self.pinchGestureRecognizer!)
+    private func commonInit() {
+        self.scrollView.frame = self.bounds
+        self.scrollView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        self.scrollView.delegate = self
+        self.scrollView.maximumZoomScale = 10
+        self.scrollView.showsHorizontalScrollIndicator = false
+        self.scrollView.showsVerticalScrollIndicator = false
+        // Safe area insets would add to the insets that center the content
+        self.scrollView.contentInsetAdjustmentBehavior = .never
+        self.scrollView.alwaysBounceHorizontal = true
+        self.scrollView.alwaysBounceVertical = true
 
-        self.panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
-        self.panGestureRecognizer?.delegate = self
-        self.addGestureRecognizer(self.panGestureRecognizer!)
+        // Below any overlays the xib or the owner adds
+        self.insertSubview(self.scrollView, at: 0)
+        self.scrollView.addSubview(self.contentView)
 
-        self.doubleTapGestureRecoginzer = UITapGestureRecognizer(target: self, action: #selector(handleDoubleTap(_:)))
-        self.doubleTapGestureRecoginzer?.delegate = self
-        self.doubleTapGestureRecoginzer?.numberOfTapsRequired = 2
-        self.contentView.addGestureRecognizer(self.doubleTapGestureRecoginzer!)
+        self.doubleTapGestureRecognizer.addTarget(self, action: #selector(handleDoubleTap(_:)))
+        self.doubleTapGestureRecognizer.numberOfTapsRequired = 2
+        self.scrollView.addGestureRecognizer(self.doubleTapGestureRecognizer)
     }
 
-    public func replaceContentView(_ newView: UIView) {
-        if let pinchGestureRecognizer = self.pinchGestureRecognizer {
-            self.removeGestureRecognizer(pinchGestureRecognizer)
-        }
+    override func layoutSubviews() {
+        super.layoutSubviews()
 
-        if let panGestureRecognizer = self.panGestureRecognizer {
-            self.removeGestureRecognizer(panGestureRecognizer)
-        }
+        guard self.scrollView.bounds.size != self.fittedViewportSize else { return }
 
-        if let doubleTapGestureRecoginzer = self.doubleTapGestureRecoginzer {
-            self.contentView.removeGestureRecognizer(doubleTapGestureRecoginzer)
-        }
+        // Keep zoom and center across rotation and other size changes
+        let zoomScale = self.scrollView.zoomScale
+        let center = self.normalizedCenter
 
-        self.contentView.removeFromSuperview()
-        self.contentView = newView
-        self.contentViewSize = newView.frame.size
-        self.addSubview(self.contentView)
+        self.withoutZoomReports {
+            self.resetZoom()
 
-        self.initGestureRecognizers()
-        self.resizeContentView()
-    }
-
-    func handlePinch(_ recognizer: UIPinchGestureRecognizer) {
-        self.zoomView(view: self.contentView, toPoint: recognizer.location(in: self.contentView), usingScale: recognizer.scale)
-        recognizer.scale = 1
-
-        if recognizer.state == .ended {
-            let bounds = self.contentView.bounds
-            let zoomedSize = self.contentView.frame.size
-
-            let aspectRatioContentViewSize = AVMakeRect(aspectRatio: self.contentViewSize, insideRect: bounds).size
-
-            // Don't zoom smaller than the original size
-            if zoomedSize.width < aspectRatioContentViewSize.width || zoomedSize.height < aspectRatioContentViewSize.height {
-                UIView.animate(withDuration: 0.3) {
-                    self.resizeContentView()
-                }
-            } else {
-                self.adjustViewPosition()
+            if zoomScale > self.scrollView.minimumZoomScale {
+                self.zoom(toNormalizedCenter: center, scale: zoomScale)
             }
-
         }
     }
 
-    func handlePan(_ recognizer: UIPanGestureRecognizer) {
-        if self.disablePanningOnInitialZoom, !self.isZoomed {
+    // MARK: - Content
+
+    func setContent(_ view: UIView, size: CGSize) {
+        // Unzoom first so the removed view is not left scaled, the call screen reads its frame as the remembered size
+        self.scrollView.zoomScale = self.scrollView.minimumZoomScale
+        self.contentView.removeFromSuperview()
+
+        self.contentView = view
+        self.mediaSize = size
+        self.scrollView.addSubview(view)
+
+        self.resetZoom()
+    }
+
+    // Fits the content into the viewport, unzoomed and centered
+    func resetZoom() {
+        self.scrollView.zoomScale = self.scrollView.minimumZoomScale
+        self.contentView.transform = .identity
+
+        let bounds = self.scrollView.bounds
+        var fittedSize = bounds.size
+
+        if self.mediaSize.width > 0, self.mediaSize.height > 0 {
+            fittedSize = AVMakeRect(aspectRatio: self.mediaSize, insideRect: bounds).size
+        }
+
+        self.fittedViewportSize = bounds.size
+        self.contentView.frame = CGRect(origin: .zero, size: fittedSize)
+        self.scrollView.contentSize = fittedSize
+        self.centerContent()
+        self.scrollView.contentOffset = CGPoint(x: -self.scrollView.contentInset.left, y: -self.scrollView.contentInset.top)
+        self.normalizedCenter = CGPoint(x: 0.5, y: 0.5)
+
+        self.reportZoomChangeIfNeeded()
+    }
+
+    // MARK: - Zooming
+
+    @objc private func handleDoubleTap(_ recognizer: UITapGestureRecognizer) {
+        if self.isZoomed {
+            self.scrollView.setZoomScale(self.scrollView.minimumZoomScale, animated: true)
             return
         }
 
-        let point = recognizer.translation(in: self.contentView)
+        let point = recognizer.location(in: self.contentView)
+        guard self.contentView.bounds.contains(point) else { return }
 
-        // We need to take the current scaling into account when panning
-        // As we have the same scale factor for X and Y, we can take only one here
-        let scaleFactor = self.contentView.transform.a
+        let scale = min(3, self.scrollView.maximumZoomScale)
+        let size = CGSize(width: self.scrollView.bounds.width / scale, height: self.scrollView.bounds.height / scale)
+        let rect = CGRect(x: point.x - size.width / 2, y: point.y - size.height / 2, width: size.width, height: size.height)
 
-        self.contentView.center = CGPoint(x: self.contentView.center.x + point.x * scaleFactor, y: self.contentView.center.y + point.y * scaleFactor)
-        recognizer.setTranslation(.zero, in: self.contentView)
-
-        if recognizer.state == .ended {
-            self.adjustViewPosition()
-        }
+        self.scrollView.zoom(to: rect, animated: true)
     }
 
-    func handleDoubleTap(_ recognizer: UITapGestureRecognizer) {
-        if recognizer.state == .recognized {
-            // We need to take the current scaling into account when panning
-            // As we have the same scale factor for X and Y, we can take only one here
-            let scaleFactor = self.contentView.transform.a
-
-            UIView.animate(withDuration: 0.3) {
-                if scaleFactor > 1 {
-                    // Set screenView's original size
-                    self.resizeContentView()
-                } else {
-                    // Zoom 3x screenView into the tap point
-                    self.zoomView(view: recognizer.view!, toPoint: recognizer.location(in: recognizer.view!), usingScale: 3)
-                }
-            }
-
-            self.adjustViewPosition()
-        }
-    }
-
-    func zoomView(view: UIView, toPoint point: CGPoint, usingScale scale: CGFloat) {
-        let bounds = view.bounds
-
-        var resultPoint = point
-        resultPoint.x -= bounds.midX
-        resultPoint.y -= bounds.midY
-
-        var transform = view.transform
-        transform = CGAffineTransformTranslate(transform, resultPoint.x, resultPoint.y)
-        transform = CGAffineTransformScale(transform, scale, scale)
-        transform = CGAffineTransformTranslate(transform, -resultPoint.x, -resultPoint.y)
-        view.transform = transform
-
-        self.delegate?.contentViewZoomDidChange(self, transform.a)
-    }
-
-    func adjustViewPosition() {
-        let frame = self.adjustedContentViewFrame()
-
-        UIView.animate(withDuration: 0.3) {
-            self.contentView.frame = frame
-        }
-    }
-
-    // Keeps the content from being panned away from the viewport
-    private func adjustedContentViewFrame() -> CGRect {
-        let parentSize = self.frame.size
-        let size = self.contentView.frame.size
-        var position = self.contentView.frame.origin
-
-        let viewLeft = position.x
-        let viewRight = position.x + size.width
-        let viewTop = position.y
-        let viewBottom = position.y + size.height
-
-        // Left align screenView if it has been moved to the center (and it is wide enough)
-        if viewLeft > 0, size.width >= parentSize.width {
-            position = CGPoint(x: 0, y: position.y)
-        }
-
-        // Top align screenView if it has been moved to the center (and it is tall enough)
-        if viewTop > 0, size.height >= parentSize.height {
-            position = CGPoint(x: position.x, y: 0)
-        }
-
-        // Right align screenView if it has been moved to the center (and it is wide enough)
-        if viewRight < parentSize.width, size.width >= parentSize.width {
-            position = CGPoint(x: parentSize.width - size.width, y: position.y)
-        }
-
-        // Bottom align screenView if it has been moved to the center (and it is tall enough)
-        if viewBottom < parentSize.height, size.height >= parentSize.height {
-            position = CGPoint(x: position.x, y: parentSize.height - size.height)
-        }
-
-        // Align screenView vertically
-        if size.width <= parentSize.width {
-            position = CGPoint(x: parentSize.width / 2 - size.width / 2, y: position.y)
-        }
-
-        // Align screenView horizontally
-        if size.height <= parentSize.height {
-            position = CGPoint(x: position.x, y: parentSize.height / 2 - size.height / 2)
-        }
-
-        var frame = self.contentView.frame
-        frame.origin.x = position.x
-        frame.origin.y = position.y
-
-        return frame
-    }
-
-    public func resizeContentView() {
-        self.contentView.transform = .identity
-        self.delegate?.contentViewZoomDidChange(self, self.contentView.transform.a)
-
-        let bounds = self.bounds
-        let contentSize = self.contentViewSize
-
-        if contentSize.width > 0, contentSize.height > 0 {
-            let aspectFrame = AVMakeRect(aspectRatio: contentSize, insideRect: bounds)
-            self.contentView.frame = aspectFrame
-            self.contentView.center = CGPoint(x: bounds.midX, y: bounds.midY)
-        } else {
-            self.contentView.frame = bounds
-        }
-    }
-
-    ///
-    /// Zooms and positions the content so that `normalizedRect` is visible again.
-    ///
-    /// Used when the content is replaced while the user is zoomed in. The region is fitted into the
-    /// viewport, so the user always sees at least what was visible before.
-    ///
-    public func restoreVisibleRect(_ normalizedRect: CGRect) {
-        self.resizeContentView()
-
+    // Fits the normalized region into the viewport, so at least that region is visible, up to the maximum zoom
+    func zoom(toNormalizedRect normalizedRect: CGRect) {
         let contentBounds = self.contentView.bounds
+        let viewport = self.scrollView.bounds.size
 
         guard contentBounds.width > 0, contentBounds.height > 0,
               normalizedRect.width > 0, normalizedRect.height > 0,
-              self.bounds.width > 0, self.bounds.height > 0
+              viewport.width > 0, viewport.height > 0
         else { return }
 
-        let region = CGRect(x: normalizedRect.minX * contentBounds.width,
-                            y: normalizedRect.minY * contentBounds.height,
-                            width: normalizedRect.width * contentBounds.width,
-                            height: normalizedRect.height * contentBounds.height)
+        let fittingScale = min(viewport.width / (normalizedRect.width * contentBounds.width),
+                               viewport.height / (normalizedRect.height * contentBounds.height))
 
-        // Never below the fitted size, that is what resizeContentView() is for
-        let scale = max(min(self.bounds.width / region.width, self.bounds.height / region.height), 1)
-
-        self.contentView.transform = CGAffineTransform(scaleX: scale, y: scale)
-
-        // Move the region's center onto our center
-        let regionCenter = self.contentView.convert(CGPoint(x: region.midX, y: region.midY), to: self)
-        self.contentView.center = CGPoint(x: self.contentView.center.x + self.bounds.midX - regionCenter.x,
-                                          y: self.contentView.center.y + self.bounds.midY - regionCenter.y)
-
-        self.contentView.frame = self.adjustedContentViewFrame()
-
-        self.delegate?.contentViewZoomDidChange(self, scale)
+        self.zoom(toNormalizedCenter: CGPoint(x: normalizedRect.midX, y: normalizedRect.midY), scale: fittingScale)
     }
 
-    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        return true
+    // Moves the normalized content point onto the viewport's center, without leaving the content
+    private func zoom(toNormalizedCenter center: CGPoint, scale: CGFloat) {
+        self.scrollView.zoomScale = min(max(scale, self.scrollView.minimumZoomScale), self.scrollView.maximumZoomScale)
+        self.centerContent()
+
+        let contentBounds = self.contentView.bounds
+        let viewport = self.scrollView.bounds.size
+        let zoomScale = self.scrollView.zoomScale
+        let insets = self.scrollView.contentInset
+        let zoomedSize = self.scrollView.contentSize
+
+        let offsetX = center.x * contentBounds.width * zoomScale - viewport.width / 2
+        let offsetY = center.y * contentBounds.height * zoomScale - viewport.height / 2
+
+        let maxOffsetX = max(zoomedSize.width + insets.right - viewport.width, -insets.left)
+        let maxOffsetY = max(zoomedSize.height + insets.bottom - viewport.height, -insets.top)
+
+        self.scrollView.contentOffset = CGPoint(x: min(max(offsetX, -insets.left), maxOffsetX),
+                                                y: min(max(offsetY, -insets.top), maxOffsetY))
+
+        // An unchanged offset sends no scrollViewDidScroll
+        self.recordNormalizedCenter()
+    }
+
+    // MARK: - Helpers
+
+    // Content smaller than the viewport is centered instead of pinned to the top left
+    private func centerContent() {
+        let boundsSize = self.scrollView.bounds.size
+        let contentSize = self.scrollView.contentSize
+
+        let horizontal = max((boundsSize.width - contentSize.width) / 2, 0)
+        let vertical = max((boundsSize.height - contentSize.height) / 2, 0)
+
+        let insets = UIEdgeInsets(top: vertical, left: horizontal, bottom: vertical, right: horizontal)
+
+        if self.scrollView.contentInset != insets {
+            self.scrollView.contentInset = insets
+        }
+    }
+
+    // Only while the viewport is the one we fitted to, a size change in flight must not overwrite the center we restore
+    private func recordNormalizedCenter() {
+        guard self.scrollView.bounds.size == self.fittedViewportSize else { return }
+
+        let visibleRect = self.normalizedVisibleRect
+        self.normalizedCenter = CGPoint(x: visibleRect.midX, y: visibleRect.midY)
+    }
+
+    // A refit unzooms before zooming again, which must not look like two zoom changes
+    private func withoutZoomReports(_ body: () -> Void) {
+        self.isRefitting = true
+        body()
+        self.isRefitting = false
+
+        self.reportZoomChangeIfNeeded()
+    }
+
+    private func reportZoomChangeIfNeeded() {
+        guard !self.isRefitting, self.isZoomed != self.reportedIsZoomed else { return }
+
+        self.reportedIsZoomed = self.isZoomed
+        self.onZoomChange?()
+    }
+
+    private static func aspectMatches(_ lhs: CGSize, _ rhs: CGSize) -> Bool {
+        guard lhs.width > 0, lhs.height > 0, rhs.width > 0, rhs.height > 0 else { return lhs == rhs }
+
+        return abs((lhs.width / lhs.height) - (rhs.width / rhs.height)) < 0.01
+    }
+
+    // MARK: - UIScrollView delegate
+
+    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+        return self.contentView
+    }
+
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        self.recordNormalizedCenter()
+    }
+
+    func scrollViewDidZoom(_ scrollView: UIScrollView) {
+        self.centerContent()
+        self.recordNormalizedCenter()
+        self.reportZoomChangeIfNeeded()
     }
 }
