@@ -2,7 +2,6 @@ source 'https://cdn.cocoapods.org/'
 platform :ios, '16.0'
 
 def main_dependencies
-  pod 'MaterialComponents/ActivityIndicator'
   pod 'MobileVLCKit', '~> 3.5.0'
 end
 

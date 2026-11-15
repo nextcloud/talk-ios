@@ -82,7 +82,7 @@ import UIKit
         let contentTraitCollection = self.backgroundView?.contentView.traitCollection ?? self.traitCollection
 
         // Progress is ambient, the retry glyph is a control and stays at full strength
-        self.activityIndicator.cycleColors = [UIColor.secondaryLabel.resolvedColor(with: contentTraitCollection)]
+        self.activityIndicator.color = UIColor.secondaryLabel.resolvedColor(with: contentTraitCollection)
         self.retryButton.tintColor = UIColor.label.resolvedColor(with: contentTraitCollection)
     }
 

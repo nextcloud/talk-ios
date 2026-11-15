@@ -41,12 +41,12 @@ extension BaseChatTableViewCell {
             filePreviewImageView.bringSubviewToFront(filePreviewPlayIconImageView)
 
             // Activity indicator while loading previews
-            let filePreviewActivityIndicator = MDCActivityIndicator(frame: .init(x: 0, y: 0, width: fileMessageCellMinimumHeight, height: fileMessageCellMinimumHeight))
+            let filePreviewActivityIndicator = NCActivityIndicator(frame: .init(x: 0, y: 0, width: fileMessageCellMinimumHeight, height: fileMessageCellMinimumHeight))
             self.filePreviewActivityIndicator = filePreviewActivityIndicator
 
             filePreviewActivityIndicator.translatesAutoresizingMaskIntoConstraints = false
             filePreviewActivityIndicator.radius = fileMessageCellMinimumHeight / 2
-            filePreviewActivityIndicator.cycleColors = [.systemGray2]
+            filePreviewActivityIndicator.color = .systemGray2
             filePreviewActivityIndicator.indicatorMode = .indeterminate
 
             filePreviewImageView.addSubview(filePreviewActivityIndicator)

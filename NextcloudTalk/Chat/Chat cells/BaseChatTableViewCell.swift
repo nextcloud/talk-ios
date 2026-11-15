@@ -222,8 +222,8 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     internal var fileUploadOverlayView: FileUploadOverlayView?
     internal var filePreviewImageViewHeightConstraint: NSLayoutConstraint?
     internal var filePreviewImageViewWidthConstraint: NSLayoutConstraint?
-    internal var fileActivityIndicator: MDCActivityIndicator?
-    internal var filePreviewActivityIndicator: MDCActivityIndicator?
+    internal var fileActivityIndicator: NCActivityIndicator?
+    internal var filePreviewActivityIndicator: NCActivityIndicator?
     internal var filePreviewPlayIconImageView: UIImageView?
     internal var fileCurrentRequest: SDWebImageCombinedOperation?
 
@@ -553,11 +553,11 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
         if deliveryState == .sending || deliveryState == .deleting {
             self.accessibilityIdentifier = "CellMessageSending"
 
-            let activityIndicator = MDCActivityIndicator(frame: .init(x: 0, y: 0, width: 20, height: 20))
+            let activityIndicator = NCActivityIndicator(frame: .init(x: 0, y: 0, width: 20, height: 20))
 
             activityIndicator.radius = 6.0
             activityIndicator.strokeWidth = 1.5
-            activityIndicator.cycleColors = [.secondaryLabel]
+            activityIndicator.color = .secondaryLabel
             activityIndicator.startAnimating()
             activityIndicator.widthAnchor.constraint(equalToConstant: 20).isActive = true
 
@@ -833,12 +833,12 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
     func addActivityIndicator(with progress: Float) {
         self.clearFileStatusView()
 
-        let fileActivityIndicator = MDCActivityIndicator(frame: .init(x: 0, y: 0, width: 20, height: 20))
+        let fileActivityIndicator = NCActivityIndicator(frame: .init(x: 0, y: 0, width: 20, height: 20))
         self.fileActivityIndicator = fileActivityIndicator
 
         fileActivityIndicator.radius = 6
         fileActivityIndicator.strokeWidth = 1.5
-        fileActivityIndicator.cycleColors = [.secondaryLabel]
+        fileActivityIndicator.color = .secondaryLabel
 
         if progress > 0 {
             fileActivityIndicator.indicatorMode = .determinate
