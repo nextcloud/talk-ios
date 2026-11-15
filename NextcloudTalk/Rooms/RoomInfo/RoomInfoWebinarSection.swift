@@ -67,7 +67,7 @@ struct RoomInfoWebinarSection: View {
                     }
                 })
 
-                if isSipEnabled.wrappedValue, NCDatabaseManager.sharedInstance().serverHasTalkCapability(.sipSupportNoPIN) {
+                if isSipEnabled.wrappedValue, NCDatabaseManager.sharedInstance().serverHasTalkCapability(.sipSupportNoPIN, forAccountId: room.accountId) {
                     let isSipEnabledWithoutPin = Binding<Bool>(get: {
                         self.room.sipState == .enabledWithoutPIN
                     }, set: {

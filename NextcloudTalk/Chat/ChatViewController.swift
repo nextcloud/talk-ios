@@ -617,7 +617,7 @@ import SwiftUI
         } else if isThreadViewController {
             barButtonsItems = [closeButton]
             // Thread edit menu
-            if let thread, thread.isThreadOwner(NCDatabaseManager.sharedInstance().activeAccount()) || room.canModerate {
+            if let thread, thread.isThreadOwner(self.account) || room.canModerate {
                 barButtonsItems.append(threadDetailsEditButton)
             }
             // Thread notifications
@@ -2733,7 +2733,7 @@ import SwiftUI
                         NotificationPresenter.shared().dismiss()
 
                         let outputs = AiSummaryController.shared.finalizeSummaryTask(forRoomInternalId: self.room.internalId)
-                        let summaryVC = AiSummaryViewController(summaryText: outputs.joined(separator: "\n\n---\n\n"))
+                        let summaryVC = AiSummaryViewController(summaryText: outputs.joined(separator: "\n\n---\n\n"), account: self.account)
                         let navController = UINavigationController(rootViewController: summaryVC)
                         self.present(navController, animated: true)
 
@@ -2905,7 +2905,9 @@ import SwiftUI
     private func getReactionShortcutMenu(for message: NCChatMessage, at indexPath: IndexPath) -> UIMenu {
         var reactionActions: [UIMenuElement] = []
 
-        for emoji in NCDatabaseManager.sharedInstance().activeAccount().frequentlyUsedEmojis {
+        let frequentlyUsedEmojis = NCDatabaseManager.sharedInstance().talkAccount(forAccountId: self.account.accountId)?.frequentlyUsedEmojis ?? []
+
+        for emoji in frequentlyUsedEmojis {
             // A reaction nobody used yet does not exist on the message, so it is only added by the action
             let reaction = message.reactionsArray().first(where: { $0.reaction == emoji }) ?? NCChatReaction(reaction: emoji)
 

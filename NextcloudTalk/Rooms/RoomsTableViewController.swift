@@ -972,7 +972,7 @@ class RoomsTableViewController: UITableViewController, NCCertificateDelegate, UI
     }
 
     private func presentTagsAssignment(for room: NCRoom) {
-        let account = NCDatabaseManager.sharedInstance().activeAccount()
+        guard let account = room.account else { return }
         self.present(RoomTagsAssignmentView.viewController(for: room, withAccount: account), animated: true)
     }
 
@@ -1505,7 +1505,9 @@ class RoomsTableViewController: UITableViewController, NCCertificateDelegate, UI
                 return
             }
             Task { @MainActor in
-                let success = await NCAPIController.sharedInstance().setNotificationLevel(level: level, forRoom: room.token, forAccount: NCDatabaseManager.sharedInstance().activeAccount())
+                guard let account = room.account else { return }
+
+                let success = await NCAPIController.sharedInstance().setNotificationLevel(level: level, forRoom: room.token, forAccount: account)
                 if success {
                     NotificationPresenter.shared().present(text: NSLocalizedString("Updated notification settings", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
                 } else {
@@ -1530,9 +1532,9 @@ class RoomsTableViewController: UITableViewController, NCCertificateDelegate, UI
     }
 
     private func archiveRoom(_ room: NCRoom) {
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        guard let account = room.account else { return }
 
-        NCAPIController.sharedInstance().archiveRoom(room.token, forAccount: activeAccount) { success in
+        NCAPIController.sharedInstance().archiveRoom(room.token, forAccount: account) { success in
             if !success {
                 NSLog("Error archiving room")
             }
@@ -1542,9 +1544,9 @@ class RoomsTableViewController: UITableViewController, NCCertificateDelegate, UI
     }
 
     private func unarchiveRoom(_ room: NCRoom) {
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        guard let account = room.account else { return }
 
-        NCAPIController.sharedInstance().unarchiveRoom(room.token, forAccount: activeAccount) { success in
+        NCAPIController.sharedInstance().unarchiveRoom(room.token, forAccount: account) { success in
             if !success {
                 NSLog("Error unarchiving room")
             }
@@ -1554,7 +1556,9 @@ class RoomsTableViewController: UITableViewController, NCCertificateDelegate, UI
     }
 
     private func markRoomAsRead(_ room: NCRoom) {
-        NCAPIController.sharedInstance().setChatReadMarker(room.lastMessage?.messageId ?? 0, inRoom: room.token, forAccount: NCDatabaseManager.sharedInstance().activeAccount()) { error in
+        guard let account = room.account else { return }
+
+        NCAPIController.sharedInstance().setChatReadMarker(room.lastMessage?.messageId ?? 0, inRoom: room.token, forAccount: account) { error in
             if let error {
                 NSLog("Error marking room as read: %@", error.description)
             }
@@ -1563,7 +1567,9 @@ class RoomsTableViewController: UITableViewController, NCCertificateDelegate, UI
     }
 
     private func markRoomAsUnread(_ room: NCRoom) {
-        NCAPIController.sharedInstance().markChatAsUnread(inRoom: room.token, forAccount: NCDatabaseManager.sharedInstance().activeAccount()) { error in
+        guard let account = room.account else { return }
+
+        NCAPIController.sharedInstance().markChatAsUnread(inRoom: room.token, forAccount: account) { error in
             if let error {
                 NSLog("Error marking chat as unread: %@", error.description)
             }
@@ -1572,7 +1578,9 @@ class RoomsTableViewController: UITableViewController, NCCertificateDelegate, UI
     }
 
     private func addRoomToFavorites(_ room: NCRoom) {
-        NCAPIController.sharedInstance().addRoomToFavorites(room.token, forAccount: NCDatabaseManager.sharedInstance().activeAccount()) { error in
+        guard let account = room.account else { return }
+
+        NCAPIController.sharedInstance().addRoomToFavorites(room.token, forAccount: account) { error in
             if let error {
                 NSLog("Error adding room to favorites: %@", error.description)
             }
@@ -1581,7 +1589,9 @@ class RoomsTableViewController: UITableViewController, NCCertificateDelegate, UI
     }
 
     private func removeRoomFromFavorites(_ room: NCRoom) {
-        NCAPIController.sharedInstance().removeRoomFromFavorites(room.token, forAccount: NCDatabaseManager.sharedInstance().activeAccount()) { error in
+        guard let account = room.account else { return }
+
+        NCAPIController.sharedInstance().removeRoomFromFavorites(room.token, forAccount: account) { error in
             if let error {
                 NSLog("Error removing room from favorites: %@", error.description)
             }
@@ -1618,8 +1628,10 @@ class RoomsTableViewController: UITableViewController, NCCertificateDelegate, UI
             }
 
             Task { @MainActor in
+                guard let account = room.account else { return }
+
                 do {
-                    _ = try await NCAPIController.sharedInstance().removeSelf(fromRoom: room.token, forAccount: NCDatabaseManager.sharedInstance().activeAccount())
+                    _ = try await NCAPIController.sharedInstance().removeSelf(fromRoom: room.token, forAccount: account)
                 } catch let ocsError as OcsError {
                     if ocsError.responseStatusCode == 400 {
                         self.showLeaveRoomLastModeratorError(forRoom: room)
@@ -1841,8 +1853,8 @@ class RoomsTableViewController: UITableViewController, NCCertificateDelegate, UI
         favoriteAction.backgroundColor = UIColor(red: 0.97, green: 0.80, blue: 0.27, alpha: 1.0) // Favorite yellow
 
         // Mark room as read/unread
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.chatReadMarker) &&
-            (!room.isFederated || NCDatabaseManager.sharedInstance().serverHasTalkCapability(.chatReadLast)) {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.chatReadMarker, forAccountId: room.accountId) &&
+            (!room.isFederated || NCDatabaseManager.sharedInstance().serverHasTalkCapability(.chatReadLast, forAccountId: room.accountId)) {
 
             let markReadAction = UIContextualAction(style: .normal, title: nil) { _, _, completionHandler in
                 if room.unreadMessages > 0 {
@@ -2102,7 +2114,7 @@ class RoomsTableViewController: UITableViewController, NCCertificateDelegate, UI
         actions.append(favAction)
 
         // Assign tags
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.conversationTags) {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.conversationTags, forAccountId: room.accountId) {
             let tagsAction = UIAction(title: NSLocalizedString("Tags", comment: "'Tags' meaning 'Conversation tags'"), image: UIImage(systemName: "tag")) { [weak self] _ in
                 self?.contextMenuActionBlock = {
                     self?.presentTagsAssignment(for: room)
@@ -2113,8 +2125,8 @@ class RoomsTableViewController: UITableViewController, NCCertificateDelegate, UI
         }
 
         // Mark room as read/unread
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.chatReadMarker) &&
-            (!room.isFederated || NCDatabaseManager.sharedInstance().serverHasTalkCapability(.chatReadLast)) {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.chatReadMarker, forAccountId: room.accountId) &&
+            (!room.isFederated || NCDatabaseManager.sharedInstance().serverHasTalkCapability(.chatReadLast, forAccountId: room.accountId)) {
             if room.unreadMessages > 0 {
                 // Mark room as read
                 let markReadAction = UIAction(title: NSLocalizedString("Mark as read", comment: ""), image: UIImage(systemName: "checkmark.bubble"), identifier: nil) { [weak self] _ in
@@ -2124,7 +2136,7 @@ class RoomsTableViewController: UITableViewController, NCCertificateDelegate, UI
                 }
 
                 actions.append(markReadAction)
-            } else if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.chatUnread) {
+            } else if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.chatUnread, forAccountId: room.accountId) {
                 // Mark room as unread
                 let markUnreadAction = UIAction(title: NSLocalizedString("Mark as unread", comment: ""), image: UIImage(named: "custom.bubble.badge"), identifier: nil) { [weak self] _ in
                     self?.contextMenuActionBlock = {
@@ -2137,7 +2149,7 @@ class RoomsTableViewController: UITableViewController, NCCertificateDelegate, UI
         }
 
         // Notification levels
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.notificationLevels) &&
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.notificationLevels, forAccountId: room.accountId) &&
             room.type != .changelog && room.type != .noteToSelf {
 
             var notificationActions: [UIMenuElement] = []
@@ -2153,7 +2165,9 @@ class RoomsTableViewController: UITableViewController, NCCertificateDelegate, UI
                     let newState = !(action.state == .on)
 
                     Task { @MainActor in
-                        let success = await NCAPIController.sharedInstance().setCallNotificationLevel(enabled: newState, forRoom: room.token, forAccount: NCDatabaseManager.sharedInstance().activeAccount())
+                        guard let account = room.account else { return }
+
+                        let success = await NCAPIController.sharedInstance().setCallNotificationLevel(enabled: newState, forRoom: room.token, forAccount: account)
                         if success {
                             NotificationPresenter.shared().present(text: NSLocalizedString("Updated notification settings", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
                         } else {
@@ -2173,13 +2187,15 @@ class RoomsTableViewController: UITableViewController, NCCertificateDelegate, UI
             }
 
             // Important conversation
-            if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.importantConversations) {
+            if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.importantConversations, forAccountId: room.accountId) {
                 let importantConversationAction = UIAction(title: NSLocalizedString("Important conversation", comment: ""), image: nil, identifier: nil) { action in
                     let newState = !(action.state == .on)
 
                     Task { @MainActor in
+                        guard let account = room.account else { return }
+
                         do {
-                            _ = try await NCAPIController.sharedInstance().setImportantState(enabled: newState, forRoom: room.token, forAccount: NCDatabaseManager.sharedInstance().activeAccount())
+                            _ = try await NCAPIController.sharedInstance().setImportantState(enabled: newState, forRoom: room.token, forAccount: account)
                             NotificationPresenter.shared().present(text: NSLocalizedString("Updated notification settings", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
                         } catch {
                             NSLog("Error setting call notification: %@", error.localizedDescription)
@@ -2202,13 +2218,15 @@ class RoomsTableViewController: UITableViewController, NCCertificateDelegate, UI
             }
 
             // Sensitive conversation
-            if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.sensitiveConversations) {
+            if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.sensitiveConversations, forAccountId: room.accountId) {
                 let sensitiveConversationAction = UIAction(title: NSLocalizedString("Sensitive conversation", comment: ""), image: nil, identifier: nil) { action in
                     let newState = !(action.state == .on)
 
                     Task { @MainActor in
+                        guard let account = room.account else { return }
+
                         do {
-                            _ = try await NCAPIController.sharedInstance().setSensitiveState(enabled: newState, forRoom: room.token, forAccount: NCDatabaseManager.sharedInstance().activeAccount())
+                            _ = try await NCAPIController.sharedInstance().setSensitiveState(enabled: newState, forRoom: room.token, forAccount: account)
                             NotificationPresenter.shared().present(text: NSLocalizedString("Updated notification settings", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
                         } catch {
                             NSLog("Error setting call notification: %@", error.localizedDescription)
@@ -2245,7 +2263,7 @@ class RoomsTableViewController: UITableViewController, NCCertificateDelegate, UI
         }
 
         // Archive conversation
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.archivedConversationsV2) {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.archivedConversationsV2, forAccountId: room.accountId) {
             if room.isArchived {
                 let unarchiveAction = UIAction(title: NSLocalizedString("Unarchive conversation", comment: ""), image: UIImage(systemName: "arrow.up.bin"), identifier: nil) { [weak self] _ in
                     self?.unarchiveRoom(room)

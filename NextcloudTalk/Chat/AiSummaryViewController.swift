@@ -8,20 +8,22 @@ import UIKit
 class AiSummaryViewController: UIViewController {
 
     private var summaryText: String = ""
+    private let account: TalkAccount
 
     @IBOutlet weak var warningView: UIView!
     @IBOutlet weak var warningTextLabel: UILabel!
     @IBOutlet weak var saveToNoteToSelf: NCButton!
     @IBOutlet weak var summaryTextView: UITextView!
 
-    init(summaryText: String) {
+    init(summaryText: String, account: TalkAccount) {
         self.summaryText = summaryText
+        self.account = account
 
         super.init(nibName: nil, bundle: nil)
     }
 
     required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
+        fatalError("init(coder:) has not been implemented")
     }
 
     override func viewDidLoad() {
@@ -49,14 +51,12 @@ class AiSummaryViewController: UIViewController {
     }
 
     @IBAction func saveToNoteToSelfPressed(_ sender: Any) {
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-
         self.saveToNoteToSelf.setButtonEnabled(enabled: false)
 
-        NCAPIController.sharedInstance().getNoteToSelfRoom(forAccount: activeAccount) { roomDict, error in
-            if error == nil, let room = NCRoom(dictionary: roomDict, andAccountId: activeAccount.accountId) {
+        NCAPIController.sharedInstance().getNoteToSelfRoom(forAccount: self.account) { roomDict, error in
+            if error == nil, let room = NCRoom(dictionary: roomDict, andAccountId: self.account.accountId) {
 
-                NCAPIController.sharedInstance().sendChatMessage(self.summaryTextView.text, toRoom: room.token, threadTitle: nil, replyTo: -1, referenceId: nil, silently: false, forAccount: activeAccount) { error in
+                NCAPIController.sharedInstance().sendChatMessage(self.summaryTextView.text, toRoom: room.token, threadTitle: nil, replyTo: -1, referenceId: nil, silently: false, forAccount: self.account) { error in
                     if error == nil {
                         NotificationPresenter.shared().present(text: NSLocalizedString("Added note to self", comment: ""), dismissAfterDelay: 5.0, includedStyle: .success)
                     } else {

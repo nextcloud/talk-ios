@@ -1498,7 +1498,7 @@ import Toast
     }
 
     func didPressTranslate(for message: NCChatMessage) {
-        let translateMessageVC = MessageTranslationViewController(message: message.parsedMessage().string, availableTranslations: NCDatabaseManager.sharedInstance().availableTranslations(forAccountId: self.room.accountId))
+        let translateMessageVC = MessageTranslationViewController(message: message.parsedMessage().string, availableTranslations: NCDatabaseManager.sharedInstance().availableTranslations(forAccountId: self.room.accountId), account: self.account)
         self.presentWithNavigation(translateMessageVC, animated: true)
     }
 

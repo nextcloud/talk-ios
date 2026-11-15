@@ -198,10 +198,10 @@ struct RoomInfoParticipantsSection: View {
     }
 
     func removeParticipant(participant: NCRoomParticipant) async {
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        guard let account = room.account else { return }
 
         do {
-            try await NCAPIController.sharedInstance().removeAttendee(participant.attendeeId, forRoom: room.token, forAccount: activeAccount)
+            try await NCAPIController.sharedInstance().removeAttendee(participant.attendeeId, forRoom: room.token, forAccount: account)
         } catch {
             NCUserInterfaceController.sharedInstance().presentAlert(withTitle: NSLocalizedString("Could not remove participant", comment: ""), withMessage: nil)
         }

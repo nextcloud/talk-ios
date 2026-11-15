@@ -34,7 +34,7 @@ struct RoomInfoGuestSection: View {
             if isPublic.wrappedValue {
                 RoomInfoGuestPassword(room: $room)
 
-                if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.sipSupport) {
+                if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.sipSupport, forAccountId: room.accountId) {
                     Button(action: resendInvitations) {
                         ImageSublabelView(image: Image(systemName: "envelope")) {
                             Text("Resend invitations")
