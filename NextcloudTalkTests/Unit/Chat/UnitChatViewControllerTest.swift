@@ -724,6 +724,94 @@ final class UnitChatViewControllerTest: TestBaseRealm {
         XCTAssertEqual(chatViewController.message(for: IndexPath(row: 1, section: 1))?.messageId, 101)
     }
 
+    // MARK: - Unread messages separator
+
+    private func makeUnpinMessage(id: Int, timestamp: Int, inRoom room: NCRoom, withAccount account: TalkAccount) -> NCChatMessage {
+        let message = makeMessage(id: id, timestamp: timestamp, actorId: "bob", inRoom: room, withAccount: account)
+        message.systemMessage = "message_unpinned"
+        message.message = "{actor} unpinned a message"
+        return message
+    }
+
+    private func separatorAfterInitialHistory(_ messages: (NCRoom, TalkAccount, Int) -> [NCChatMessage], token: String) throws -> IndexPath? {
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let room = addRoom(withToken: token) { $0.lastReadMessage = 10 }
+        let chatViewController = try XCTUnwrap(ChatViewController(forRoom: room, withAccount: activeAccount))
+        chatViewController.loadViewIfNeeded()
+
+        let now = Int(Date().timeIntervalSince1970)
+        let notification = Notification(name: .NCChatControllerDidReceiveInitialChatHistory,
+                                        object: chatViewController.chatController,
+                                        userInfo: ["messages": messages(room, activeAccount, now)])
+        chatViewController.didReceiveInitialChatHistory(notification: notification)
+        drainMainQueue()
+
+        let indexPath = chatViewController.indexPathForUnreadMessageSeparator()
+        chatViewController.chatController.stop()
+        drainMainQueue()
+
+        return indexPath
+    }
+
+    // The server read marker can never move past an unpin, so it must not count as unread
+    func testInitialHistoryEndingInUnpinShowsNoSeparator() throws {
+        let indexPath = try separatorAfterInitialHistory({ room, account, now in
+            [self.makeMessage(id: 10, timestamp: now - 60, actorId: "bob", inRoom: room, withAccount: account),
+             self.makeUnpinMessage(id: 11, timestamp: now, inRoom: room, withAccount: account)]
+        }, token: "separatorInitialUnpin")
+
+        XCTAssertNil(indexPath)
+    }
+
+    func testInitialHistoryWithUnreadMessageBeforeUnpinPlacesSeparatorAtReadMarker() throws {
+        let indexPath = try separatorAfterInitialHistory({ room, account, now in
+            [self.makeMessage(id: 10, timestamp: now - 60, actorId: "bob", inRoom: room, withAccount: account),
+             self.makeMessage(id: 11, timestamp: now - 30, actorId: "bob", inRoom: room, withAccount: account),
+             self.makeUnpinMessage(id: 12, timestamp: now, inRoom: room, withAccount: account)]
+        }, token: "separatorInitialUnreadThenUnpin")
+
+        XCTAssertEqual(indexPath, IndexPath(row: 1, section: 0))
+    }
+
+    private func separatorAfterFirstPoll(receiving received: (NCRoom, TalkAccount, Int) -> NCChatMessage, token: String) throws -> IndexPath? {
+        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
+        let room = addRoom(withToken: token)
+        let chatViewController = try XCTUnwrap(ChatViewController(forRoom: room, withAccount: activeAccount))
+        chatViewController.loadViewIfNeeded()
+        let tableView = try XCTUnwrap(chatViewController.tableView)
+
+        let now = Int(Date().timeIntervalSince1970)
+
+        chatViewController.appendMessages(messages: [makeMessage(id: 10, timestamp: now - 60, actorId: "bob", inRoom: room, withAccount: activeAccount)])
+        // Force a layout pass so the table view knows the pre-update state (see testReceivedOwnMessageRemovesUnreadSeparator)
+        tableView.reloadData()
+        tableView.layoutIfNeeded()
+
+        let notification = Notification(name: .NCChatControllerDidReceiveChatMessages,
+                                        object: chatViewController.chatController,
+                                        userInfo: ["messages": [received(room, activeAccount, now)], "firstNewMessagesAfterHistory": true])
+        chatViewController.didReceiveChatMessages(notification: notification)
+        drainMainQueue()
+
+        return chatViewController.indexPathForUnreadMessageSeparator()
+    }
+
+    func testFirstPollWithOnlyUnpinShowsNoSeparator() throws {
+        let indexPath = try separatorAfterFirstPoll(receiving: { room, account, now in
+            self.makeUnpinMessage(id: 11, timestamp: now, inRoom: room, withAccount: account)
+        }, token: "separatorPollUnpin")
+
+        XCTAssertNil(indexPath)
+    }
+
+    func testFirstPollWithMessageOfSomeoneElseShowsSeparator() throws {
+        let indexPath = try separatorAfterFirstPoll(receiving: { room, account, now in
+            self.makeMessage(id: 11, timestamp: now, actorId: "bob", inRoom: room, withAccount: account)
+        }, token: "separatorPollMessage")
+
+        XCTAssertEqual(indexPath, IndexPath(row: 1, section: 0))
+    }
+
     private func receiveMessageWithTableViewOutOfSync(desyncMessageTimestamp: (Int) -> Int) throws -> UITableView {
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
         let room = addRoom(withToken: "batchOutOfSync\(desyncMessageTimestamp(0))")
