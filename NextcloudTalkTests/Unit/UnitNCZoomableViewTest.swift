@@ -23,8 +23,9 @@ final class UnitNCZoomableViewTest: XCTestCase {
 
         XCTAssertEqual(contentFrame.width, 300, accuracy: 0.01)
         XCTAssertEqual(contentFrame.height, 225, accuracy: 0.01)
-        XCTAssertEqual(contentFrame.midX, 150, accuracy: 0.01)
-        XCTAssertEqual(contentFrame.midY, 300, accuracy: 0.01)
+        // The scroll view rounds its offset to device pixels
+        XCTAssertEqual(contentFrame.midX, 150, accuracy: 0.5)
+        XCTAssertEqual(contentFrame.midY, 300, accuracy: 0.5)
     }
 
     func testZoomingToANormalizedRectShowsThatRegion() {
