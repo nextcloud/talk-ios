@@ -1834,6 +1834,42 @@ class NCAPIController: NSObject, NextcloudKitDelegate, @unchecked Sendable {
         }
     }
 
+    // MARK: - Login flow v2
+
+    /// The user agent names the app password that the server creates for this login
+    private var loginFlowV2Options: NKRequestOptions {
+        return NKRequestOptions(customUserAgent: NCAppBranding.userAgentForLogin(), checkInterceptor: false)
+    }
+
+    struct LoginFlowV2 {
+        let login: URL
+        let endpoint: String
+        let token: String
+    }
+
+    @nonobjc
+    func startLoginFlowV2(forServer server: String) async -> LoginFlowV2? {
+        guard let flow = try? await NextcloudKit.shared.getLoginFlowV2(serverUrl: server, options: loginFlowV2Options) else { return nil }
+
+        return LoginFlowV2(login: flow.login, endpoint: flow.endpoint.absoluteString, token: flow.token)
+    }
+
+    /// Returns nil until the user granted access in the browser
+    @nonobjc
+    func pollLoginFlowV2(withToken token: String, atEndpoint endpoint: String) async -> (loginName: String, appPassword: String)? {
+        // The async variant returns Alamofire types, which the extensions don't link
+        return await withCheckedContinuation { continuation in
+            NextcloudKit.shared.getLoginFlowV2Poll(token: token, endpoint: endpoint, options: loginFlowV2Options) { _, loginName, appPassword, _, _ in
+                guard let loginName, let appPassword else {
+                    continuation.resume(returning: nil)
+                    return
+                }
+
+                continuation.resume(returning: (loginName, appPassword))
+            }
+        }
+    }
+
     // MARK: - Message scheduling
 
     @nonobjc
