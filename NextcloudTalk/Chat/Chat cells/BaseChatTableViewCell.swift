@@ -448,7 +448,7 @@ class BaseChatTableViewCell: UITableViewCell, AudioPlayerViewDelegate, Reactions
             self.showThreadRepliesButton()
         }
 
-        if message.containsURL() {
+        if !room.isClassified, message.containsURL() {
             self.showReferencePart()
 
             message.getReferenceData { message, referenceDataRaw, url in
