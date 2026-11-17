@@ -3333,8 +3333,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/nextcloud/NextcloudKit";
 			requirement = {
-				kind = exactVersion;
-				version = 7.6.3;
+				kind = revision;
+				revision = 3b9d6ccccbe22c530c9c69f774a5d32a94530054;
 			};
 		};
 		1F89A8422EFAC35D00890727 /* XCRemoteSwiftPackageReference "SwiftyRSA" */ = {
