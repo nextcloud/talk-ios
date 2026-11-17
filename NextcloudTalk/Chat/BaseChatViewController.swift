@@ -3579,6 +3579,8 @@ import Toast
     public func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
         guard tableView == self.tableView else { return }
 
+        let isClassified = self.room.isClassified
+
         for indexPath in indexPaths {
             guard let message = self.message(for: indexPath) else { continue }
 
@@ -3588,7 +3590,7 @@ import Toast
                       message.messageId != MessageSeparatorTableViewCell.chatBlockSeparatorId
                 else { return }
 
-                if message.containsURL() {
+                if !isClassified, message.containsURL() {
                     message.getReferenceData()
                 }
             }
@@ -3840,7 +3842,7 @@ import Toast
             }
         }
 
-        if message.containsURL() {
+        if !self.room.isClassified, message.containsURL() {
             height += 105
         }
 
