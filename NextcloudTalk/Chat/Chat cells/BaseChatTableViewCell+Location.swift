@@ -51,12 +51,10 @@ extension BaseChatTableViewCell {
             ])
 
             // The map snapshot is rendered at the display scale, so it has to be retaken when that changes
-            if #available(iOS 17.0, *) {
-                registerForTraitChanges([UITraitDisplayScale.self]) { (self: BaseChatTableViewCell, _) in
-                    guard let message = self.message else { return }
+            registerForTraitChanges([UITraitDisplayScale.self]) { (self: BaseChatTableViewCell, _) in
+                guard let message = self.message else { return }
 
-                    self.setupForLocationCell(with: message)
-                }
+                self.setupForLocationCell(with: message)
             }
         }
 

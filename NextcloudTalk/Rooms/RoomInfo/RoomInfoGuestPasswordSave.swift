@@ -72,7 +72,7 @@ struct RoomInfoGuestPasswordSave: View {
                     .autocapitalization(.none)
                     .disableAutocorrection(true)
                     .disabled(isShowingEditButton)
-                    .onChange(of: password) { newValue in
+                    .onChange(of: password) { _, newValue in
                         passwordChanged(to: newValue)
                     }
 

@@ -1,5 +1,5 @@
 source 'https://cdn.cocoapods.org/'
-platform :ios, '16.0'
+platform :ios, '17.0'
 
 def main_dependencies
   pod 'MaterialComponents/ActivityIndicator'
@@ -45,7 +45,7 @@ post_install do |installer|
     end
 
     target.build_configurations.each do |config|
-        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '16.0'
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '17.0'
     end        
   end
 end

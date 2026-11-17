@@ -114,19 +114,14 @@ class SharedMediaCell: UICollectionViewCell {
             self.actorLabel.leadingAnchor.constraint(equalTo: self.captionView.leadingAnchor, constant: 8),
             self.actorLabel.trailingAnchor.constraint(equalTo: self.captionView.trailingAnchor, constant: -8)
         ])
+
+        registerForTraitChanges(UITraitCollection.systemTraitsAffectingColorAppearance + [UITraitDisplayScale.self]) { (self: Self, _: UITraitCollection) in
+            self.updateBorder()
+        }
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-
-        if self.traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) ||
-            self.traitCollection.displayScale != previousTraitCollection?.displayScale {
-            self.updateBorder()
-        }
     }
 
     private func updateBorder() {

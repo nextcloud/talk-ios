@@ -23,7 +23,7 @@ struct ClearStatusMessageIntent: AppIntent {
 
             NCAPIController.sharedInstance().setupNCCommunication(forAccount: talkAccount)
 
-            NextcloudKit.shared.clearMessage { _, error in
+            NextcloudKit.shared.clearMessage(account: talkAccount.accountId, options: .defaultRequestOptions()) { _, _, error in
                 if error.errorCode != 0 {
                     let intentError = TalkIntentError.message(NSLocalizedString("An error occurred while clearing status message", comment: ""))
 

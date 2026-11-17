@@ -2934,15 +2934,7 @@ import SwiftUI
 
         reactionActions.append(addReactionAction)
 
-        if #available(iOS 17.0, *) {
-            return UIMenu(options: [.displayInline, .displayAsPalette], children: reactionActions)
-        }
-
-        // iOS 16 has no palettes, small elements are the closest thing, a single row of icon only entries
-        let reactionMenu = UIMenu(options: [.displayInline], children: reactionActions)
-        reactionMenu.preferredElementSize = .small
-
-        return reactionMenu
+        return UIMenu(options: [.displayInline, .displayAsPalette], children: reactionActions)
     }
 
     // swiftlint:disable:next cyclomatic_complexity

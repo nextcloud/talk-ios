@@ -9,7 +9,7 @@ import SDWebImage
 import SDWebImageSVGKitPlugin
 
 @objcMembers
-class NCAPIController: NSObject, NKCommonDelegate {
+class NCAPIController: NSObject, NextcloudKitDelegate, @unchecked Sendable {
 
     static let shared = NCAPIController()
 
@@ -51,6 +51,7 @@ class NCAPIController: NSObject, NKCommonDelegate {
     override init() {
         super.init()
 
+        NextcloudKit.shared.nkCommonInstance.delegate = self
         self.initImageDownloaders()
     }
 
@@ -157,11 +158,10 @@ class NCAPIController: NSObject, NKCommonDelegate {
     }
 
     public func setupNCCommunication(forAccount account: TalkAccount) {
-        guard let serverCapabilities = NCDatabaseManager.sharedInstance().serverCapabilities(forAccountId: account.accountId),
-              let token = NCKeyChainController.sharedInstance().token(forAccountId: account.accountId)
-        else { return }
+        guard let token = NCKeyChainController.sharedInstance().token(forAccountId: account.accountId) else { return }
 
-        NextcloudKit.shared.setup(account: account.accountId, user: account.user, userId: account.userId, password: token, urlBase: account.server, userAgent: NCAppBranding.userAgent(), nextcloudVersion: serverCapabilities.versionMajor, delegate: self)
+        // Adds a session for the account or updates the existing one
+        NextcloudKit.shared.appendSession(account: account.accountId, urlBase: account.server, user: account.user, userId: account.userId, password: token, userAgent: NCAppBranding.userAgent(), groupIdentifier: groupIdentifier)
     }
 
     private func initImageDownloaders() {
@@ -1573,10 +1573,10 @@ class NCAPIController: NSObject, NKCommonDelegate {
             """
 
         let bodyRequest = String(format: body, account.userId, fileId)
-        let options = NKRequestOptions(timeout: 60, queue: .main)
+        let options = NKRequestOptions.defaultRequestOptions()
 
-        NextcloudKit.shared.searchBodyRequest(serverUrl: account.server, requestBody: bodyRequest, showHiddenFiles: true, options: options) { _, files, _, error in
-            completionBlock(files.first, error)
+        NextcloudKit.shared.searchBodyRequest(serverUrl: account.server, requestBody: bodyRequest, showHiddenFiles: true, account: account.accountId, options: options) { _, files, _, error in
+            completionBlock(files?.first, error)
         }
     }
 
@@ -1831,6 +1831,42 @@ class NCAPIController: NSObject, NKCommonDelegate {
             }
         } failure: { _, _ in
             completionBlock(nil)
+        }
+    }
+
+    // MARK: - Login flow v2
+
+    /// The user agent names the app password that the server creates for this login
+    private var loginFlowV2Options: NKRequestOptions {
+        return NKRequestOptions(customUserAgent: NCAppBranding.userAgentForLogin(), checkInterceptor: false)
+    }
+
+    struct LoginFlowV2 {
+        let login: URL
+        let endpoint: String
+        let token: String
+    }
+
+    @nonobjc
+    func startLoginFlowV2(forServer server: String) async -> LoginFlowV2? {
+        guard let flow = try? await NextcloudKit.shared.getLoginFlowV2(serverUrl: server, options: loginFlowV2Options) else { return nil }
+
+        return LoginFlowV2(login: flow.login, endpoint: flow.endpoint.absoluteString, token: flow.token)
+    }
+
+    /// Returns nil until the user granted access in the browser
+    @nonobjc
+    func pollLoginFlowV2(withToken token: String, atEndpoint endpoint: String) async -> (loginName: String, appPassword: String)? {
+        // The async variant returns Alamofire types, which the extensions don't link
+        return await withCheckedContinuation { continuation in
+            NextcloudKit.shared.getLoginFlowV2Poll(token: token, endpoint: endpoint, options: loginFlowV2Options) { _, loginName, appPassword, _, _ in
+                guard let loginName, let appPassword else {
+                    continuation.resume(returning: nil)
+                    return
+                }
+
+                continuation.resume(returning: (loginName, appPassword))
+            }
         }
     }
 
@@ -3144,8 +3180,8 @@ class NCAPIController: NSObject, NKCommonDelegate {
         </d:propfind>
 """
 
-        let options = NKRequestOptions(timeout: TimeInterval(60), queue: .main)
-        NextcloudKit.shared.readFileOrFolder(serverUrlFileName: serverUrlString, depth: depth, showHiddenFiles: false, includeHiddenFiles: [], requestBody: body.data(using: .utf8), options: options) { _, files, _, error in
+        let options = NKRequestOptions.defaultRequestOptions()
+        NextcloudKit.shared.readFileOrFolder(serverUrlFileName: serverUrlString, depth: depth, showHiddenFiles: false, includeHiddenFiles: [], requestBody: body.data(using: .utf8), account: account.accountId, options: options) { _, files, _, error in
             if error.errorCode == 0 {
                 completionBlock(files, nil)
             } else {
@@ -3223,9 +3259,9 @@ class NCAPIController: NSObject, NKCommonDelegate {
             return
         }
 
-        let options = NKRequestOptions(timeout: TimeInterval(60), queue: .main)
-        NextcloudKit.shared.readFileOrFolder(serverUrlFileName: fileServerURL, depth: "0", showHiddenFiles: true, includeHiddenFiles: [], requestBody: nil, options: options) { _, files, _, error in
-            if error.errorCode == 0, files.count == 1 {
+        let options = NKRequestOptions.defaultRequestOptions()
+        NextcloudKit.shared.readFileOrFolder(serverUrlFileName: fileServerURL, depth: "0", showHiddenFiles: true, includeHiddenFiles: [], requestBody: nil, account: account.accountId, options: options) { _, files, _, error in
+            if error.errorCode == 0, files?.count == 1 {
                 // File already exists
                 let alternativeName = self.alternativeName(forFileName: fileName, isOriginal: isOriginalName)
                 self.uniqueNameForFileUpload(withName: alternativeName, isOriginalName: false, forAccount: account, completionBlock: completionBlock)
@@ -3248,11 +3284,11 @@ class NCAPIController: NSObject, NKCommonDelegate {
             return
         }
 
-        let options = NKRequestOptions(timeout: TimeInterval(60), queue: .main)
-        NextcloudKit.shared.readFileOrFolder(serverUrlFileName: attachmentFolderServerURL, depth: "0", showHiddenFiles: true, includeHiddenFiles: [], requestBody: nil, options: options) { _, _, _, error in
+        let options = NKRequestOptions.defaultRequestOptions()
+        NextcloudKit.shared.readFileOrFolder(serverUrlFileName: attachmentFolderServerURL, depth: "0", showHiddenFiles: true, includeHiddenFiles: [], requestBody: nil, account: account.accountId, options: options) { _, _, _, error in
             if error.errorCode == 404 {
                 // Attachment folder does not exist
-                NextcloudKit.shared.createFolder(serverUrlFileName: attachmentFolderServerURL, options: options) { _, _, _, error in
+                NextcloudKit.shared.createFolder(serverUrlFileName: attachmentFolderServerURL, account: account.accountId, options: options) { _, _, _, _, error in
                     completionBlock(error.errorCode == 0, error.errorCode)
                 }
             } else {
@@ -3873,9 +3909,9 @@ class NCAPIController: NSObject, NKCommonDelegate {
         }
     }
 
-    // MARK: - NKCommon Delegate
+    // MARK: - NextcloudKit Delegate
 
-    public func authenticationChallenge(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+    public func authenticationChallenge(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @Sendable @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         // The pinning check
         if NCCertificate.shared.checkTrustedChallenge(challenge) {
             completionHandler(.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
@@ -3884,4 +3920,12 @@ class NCAPIController: NSObject, NKCommonDelegate {
         }
     }
 
+}
+
+extension NKRequestOptions {
+
+    /// Without disabling the interceptor check, NextcloudKit blocks an account for good after a single 401/503
+    static func defaultRequestOptions(timeout: TimeInterval = 60) -> NKRequestOptions {
+        return NKRequestOptions(timeout: timeout, checkInterceptor: false, queue: .main)
+    }
 }
