@@ -860,6 +860,9 @@
 "Could not start group conversation" = "Could not start group conversation";
 
 /* No comment provided by engineer. */
+"Could not switch to the other conversation" = "Could not switch to the other conversation";
+
+/* No comment provided by engineer. */
 "Could not update tags" = "Could not update tags";
 
 /* Generic 'Create' button label (e.g. new conversation, new tag) */
@@ -1028,6 +1031,9 @@
 "Double tap to change who can modify the shared files" = "Double tap to change who can modify the shared files";
 
 /* No comment provided by engineer. */
+"Double tap to choose which screen share is shown" = "Double tap to choose which screen share is shown";
+
+/* No comment provided by engineer. */
 "Double tap to discard the changes" = "Double tap to discard the changes";
 
 /* No comment provided by engineer. */
@@ -1079,6 +1085,9 @@
 "Double tap to lower hand" = "Double tap to lower hand";
 
 /* No comment provided by engineer. */
+"Double tap to minimize the video of the presenter" = "Double tap to minimize the video of the presenter";
+
+/* No comment provided by engineer. */
 "Double tap to open file browser" = "Double tap to open file browser";
 
 /* No comment provided by engineer. */
@@ -1098,6 +1107,9 @@
 
 /* No comment provided by engineer. */
 "Double tap to show or hide chat view" = "Double tap to show or hide chat view";
+
+/* No comment provided by engineer. */
+"Double tap to show the video of the presenter" = "Double tap to show the video of the presenter";
 
 /* No comment provided by engineer. */
 "Double tap to start a video call" = "Double tap to start a video call";
@@ -2180,6 +2192,9 @@
 "Scheduled messages" = "Scheduled messages";
 
 /* No comment provided by engineer. */
+"Screen share of %@" = "Screen share of %@";
+
+/* No comment provided by engineer. */
 "Screensharing stopped" = "Screensharing stopped";
 
 /* No comment provided by engineer. */
@@ -2691,6 +2706,9 @@
 
 /* Join a call in video call mode */
 "Video call" = "Video call";
+
+/* Accessibility label of the presenter video shown during a screen share */
+"Video of %@" = "Video of %@";
 
 /* No comment provided by engineer. */
 "Video quality" = "Video quality";
