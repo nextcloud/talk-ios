@@ -509,9 +509,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>Sie haben {user0} und %ld weiteren Teilnehmer zur Moderation befördert</string>
+			<string>Sie haben {user0} und %ld weiteren Teilnehmer zur Moderation ernannt</string>
 			<key>other</key>
-			<string>Sie haben {user0} und %ld weitere Teilnehmer zur Moderation befördert</string>
+			<string>Sie haben {user0} und %ld weitere Teilnehmer zur Moderation ernannt</string>
 		</dict>
 	</dict>
 	<key>An administrator promoted you and %ld more participants to moderators</key>
@@ -557,9 +557,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} hat Sie und %ld weiteren Teilnehmer zur Moderation befördert</string>
+			<string>{actor0} hat Sie und %ld weiteren Teilnehmer zur Moderation ernannt</string>
 			<key>other</key>
-			<string>{actor0} hat Sie und %ld weitere Teilnehmer zur Moderation befördert</string>
+			<string>{actor0} hat Sie und %ld weitere Teilnehmer zur Moderation ernannt</string>
 		</dict>
 	</dict>
 	<key>{actor0} promoted {user0} and %ld more participants to moderators</key>
@@ -573,9 +573,9 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>{actor0} hat {user0} und %ld weiteren Teilnehmer zur Moderation befördert</string>
+			<string>{actor0} hat {user0} und %ld weiteren Teilnehmer zur Moderation ernannt</string>
 			<key>other</key>
-			<string>{actor0} hat {user0} und %ld weitere Teilnehmer zur Moderation befördert</string>
+			<string>{actor0} hat {user0} und %ld weitere Teilnehmer zur Moderation ernannt</string>
 		</dict>
 	</dict>
 	<key>You demoted {user0} and %ld more participants from moderators</key>
