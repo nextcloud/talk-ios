@@ -64,7 +64,7 @@ public class NCChatTitleView: UIView {
 
         var subtitle: String?
 
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(TalkCapabilityObjC.singleConvStatus) {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.singleConvStatus, forAccountId: room.accountId) {
             // User status
             avatarView.setStatus(for: room, allowCustomStatusIcon: false)
 

@@ -32,6 +32,7 @@ struct RoomInfoGuestPassword: View {
 
         if toggleValue {
             RoomInfoGuestPasswordSave(
+                account: room.account,
                 minLength: NCSettingsController.sharedInstance().passwordPolicyMinLength(),
                 isPasswordValidationRequired: !(NCSettingsController.sharedInstance().passwordPolicyValidateAPIEndpoint() ?? "").isEmpty,
                 isPasswordAlreadySet: room.hasPassword

@@ -312,10 +312,12 @@ enum RoomAvatarInfoSection: Int {
         // Fixes weird iOS 13 bug: https://github.com/TimOliver/TOCropViewController/issues/365
         cropViewController.transitioningDelegate = nil
         cropViewController.dismiss(animated: true) {
+            guard let account = self.room.account else { return }
+
             // Need to dismiss cropViewController first before showing the activityIndicator
             self.showModifyingView()
 
-            NCAPIController.sharedInstance().setAvatar(forRoom: self.room.token, withImage: image, forAccount: .activeAccount) { error in
+            NCAPIController.sharedInstance().setAvatar(forRoom: self.room.token, withImage: image, forAccount: account) { error in
                 if error != nil {
                     let errorDialog = UIAlertController(title: NSLocalizedString("An error occurred while setting the avatar", comment: ""), message: nil, preferredStyle: .alert)
                     let okAction = UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default, handler: nil)
@@ -363,9 +365,11 @@ enum RoomAvatarInfoSection: Int {
     // MARK: - EmojiAvatarPickerViewControllerDelegate
 
     func didSelectEmoji(emoji: NSString, color: NSString, image: UIImage) {
+        guard let account = room.account else { return }
+
         self.showModifyingView()
 
-        NCAPIController.sharedInstance().setEmojiAvatar(forRoom: room.token, withEmoji: emoji as String, withColor: color as String, forAccount: .activeAccount) { error in
+        NCAPIController.sharedInstance().setEmojiAvatar(forRoom: room.token, withEmoji: emoji as String, withColor: color as String, forAccount: account) { error in
             if error != nil {
                 let errorDialog = UIAlertController(title: NSLocalizedString("An error occurred while setting the avatar", comment: ""), message: nil, preferredStyle: .alert)
                 let okAction = UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default, handler: nil)

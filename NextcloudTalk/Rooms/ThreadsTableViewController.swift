@@ -101,10 +101,10 @@ import UIKit
         tableView.deselectRow(at: indexPath, animated: true)
 
         let thread = self.threads[indexPath.row]
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
 
         guard let room = NCDatabaseManager.sharedInstance().room(withToken: thread.roomToken, forAccountId: thread.accountId),
-              let chatViewController = ChatViewController(forThread: thread, inRoom: room, withAccount: activeAccount)
+              let account = room.account,
+              let chatViewController = ChatViewController(forThread: thread, inRoom: room, withAccount: account)
         else { return }
 
         self.navigationController?.pushViewController(chatViewController, animated: true)

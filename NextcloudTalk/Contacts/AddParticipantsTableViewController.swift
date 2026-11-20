@@ -16,6 +16,11 @@ class AddParticipantsTableViewController: UITableViewController, UISearchBarDele
 
     private let room: NCRoom?
 
+    // Without a room, participants are picked for a new conversation of the active account
+    private var account: TalkAccount {
+        return room?.account ?? NCDatabaseManager.sharedInstance().activeAccount()
+    }
+
     private var participants: [String: [NCUser]] = [:]
     private var indexes: [String] = []
     private var selectedParticipants: [NCUser] = []
@@ -124,7 +129,7 @@ class AddParticipantsTableViewController: UITableViewController, UISearchBarDele
         // Adding participants to a room
         if let room, !selectedParticipants.isEmpty {
             // Extending a one2one room
-            if room.type == .oneToOne, NCDatabaseManager.sharedInstance().serverHasTalkCapability(.conversationCreationAll) {
+            if room.type == .oneToOne, NCDatabaseManager.sharedInstance().serverHasTalkCapability(.conversationCreationAll, forAccountId: room.accountId) {
                 extendOne2OneRoom()
 
             // Adding participants to a group room
@@ -163,7 +168,7 @@ class AddParticipantsTableViewController: UITableViewController, UISearchBarDele
     @MainActor
     private func addParticipant(_ participant: NCUser, toRoom room: NCRoom) async -> Bool {
         do {
-            _ = try await NCAPIController.sharedInstance().addParticipant(participant.userId, ofType: participant.source, toRoom: room.token, forAccount: NCDatabaseManager.sharedInstance().activeAccount())
+            _ = try await NCAPIController.sharedInstance().addParticipant(participant.userId, ofType: participant.source, toRoom: room.token, forAccount: self.account)
             return true
         } catch {
             let alert = UIAlertController(title: NSLocalizedString("Could not add participant", comment: ""),
@@ -254,12 +259,12 @@ class AddParticipantsTableViewController: UITableViewController, UISearchBarDele
     // MARK: - Participants actions
 
     func getPossibleParticipants() {
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        NCAPIController.sharedInstance().getContacts(forAccount: activeAccount, forRoom: room?.token, forGroupRoom: true, withSearchParam: nil) { [weak self] contactList, error in
+        let account = self.account
+        NCAPIController.sharedInstance().getContacts(forAccount: account, forRoom: room?.token, forGroupRoom: true, withSearchParam: nil) { [weak self] contactList, error in
             guard let self else { return }
 
             if error == nil, let contactList {
-                let storedContacts = NCContact.contacts(forAccountId: activeAccount.accountId, contains: nil)
+                let storedContacts = NCContact.contacts(forAccountId: account.accountId, contains: nil)
                 let combinedContactList = NCUser.combineUsersArray(storedContacts, withUsersArray: contactList)
                 let participants = NCUser.indexedUsers(fromUsersArray: combinedContactList)
                 self.participants = participants
@@ -276,12 +281,12 @@ class AddParticipantsTableViewController: UITableViewController, UISearchBarDele
 
     func searchForParticipants(with searchString: String) {
         searchParticipantsTask?.cancel()
-        let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
-        searchParticipantsTask = NCAPIController.sharedInstance().getContacts(forAccount: activeAccount, forRoom: room?.token, forGroupRoom: true, withSearchParam: searchString) { [weak self] contactList, error in
+        let account = self.account
+        searchParticipantsTask = NCAPIController.sharedInstance().getContacts(forAccount: account, forRoom: room?.token, forGroupRoom: true, withSearchParam: searchString) { [weak self] contactList, error in
             guard let self else { return }
 
             if error == nil, let contactList {
-                let storedContacts = NCContact.contacts(forAccountId: activeAccount.accountId, contains: searchString)
+                let storedContacts = NCContact.contacts(forAccountId: account.accountId, contains: searchString)
                 let combinedContactList = NCUser.combineUsersArray(storedContacts, withUsersArray: contactList)
                 let participants = NCUser.indexedUsers(fromUsersArray: combinedContactList)
                 let sortedIndexes = participants.keys.sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
@@ -363,9 +368,7 @@ class AddParticipantsTableViewController: UITableViewController, UISearchBarDele
 
         cell.labelTitle.text = participant.name
 
-        let account = room?.account ?? NCDatabaseManager.sharedInstance().activeAccount()
-
-        cell.avatarView.setActorAvatar(forId: participant.userId, withType: participant.source, withDisplayName: participant.name, withRoomToken: room?.token, using: account)
+        cell.avatarView.setActorAvatar(forId: participant.userId, withType: participant.source, withDisplayName: participant.name, withRoomToken: room?.token, using: self.account)
 
         var selectionImage = UIImage(systemName: "circle")
         var selectionImageColor = UIColor.tertiaryLabel
