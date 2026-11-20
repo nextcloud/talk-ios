@@ -12,6 +12,7 @@ public class NCUserDefaults: NSObject {
     private static let includeCallsInRecentsKey = "ncIncludeCallsInRecents"
     private static let preferredCallViewModeKey = "ncPreferredCallViewMode"
     private static let speakerViewStripeHiddenKey = "ncSpeakerViewStripeHidden"
+    private static let preferredRecordButtonModeKey = "ncPreferredRecordButtonMode"
 
     public static func setPreferredCameraFlashMode(_ flashMode: Int) {
         UserDefaults.standard.set(flashMode, forKey: preferredCameraFlashModeKey)
@@ -50,6 +51,14 @@ public class NCUserDefaults: NSObject {
 
     public static func preferredCallViewMode() -> String? {
         return UserDefaults.standard.string(forKey: preferredCallViewModeKey)
+    }
+
+    public static func setPreferredRecordButtonMode(_ mode: String) {
+        UserDefaults.standard.set(mode, forKey: preferredRecordButtonModeKey)
+    }
+
+    public static func preferredRecordButtonMode() -> String? {
+        return UserDefaults.standard.string(forKey: preferredRecordButtonModeKey)
     }
 
     public static func setSpeakerViewStripeHidden(_ hidden: Bool) {
