@@ -1839,11 +1839,11 @@ import SwiftUI
             if let messages = notification.userInfo?["messages"] as? [NCChatMessage], !messages.isEmpty {
 
                 var indexPathUnreadMessageSeparator: IndexPath?
-                let lastMessage = messages.reversed().first(where: { !$0.isUpdateMessage })
+                let lastUnreadCandidate = messages.reversed().first(where: { $0.isUnreadCandidate })
 
                 self.appendMessages(messages: messages)
 
-                if let lastMessage, lastMessage.messageId > self.lastReadMessage {
+                if let lastUnreadCandidate, lastUnreadCandidate.messageId > self.lastReadMessage {
                     // Iterate backwards to find the correct location for the unread message separator
                     for sectionIndex in self.dateSections.indices.reversed() {
                         let dateSection: Date = self.dateSections[sectionIndex]
@@ -1871,7 +1871,7 @@ import SwiftUI
                         }
                     }
 
-                    self.lastReadMessage = lastMessage.messageId
+                    self.lastReadMessage = lastUnreadCandidate.messageId
 
                     // The separator ends a group of files
                     self.regroupFileMessages()
@@ -2033,7 +2033,8 @@ import SwiftUI
                 // Check if unread messages separator should be added (only if it's not already shown).
                 // A message written by the user (e.g. sent from another device) removes the separator,
                 // so don't add it in the first place when the received messages contain one.
-                if firstNewMessagesAfterHistory, let lastRealMessage = self.getLastRealMessage(), self.indexPathForUnreadMessageSeparator() == nil, newMessagesContainVisibleMessages,
+                if firstNewMessagesAfterHistory, let lastRealMessage = self.getLastRealMessage(), self.indexPathForUnreadMessageSeparator() == nil,
+                   messages.contains(where: { $0.isUnreadCandidate }),
                    !messages.containsMessage(forUserId: self.account.userId),
                    let lastDateSection = self.dateSections.last, var messagesBeforeUpdate = self.messages[lastDateSection] {
 

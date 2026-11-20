@@ -27,14 +27,31 @@ import SwiftyAttributes
             return true
         }
 
-        return self.systemMessage == "message_deleted" ||
-               self.systemMessage == "reaction" ||
+        return self.systemMessage == "reaction" ||
                self.systemMessage == "reaction_revoked" ||
                self.systemMessage == "reaction_deleted" ||
-               self.systemMessage == "poll_voted" ||
                self.systemMessage == "message_edited" ||
+               self.systemMessage == "message_deleted" ||
+               self.systemMessage == "poll_voted" ||
                self.systemMessage == "thread_created" ||
                self.systemMessage == "thread_renamed"
+    }
+
+    public var updatesRoomLastMessage: Bool {
+        // Posted by the server without updating the room's last message (shouldSkipLastMessageUpdate, reactions)
+        return !(self.systemMessage == "reaction" ||
+                 self.systemMessage == "reaction_revoked" ||
+                 self.systemMessage == "reaction_deleted" ||
+                 self.systemMessage == "message_edited" ||
+                 self.systemMessage == "message_deleted" ||
+                 self.systemMessage == "message_unpinned" ||
+                 self.systemMessage == "thread_created" ||
+                 self.systemMessage == "thread_renamed")
+    }
+
+    // The server read marker is capped at the room's last message, so only those can be unread
+    public var isUnreadCandidate: Bool {
+        return !self.isUpdateMessage && self.updatesRoomLastMessage
     }
 
     public var isVisibleUpdateMessage: Bool {
