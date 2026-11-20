@@ -45,7 +45,7 @@ class NCIntentController: NSObject {
             interaction.direction = .incoming
             interaction.donate { error in
                 if let error {
-                    NSLog("Interaction donation failed: %@", error.localizedDescription)
+                    NCLog.log("Interaction donation failed: \(error.localizedDescription)")
                     block(nil)
                 } else {
                     block(sendMessageIntent)
@@ -83,13 +83,46 @@ class NCIntentController: NSObject {
         }
     }
 
+    func donateCallIntent(for room: NCRoom) {
+        guard room.type == .oneToOne,
+              room.supportsCalling,
+              room.userCanStartCall,
+              !room.internalId.isEmpty else {
+            return
+        }
+
+        let handleValue = room.name.isEmpty ? room.displayName : room.name
+        let person = INPerson(
+            personHandle: INPersonHandle(value: handleValue, type: .unknown),
+            nameComponents: nil,
+            displayName: room.displayName,
+            image: nil,
+            contactIdentifier: nil,
+            customIdentifier: "talk-room:\(room.internalId)"
+        )
+
+        let intent = INStartCallIntent(
+            audioRoute: .unknown,
+            destinationType: .normal,
+            contacts: [person],
+            recordTypeForRedialing: .unknown,
+            callCapability: .audioCall
+        )
+
+        let interaction = INInteraction(intent: intent, response: nil)
+        interaction.direction = .outgoing
+        interaction.donate { error in
+            if let error {
+                NCLog.log("Failed to donate Talk call intent: \(error.localizedDescription)")
+            }
+        }
+    }
+
     private func donateMessageSentIntent(_ sendMessageIntent: INSendMessageIntent) {
         let interaction = INInteraction(intent: sendMessageIntent, response: nil)
         interaction.donate { error in
             if let error {
-                NSLog("Failed to donate sendMessageIntent: %@", error.localizedDescription)
-            } else {
-                NSLog("SendMessageIntent successfully donated")
+                NCLog.log("Failed to donate sendMessageIntent: \(error.localizedDescription)")
             }
         }
     }
