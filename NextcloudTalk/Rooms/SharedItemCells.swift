@@ -100,7 +100,7 @@ class SharedItemTableViewCell: UITableViewCell {
         self.activityIndicator = indicator
 
         indicator.radius = 7.0
-        indicator.cycleColors = [.systemGray2]
+        indicator.color = .systemGray2
 
         if progress > 0 {
             indicator.indicatorMode = .determinate

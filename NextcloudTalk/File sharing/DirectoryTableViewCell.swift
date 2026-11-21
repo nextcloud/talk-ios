@@ -16,7 +16,7 @@ import Foundation
     public static var cellHeight = 60.0
 
     public var fileParameter: NCMessageFileParameter?
-    internal var activityIndicator: MDCActivityIndicator?
+    internal var activityIndicator: NCActivityIndicator?
 
     public override func awakeFromNib() {
         super.awakeFromNib()
@@ -78,11 +78,11 @@ import Foundation
     }
 
     func addActivityIndicator(with progress: Float) {
-        let indicator = MDCActivityIndicator(frame: .init(x: 0, y: 0, width: 20, height: 20))
+        let indicator = NCActivityIndicator(frame: .init(x: 0, y: 0, width: 20, height: 20))
         self.activityIndicator = indicator
 
         indicator.radius = 7.0
-        indicator.cycleColors = [.lightGray]
+        indicator.color = .lightGray
 
         if progress > 0 {
             indicator.indicatorMode = .determinate

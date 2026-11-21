@@ -32,12 +32,12 @@ class GroupedFileRowView: UIView {
     }()
 
     /// Shown while the file is downloading, with its progress once the download reports one
-    private lazy var downloadIndicator: MDCActivityIndicator = {
-        let indicator = MDCActivityIndicator(frame: .init(x: 0, y: 0, width: 20, height: 20))
+    private lazy var downloadIndicator: NCActivityIndicator = {
+        let indicator = NCActivityIndicator(frame: .init(x: 0, y: 0, width: 20, height: 20))
         indicator.translatesAutoresizingMaskIntoConstraints = false
         indicator.radius = 6
         indicator.strokeWidth = 1.5
-        indicator.cycleColors = [.secondaryLabel]
+        indicator.color = .secondaryLabel
         indicator.isHidden = true
         return indicator
     }()
