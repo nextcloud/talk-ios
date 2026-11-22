@@ -57,9 +57,15 @@
 			<key>NSStringFormatValueTypeKey</key>
 			<string>ld</string>
 			<key>one</key>
-			<string>%ld file failed to send</string>
+			<string>Theip ar sheoladh %ld comhad</string>
+			<key>two</key>
+			<string>Theip ar sheoladh %ld comhad</string>
+			<key>few</key>
+			<string>Theip ar sheoladh %ld comhad</string>
+			<key>many</key>
+			<string>Theip ar sheoladh %ld comhad</string>
 			<key>other</key>
-			<string>%ld files failed to send</string>
+			<string>Theip ar sheoladh %ld comhad</string>
 		</dict>
 	</dict>
 	<key>%ld participants</key>
