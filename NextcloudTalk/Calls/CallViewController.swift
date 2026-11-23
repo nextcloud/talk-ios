@@ -1757,7 +1757,7 @@ class CallViewController: UIViewController,
             self.hideOverflowingBottomBarButtons()
 
             if (self.room.canModerate || self.room.type == .oneToOne),
-               NCDatabaseManager.sharedInstance().serverHasTalkCapability(.publishingPermissions) {
+               NCDatabaseManager.sharedInstance().serverHasTalkCapability(.publishingPermissions, forAccountId: self.room.accountId) {
 
                 var alternativeHangUpAction: UIAction
 
@@ -1952,7 +1952,7 @@ class CallViewController: UIViewController,
         }
 
         // Raise hand
-        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.raiseHand) {
+        if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.raiseHand, forAccountId: self.room.accountId) {
             var raiseHandTitle = NSLocalizedString("Raise hand", comment: "")
 
             if isHandRaised {

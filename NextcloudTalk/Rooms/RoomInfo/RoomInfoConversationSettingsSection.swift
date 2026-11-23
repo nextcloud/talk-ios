@@ -93,7 +93,7 @@ struct RoomInfoConversationSettingsSection: View {
 
             if room.canModerate {
                 // Classified conversations cannot be opened up to other users.
-                if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.listableRooms), !room.isClassified {
+                if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.listableRooms, forAccountId: room.accountId), !room.isClassified {
                     let listable = Binding<Bool>(get: {
                         self.room.listable != .participantsOnly
                     }, set: {
@@ -125,7 +125,7 @@ struct RoomInfoConversationSettingsSection: View {
                     }
                 }
 
-                if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.mentionPermissions) {
+                if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.mentionPermissions, forAccountId: room.accountId) {
                     let mentionPermission = Binding<Bool>(get: {
                         self.room.mentionPermissions == .everyone
                     }, set: {
@@ -141,7 +141,7 @@ struct RoomInfoConversationSettingsSection: View {
                     })
                 }
 
-                if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.readOnlyRooms) {
+                if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.readOnlyRooms, forAccountId: room.accountId) {
                     let readOnly = Binding<Bool>(get: {
                         self.room.readOnlyState == .readOnly
                     }, set: {

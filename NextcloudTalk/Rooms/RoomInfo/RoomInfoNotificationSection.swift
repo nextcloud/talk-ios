@@ -15,7 +15,7 @@ struct RoomInfoNotificationSection: View {
         }
 
         return Section(header: Text("Notifications")) {
-            if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.notificationLevels) {
+            if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.notificationLevels, forAccountId: room.accountId) {
                 // TODO: Rework the layout into ActionPicker
                 ImageSublabelView(image: Image(systemName: "bell")) {
                     HStack {
@@ -42,7 +42,7 @@ struct RoomInfoNotificationSection: View {
                 })
             }
 
-            if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.importantConversations) {
+            if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.importantConversations, forAccountId: room.accountId) {
                 ActionToggle(isOn: $room.isImportant, action: { newValue in
                     await setImportantConversation(toEnabled: newValue)
                 }, label: {
@@ -54,7 +54,7 @@ struct RoomInfoNotificationSection: View {
                 })
             }
 
-            if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.sensitiveConversations) {
+            if NCDatabaseManager.sharedInstance().serverHasTalkCapability(.sensitiveConversations, forAccountId: room.accountId) {
                 ActionToggle(isOn: $room.isSensitive, action: { newValue in
                     await setSensitiveConversation(toEnabled: newValue)
                 }, label: {

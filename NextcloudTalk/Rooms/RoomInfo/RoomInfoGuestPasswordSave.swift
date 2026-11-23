@@ -31,6 +31,7 @@ struct RoomInfoGuestPasswordSave: View {
 
     // MARK: - Configuration
 
+    let account: TalkAccount?
     let minLength: Int
     let isPasswordValidationRequired: Bool
     let isPasswordAlreadySet: Bool
@@ -207,6 +208,8 @@ struct RoomInfoGuestPasswordSave: View {
 
         // Validate password if password policy app is enabled
         validationTask = Task { [trimmedPassword] in
+            guard let account else { return }
+
             message = NSLocalizedString("Validating password…", comment: "")
             messageColor = .secondary
 
@@ -216,7 +219,7 @@ struct RoomInfoGuestPasswordSave: View {
 
             do {
                 let result = try await NCAPIController.sharedInstance()
-                    .validatePassword(password: trimmedPassword, forAccount: NCDatabaseManager.sharedInstance().activeAccount())
+                    .validatePassword(password: trimmedPassword, forAccount: account)
                 if result.passed {
                     message = NSLocalizedString("Password is secure", comment: "")
                     messageColor = .green
