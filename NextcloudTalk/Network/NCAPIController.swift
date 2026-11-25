@@ -135,7 +135,8 @@ class NCAPIController: NSObject, NKCommonDelegate {
                 cookieStorage.deleteCookie(cookie)
             }
         }
-        self.cookieStorages.removeValue(forKey: account.accountId)
+        // Keep the storage, releasing it while a request is still in flight (e.g. unregisterDevice) crashes in CFNetwork
+        // self.cookieStorages.removeValue(forKey: account.accountId)
     }
 
     internal func authHeader(forAccount account: TalkAccount) -> String? {
