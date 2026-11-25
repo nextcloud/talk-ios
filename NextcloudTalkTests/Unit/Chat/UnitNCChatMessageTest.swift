@@ -140,6 +140,23 @@ final class UnitNCChatMessageTest: TestBaseRealm {
         XCTAssertEqual(message.reactionsArray().map { $0.count }, [3, 1])
     }
 
+    func testUnreadCandidate() throws {
+        func message(systemMessage: String? = nil) -> NCChatMessage {
+            let message = NCChatMessage()
+            message.systemMessage = systemMessage
+            message.actorType = "users"
+            message.actorId = "alice"
+            return message
+        }
+
+        XCTAssertTrue(message().isUnreadCandidate)
+        XCTAssertTrue(message(systemMessage: "message_pinned").isUnreadCandidate)
+        // Shown, but the server read marker can't reach it
+        XCTAssertFalse(message(systemMessage: "message_unpinned").isUnreadCandidate)
+        // The server read marker can reach it, but it's hidden
+        XCTAssertFalse(message(systemMessage: "poll_voted").isUnreadCandidate)
+    }
+
     func testUnreadMessageSeparatorUrlCheck() throws {
         let message = NCChatMessage()
         message.messageId = MessageSeparatorTableViewCell.unreadMessagesSeparatorId
