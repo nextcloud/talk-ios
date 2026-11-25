@@ -142,7 +142,6 @@ class CallViewController: UIViewController,
     }
     private var chatViewController: ChatViewController?
     private var chatNavigationController: UINavigationController?
-    private var screensharingSize: CGSize?
     private var tapGestureForDetailedView: UITapGestureRecognizer?
     private var detailedViewTimer: Timer?
     private var proximityTimer: Timer?
@@ -418,7 +417,6 @@ class CallViewController: UIViewController,
 
         coordinator.animate { _ in
             // No setLocalVideoRect here: viewDidLayoutSubviews already ran inside this transition
-            self.screensharingView.resizeContentView()
             self.adjustBars()
         }
     }
@@ -2544,8 +2542,6 @@ class CallViewController: UIViewController,
             self.titleView.layoutIfNeeded()
             self.view.layoutIfNeeded()
             self.adjustLocalVideoPositionFromOriginPosition(localVideoViewOrigin)
-            self.screensharingView.resizeContentView()
-            self.screensharingView.layoutIfNeeded()
         }
 
         let afterAnimations = {
@@ -2974,9 +2970,7 @@ class CallViewController: UIViewController,
 
             let wasHidden = self.screensharingView.isHidden
 
-            self.screensharingView.replaceContentView(renderView)
-            self.screensharingView.bringSubviewToFront(self.closeScreensharingButton)
-            self.screensharingView.bringSubviewToFront(self.screenshareLabelContainer)
+            self.screensharingView.setContent(renderView, size: renderView.frame.size)
 
             self.presentedScreenPeerId = peer.peerId
             self.updateScreenshareLabel()
@@ -3066,12 +3060,11 @@ class CallViewController: UIViewController,
             }
 
             if self.peerStore.isScreenRenderer(mtlVideoView) {
-                mtlVideoView.frame = CGRect(origin: .zero, size: size)
-
                 if self.screensharingView.contentView == mtlVideoView {
-                    self.screensharingSize = mtlVideoView.frame.size
-                    self.screensharingView.contentViewSize = mtlVideoView.frame.size
-                    self.screensharingView.resizeContentView()
+                    self.screensharingView.contentViewSize = size
+                } else {
+                    // Remembers the size for when this screen is shown, the current renderer belongs to the zoomable view
+                    mtlVideoView.frame = CGRect(origin: .zero, size: size)
                 }
             }
         }

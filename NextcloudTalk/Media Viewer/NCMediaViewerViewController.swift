@@ -286,6 +286,8 @@ import UIKit
 
         mediaPageViewController.didBecomeCurrentPage()
 
+        // A page reached by panning a zoomed image past its edge reports no zoom change of its own
+        self.updateDismissalGesture()
         self.updateToolbarButtons()
     }
 
@@ -309,19 +311,15 @@ import UIKit
 
     // MARK: - NCMediaViewerPageViewController delegate
 
-    func mediaViewerPageZoomDidChange(_ controller: NCMediaViewerPageViewController, _ scale: Double) {
-        // Prevent the scrollView interfering with our pan gesture recognizer when the view is zoomed
-        // Also disable dismissal gesture when the view is zoomed
+    func mediaViewerPageZoomDidChange(_ controller: NCMediaViewerPageViewController) {
+        self.updateDismissalGesture()
+    }
 
+    // Paging stays enabled, the nested scroll views hand a swipe to the page controller once the zoomed image is panned to its edge
+    private func updateDismissalGesture() {
         guard let navController = self.navigationController as? CustomPresentableNavigationController else { return }
 
-        if scale == 1 {
-            pageController.enableSwipeGesture()
-            navController.dismissalGestureEnabled = true
-        } else {
-            pageController.disableSwipeGesture()
-            navController.dismissalGestureEnabled = false
-        }
+        navController.dismissalGestureEnabled = !(self.getCurrentPageViewController()?.isZoomed ?? false)
     }
 
     func mediaViewerPageStateDidChange(_ controller: NCMediaViewerPageViewController) {
