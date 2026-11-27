@@ -103,6 +103,33 @@ public class CallKitManager: NSObject, CXProviderDelegate {
         return nil
     }
 
+    private func ringingCall(forToken token: String, withAccountId accountId: String) -> CallKitCall? {
+        return self.calls.values.first { $0.isRinging && $0.token == token && $0.accountId == accountId }
+    }
+
+    private func isInCall(_ token: String, withAccountId accountId: String) -> Bool {
+        if self.calls.values.contains(where: { !$0.isRinging && $0.token == token && $0.accountId == accountId }) {
+            return true
+        }
+
+        guard let callViewController = NCRoomsManager.shared.callViewController else { return false }
+
+        return callViewController.room.token == token && callViewController.account.accountId == accountId
+    }
+
+    private func answerCall(_ call: CallKitCall) {
+        guard let callUUID = call.uuid else { return }
+
+        NCLog.log("Answering ringing call for token \(call.token ?? "(null)") instead of starting a new one")
+
+        let transaction = CXTransaction(action: CXAnswerCallAction(call: callUUID))
+        self.callController.request(transaction) { error in
+            if let error {
+                NCLog.log("Answering ringing call failed with: \(error.localizedDescription)")
+            }
+        }
+    }
+
     // MARK: - Actions
 
     public func setIncludeInRecents(toValue value: Bool) {
@@ -117,6 +144,12 @@ public class CallKitManager: NSObject, CXProviderDelegate {
         }
 
         NCLog.log("Report incoming call for token \(token) for account \(accountId). Protected data is \(protectedDataAvailable)")
+
+        // Don't ring for a call we're already in
+        if self.isInCall(token, withAccountId: accountId) {
+            self.reportAndEndIncomingCallAnsweredElsewhere(token, withDisplayName: displayName, forAccountId: accountId, completion: completion)
+            return
+        }
 
         let ongoingCalls = !self.calls.isEmpty
         let activeAccount = NCDatabaseManager.sharedInstance().activeAccount()
@@ -216,6 +249,27 @@ public class CallKitManager: NSObject, CXProviderDelegate {
 
             NCNotificationController.sharedInstance().show(notificationType, withUserInfo: userInfo)
             self.endCall(withUUID: callUUID)
+        }
+    }
+
+    private func reportAndEndIncomingCallAnsweredElsewhere(_ token: String, withDisplayName displayName: String, forAccountId accountId: String, completion: @escaping () -> Void) {
+        NCLog.log("Report and end incoming call for token \(token) for account \(accountId), already in that call.")
+
+        let update = self.defaultCallUpdate()
+        update.remoteHandle = CXHandle(type: .generic, value: token)
+        update.localizedCallerName = NCDatabaseManager.sharedInstance().room(withToken: token, forAccountId: accountId)?.displayName ?? displayName
+        let callUUID = UUID()
+
+        // PushKit requires reporting the call; reportCall(endedAt:) ends it without a CXEndCallAction
+        self.provider.reportNewIncomingCall(with: callUUID, update: update) { [weak self] error in
+            defer { completion() }
+
+            if let error {
+                NCLog.log("Report incoming call for token \(token) for account \(accountId) with UUID \(callUUID) failed with \(error.localizedDescription)")
+                return
+            }
+
+            self?.provider.reportCall(with: callUUID, endedAt: nil, reason: .answeredElsewhere)
         }
     }
 
@@ -393,12 +447,8 @@ public class CallKitManager: NSObject, CXProviderDelegate {
                 self.endCall(withUUID: call.uuid)
                 return
             } else if state == .participantJoined {
-                // Account is already in a call (answered the call on a different device) -> no need to keep ringing
-
-                if !NCRoomsManager.shared.isCallOngoing(withCallToken: token) {
-                    self.endCall(withUUID: call.uuid)
-                }
-
+                // Account is already in the call (on this or a different device) -> no need to keep ringing
+                self.endCall(withUUID: call.uuid)
                 return
             }
 
@@ -477,6 +527,12 @@ public class CallKitManager: NSObject, CXProviderDelegate {
             return
         }
 
+        // Join the call that's already ringing instead of starting a new one
+        if let ringingCall = self.ringingCall(forToken: token, withAccountId: accountId) {
+            self.answerCall(ringingCall)
+            return
+        }
+
         // Start a new call
         if self.calls.isEmpty {
             let update = self.defaultCallUpdate()
@@ -504,6 +560,11 @@ public class CallKitManager: NSObject, CXProviderDelegate {
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
                 guard let self else { return }
+
+                if let ringingCall = self.ringingCall(forToken: token, withAccountId: accountId) {
+                    self.answerCall(ringingCall)
+                    return
+                }
 
                 self.callController.request(transaction) { [weak self] error in
                     guard let self else { return }
@@ -645,6 +706,7 @@ public class CallKitManager: NSObject, CXProviderDelegate {
             // Token can be `null` here, when we were unable to decrypt the push notification (e.g. we received one for an old account)
             NCLog.log("CallKit provider end call action for token \(call.token ?? "(null)")")
 
+            let wasRinging = call.isRinging
             call.isRinging = false
             self.stopCallStateTimer(forCallUUID: uuid)
 
@@ -652,7 +714,8 @@ public class CallKitManager: NSObject, CXProviderDelegate {
             let leaveCallToken = call.token
             self.calls.removeValue(forKey: action.callUUID)
 
-            if let leaveCallToken {
+            // Only leave calls that were joined, a ringing call was never joined
+            if let leaveCallToken, !wasRinging {
                 let userInfo: [String: Any] = ["roomToken": leaveCallToken]
                 NotificationCenter.default.post(name: .CallKitManagerDidEndCall, object: self, userInfo: userInfo)
             }

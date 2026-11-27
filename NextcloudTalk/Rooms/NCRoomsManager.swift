@@ -642,12 +642,6 @@ class NCRoomsManager: NSObject, CallViewControllerDelegate {
         }
     }
 
-    public func isCallOngoing(withCallToken token: String) -> Bool {
-        guard let callViewController = self.callViewController else { return false }
-
-        return callViewController.room.token == token
-    }
-
     public var areThereActiveCalls: Bool {
         return self.activeRooms.values.contains(where: { $0.inCall })
     }
