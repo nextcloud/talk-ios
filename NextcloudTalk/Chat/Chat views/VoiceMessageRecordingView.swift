@@ -119,6 +119,28 @@ class VoiceMessageRecordingView: UIView {
         leftBackgroundView.isHidden = true
     }
 
+    /// Replaces the hint to slide to cancel with a button, as the finger no longer holds the record button
+    /// once the recording is locked
+    func showCancelButton(action: @escaping () -> Void) {
+        hintContainerView.isHidden = true
+
+        let cancelButton = UIButton(type: .system)
+        cancelButton.translatesAutoresizingMaskIntoConstraints = false
+        cancelButton.setTitle(NSLocalizedString("Cancel", comment: ""), for: .normal)
+        cancelButton.titleLabel?.font = .preferredFont(forTextStyle: .body)
+        cancelButton.addAction(UIAction { _ in action() }, for: .touchUpInside)
+
+        contentView.addSubview(cancelButton)
+
+        cancelButton.setContentCompressionResistancePriority(.required, for: .horizontal)
+
+        NSLayoutConstraint.activate([
+            cancelButton.leadingAnchor.constraint(greaterThanOrEqualTo: recordingTimeLabel.trailingAnchor, constant: 8),
+            cancelButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            cancelButton.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
+        ])
+    }
+
     /// Gives the recording view a glass capsule of its own, so it can take the place of the input field
     @available(iOS 26.0, *)
     public func useGlassBackground(cornerRadius: CGFloat) {
