@@ -9,7 +9,7 @@ class ReferenceView: UIView {
     @IBOutlet var referenceView: UIView!
     @IBOutlet weak var activityIndicatorView: UIView!
 
-    var activityIndicator: MDCActivityIndicator = MDCActivityIndicator(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
+    var activityIndicator: NCActivityIndicator = NCActivityIndicator(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
 
     private var aspectRatioConstraint: NSLayoutConstraint?
 
@@ -49,7 +49,7 @@ class ReferenceView: UIView {
         contentView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
 
         activityIndicator.radius = 12.0
-        activityIndicator.cycleColors = [UIColor.lightGray]
+        activityIndicator.color = .lightGray
 
         showIndicatorView()
 

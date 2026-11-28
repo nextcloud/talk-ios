@@ -93,7 +93,7 @@ class CallParticipantViewCell: UICollectionViewCell {
 
     @IBOutlet weak var peerVideoView: UIView!
     @IBOutlet weak var peerNameLabel: UILabel!
-    @IBOutlet weak var activityIndicator: MDCActivityIndicator!
+    @IBOutlet weak var activityIndicator: NCActivityIndicator!
     @IBOutlet weak var peerAvatarImageView: AvatarImageView!
     @IBOutlet weak var audioOffIndicator: UIButton!
     @IBOutlet weak var screensharingIndicator: UIButton!
@@ -128,7 +128,7 @@ class CallParticipantViewCell: UICollectionViewCell {
         screensharingIndicator.clipsToBounds = true
 
         activityIndicator.radius = 50
-        activityIndicator.cycleColors = [.lightGray]
+        activityIndicator.color = .lightGray
 
         peerAvatarImageView.isHidden = true
         peerAvatarImageView.layer.cornerRadius = peerAvatarImageView.bounds.width / 2

@@ -77,18 +77,19 @@ class GiphyPickerViewController: UIViewController {
         return collectionView
     }()
 
-    private lazy var activityIndicator: UIActivityIndicatorView = {
-        let indicator = UIActivityIndicatorView(style: .large)
-        indicator.hidesWhenStopped = true
+    private lazy var activityIndicator: NCActivityIndicator = {
+        let indicator = NCActivityIndicator()
+        indicator.radius = 18.5
         indicator.color = .secondaryLabel
         return indicator
     }()
 
     /// Shown while another page is loading. Pinned to the screen rather than being a footer below the
     /// last GIF: a footer lives in the content, so it moves while scrolling and as GIFs are appended.
-    private lazy var loadingMoreIndicator: UIActivityIndicatorView = {
-        let indicator = UIActivityIndicatorView(style: .medium)
-        indicator.hidesWhenStopped = true
+    private lazy var loadingMoreIndicator: NCActivityIndicator = {
+        let indicator = NCActivityIndicator()
+        indicator.radius = 10
+        indicator.strokeWidth = 2
         indicator.color = .secondaryLabel
         return indicator
     }()

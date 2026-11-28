@@ -18,7 +18,6 @@
 #import "TOCropViewControllerTransitioning.h"
 #import "TOActivityCroppedImageProvider.h"
 #import "UIImage+CropRotate.h"
-#import "MaterialActivityIndicator.h"
 #import "SLKTextViewController.h"
 
 #import "NCChatMessage.h"

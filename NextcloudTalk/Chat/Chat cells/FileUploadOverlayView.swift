@@ -17,12 +17,12 @@ class FileUploadOverlayView: UIView {
 
     private let style: Style
 
-    private lazy var uploadIndicator: MDCActivityIndicator = {
-        let indicator = MDCActivityIndicator(frame: .init(x: 0, y: 0, width: self.indicatorSize, height: self.indicatorSize))
+    private lazy var uploadIndicator: NCActivityIndicator = {
+        let indicator = NCActivityIndicator(frame: .init(x: 0, y: 0, width: self.indicatorSize, height: self.indicatorSize))
         indicator.translatesAutoresizingMaskIntoConstraints = false
         indicator.radius = self.style == .covering ? 10 : 7
         indicator.strokeWidth = self.style == .covering ? 2.5 : 2
-        indicator.cycleColors = [.white]
+        indicator.color = .white
         return indicator
     }()
 

@@ -127,7 +127,7 @@ import SwiftyGif
     private lazy var activityIndicator = {
         let indicator = NCActivityIndicator(frame: .init(x: 0, y: 0, width: 100, height: 100))
         indicator.translatesAutoresizingMaskIntoConstraints = false
-        indicator.cycleColors = [.lightGray]
+        indicator.color = .lightGray
 
         return indicator
     }()
